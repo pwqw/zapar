@@ -1,27 +1,28 @@
 <template>
   <ul>
-    <MenuItem @click="play">Play All</MenuItem>
-    <MenuItem @click="shuffle">Shuffle All</MenuItem>
+    <MenuItem @click="play">{{ t('albums.playAll') }}</MenuItem>
+    <MenuItem @click="shuffle">{{ t('albums.shuffleAll') }}</MenuItem>
     <Separator />
-    <MenuItem @click="toggleFavorite">{{ album.favorite ? 'Undo Favorite' : 'Favorite' }}</MenuItem>
+    <MenuItem @click="toggleFavorite">{{ album.favorite ? t('albums.undoFavorite') : t('albums.favorite') }}</MenuItem>
     <template v-if="allowEdit">
-      <MenuItem @click="edit">Edit…</MenuItem>
+      <MenuItem @click="edit">{{ t('albums.edit') }}</MenuItem>
     </template>
     <Separator />
     <template v-if="isStandardAlbum && allowDownload">
-      <MenuItem @click="download">Download</MenuItem>
+      <MenuItem @click="download">{{ t('playlists.download') }}</MenuItem>
     </template>
     <template v-if="canToggleOffline">
       <Separator />
       <MenuItem @click="toggleOffline">{{ allCached ? 'Remove Offline Versions' : 'Make Available Offline' }}</MenuItem>
     </template>
     <Separator />
-    <MenuItem @click="showEmbedModal">Embed…</MenuItem>
+    <MenuItem @click="showEmbedModal">{{ t('playlists.embed') }}</MenuItem>
   </ul>
 </template>
 
 <script lang="ts" setup>
 import { computed, onMounted, ref, toRef, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { albumStore } from '@/stores/albumStore'
 import { commonStore } from '@/stores/commonStore'
 import { playableStore } from '@/stores/playableStore'
@@ -35,6 +36,8 @@ import { useModal } from '@/composables/useModal'
 import { usePolicies } from '@/composables/usePolicies'
 import { useRouter } from '@/composables/useRouter'
 import { playback } from '@/services/playbackManager'
+
+const { t } = useI18n()
 
 const props = defineProps<{ album: Album }>()
 const { album } = toRefs(props)

@@ -21,7 +21,7 @@
       @input="onInput"
     />
 
-    <button class="block md:hidden py-0 px-4 bg-k-fg-5 rounded-none" title="Search" type="submit">
+    <button class="block md:hidden py-0 px-4 bg-k-fg-5 rounded-none" :title="t('ui.tooltips.search')" type="submit">
       <Icon :icon="faSearch" />
     </button>
 
@@ -35,13 +35,16 @@
 import isMobile from 'ismobilejs'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { debounce } from 'lodash'
 import { eventBus } from '@/utils/eventBus'
 import { useRouter } from '@/composables/useRouter'
 
 import TextInput from '@/components/ui/form/TextInput.vue'
 
-const placeholder = isMobile.any ? 'Search' : 'Press F to search'
+const { t } = useI18n()
+
+const placeholder = isMobile.any ? t('ui.tooltips.search') : t('ui.tooltips.pressFToSearch')
 
 const emit = defineEmits<{ (e: 'focus-change', focused: boolean): void }>()
 

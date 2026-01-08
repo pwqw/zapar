@@ -10,6 +10,7 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "allowJs": true,
+    "resolveJsonModule": true,
     "paths": {
       "@/*": ["./js/*"]
     }

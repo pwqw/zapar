@@ -50,7 +50,7 @@ export const playableStore = {
     favorites: [],
   }),
 
-  getFormattedLength: (playables: MaybeArray<Playable>) => secondsToHumanReadable(sumBy(arrayify(playables), 'length')),
+  getFormattedLength: (playables: MaybeArray<Playable>, translations?: { hr: string, min: string, sec: string }) => secondsToHumanReadable(sumBy(arrayify(playables), 'length'), translations),
 
   findPlaying() {
     for (const playable of this.vault.values()) {

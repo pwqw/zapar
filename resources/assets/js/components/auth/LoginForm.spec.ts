@@ -13,8 +13,8 @@ describe('loginForm.vue', () => {
   const submitForm = async (loginMock: ReturnType<typeof h.mock>) => {
     const rendered = h.render(Component)
 
-    await h.type(screen.getByPlaceholderText('Your email address'), 'john@doe.com')
-    await h.type(screen.getByPlaceholderText('Your password'), 'secret')
+    await h.type(screen.getByPlaceholderText('Your email address', { exact: false }), 'john@doe.com')
+    await h.type(screen.getByPlaceholderText('Your password', { exact: false }), 'secret')
     await h.user.click(screen.getByTestId('submit'))
 
     expect(loginMock).toHaveBeenCalledWith('john@doe.com', 'secret')
@@ -41,7 +41,7 @@ describe('loginForm.vue', () => {
 
   it('shows forgot password form', async () => {
     h.render(Component)
-    await h.user.click(screen.getByText('Forgot password?'))
+    await h.user.click(screen.getByText('Forgot password?', { exact: false }))
 
     await waitFor(() => screen.getByTestId('forgot-password-form'))
   })
@@ -50,7 +50,7 @@ describe('loginForm.vue', () => {
     window.MAILER_CONFIGURED = false
     h.render(Component)
 
-    expect(screen.queryByText('Forgot password?')).toBeNull()
+    expect(screen.queryByText('Forgot password?', { exact: false })).toBeNull()
     window.MAILER_CONFIGURED = true
   })
 

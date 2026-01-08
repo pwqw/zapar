@@ -18,6 +18,7 @@
 
 <script lang="ts" setup>
 import { computed, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { faPause, faPlay } from '@fortawesome/free-solid-svg-icons'
 import { getPlayableProp } from '@/utils/helpers'
 import { useBranding } from '@/composables/useBranding'
@@ -26,6 +27,7 @@ const props = defineProps<{ playable: Playable }>()
 const emit = defineEmits<{ (e: 'clicked'): void }>()
 
 const { playable } = toRefs(props)
+const { t } = useI18n()
 
 const { cover: defaultCover } = useBranding()
 
@@ -33,13 +35,13 @@ const src = computed(() => getPlayableProp(playable.value, 'album_cover', 'episo
 
 const title = computed(() => {
   if (playable.value.playback_state === 'Playing') {
-    return 'Pause'
+    return t('ui.buttons.pause')
   }
 
   if (playable.value.playback_state === 'Paused') {
-    return 'Resume'
+    return t('ui.buttons.playResume')
   }
 
-  return 'Play'
+  return t('ui.buttons.play')
 })
 </script>

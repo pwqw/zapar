@@ -80,7 +80,7 @@ describe('editSongForm.vue', () => {
       year: 1971,
     })
 
-    expect(alertMock).toHaveBeenCalledWith('Updated 1 song.')
+    expect(alertMock).toHaveBeenCalledWith('Updated 1 Song.')
     expect(emitMock).toHaveBeenCalledWith('SONGS_UPDATED', result)
   })
 
@@ -113,7 +113,7 @@ describe('editSongForm.vue', () => {
     await h.type(screen.getByTestId('year-input'), '1990')
     await h.type(screen.getByTestId('genre-input'), 'Pop')
 
-    await h.user.click(screen.getByRole('button', { name: 'Update' }))
+    await h.user.click(screen.getByRole('button', { name: /update/i }))
 
     expect(updateMock).toHaveBeenCalledWith(songs, {
       album_name: 'Back in Black',
@@ -125,7 +125,7 @@ describe('editSongForm.vue', () => {
       year: 1990,
     })
 
-    expect(alertMock).toHaveBeenCalledWith('Updated 3 songs.')
+    expect(alertMock).toHaveBeenCalledWith('Updated 3 Songs.')
     expect(emitMock).toHaveBeenCalledWith('SONGS_UPDATED', result)
   })
 
