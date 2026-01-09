@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: koel_dev
+    restart: unless-stopped
+    working_dir: /var/www/html
+    ports:
+      - "8000:8000"
+      - "5173:5173"
+    volumes:
+      - .:/var/www/html
+      - ./database:/var/www/html/database
+      - ./storage:/var/www/html/storage
+      - ./media:/var/www/html/media
+    networks:
+      - koel_network
+
+networks:
+  koel_network:
+    driver: bridge
+
