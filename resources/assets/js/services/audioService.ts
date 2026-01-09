@@ -11,6 +11,7 @@ export interface Band {
 
 export const audioService = {
   unlocked: false,
+  initialized: false,
 
   context: null! as AudioContext,
   source: null! as MediaElementAudioSourceNode,
@@ -20,10 +21,31 @@ export const audioService = {
 
   bands: [] as Band[],
 
-  init(mediaElement: HTMLMediaElement) {
+  init (mediaElement: HTMLMediaElement) {
+    // Prevent re-initialization if already initialized with the same element
+    if (this.initialized && this.element === mediaElement) {
+      return
+    }
+
+    // Check if AudioContext state is suspended (requires user interaction)
+    // If suspended, we'll resume it when the user interacts
+    this.initialized = true
     this.element = mediaElement
 
     this.context = new AudioContext()
+    
+    // If AudioContext is suspended, resume it on user interaction
+    if (this.context.state === 'suspended') {
+      const resumeOnInteraction = () => {
+        this.context.resume().catch(() => {
+          // Ignore errors, will be handled by unlockAudioContext
+        })
+        document.removeEventListener('click', resumeOnInteraction)
+        document.removeEventListener('touchstart', resumeOnInteraction)
+      }
+      document.addEventListener('click', resumeOnInteraction, { once: true })
+      document.addEventListener('touchstart', resumeOnInteraction, { once: true })
+    }
     this.preampGainNode = this.context.createGain()
     this.source = this.context.createMediaElementSource(this.element)
     this.analyzer = this.context.createAnalyser()
@@ -70,23 +92,11 @@ export const audioService = {
     this.unlockAudioContext()
   },
 
-  reconnectSource(newElement: HTMLMediaElement) {
-    try {
-      this.source.disconnect()
-    } catch {
-      // may already be disconnected
-    }
-
-    this.element = newElement
-    this.source = this.context.createMediaElementSource(newElement)
-    this.source.connect(this.preampGainNode)
-  },
-
-  changePreampGain(db: number) {
+  changePreampGain (db: number) {
     this.preampGainNode.gain.value = dbToGain(db)
   },
 
-  changeFilterGain(node: BiquadFilterNode, db: number) {
+  changeFilterGain (node: BiquadFilterNode, db: number) {
     node.gain.value = dbToGain(db)
   },
 
@@ -94,26 +104,49 @@ export const audioService = {
    * Attempt to unlock the audio context on mobile devices by creating and playing a silent buffer upon the
    * first user interaction.
    */
-  unlockAudioContext() {
-    ;['touchend', 'touchstart', 'click'].forEach(event => {
-      document.addEventListener(
-        event,
-        () => {
-          if (this.unlocked) {
-            return
-          }
+  unlockAudioContext () {
+    ['touchend', 'touchstart', 'click'].forEach(event => {
+      document.addEventListener(event, () => {
+        if (this.unlocked) {
+          return
+        }
 
-          const source = this.context.createBufferSource()
-          source.buffer = this.context.createBuffer(1, 1, 22050)
-          source.connect(this.context.destination)
-          source.start(0)
+        const source = this.context.createBufferSource()
+        source.buffer = this.context.createBuffer(1, 1, 22050)
+        source.connect(this.context.destination)
+        source.start(0)
 
-          this.unlocked = true
-        },
-        {
-          once: true,
-        },
-      )
+        this.unlocked = true
+      }, {
+        once: true,
+      })
     })
+  },
+
+  /**
+   * Disconnect audioService to allow direct playback without AudioContext processing.
+   * Used for radio streams that don't have CORS headers.
+   */
+  disconnectForDirectPlayback () {
+    if (this.source) {
+      // Disconnect the source from the processing chain
+      this.source.disconnect()
+      // Connect directly to destination to maintain audio output
+      // This bypasses the equalizer/analyzer but allows playback without CORS
+      this.source.connect(this.context.destination)
+    }
+  },
+
+  /**
+   * Reconnect audioService for normal playback with equalizer/analyzer.
+   * Used when switching back to queue playback (songs/episodes).
+   */
+  reconnectForProcessing () {
+    if (this.source && this.preampGainNode) {
+      // Disconnect from direct connection
+      this.source.disconnect()
+      // Reconnect through the processing chain (preamp -> filters -> analyzer -> destination)
+      this.source.connect(this.preampGainNode)
+    }
   },
 }
