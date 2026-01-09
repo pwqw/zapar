@@ -1,5 +1,6 @@
 /vendor
 node_modules
+.pnpm-store
 Homestead.yaml
 Homestead.json
 .env
@@ -91,6 +92,15 @@ log.json
 docs/.vitepress/dist
 docs/.vitepress/cache
 
+### Vite ###
+vite.config.js.timestamp-*.mjs
+
 demo-credits.json
 
 public/sandbox
+
+### Docker Development ###
+/media
+
+### Custom zapar ###
+.claude/settings.local.json
