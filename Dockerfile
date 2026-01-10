@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsqlite3-dev \
     libicu-dev \
     libxslt1-dev \
+    libmagickwand-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar herramientas adicionales
@@ -48,6 +49,11 @@ RUN docker-php-ext-configure gd \
     && docker-php-ext-install \
     gd \
     zip
+
+# Instalar Imagick para soporte completo de imágenes (incluyendo SVG)
+# Esto hace que desarrollo sea idéntico a producción
+RUN pecl install imagick \
+    && docker-php-ext-enable imagick
 
 # Configurar PHP para desarrollo (ocultar warnings de deprecación)
 RUN echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT" >> /usr/local/etc/php/conf.d/docker-php-dev.ini \
