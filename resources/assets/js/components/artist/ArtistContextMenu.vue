@@ -16,7 +16,6 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, ref, toRef, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { artistStore } from '@/stores/artistStore'
 import { commonStore } from '@/stores/commonStore'
 import { playableStore } from '@/stores/playableStore'

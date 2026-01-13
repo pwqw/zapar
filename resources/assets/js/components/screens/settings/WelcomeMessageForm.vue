@@ -47,8 +47,8 @@
                 <button
                   type="button"
                   class="rounded bg-red-500 p-2 text-white hover:bg-red-600"
-                  @click="removeVariable(index)"
                   :aria-label="t('settings.removeVariable')"
+                  @click="removeVariable(index)"
                 >
                   <TrashIcon :size="16" />
                 </button>
@@ -59,13 +59,13 @@
                   type="text"
                   :placeholder="t('settings.variableName')"
                   class="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
-                />
+                >
                 <input
                   v-model="variable.url"
                   type="url"
                   :placeholder="t('settings.variableUrl')"
                   class="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
-                />
+                >
               </div>
             </div>
           </div>
@@ -105,7 +105,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { TrashIcon } from 'lucide-vue-next'
-import { reactive } from 'vue'
 import { useForm } from '@/composables/useForm'
 import { settingStore } from '@/stores/settingStore'
 import { useMessageToaster } from '@/composables/useMessageToaster'

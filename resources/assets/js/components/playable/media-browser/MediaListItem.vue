@@ -48,13 +48,14 @@ import { playback } from '@/services/playbackManager'
 
 import SoundBars from '@/components/ui/SoundBars.vue'
 
-const { t } = useI18n()
-
 const props = defineProps<{ item: Song | Folder }>()
+
 const emit = defineEmits<{
   (e: 'play-song'): void
   (e: 'open-folder'): void
 }>()
+
+const { t } = useI18n()
 
 const { item } = toRefs(props)
 

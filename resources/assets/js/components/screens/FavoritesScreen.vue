@@ -59,7 +59,6 @@
 
 <script lang="ts" setup>
 import { faHeartBroken } from '@fortawesome/free-solid-svg-icons'
-import { faStar } from '@fortawesome/free-regular-svg-icons'
 import { computed, ref, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { playableStore } from '@/stores/playableStore'
@@ -68,6 +67,11 @@ import { useRouter } from '@/composables/useRouter'
 import { usePlayableList } from '@/composables/usePlayableList'
 import { usePlayableListControls } from '@/composables/usePlayableListControls'
 
+import ScreenHeader from '@/components/ui/ScreenHeader.vue'
+import ScreenEmptyState from '@/components/ui/ScreenEmptyState.vue'
+import ScreenBase from '@/components/screens/ScreenBase.vue'
+import PlayableListSkeleton from '@/components/playable/playable-list/PlayableListSkeleton.vue'
+
 const { t } = useI18n()
 
 const itemCountText = computed(() => {
@@ -75,11 +79,6 @@ const itemCountText = computed(() => {
   const itemText = count === 1 ? t('messages.genericItemSingular') : t('messages.genericItemPlural')
   return `${count.toLocaleString()} ${itemText}`
 })
-
-import ScreenHeader from '@/components/ui/ScreenHeader.vue'
-import ScreenEmptyState from '@/components/ui/ScreenEmptyState.vue'
-import ScreenBase from '@/components/screens/ScreenBase.vue'
-import PlayableListSkeleton from '@/components/playable/playable-list/PlayableListSkeleton.vue'
 
 const {
   PlayableList,

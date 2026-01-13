@@ -103,8 +103,6 @@ import AddToMenu from '@/components/playable/AddToMenu.vue'
 import Btn from '@/components/ui/form/Btn.vue'
 import BtnGroup from '@/components/ui/form/BtnGroup.vue'
 
-const { t } = useI18n()
-
 const props = defineProps<{ config: PlayableListControlsConfig }>()
 
 const emit = defineEmits<{
@@ -112,6 +110,8 @@ const emit = defineEmits<{
   (e: 'filter', keywords: string): void
   (e: 'clear-queue' | 'delete-playlist' | 'refresh'): void
 }>()
+
+const { t } = useI18n()
 
 const ListFilter = defineAsyncComponent(() => import('@/components/ui/ListFilter.vue'))
 

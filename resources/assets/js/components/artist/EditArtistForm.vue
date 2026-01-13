@@ -40,10 +40,11 @@ import Btn from '@/components/ui/form/Btn.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import ArtworkField from '@/components/ui/form/ArtworkField.vue'
 
-const { t } = useI18n()
-
 const props = defineProps<{ artist: Artist }>()
+
 const emit = defineEmits<{ (e: 'close'): void }>()
+
+const { t } = useI18n()
 
 const { artist } = props
 

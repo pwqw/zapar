@@ -7,8 +7,6 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BasicListSorter from '@/components/ui/BasicListSorter.vue'
 
-const { t } = useI18n()
-
 withDefaults(defineProps<{
   field?: GenreListSortField
   order?: SortOrder
@@ -18,6 +16,8 @@ withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{ (e: 'sort', field: GenreListSortField, order: SortOrder): void }>()
+
+const { t } = useI18n()
 
 const items = computed<{ label: string, field: GenreListSortField }[]>(() => [
   { label: t('albums.name'), field: 'name' },

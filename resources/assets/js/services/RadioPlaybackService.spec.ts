@@ -54,15 +54,15 @@ describe('playbackService', () => {
     }
 
     const playPromise = playbackService.play(toBePlayedStation)
-    
+
     // Wait a bit for the canplay event to fire
     await new Promise(resolve => setTimeout(resolve, 10))
-    
+
     await playPromise
 
     // Radio uses radioAudioElement, not player.media
     expect(radioPlayMock).toHaveBeenCalled()
-    const radioAudioElement = playbackService['radioAudioElement'] as HTMLAudioElement
+    const radioAudioElement = playbackService.radioAudioElement as HTMLAudioElement
     if (radioAudioElement) {
       expect(radioAudioElement.src).toContain('https://station.com/stream.mp3')
     }

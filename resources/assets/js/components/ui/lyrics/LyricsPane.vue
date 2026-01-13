@@ -39,8 +39,8 @@ import { preferenceStore as preferences } from '@/stores/preferenceStore'
 import { defineAsyncComponent } from '@/utils/helpers'
 import { useLyrics } from '@/composables/useLyrics'
 
-const { t } = useI18n()
 const props = defineProps<{ song: Song }>()
+const { t } = useI18n()
 const LrcLyricsPane = defineAsyncComponent(() => import('@/components/ui/lyrics/LrcLyricsPane.vue'))
 const Magnifier = defineAsyncComponent(() => import('@/components/ui/Magnifier.vue'))
 

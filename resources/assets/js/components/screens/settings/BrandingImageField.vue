@@ -37,9 +37,9 @@ import { useImageFileInput } from '@/composables/useImageFileInput'
 import FileInput from '@/components/ui/form/FileInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
 
-const { t } = useI18n()
-
 const props = defineProps<{ default: string, name: string }>()
+
+const { t } = useI18n()
 
 const model = defineModel<string>()
 let initialValue: typeof model.value

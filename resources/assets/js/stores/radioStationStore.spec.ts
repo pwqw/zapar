@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { createHarness } from '@/__tests__/TestHarness'
-import { commonStore } from '@/stores/commonStore'
-import { authService } from '@/services/authService'
 import { http } from '@/services/http'
 import { radioStationStore as store } from '@/stores/radioStationStore'
 

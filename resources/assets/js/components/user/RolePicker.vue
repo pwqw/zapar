@@ -16,10 +16,11 @@ import { acl } from '@/services/acl'
 import FormRow from '@/components/ui/form/FormRow.vue'
 import SelectBox from '@/components/ui/form/SelectBox.vue'
 
-const { t } = useI18n()
-
 const props = withDefaults(defineProps<{ modelValue?: Role }>(), { modelValue: 'user' })
+
 const emit = defineEmits<{ (e: 'update:modelValue', value: Role): void }>()
+
+const { t } = useI18n()
 
 const assignableRoles = ref<{ id: Role, label: string, description: string }[]>([])
 

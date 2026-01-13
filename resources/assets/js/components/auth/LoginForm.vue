@@ -116,7 +116,7 @@ const renderedMessage = computed(() => {
   // Sanitize the entire message HTML to prevent XSS but preserve links
   return DOMPurify.sanitize(message, {
     ALLOWED_TAGS: ['a', 'br', 'p', 'em', 'strong', 'b', 'i'],
-    ALLOWED_ATTR: ['href', 'target', 'rel', 'class']
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
   })
 })
 

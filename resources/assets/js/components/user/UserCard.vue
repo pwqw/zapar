@@ -52,9 +52,10 @@ import Btn from '@/components/ui/form/Btn.vue'
 import UserAvatar from '@/components/user/UserAvatar.vue'
 import UserContextMenu from '@/components/user/UserContextMenu.vue'
 
+const props = defineProps<{ user: User }>()
+
 const { t } = useI18n()
 
-const props = defineProps<{ user: User }>()
 const { user } = toRefs(props)
 
 const { url } = useRouter()

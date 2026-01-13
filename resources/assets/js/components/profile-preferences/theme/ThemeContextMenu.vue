@@ -18,9 +18,10 @@ import { useErrorHandler } from '@/composables/useErrorHandler'
 import { useDialogBox } from '@/composables/useDialogBox'
 import { useContextMenu } from '@/composables/useContextMenu'
 
+const props = defineProps<{ theme: Theme }>()
+
 const { t } = useI18n()
 
-const props = defineProps<{ theme: Theme }>()
 const { theme } = toRefs(props)
 
 const { toastSuccess } = useMessageToaster()

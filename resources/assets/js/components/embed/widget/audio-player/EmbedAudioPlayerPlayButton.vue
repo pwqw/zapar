@@ -21,14 +21,14 @@ import { faPause, faPlay } from '@fortawesome/free-solid-svg-icons'
 import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
-
 const props = withDefaults(defineProps<{ playable?: Playable, preview?: boolean, progress?: number }>(), {
   preview: false,
   progress: 0,
 })
 
 const emit = defineEmits<{ (e: 'clicked'): void }>()
+
+const { t } = useI18n()
 
 const { playable, preview, progress } = toRefs(props)
 

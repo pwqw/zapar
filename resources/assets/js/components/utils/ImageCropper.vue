@@ -24,8 +24,6 @@ import 'vue-advanced-cropper/dist/style.css'
 
 import Btn from '@/components/ui/form/Btn.vue'
 
-const { t } = useI18n()
-
 const props = withDefaults(defineProps<{
   source?: string | null
   config?: {
@@ -43,6 +41,9 @@ const emits = defineEmits<{
   (e: 'crop', result: string): void
   (e: 'cancel'): void
 }>()
+
+const { t } = useI18n()
+
 const { source, config } = toRefs(props)
 const cropper = ref<typeof Cropper>()
 

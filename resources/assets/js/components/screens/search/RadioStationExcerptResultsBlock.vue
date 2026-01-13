@@ -26,12 +26,11 @@ import ExcerptResultBlock from '@/components/screens/search/ExcerptResultBlock.v
 import RadioStationCardSkeleton from '@/components/radio/RadioStationCardSkeleton.vue'
 import RadioStationCard from '@/components/radio/RadioStationCard.vue'
 
-const { t } = useI18n()
 const props = withDefaults(defineProps<{ stations?: RadioStation[], searching?: boolean }>(), {
   stations: () => [],
   searching: false,
 })
-
+const { t } = useI18n()
 const { stations, searching } = toRefs(props)
 </script>
 

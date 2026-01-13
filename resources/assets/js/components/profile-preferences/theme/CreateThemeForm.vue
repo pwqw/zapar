@@ -94,8 +94,6 @@ import { themeStore } from '@/stores/themeStore'
 import type { ThemeData } from '@/stores/themeStore'
 import { commonFonts, genericFonts } from '@/config/fonts'
 
-const { t } = useI18n()
-
 import SelectBox from '@/components/ui/form/SelectBox.vue'
 import FileInput from '@/components/ui/form/FileInput.vue'
 import Btn from '@/components/ui/form/Btn.vue'
@@ -103,7 +101,10 @@ import ColorPicker from '@/components/ui/form/ColorPicker.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 
 const props = defineProps<{ toggleCssClass: (...classes: string[]) => void }>()
+
 const emit = defineEmits<{ (e: 'close'): void }>()
+
+const { t } = useI18n()
 
 const toggleCssClass = props.toggleCssClass
 

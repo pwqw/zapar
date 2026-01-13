@@ -90,8 +90,6 @@ import { FilterKeywordsKey } from '@/symbols'
 import { radioStationStore } from '@/stores/radioStationStore'
 import { usePolicies } from '@/composables/usePolicies'
 
-const { t } = useI18n()
-
 import ScreenHeader from '@/components/ui/ScreenHeader.vue'
 import ScreenBase from '@/components/screens/ScreenBase.vue'
 import Btn from '@/components/ui/form/Btn.vue'
@@ -103,6 +101,8 @@ import GridListView from '@/components/ui/GridListView.vue'
 import AlbumCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'
 import BtnScrollToTop from '@/components/ui/BtnScrollToTop.vue'
 import ViewModeSwitch from '@/components/ui/ViewModeSwitch.vue'
+
+const { t } = useI18n()
 
 const { currentUserCan } = usePolicies()
 const fuzzy = useFuzzySearch<RadioStation>(radioStationStore.state.stations, ['name', 'description'])

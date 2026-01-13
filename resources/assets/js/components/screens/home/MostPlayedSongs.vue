@@ -25,8 +25,8 @@ import { playback } from '@/services/playbackManager'
 import HomeScreenBlock from '@/components/screens/home/HomeScreenBlock.vue'
 import PlayableListSkeleton from '@/components/playable/playable-list/PlayableListSkeleton.vue'
 
-const { t } = useI18n()
 const props = withDefaults(defineProps<{ loading?: boolean }>(), { loading: false })
+const { t } = useI18n()
 const { loading } = toRefs(props)
 
 const {

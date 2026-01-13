@@ -69,8 +69,6 @@ import { useFuzzySearch } from '@/composables/useFuzzySearch'
 import { FilterKeywordsKey } from '@/symbols'
 import { preferenceStore as preferences } from '@/stores/preferenceStore'
 
-const { t } = useI18n()
-
 import Btn from '@/components/ui/form/Btn.vue'
 import BtnGroup from '@/components/ui/form/BtnGroup.vue'
 import ListFilter from '@/components/ui/ListFilter.vue'
@@ -80,6 +78,8 @@ import PodcastListSorter from '@/components/podcast/PodcastListSorter.vue'
 import ScreenBase from '@/components/screens/ScreenBase.vue'
 import ScreenEmptyState from '@/components/ui/ScreenEmptyState.vue'
 import ScreenHeader from '@/components/ui/ScreenHeader.vue'
+
+const { t } = useI18n()
 
 const fuzzy = useFuzzySearch<Podcast>([], ['title', 'description', 'author'])
 

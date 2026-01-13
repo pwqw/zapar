@@ -118,8 +118,6 @@ import { usePlayableListColumnVisibility } from '@/composables/usePlayableListCo
 
 import PlayableListHeaderActionMenu from '@/components/playable/playable-list/PlayableListHeaderActionMenu.vue'
 
-const { t } = useI18n()
-
 withDefaults(defineProps<{
   contentType?: ReturnType<typeof getPlayableCollectionContentType>
 }>(), {
@@ -129,6 +127,8 @@ withDefaults(defineProps<{
 const emit = defineEmits<{
   (e: 'sort', field: MaybeArray<PlayableListSortField>, order: SortOrder): void
 }>()
+
+const { t } = useI18n()
 
 const { shouldShowColumn } = usePlayableListColumnVisibility()
 

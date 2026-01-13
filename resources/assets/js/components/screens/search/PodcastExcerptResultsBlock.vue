@@ -26,12 +26,11 @@ import ExcerptResultBlock from '@/components/screens/search/ExcerptResultBlock.v
 import PodcastCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'
 import PodcastCard from '@/components/podcast/PodcastCard.vue'
 
-const { t } = useI18n()
 const props = withDefaults(defineProps<{ podcasts?: Podcast[], searching?: boolean }>(), {
   podcasts: () => [],
   searching: false,
 })
-
+const { t } = useI18n()
 const { podcasts, searching } = toRefs(props)
 </script>
 

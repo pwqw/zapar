@@ -35,10 +35,11 @@ import { gravatar } from '@/utils/helpers'
 import UserAvatar from '@/components/user/UserAvatar.vue'
 import ImageCropper from '@/components/utils/ImageCropper.vue'
 
-const { t } = useI18n()
-
 const props = defineProps<{ profile: Pick<User, 'name' | 'avatar'> }>()
+
 const emit = defineEmits<{ (e: 'changed', image: string): void }>()
+
+const { t } = useI18n()
 
 const { profile } = props
 

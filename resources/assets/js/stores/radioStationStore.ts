@@ -1,10 +1,8 @@
 import type { Reactive } from 'vue'
 import { reactive } from 'vue'
 import { http } from '@/services/http'
-import { authService } from '@/services/authService'
 import { merge } from 'lodash'
 import { arrayify } from '@/utils/helpers'
-import { commonStore } from '@/stores/commonStore'
 
 export interface RadioStationData {
   name: RadioStation['name']

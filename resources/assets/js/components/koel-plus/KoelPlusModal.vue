@@ -37,9 +37,9 @@ import { useKoelPlus } from '@/composables/useKoelPlus'
 import Btn from '@/components/ui/form/Btn.vue'
 import ActivateLicenseForm from '@/components/koel-plus/ActivateLicenseForm.vue'
 
-const { t } = useI18n()
-
 const emit = defineEmits<{ (e: 'close'): void }>()
+
+const { t } = useI18n()
 
 const { checkoutUrl } = useKoelPlus()
 

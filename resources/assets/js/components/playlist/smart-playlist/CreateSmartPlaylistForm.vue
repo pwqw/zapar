@@ -107,10 +107,9 @@ import Tabs from '@/components/ui/tabs/Tabs.vue'
 import TabPanel from '@/components/ui/tabs/TabPanel.vue'
 import ArtworkField from '@/components/ui/form/ArtworkField.vue'
 
-const { t } = useI18n()
 const props = defineProps<{ folder?: PlaylistFolder | null }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
-
+const { t } = useI18n()
 const { folder: targetFolder } = props
 
 const {

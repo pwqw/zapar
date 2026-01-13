@@ -38,9 +38,9 @@ import TextInput from '@/components/ui/form/TextInput.vue'
 import Btn from '@/components/ui/form/Btn.vue'
 import BrandingImageField from '@/components/screens/settings/BrandingImageField.vue'
 
-const { t } = useI18n()
-
 const props = defineProps<{ currentBranding: Branding }>()
+
+const { t } = useI18n()
 
 const { showConfirmDialog } = useDialogBox()
 const {

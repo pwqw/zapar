@@ -50,9 +50,9 @@ import Btn from '@/components/ui/form/Btn.vue'
 import SelectBox from '@/components/ui/form/SelectBox.vue'
 import EqualizerBand from '@/components/ui/equalizer/EqualizerBand.vue'
 
-const { t } = useI18n()
-
 const emit = defineEmits<{ (e: 'close'): void }>()
+
+const { t } = useI18n()
 
 const bands = audioService.bands
 const preampGain = ref(0)

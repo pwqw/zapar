@@ -184,13 +184,14 @@ import TabButton from '@/components/ui/tabs/TabButton.vue'
 import TabPanel from '@/components/ui/tabs/TabPanel.vue'
 import TabPanelContainer from '@/components/ui/tabs/TabPanelContainer.vue'
 
-const { t } = useI18n()
-
 const props = withDefaults(defineProps<{ songs: Song[], initialTab?: EditSongFormTabName }>(), {
   initialTab: 'details',
 })
 
 const emit = defineEmits<{ (e: 'close'): void }>()
+
+const { t } = useI18n()
+
 const songs = props.songs
 const currentTab = ref(props.initialTab)
 

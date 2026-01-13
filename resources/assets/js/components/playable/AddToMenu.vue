@@ -66,10 +66,9 @@ import { usePlayableMenuMethods } from '@/composables/usePlayableMenuMethods'
 
 import Btn from '@/components/ui/form/Btn.vue'
 
-const { t } = useI18n()
 const props = defineProps<{ playables: Playable[], config: AddToMenuConfig }>()
 const emit = defineEmits<{ (e: 'closing'): void }>()
-
+const { t } = useI18n()
 const { playables, config } = toRefs(props)
 
 const queue = toRef(queueStore.state, 'playables')

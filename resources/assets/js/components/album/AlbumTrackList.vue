@@ -23,9 +23,10 @@ import { PlayablesKey } from '@/symbols'
 
 import TrackListItem from '@/components/album/AlbumTrackListItem.vue'
 
+const props = defineProps<{ album: Album, tracks: AlbumTrack[] }>()
+
 const { t } = useI18n()
 
-const props = defineProps<{ album: Album, tracks: AlbumTrack[] }>()
 const { album, tracks } = toRefs(props)
 
 const songs = ref<Song[]>([])

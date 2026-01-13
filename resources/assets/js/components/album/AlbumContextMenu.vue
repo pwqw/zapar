@@ -29,9 +29,10 @@ import { useRouter } from '@/composables/useRouter'
 import { eventBus } from '@/utils/eventBus'
 import { playback } from '@/services/playbackManager'
 
+const props = defineProps<{ album: Album }>()
+
 const { t } = useI18n()
 
-const props = defineProps<{ album: Album }>()
 const { album } = toRefs(props)
 
 const { go, url } = useRouter()

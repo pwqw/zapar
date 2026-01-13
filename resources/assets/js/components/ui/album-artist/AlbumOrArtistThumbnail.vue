@@ -34,8 +34,8 @@ import { useMessageToaster } from '@/composables/useMessageToaster'
 import { playback } from '@/services/playbackManager'
 import { useBranding } from '@/composables/useBranding'
 
-const { t } = useI18n()
 const props = defineProps<{ entity: Album | Artist }>()
+const { t } = useI18n()
 const { entity } = toRefs(props)
 
 const { toastSuccess } = useMessageToaster()

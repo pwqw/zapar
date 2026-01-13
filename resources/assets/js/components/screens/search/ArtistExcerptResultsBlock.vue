@@ -26,12 +26,11 @@ import ArtistCard from '@/components/artist/ArtistCard.vue'
 import ArtistCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'
 import ExcerptResultBlock from '@/components/screens/search/ExcerptResultBlock.vue'
 
-const { t } = useI18n()
 const props = withDefaults(defineProps<{ artists?: Artist[], searching?: boolean }>(), {
   artists: () => [],
   searching: false,
 })
-
+const { t } = useI18n()
 const { artists, searching } = toRefs(props)
 </script>
 

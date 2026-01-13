@@ -79,14 +79,14 @@ import { useAuthorization } from '@/composables/useAuthorization'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import { useForm } from '@/composables/useForm'
 
-const { t } = useI18n()
-
 import Btn from '@/components/ui/form/Btn.vue'
 import PasswordField from '@/components/ui/form/PasswordField.vue'
 import EditableProfileAvatar from '@/components/profile-preferences/EditableProfileAvatar.vue'
 import AlertBox from '@/components/ui/AlertBox.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
+
+const { t } = useI18n()
 
 const { toastSuccess } = useMessageToaster()
 const { currentUser } = useAuthorization()

@@ -27,10 +27,9 @@ import {
   faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons'
 
-const { t } = useI18n()
 const props = defineProps<{ message: ToastMessage }>()
 const emit = defineEmits<{ (e: 'dismiss', message: ToastMessage): void }>()
-
+const { t } = useI18n()
 const { message } = toRefs(props)
 
 const typeIcon = computed(() => {

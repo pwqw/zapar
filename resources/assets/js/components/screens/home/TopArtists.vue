@@ -27,8 +27,8 @@ import ArtistCard from '@/components/artist/ArtistCard.vue'
 import ArtistCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'
 import HomeScreenSection from '@/components/screens/home/HomeScreenBlock.vue'
 
-const { t } = useI18n()
 const props = withDefaults(defineProps<{ loading?: boolean }>(), { loading: false })
+const { t } = useI18n()
 const { loading } = toRefs(props)
 
 const artists = toRef(overviewStore.state, 'mostPlayedArtists')

@@ -27,8 +27,8 @@ import AlbumCard from '@/components/album/AlbumCard.vue'
 import AlbumCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'
 import HomeScreenBlock from '@/components/screens/home/HomeScreenBlock.vue'
 
-const { t } = useI18n()
 const props = withDefaults(defineProps<{ loading?: boolean }>(), { loading: false })
+const { t } = useI18n()
 const { loading } = toRefs(props)
 
 const albums = toRef(overviewStore.state, 'recentlyAddedAlbums')

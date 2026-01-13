@@ -2,7 +2,7 @@ import { reactive } from 'vue'
 import { differenceBy, unionBy } from 'lodash'
 import { arrayify, moveItemsInList } from '@/utils/helpers'
 import { logger } from '@/utils/logger'
-import { isSong, isEpisode } from '@/utils/typeGuards'
+import { isEpisode, isSong } from '@/utils/typeGuards'
 import { http } from '@/services/http'
 import { playableStore } from '@/stores/playableStore'
 
@@ -170,16 +170,16 @@ export const queueStore = {
         return isSong(playable) || isEpisode(playable)
       })
       .map(({ id }) => id)
-    
+
     // Skip saving if there are no valid playables
     if (playableIds.length === 0) {
       return
     }
-    
+
     http.silently.put('queue/state', { songs: playableIds })
       .catch((error: unknown) => {
         if (error && typeof error === 'object' && 'response' in error) {
-          const axiosError = error as { response?: { data?: unknown; status?: number } }
+          const axiosError = error as { response?: { data?: unknown, status?: number } }
           logger.error('Failed to save queue state', {
             playableIds,
             playableCount: playableIds.length,

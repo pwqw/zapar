@@ -71,13 +71,13 @@ import UserAvatar from '@/components/user/UserAvatar.vue'
 import ExternalMark from '@/components/ui/ExternalMark.vue'
 import FavoriteButton from '@/components/ui/FavoriteButton.vue'
 
-const { t } = useI18n()
-
 const props = withDefaults(defineProps<{ item: PlayableRow, showDisc?: boolean }>(), {
   showDisc: false,
 })
 
 const emit = defineEmits<{ (e: 'play', playable: Playable): void }>()
+
+const { t } = useI18n()
 
 const [config] = requireInjection<[Partial<PlayableListConfig>]>(PlayableListConfigKey, [{}])
 
