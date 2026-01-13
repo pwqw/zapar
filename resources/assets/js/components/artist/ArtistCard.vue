@@ -17,9 +17,11 @@
       </a>
     </template>
     <template #meta>
-      <a :title="`Shuffle all songs by ${artist.name}`" role="button" @click.prevent="shuffle"> Shuffle </a>
-      <a v-if="allowDownload" :title="`Download all songs by ${artist.name}`" role="button" @click.prevent="download">
-        Download
+      <a :title="t('misc.shuffleAllSongs')" role="button" @click.prevent="shuffle">
+        {{ t('albums.shuffle') }}
+      </a>
+      <a v-if="allowDownload" :title="t('misc.downloadAllSongs')" role="button" @click.prevent="download">
+        {{ t('playlists.download') }}
       </a>
     </template>
   </BaseCard>
@@ -27,11 +29,12 @@
 
 <script lang="ts" setup>
 import { computed, toRef, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { defineAsyncComponent } from '@/utils/helpers'
 import { artistStore } from '@/stores/artistStore'
 import { commonStore } from '@/stores/commonStore'
 import { playableStore } from '@/stores/playableStore'
-import { useDownload } from '@/composables/useDownload'
+import { downloadService } from '@/services/downloadService'
 import { useDraggable } from '@/composables/useDragAndDrop'
 import { useRouter } from '@/composables/useRouter'
 import { playback } from '@/services/playbackManager'
@@ -41,7 +44,9 @@ import BaseCard from '@/components/ui/album-artist/AlbumOrArtistCard.vue'
 import ExternalMark from '@/components/ui/ExternalMark.vue'
 import FavoriteButton from '@/components/ui/FavoriteButton.vue'
 
-const props = withDefaults(defineProps<{ artist: Artist; layout?: CardLayout }>(), { layout: 'full' })
+const props = withDefaults(defineProps<{ artist: Artist, layout?: CardLayout }>(), { layout: 'full' })
+
+const { t } = useI18n()
 
 const ContextMenu = defineAsyncComponent(() => import('@/components/artist/ArtistContextMenu.vue'))
 
@@ -63,12 +68,10 @@ const shuffle = async () => {
 
 const toggleFavorite = () => artistStore.toggleFavorite(artist.value)
 
-const { fromArtist } = useDownload()
-const download = () => fromArtist(artist.value)
+const download = () => downloadService.fromArtist(artist.value)
 const onDragStart = (event: DragEvent) => startDragging(event, artist.value)
 
-const requestContextMenu = (event: MouseEvent) =>
-  openContextMenu<'ARTIST'>(ContextMenu, event, {
-    artist: artist.value,
-  })
+const requestContextMenu = (event: MouseEvent) => openContextMenu<'ARTIST'>(ContextMenu, event, {
+  artist: artist.value,
+})
 </script>

@@ -30,7 +30,7 @@ export class RadioPlaybackService extends BasePlaybackService {
         document.body.appendChild(radioElement)
       }
       this.radioAudioElement = radioElement
-      
+
       // Sync volume with volumeManager
       // volumeManager uses 0-10 range, but HTMLAudioElement.volume requires 0-1 range
       // Use nextTick to ensure volumeManager is initialized
@@ -46,36 +46,36 @@ export class RadioPlaybackService extends BasePlaybackService {
           }
         }
       }, { immediate: true })
-      
+
       // Add event listeners directly to the radio element
       const errorHandler = this.onError.bind(this)
       const endedHandler = this.onEnded.bind(this)
       const timeUpdateHandler = this.onTimeUpdate.bind(this)
-      
+
       this.radioAudioElement.addEventListener('error', errorHandler)
       this.radioAudioElement.addEventListener('ended', endedHandler)
       this.radioAudioElement.addEventListener('timeupdate', timeUpdateHandler)
-      
+
       this.boundRadioEvents = [
         ['error', errorHandler],
         ['ended', endedHandler],
         ['timeupdate', timeUpdateHandler],
       ]
     }
-    
+
     // We still need to initialize the player for compatibility, but we won't use it for playback
     // The player is needed for the UI and volume management
     if (!this.player) {
       super.activate(plyrWrapper)
     }
-    
+
     return this
   }
 
   public async play (station: RadioStation) {
     // Stop any currently playing radio station
     use(radioStationStore.current, station => station.playback_state = 'Stopped')
-    
+
     // Stop any currently playing queue item to prevent conflicts
     if (this.player?.media && !this.player.media.paused) {
       this.player.media.pause()
@@ -84,18 +84,18 @@ export class RadioPlaybackService extends BasePlaybackService {
     }
 
     station.playback_state = 'Playing'
-    
+
     // Ensure the radio audio element is available
     if (!this.radioAudioElement) {
       await this.activate(document.querySelector('.plyr') as HTMLElement)
     }
-    
+
     const url = radioStationStore.getSourceUrl(station)
     this.radioAudioElement!.src = url
-    
+
     // Explicitly call load() to start loading the stream
     this.radioAudioElement!.load()
-    
+
     // Wait for the stream to be ready before playing
     return new Promise<void>((resolve, reject) => {
       const attemptPlay = async () => {
@@ -104,7 +104,7 @@ export class RadioPlaybackService extends BasePlaybackService {
           if (this.radioAudioElement!.muted) {
             this.radioAudioElement!.muted = false
           }
-          
+
           await this.radioAudioElement!.play()
           socketService.broadcast('SOCKET_STREAMABLE', station)
           resolve()
@@ -135,7 +135,7 @@ export class RadioPlaybackService extends BasePlaybackService {
       } else {
         // Wait for canplay event (stream is ready to play)
         this.radioAudioElement!.addEventListener('canplay', onCanPlay, { once: true })
-        
+
         // Also try on loadstart as fallback
         this.radioAudioElement!.addEventListener('loadstart', () => {
           setTimeout(attemptPlay, 200)
@@ -184,7 +184,7 @@ export class RadioPlaybackService extends BasePlaybackService {
       this.radioAudioElement.currentTime = 0
       this.radioAudioElement.removeAttribute('src')
     }
-    
+
     // Also pause the Plyr player if it exists (for UI consistency)
     // This ensures the queue player doesn't resume accidentally
     if (this.player) {
@@ -227,7 +227,7 @@ export class RadioPlaybackService extends BasePlaybackService {
     if (!currentStation) {
       return
     }
-    
+
     // If radio is playing, stop it
     if (currentStation.playback_state === 'Playing') {
       await this.stop()
@@ -246,13 +246,13 @@ export class RadioPlaybackService extends BasePlaybackService {
       })
       this.boundRadioEvents = []
     }
-    
+
     // Clean up volume watcher
     if (this.volumeWatcher) {
       this.volumeWatcher()
       this.volumeWatcher = null
     }
-    
+
     // Call parent deactivate to clean up Plyr player event listeners
     super.deactivate()
   }

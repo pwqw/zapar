@@ -10,26 +10,27 @@
     <template v-else>
       <ul v-if="artists.length" class="results">
         <li v-for="artist in artists" :key="artist.id">
-          <ArtistCard :artist layout="compact" />
+          <ArtistCard :artist="artist" layout="compact" />
         </li>
       </ul>
-      <p v-else>None found.</p>
+      <p v-else>{{ t('screens.noneFound') }}</p>
     </template>
   </ExcerptResultBlock>
 </template>
 
 <script lang="ts" setup>
 import { toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import ArtistCard from '@/components/artist/ArtistCard.vue'
 import ArtistCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'
 import ExcerptResultBlock from '@/components/screens/search/ExcerptResultBlock.vue'
 
-const props = withDefaults(defineProps<{ artists?: Artist[]; searching?: boolean }>(), {
+const props = withDefaults(defineProps<{ artists?: Artist[], searching?: boolean }>(), {
   artists: () => [],
   searching: false,
 })
-
+const { t } = useI18n()
 const { artists, searching } = toRefs(props)
 </script>
 

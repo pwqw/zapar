@@ -30,6 +30,7 @@ import { useLyrics } from '@/composables/useLyrics'
 import { useModal } from '@/composables/useModal'
 
 const props = defineProps<{ song: Song }>()
+const { t } = useI18n()
 const LrcLyricsPane = defineAsyncComponent(() => import('@/components/ui/lyrics/LrcLyricsPane.vue'))
 const Magnifier = defineAsyncComponent(() => import('@/components/ui/Magnifier.vue'))
 const EditSongForm = defineAsyncComponent(() => import('@/components/playable/EditSongForm.vue'))

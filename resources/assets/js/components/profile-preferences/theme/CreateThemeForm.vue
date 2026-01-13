@@ -100,7 +100,10 @@ import ColorPicker from '@/components/ui/form/ColorPicker.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 
 const props = defineProps<{ toggleCssClass: (...classes: string[]) => void }>()
+
 const emit = defineEmits<{ (e: 'close'): void }>()
+
+const { t } = useI18n()
 
 const toggleCssClass = props.toggleCssClass
 

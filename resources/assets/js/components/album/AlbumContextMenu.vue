@@ -37,9 +37,10 @@ import { usePolicies } from '@/composables/usePolicies'
 import { useRouter } from '@/composables/useRouter'
 import { playback } from '@/services/playbackManager'
 
+const props = defineProps<{ album: Album }>()
+
 const { t } = useI18n()
 
-const props = defineProps<{ album: Album }>()
 const { album } = toRefs(props)
 
 const EditAlbumForm = defineAsyncComponent(() => import('@/components/album/EditAlbumForm.vue'))

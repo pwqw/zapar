@@ -19,10 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useKoelPlus } from '@/composables/useKoelPlus'
-import { toRefs } from 'vue'
 import { defineAsyncComponent } from '@/utils/helpers'
 
 import FormRow from '@/components/ui/form/FormRow.vue'

@@ -16,10 +16,11 @@ import { faStepForward } from '@fortawesome/free-solid-svg-icons'
 import { toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
-
 const props = defineProps<{ playable?: Playable | null }>()
+
 const emit = defineEmits<{ (e: 'clicked'): void }>()
+
+const { t } = useI18n()
 
 const { playable } = toRefs(props)
 </script>

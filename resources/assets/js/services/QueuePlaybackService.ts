@@ -27,12 +27,12 @@ const PRELOAD_BUFFER = 30
 export class QueuePlaybackService extends BasePlaybackService {
   public activate (plyrWrapper: HTMLElement) {
     const result = super.activate(plyrWrapper)
-    
+
     // Ensure crossorigin is set for songs/episodes (needed for equalizer and audio processing)
     if (this.player?.media) {
       this.player.media.setAttribute('crossorigin', 'anonymous')
     }
-    
+
     // Initialize audioService lazily only when queue playback is activated
     // This allows radio to use the audio element directly without AudioContext
     // IMPORTANT: Only initialize if audioService hasn't been initialized yet
@@ -48,9 +48,10 @@ export class QueuePlaybackService extends BasePlaybackService {
       // If already initialized, reconnect for processing
       audioService.reconnectForProcessing()
     }
-    
+
     return result
   }
+
   private repeatModes: RepeatMode[] = ['NO_REPEAT', 'REPEAT_ALL', 'REPEAT_ONE']
   private upNext: Ref<Playable | null> = ref(null)
 
@@ -385,11 +386,11 @@ export class QueuePlaybackService extends BasePlaybackService {
   protected onError (error: ErrorEvent): void {
     const media = (error.target as HTMLMediaElement) || this.player?.media
     const currentPlayable = queueStore.current
-    
+
     // Get error details if available
     const errorCode = media?.error?.code
     const errorMessage = media?.error?.message || 'Unknown error'
-    
+
     // Map error codes to human-readable messages
     const errorMessages: Record<number, string> = {
       1: 'MEDIA_ERR_ABORTED - The user aborted the loading',
@@ -397,15 +398,15 @@ export class QueuePlaybackService extends BasePlaybackService {
       3: 'MEDIA_ERR_DECODE - An error occurred while decoding',
       4: 'MEDIA_ERR_SRC_NOT_SUPPORTED - The media source is not supported',
     }
-    
+
     const errorDetails = errorCode ? errorMessages[errorCode] || `Error code: ${errorCode}` : errorMessage
-    const playableInfo = currentPlayable 
+    const playableInfo = currentPlayable
       ? `${currentPlayable.title} (ID: ${currentPlayable.id})`
       : 'Unknown playable'
-    
+
     // Log as warning since we're handling it gracefully by playing next
     logger.warn(`Audio playback error for ${playableInfo}: ${errorDetails}. Skipping to next item.`)
-    
+
     // Only log full error details in development
     if (process.env.NODE_ENV === 'development' && media?.error) {
       logger.warn('Media error details:', {
@@ -414,7 +415,7 @@ export class QueuePlaybackService extends BasePlaybackService {
         src: media.src,
       })
     }
-    
+
     this.playNext()
   }
 

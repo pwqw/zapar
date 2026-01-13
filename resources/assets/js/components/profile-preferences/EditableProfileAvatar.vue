@@ -1,19 +1,20 @@
 <template>
   <div class="avatar-width ring-4 ring-white mt-8 rounded-full relative overflow-hidden aspect-square">
-    <UserAvatar v-if="profile.avatar" :user="profile as any" class="avatar-width" />
+    <UserAvatar v-if="profile.avatar" :user="profile" class="avatar-width" />
 
     <div
-      class="absolute top-0 rounded-full w-full aspect-square flex items-center justify-center gap-2 pt-[50%] bg-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300"
+      class="absolute top-0 rounded-full w-full aspect-square flex items-center justify-center gap-2 pt-[50%]
+      bg-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300"
     >
-      <button class="control" title="Pick a new avatar" type="button" @click.prevent="openFileDialog">
+      <button class="control" :title="t('ui.tooltips.pickNewAvatar')" type="button" @click.prevent="openFileDialog">
         <Icon :icon="faUpload" />
       </button>
 
-      <button v-if="avatarChanged" class="control" title="Reset avatar" type="button" @click.prevent="resetAvatar">
+      <button v-if="avatarChanged" class="control" :title="t('ui.tooltips.resetAvatar')" type="button" @click.prevent="resetAvatar">
         <Icon :icon="faRefresh" />
       </button>
 
-      <button v-else class="control" title="Remove avatar" type="button" @click.prevent="removeAvatar">
+      <button v-else class="control" :title="t('ui.tooltips.removeAvatar')" type="button" @click.prevent="removeAvatar">
         <Icon :icon="faTimes" />
       </button>
     </div>
@@ -26,6 +27,7 @@
 import { faRefresh, faTimes, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { computed, ref } from 'vue'
 import { useFileDialog } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
 import { userStore } from '@/stores/userStore'
 import { useFileReader } from '@/composables/useFileReader'
 import { gravatar } from '@/utils/helpers'
@@ -33,8 +35,11 @@ import { gravatar } from '@/utils/helpers'
 import UserAvatar from '@/components/user/UserAvatar.vue'
 import ImageCropper from '@/components/utils/ImageCropper.vue'
 
-const props = defineProps<{ profile: { name: string; avatar?: string } }>()
+const props = defineProps<{ profile: Pick<User, 'name' | 'avatar'> }>()
+
 const emit = defineEmits<{ (e: 'changed', image: string): void }>()
+
+const { t } = useI18n()
 
 const { profile } = props
 

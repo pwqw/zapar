@@ -14,7 +14,7 @@
 
       <FooterBtn
         v-if="useEqualizer"
-        :class="{ active: showEqualizer, 'pointer-events-none opacity-30 cursor-not-allowed': isRadio }"
+        :class="{ 'active': showEqualizer, 'pointer-events-none opacity-30 cursor-not-allowed': isRadio }"
         class="equalizer"
         :title="isRadio ? t('ui.tooltips.equalizerNotAvailableForRadio') : t('ui.tooltips.showEqualizer')"
         @click.prevent="!isRadio && showEqualizer()"

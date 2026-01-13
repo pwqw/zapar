@@ -33,7 +33,7 @@ export const audioService = {
     this.element = mediaElement
 
     this.context = new AudioContext()
-    
+
     // If AudioContext is suspended, resume it on user interaction
     if (this.context.state === 'suspended') {
       const resumeOnInteraction = () => {

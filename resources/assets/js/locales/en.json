@@ -509,7 +509,7 @@
     "removeArtwork": "Remove",
     "save": "Save"
   },
-    "ui": {
+  "ui": {
     "buttons": {
       "play": "Play",
       "pause": "Pause",
@@ -832,9 +832,9 @@
     "afterCurrent": "After Current",
     "bottomOfQueue": "Bottom of Queue",
     "topOfQueue": "Top of Queue",
-      "newPlaylistEllipsis": "New Playlist…",
-      "addItemTo": "Add {count} {item} to",
-      "logOut": "Log out",
+    "newPlaylistEllipsis": "New Playlist…",
+    "addItemTo": "Add {count} {item} to",
+    "logOut": "Log out",
     "previewMode": "Preview mode – only play max. 30 seconds per track",
     "noActiveInstance": "No active {app} instance found.",
     "noOtherAlbums": "No other albums by {artist} found in the library.",

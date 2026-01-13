@@ -28,13 +28,10 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useFullscreen } from '@vueuse/core'
 import { eventBus } from '@/utils/eventBus'
 import { isEpisode, isRadioStation, isSong } from '@/utils/typeGuards'
-import { isAudioContextSupported } from '@/utils/supports'
 import { defineAsyncComponent, requireInjection } from '@/utils/helpers'
 import { CurrentStreamableKey } from '@/symbols'
 import { artistStore } from '@/stores/artistStore'
 import { preferenceStore } from '@/stores/preferenceStore'
-import { audioService } from '@/services/audioService'
-import { playback } from '@/services/playbackManager'
 import { useContextMenu } from '@/composables/useContextMenu'
 
 import AudioPlayer from '@/components/layout/app-footer/AudioPlayer.vue'
@@ -110,7 +107,6 @@ const initPlaybackRelatedServices = async () => {
   if (!plyrWrapper) {
     await nextTick()
     await initPlaybackRelatedServices()
-    return
   }
 
   // NOTE: We do NOT call playback() here anymore to avoid activating any service

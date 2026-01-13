@@ -7,7 +7,7 @@
           <div class="flex gap-2">
             <Btn
               v-koel-tooltip
-              :title="preferences.podcasts_favorites_only ? 'Show all' : 'Show favorites only'"
+              :title="preferences.podcasts_favorites_only ? t('misc.showAll') : t('misc.showFavoritesOnly')"
               class="border border-k-fg-10"
               small
               transparent
@@ -41,14 +41,11 @@
       <template #icon>
         <Icon :icon="faPodcast" />
       </template>
-      <template v-if="preferences.podcasts_favorites_only"> No favorite podcasts. </template>
-      <template v-else>
-        No podcasts found.
-        <span class="secondary block">Add a podcast to get started.</span>
-      </template>
+      {{ t('emptyStates.podcastsNotFound') }}
+      <span class="secondary block">{{ t('emptyStates.podcastsNotFound') }}</span>
     </ScreenEmptyState>
 
-    <div v-else v-koel-overflow-fade class="-m-6 p-6 flex-1 overflow-auto space-y-3">
+    <div v-else v-koel-overflow-fade class="-m-6 p-6 overflow-auto space-y-3 min-h-full">
       <template v-if="loading">
         <PodcastItemSkeleton v-for="i in 5" :key="i" />
       </template>
@@ -64,13 +61,13 @@ import { faAdd, faPodcast, faStar } from '@fortawesome/free-solid-svg-icons'
 import { faStar as faEmptyStar } from '@fortawesome/free-regular-svg-icons'
 import { orderBy } from 'lodash'
 import { computed, onMounted, provide, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { eventBus } from '@/utils/eventBus'
 import { podcastStore } from '@/stores/podcastStore'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 import { useFuzzySearch } from '@/composables/useFuzzySearch'
-import { defineAsyncComponent } from '@/utils/helpers'
-import { FilterKeywordsKey } from '@/config/symbols'
+import { FilterKeywordsKey } from '@/symbols'
 import { preferenceStore as preferences } from '@/stores/preferenceStore'
-import { useModal } from '@/composables/useModal'
 
 import Btn from '@/components/ui/form/Btn.vue'
 import BtnGroup from '@/components/ui/form/BtnGroup.vue'
@@ -82,8 +79,8 @@ import ScreenBase from '@/components/screens/ScreenBase.vue'
 import ScreenEmptyState from '@/components/ui/ScreenEmptyState.vue'
 import ScreenHeader from '@/components/ui/ScreenHeader.vue'
 
-const AddPodcastForm = defineAsyncComponent(() => import('@/components/podcast/AddPodcastForm.vue'))
-const { openModal } = useModal()
+const { t } = useI18n()
+
 const fuzzy = useFuzzySearch<Podcast>([], ['title', 'description', 'author'])
 
 const loading = ref(false)
@@ -96,7 +93,7 @@ const podcasts = computed(() => {
     keywords.value ? fuzzy.search(keywords.value) : podcastStore.state.podcasts,
     preferences.podcasts_sort_field,
     preferences.podcasts_sort_order,
-  ).filter(podcast => (preferences.podcasts_favorites_only ? podcast.favorite : true))
+  ).filter(podcast => preferences.podcasts_favorites_only ? podcast.favorite : true)
 })
 
 const noPodcasts = computed(() => !loading.value && podcasts.value.length === 0)
@@ -118,7 +115,7 @@ const fetchPodcasts = async () => {
   }
 }
 
-const requestAddPodcastForm = () => openModal<'ADD_PODCAST_FORM'>(AddPodcastForm)
+const requestAddPodcastForm = () => eventBus.emit('MODAL_SHOW_ADD_PODCAST_FORM')
 
 const sort = (field: PodcastListSortField, order: SortOrder) => {
   preferences.podcasts_sort_order = order

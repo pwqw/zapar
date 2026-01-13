@@ -13,23 +13,24 @@
           <RadioStationCard :station layout="compact" />
         </li>
       </ul>
-      <p v-else>None found.</p>
+      <p v-else>{{ t('screens.noneFound') }}</p>
     </template>
   </ExcerptResultBlock>
 </template>
 
 <script lang="ts" setup>
 import { toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import ExcerptResultBlock from '@/components/screens/search/ExcerptResultBlock.vue'
 import RadioStationCardSkeleton from '@/components/radio/RadioStationCardSkeleton.vue'
 import RadioStationCard from '@/components/radio/RadioStationCard.vue'
 
-const props = withDefaults(defineProps<{ stations?: RadioStation[]; searching?: boolean }>(), {
+const props = withDefaults(defineProps<{ stations?: RadioStation[], searching?: boolean }>(), {
   stations: () => [],
   searching: false,
 })
-
+const { t } = useI18n()
 const { stations, searching } = toRefs(props)
 </script>
 
