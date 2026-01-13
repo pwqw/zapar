@@ -41,8 +41,9 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.REPO_PATH }}
-            git reset --hard
-            git pull origin master
+            git fetch origin
+            git reset --hard origin/zapo
+            git clean -fd
           EOF
 
       - name: Copy built assets to server
