@@ -22,6 +22,7 @@
 
   <LoginForm v-if="layout === 'login'" @loggedin="triggerAppInitialization" />
   <Embed v-if="layout === 'embed'" />
+  <GoogleDocLayout v-if="layout === 'google-doc'" />
 
   <AcceptInvitation v-if="layout === 'invitation'" />
   <ResetPasswordForm v-if="layout === 'reset-password'" />
@@ -64,6 +65,7 @@ const DropZone = defineAsyncComponent(() => import('@/components/ui/upload/DropZ
 const AcceptInvitation = defineAsyncComponent(() => import('@/components/invitation/AcceptInvitation.vue'))
 const ResetPasswordForm = defineAsyncComponent(() => import('@/components/auth/ResetPasswordForm.vue'))
 const Embed = defineAsyncComponent(() => import('@/components/embed/widget/EmbedWidget.vue'))
+const GoogleDocLayout = defineAsyncComponent(() => import('@/components/google-doc/GoogleDocLayout.vue'))
 
 const overlay = ref<InstanceType<typeof Overlay>>()
 const dialog = ref<InstanceType<typeof DialogBox>>()
@@ -71,7 +73,7 @@ const toaster = ref<InstanceType<typeof MessageToaster>>()
 const currentStreamable = ref<Streamable>()
 const showDropZone = ref(false)
 
-const { isCurrentScreen, resolveRoute, triggerNotFound } = useRouter()
+const { isCurrentScreen, resolveRoute, triggerNotFound, onRouteChanged } = useRouter()
 const online = useOnline()
 
 const authenticated = ref(false)
@@ -92,6 +94,10 @@ const onInitSuccess = async () => {
 const layout = computed(() => {
   if (currentRoute.value?.meta?.layout) {
     return currentRoute.value.meta.layout
+  }
+
+  if (currentRoute.value?.meta?.public) {
+    return 'default'
   }
 
   return authenticated.value ? 'default' : 'login'
@@ -118,6 +124,10 @@ onMounted(() => {
   if (authService.hasApiToken()) {
     triggerAppInitialization()
   }
+})
+
+onRouteChanged(route => {
+  currentRoute.value = route
 })
 
 const onDragOver = (e: DragEvent) => {

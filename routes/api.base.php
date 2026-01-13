@@ -61,6 +61,9 @@ use App\Http\Controllers\API\SetLastfmSessionKeyController;
 use App\Http\Controllers\API\Settings\UpdateBrandingController;
 use App\Http\Controllers\API\Settings\UpdateMediaPathController;
 use App\Http\Controllers\API\Settings\UpdateWelcomeMessageController;
+use App\Http\Controllers\API\Settings\UpdateGoogleDocPagesController;
+use App\Http\Controllers\API\Settings\GetGoogleDocPagesController;
+use App\Http\Controllers\API\GoogleDocPageController;
 use App\Http\Controllers\API\SongController;
 use App\Http\Controllers\API\SongSearchController;
 use App\Http\Controllers\API\ThemeController;
@@ -92,6 +95,8 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
 
         Route::get('embeds/{embed}/{options}', [EmbedController::class, 'getPayload'])->name('embeds.payload');
         Route::post('embed-options', [EmbedOptionsController::class, 'encrypt']);
+
+        Route::get('google-doc-pages/{slug}', [GoogleDocPageController::class, 'show']);
     });
 
     Route::middleware('auth')->group(static function (): void {
@@ -121,6 +126,8 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
         Route::put('settings/media-path', UpdateMediaPathController::class);
         Route::put('settings/branding', UpdateBrandingController::class);
         Route::put('settings/welcome-message', UpdateWelcomeMessageController::class);
+        Route::put('settings/google-doc-pages', UpdateGoogleDocPagesController::class);
+        Route::get('settings/google-doc-pages', GetGoogleDocPagesController::class);
 
         Route::apiResource('albums', AlbumController::class);
         Route::apiResource('albums.songs', AlbumSongController::class);

@@ -315,7 +315,27 @@
     "removeVariable": "Remove variable",
     "noVariablesAdded": "No variables added yet. Click 'Add Variable' to get started.",
     "templateVariablesReference": "Template Variables Reference:",
-    "welcomeMessageUpdated": "Welcome message updated."
+    "welcomeMessageUpdated": "Welcome message updated.",
+    "googleDocPages": "Embedded Pages",
+    "googleDocPagesHelp": "Configure pages that embed external content (Google Docs, PDFs, etc.).",
+    "addPage": "Add Page",
+    "pageName": "Page Name",
+    "pageTitle": "Page Title",
+    "pageTitlePlaceholder": "e.g., Terms and Conditions",
+    "pageSlug": "URL Slug",
+    "pageSlugPlaceholder": "terms-and-conditions",
+    "pageSlugHelp": "Use only lowercase letters, numbers, and hyphens. Will be used in the URL: /#/document/slug",
+    "embedUrl": "Embed URL",
+    "embedUrlPlaceholder": "https://docs.google.com/document/d/e/2PACX-.../pub?embedded=true",
+    "embedUrlHelp": "Complete URL of the content to embed. For Google Docs: File > Share > Publish to web, copy the full URL.",
+    "defaultBackUrl": "Default Back URL (Optional)",
+    "defaultBackUrlPlaceholder": "/#/home",
+    "defaultBackUrlHelp": "Fallback URL if there's no browser history. Usually not needed.",
+    "removePage": "Remove page",
+    "noPagesAdded": "No pages added yet. Click 'Add Page' to get started.",
+    "pageUrl": "Page URL:",
+    "googleDocPagesSaved": "Embedded pages saved successfully.",
+    "errorSaving": "Error saving settings."
   },
   "integrations": {
     "musicbrainz": {
