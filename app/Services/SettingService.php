@@ -46,4 +46,16 @@ class SettingService
 
         Setting::set('branding', $branding->toArray());
     }
+
+    /**
+     * Update the welcome message and its template variables.
+     *
+     * @param string $message
+     * @param array<int, array{name: string, url: string}> $variables
+     */
+    public function updateWelcomeMessage(string $message, array $variables = []): void
+    {
+        Setting::set('welcome_message', $message);
+        Setting::set('welcome_message_variables', $variables);
+    }
 }

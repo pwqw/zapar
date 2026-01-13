@@ -1,6 +1,7 @@
 <?php
 
 use App\Facades\License;
+use App\Models\Setting;
 use App\Services\SettingService;
 use App\Values\Branding;
 use Illuminate\Support\Arr;
@@ -156,8 +157,8 @@ function collect_accepted_audio_extensions(): array
         collect(array_values(config('koel.streaming.supported_mime_types')))
             ->flatten()
             ->unique()
-            ->map(Str::lower(...))
-            ->toArray(),
+            ->map(static fn (string $ext) => Str::lower($ext))
+            ->toArray()
     );
 }
 
@@ -170,7 +171,7 @@ function find_ffmpeg_path(): ?string
         return $path && is_executable($path) ? $path : null;
     }
 
-    // for Windows, we can check the `where` command
+    // for Windows, we can check `where` command
     $path = trim(shell_exec('where ffmpeg') ?: '');
 
     if ($path && is_executable($path)) {
@@ -213,7 +214,23 @@ function koel_branding(?string $key = null): Branding|string|null
     return Arr::get($branding->toArray(), $key);
 }
 
-function http_user_agent(): string
+/**
+ * Get the welcome message and its template variables for the login page.
+ *
+ * @return array{message: string, variables: array<int, array{name: string, url: string}>}|null
+ */
+function koel_welcome_message(): ?array
 {
-    return 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36';
+    $message = Setting::get('welcome_message');
+
+    if (!$message) {
+        return null;
+    }
+
+    $variables = Setting::get('welcome_message_variables') ?? [];
+
+    return [
+        'message' => $message,
+        'variables' => is_array($variables) ? $variables : [],
+    ];
 }
