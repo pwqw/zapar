@@ -22,4 +22,11 @@ export const settingStore = {
   async updateBranding (data: Partial<Branding>) {
     await http.put('settings/branding', data)
   },
+
+  async updateWelcomeMessage (message: string, variables: Array<{ name: string, url: string }>) {
+    await http.put('settings/welcome-message', {
+      message,
+      variables,
+    })
+  },
 }

@@ -1,51 +1,71 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen my-0 mx-auto flex-col gap-5">
-    <form
-      v-show="!showingForgotPasswordForm"
-      :class="{ error: failed }"
-      class="w-full sm:w-[288px] sm:border duration-500 p-7 rounded-xl border-transparent sm:bg-k-fg-10 space-y-3"
-      data-testid="login-form"
-      @submit.prevent="handleSubmit"
+  <div v-show="!showingForgotPasswordForm" class="flex min-h-screen flex-col sm:flex-row items-center justify-center">
+    <!-- Welcome Message Section (Desktop: 70%, Mobile: Full Width) -->
+    <div
+      v-if="hasWelcomeMessage"
+      class="w-full sm:w-7/12 px-6 py-12 sm:py-0 sm:px-8 flex flex-col justify-center"
     >
-      <div class="text-center mb-8">
-        <img alt="Logo" class="inline-block" :src="logo" width="156">
+      <div class="prose dark:prose-invert max-w-none">
+        <div class="welcome-message-content space-y-4">
+          <div class="text-lg leading-relaxed" v-html="renderedMessage" />
+        </div>
       </div>
-
-      <FormRow>
-        <TextInput v-model="data.email" autofocus :placeholder="emailPlaceholder" required type="email" />
-      </FormRow>
-
-      <FormRow>
-        <PasswordField v-model="data.password" :placeholder="passwordPlaceholder" required />
-      </FormRow>
-
-      <FormRow>
-        <Btn class="w-full" data-testid="submit" type="submit">{{ t('auth.logIn') }}</Btn>
-      </FormRow>
-
-      <FormRow v-if="canResetPassword">
-        <a class="text-right text-[.95rem] text-k-fg-70" role="button" @click.prevent="showForgotPasswordForm">
-          {{ t('auth.forgotPassword') }}
-        </a>
-      </FormRow>
-    </form>
-
-    <div v-if="ssoProviders.length" v-show="!showingForgotPasswordForm" class="flex gap-3 items-center">
-      <GoogleLoginButton v-if="ssoProviders.includes('Google')" @error="onSSOError" @success="onSSOSuccess" />
     </div>
 
-    <ForgotPasswordForm v-if="showingForgotPasswordForm" @cancel="showingForgotPasswordForm = false" />
+    <!-- Login Form Section (Desktop: 30%, Mobile: Full Width) -->
+    <div
+      class="w-full px-6 py-12 flex items-center justify-center"
+      :class="hasWelcomeMessage ? 'sm:w-5/12 sm:py-0 sm:border-l sm:border-k-fg-10' : ''"
+    >
+      <form
+        :class="{ error: failed }"
+        class="w-full sm:w-[288px] duration-500 p-7 rounded-xl space-y-3 sm:border sm:border-transparent sm:bg-k-fg-10"
+        data-testid="login-form"
+        @submit.prevent="handleSubmit"
+      >
+        <div class="text-center mb-8">
+          <img alt="Logo" class="inline-block" :src="logo" width="156">
+        </div>
+
+        <FormRow>
+          <TextInput v-model="data.email" autofocus :placeholder="emailPlaceholder" required type="email" />
+        </FormRow>
+
+        <FormRow>
+          <PasswordField v-model="data.password" :placeholder="passwordPlaceholder" required />
+        </FormRow>
+
+        <FormRow>
+          <Btn class="w-full" data-testid="submit" type="submit">{{ t('auth.logIn') }}</Btn>
+        </FormRow>
+
+        <FormRow v-if="canResetPassword">
+          <a class="text-right text-[.95rem] text-k-fg-70" role="button" @click.prevent="showForgotPasswordForm">
+            {{ t('auth.forgotPassword') }}
+          </a>
+        </FormRow>
+      </form>
+    </div>
   </div>
+
+  <div v-if="ssoProviders.length" v-show="!showingForgotPasswordForm" class="fixed bottom-8 left-0 right-0 flex gap-3 items-center justify-center">
+    <GoogleLoginButton v-if="ssoProviders.includes('Google')" @error="onSSOError" @success="onSSOSuccess" />
+  </div>
+
+  <ForgotPasswordForm v-if="showingForgotPasswordForm" @cancel="showingForgotPasswordForm = false" />
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { authService } from '@/services/authService'
 import { logger } from '@/utils/logger'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import { useForm } from '@/composables/useForm'
 import { useBranding } from '@/composables/useBranding'
+import { useWelcomeMessage } from '@/composables/useWelcomeMessage'
+import { sanitizeUrl } from '@/utils/sanitizeHtml'
+import DOMPurify from 'dompurify'
 
 import Btn from '@/components/ui/form/Btn.vue'
 import PasswordField from '@/components/ui/form/PasswordField.vue'
@@ -59,6 +79,7 @@ const emit = defineEmits<{ (e: 'loggedin'): void }>()
 const { t } = useI18n()
 const { toastWarning, toastError } = useMessageToaster()
 const { logo } = useBranding()
+const { hasWelcomeMessage, welcomeMessageData } = useWelcomeMessage()
 
 const demoAccount = window.DEMO_ACCOUNT || {
   email: 'demo@koel.dev',
@@ -71,6 +92,33 @@ const canResetPassword = window.MAILER_CONFIGURED && !window.IS_DEMO
 const ssoProviders = window.SSO_PROVIDERS || []
 const emailPlaceholder = window.IS_DEMO ? demoAccount.email : t('auth.yourEmailAddress')
 const passwordPlaceholder = window.IS_DEMO ? demoAccount.password : t('auth.yourPassword')
+
+const renderedMessage = computed(() => {
+  if (!welcomeMessageData?.message) {
+    return ''
+  }
+
+  let message = welcomeMessageData.message
+
+  // Replace each variable with an HTML link
+  welcomeMessageData.variables?.forEach(variable => {
+    const placeholder = `{{ ${variable.name} }}`
+    // Escape special regex characters in the placeholder
+    const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const regex = new RegExp(escapedPlaceholder, 'g')
+    // Sanitize URL and variable name to prevent XSS
+    const safeUrl = sanitizeUrl(variable.url)
+    const safeName = DOMPurify.sanitize(variable.name, { ALLOWED_TAGS: [] })
+    const linkHtml = `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-500 dark:text-blue-400 hover:underline">${safeName}</a>`
+    message = message.replace(regex, linkHtml)
+  })
+
+  // Sanitize the entire message HTML to prevent XSS but preserve links
+  return DOMPurify.sanitize(message, {
+    ALLOWED_TAGS: ['a', 'br', 'p', 'em', 'strong', 'b', 'i'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class']
+  })
+})
 
 const { data, handleSubmit } = useForm<{ email: string, password: string }>({
   initialValues: window.IS_DEMO

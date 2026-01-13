@@ -301,7 +301,21 @@
     "appLogoDescription": "To be used as the favicon, app icon, and logo throughout the app.",
     "appCover": "App cover",
     "appCoverDescription": "To be used as the placeholder if no album art, artist image, playlist cover etc. is available.",
-    "reloadToApply": "Settings saved. Reload to apply the changes?"
+    "reloadToApply": "Settings saved. Reload to apply the changes?",
+    "general": "General",
+    "welcomeMessage": "Welcome Message",
+    "welcomeMessageText": "Welcome Message",
+    "welcomeMessagePlaceholder": "Welcome to our platform! Visit {privacyPolicy} and {terms}",
+    "welcomeMessageHelpPrefix": "Use",
+    "welcomeMessageHelpSuffix": "syntax to create template variables that will be replaced with actual URLs.",
+    "welcomeMessageVariables": "Template Variables",
+    "addVariable": "Add Variable",
+    "variableName": "Variable name",
+    "variableUrl": "URL",
+    "removeVariable": "Remove variable",
+    "noVariablesAdded": "No variables added yet. Click 'Add Variable' to get started.",
+    "templateVariablesReference": "Template Variables Reference:",
+    "welcomeMessageUpdated": "Welcome message updated."
   },
   "integrations": {
     "musicbrainz": {

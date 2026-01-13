@@ -309,7 +309,21 @@
     "appLogoDescription": "Se utilizará como favicon, icono de aplicación y logo en toda la aplicación.",
     "appCover": "Portada de la aplicación",
     "appCoverDescription": "Se utilizará como marcador de posición si no hay arte de álbum, imagen de artista, portada de lista de reproducción, etc. disponibles.",
-    "reloadToApply": "Configuración guardada. ¿Recargar para aplicar los cambios?"
+    "reloadToApply": "Configuración guardada. ¿Recargar para aplicar los cambios?",
+    "general": "General",
+    "welcomeMessage": "Mensaje de Bienvenida",
+    "welcomeMessageText": "Mensaje de Bienvenida",
+    "welcomeMessagePlaceholder": "¡Bienvenido a nuestra plataforma! Visita {politicaPrivacidad} y {terminosYCondiciones}",
+    "welcomeMessageHelpPrefix": "Usa la sintaxis",
+    "welcomeMessageHelpSuffix": "para crear variables de plantilla que serán reemplazadas con URLs reales.",
+    "welcomeMessageVariables": "Variables de Plantilla",
+    "addVariable": "Agregar Variable",
+    "variableName": "Nombre de variable",
+    "variableUrl": "URL",
+    "removeVariable": "Eliminar variable",
+    "noVariablesAdded": "Sin variables agregadas aún. Haz clic en 'Agregar Variable' para comenzar.",
+    "templateVariablesReference": "Referencias de Variables de Plantilla:",
+    "welcomeMessageUpdated": "Mensaje de bienvenida actualizado."
   },
   "integrations": {
     "musicbrainz": {

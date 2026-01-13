@@ -37,6 +37,7 @@
     window.PUSHER_APP_CLUSTER = @json(config('broadcasting.connections.pusher.options.cluster'));
 
     window.BRANDING = @json(koel_branding());
+    window.WELCOME_MESSAGE = @json(koel_welcome_message());
 </script>
 
 @stack('scripts')

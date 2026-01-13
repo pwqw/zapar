@@ -48,4 +48,30 @@ class SettingServiceTest extends TestCase
 
         self::assertSame('/foo/bar', Setting::get('media_path'));
     }
+
+    #[Test]
+    public function updateWelcomeMessageWithoutVariables(): void
+    {
+        $message = 'Welcome to our platform!';
+
+        $this->service->updateWelcomeMessage($message);
+
+        self::assertSame($message, Setting::get('welcome_message'));
+        self::assertSame([], Setting::get('welcome_message_variables'));
+    }
+
+    #[Test]
+    public function updateWelcomeMessageWithVariables(): void
+    {
+        $message = 'Welcome! Visit {{ privacyPolicy }} and {{ terms }}';
+        $variables = [
+            ['name' => 'privacyPolicy', 'url' => 'https://example.com/privacy'],
+            ['name' => 'terms', 'url' => 'https://example.com/terms'],
+        ];
+
+        $this->service->updateWelcomeMessage($message, $variables);
+
+        self::assertSame($message, Setting::get('welcome_message'));
+        self::assertSame($variables, Setting::get('welcome_message_variables'));
+    }
 }

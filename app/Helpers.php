@@ -1,6 +1,7 @@
 <?php
 
 use App\Facades\License;
+use App\Models\Setting;
 use App\Services\SettingService;
 use App\Values\Branding;
 use Illuminate\Support\Arr;
@@ -211,4 +212,25 @@ function koel_branding(?string $key = null): Branding|string|null
     }
 
     return Arr::get($branding->toArray(), $key);
+}
+
+/**
+ * Get the welcome message and its template variables for the login page.
+ *
+ * @return array{message: string, variables: array<int, array{name: string, url: string}>}|null
+ */
+function koel_welcome_message(): ?array
+{
+    $message = Setting::get('welcome_message');
+
+    if (!$message) {
+        return null;
+    }
+
+    $variables = Setting::get('welcome_message_variables') ?? [];
+
+    return [
+        'message' => $message,
+        'variables' => is_array($variables) ? $variables : [],
+    ];
 }
