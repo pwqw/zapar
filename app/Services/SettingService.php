@@ -58,4 +58,43 @@ class SettingService
         Setting::set('welcome_message', $message);
         Setting::set('welcome_message_variables', $variables);
     }
+
+    /**
+     * Get the configured Google Doc pages.
+     *
+     * @return array<int, array{title: string, slug: string, embed_url: string, default_back_url: ?string}>
+     */
+    public function getGoogleDocPages(): array
+    {
+        return Arr::wrap(Setting::get('google_doc_pages') ?? []);
+    }
+
+    /**
+     * Update the Google Doc pages configuration.
+     *
+     * @param array<int, array{title: string, slug: string, embed_url: string, default_back_url: ?string}> $pages
+     */
+    public function updateGoogleDocPages(array $pages): void
+    {
+        Setting::set('google_doc_pages', $pages);
+    }
+
+    /**
+     * Find a Google Doc page by slug.
+     *
+     * @param string $slug
+     * @return array{title: string, slug: string, embed_url: string, default_back_url: ?string}|null
+     */
+    public function findGoogleDocPageBySlug(string $slug): ?array
+    {
+        $pages = $this->getGoogleDocPages();
+
+        foreach ($pages as $page) {
+            if ($page['slug'] === $slug) {
+                return $page;
+            }
+        }
+
+        return null;
+    }
 }

@@ -477,6 +477,7 @@ declare type ScreenName =
   | 'Favorites'
   | 'Genre'
   | 'Genres'
+  | 'GoogleDocViewer'
   | 'Home'
   | 'Invitation.Accept'
   | 'MediaBrowser'

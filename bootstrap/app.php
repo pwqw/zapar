@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AudioAuthenticate;
+use App\Http\Middleware\ContentSecurityPolicy;
 use App\Http\Middleware\ForceHttps;
 use App\Http\Middleware\HandleDemoMode;
 use App\Http\Middleware\ObjectStorageAuthenticate;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(static function (Middleware $middleware): void {
         $middleware->api(append: [
+            ContentSecurityPolicy::class,
             SetLocaleFromBrowser::class,
             RestrictPlusFeatures::class,
             HandleDemoMode::class,
@@ -34,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(append: [
+            ContentSecurityPolicy::class,
             SetLocaleFromBrowser::class,
             RestrictPlusFeatures::class,
             HandleDemoMode::class,

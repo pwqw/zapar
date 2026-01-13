@@ -226,6 +226,15 @@ export const routes = [
       id: ULID_REGEX,
     },
   },
+  {
+    name: 'google-doc-viewer',
+    path: '/document/:slug',
+    screen: 'GoogleDocViewer',
+    meta: {
+      public: true,
+      layout: 'google-doc',
+    },
+  },
 ] as const satisfies Route[]
 
 export type RouteName = typeof routes[number]['name']

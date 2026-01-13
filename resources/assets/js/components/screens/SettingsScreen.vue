@@ -27,6 +27,13 @@
         >
           {{ t('settings.welcomeMessage') }}
         </TabButton>
+        <TabButton
+          :selected="currentTab === 'google-docs'"
+          aria-controls="settingsPaneGoogleDocs"
+          @click="currentTab = 'google-docs'"
+        >
+          {{ t('settings.googleDocPages') }}
+        </TabButton>
       </TabList>
 
       <TabPanelContainer>
@@ -40,6 +47,10 @@
 
         <TabPanel v-if="currentTab === 'welcome'" id="settingsPaneWelcome" aria-labelledby="settingsPaneWelcome">
           <WelcomeMessageForm />
+        </TabPanel>
+
+        <TabPanel v-if="currentTab === 'google-docs'" id="settingsPaneGoogleDocs" aria-labelledby="settingsPaneGoogleDocs">
+          <GoogleDocPagesForm />
         </TabPanel>
       </TabPanelContainer>
     </Tabs>
@@ -70,10 +81,11 @@ const { currentBranding } = useBranding()
 const { isPlus } = useKoelPlus()
 
 const WelcomeMessageForm = defineAsyncComponent(() => import('@/components/screens/settings/WelcomeMessageForm.vue'))
+const GoogleDocPagesForm = defineAsyncComponent(() => import('@/components/screens/settings/GoogleDocPagesForm.vue'))
 
 const { get, set } = useLocalStorage()
 
-const currentTab = ref(get<'general' | 'branding' | 'welcome'>('settingsScreenTab', 'general'))
+const currentTab = ref(get<'general' | 'branding' | 'welcome' | 'google-docs'>('settingsScreenTab', 'general'))
 
 watch(currentTab, tab => set('settingsScreenTab', tab))
 </script>

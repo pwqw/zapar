@@ -323,7 +323,27 @@
     "removeVariable": "Eliminar variable",
     "noVariablesAdded": "Sin variables agregadas aún. Haz clic en 'Agregar Variable' para comenzar.",
     "templateVariablesReference": "Referencias de Variables de Plantilla:",
-    "welcomeMessageUpdated": "Mensaje de bienvenida actualizado."
+    "welcomeMessageUpdated": "Mensaje de bienvenida actualizado.",
+    "googleDocPages": "Páginas Embebidas",
+    "googleDocPagesHelp": "Configura páginas que embeben contenido externo (Google Docs, PDFs, etc.).",
+    "addPage": "Agregar Página",
+    "pageName": "Nombre de Página",
+    "pageTitle": "Título de la Página",
+    "pageTitlePlaceholder": "Ej: Términos y Condiciones",
+    "pageSlug": "Slug de URL",
+    "pageSlugPlaceholder": "terminos-y-condiciones",
+    "pageSlugHelp": "Usa solo letras minúsculas, números y guiones. Será usado en la URL: /#/document/slug",
+    "embedUrl": "URL de Embebido",
+    "embedUrlPlaceholder": "https://docs.google.com/document/d/e/2PACX-.../pub?embedded=true",
+    "embedUrlHelp": "URL completa del contenido a embeber. Para Google Docs: Archivo > Compartir > Publicar en la web, copia la URL completa.",
+    "defaultBackUrl": "URL de Regreso por Defecto (Opcional)",
+    "defaultBackUrlPlaceholder": "/#/home",
+    "defaultBackUrlHelp": "URL de respaldo si no hay historial del navegador. Generalmente no es necesaria.",
+    "removePage": "Eliminar página",
+    "noPagesAdded": "Sin páginas agregadas aún. Haz clic en 'Agregar Página' para comenzar.",
+    "pageUrl": "URL de la Página:",
+    "googleDocPagesSaved": "Páginas embebidas guardadas correctamente.",
+    "errorSaving": "Error al guardar la configuración."
   },
   "integrations": {
     "musicbrainz": {

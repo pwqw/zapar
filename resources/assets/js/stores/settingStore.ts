@@ -2,6 +2,13 @@ import { reactive } from 'vue'
 import { merge } from 'lodash'
 import { http } from '@/services/http'
 
+export interface GoogleDocPage {
+  title: string
+  slug: string
+  embed_url: string
+  default_back_url?: string
+}
+
 export const settingStore = {
   state: reactive<Settings>({
     media_path: '',
@@ -28,5 +35,20 @@ export const settingStore = {
       message,
       variables,
     })
+  },
+
+  async updateGoogleDocPages (pages: GoogleDocPage[]) {
+    await http.put('settings/google-doc-pages', {
+      pages,
+    })
+  },
+
+  async getGoogleDocPages (): Promise<GoogleDocPage[]> {
+    const response = await http.get<{ pages: GoogleDocPage[] }>('settings/google-doc-pages')
+    return response.pages
+  },
+
+  async getGoogleDocPageBySlug (slug: string): Promise<GoogleDocPage> {
+    return await http.get<GoogleDocPage>(`google-doc-pages/${slug}`)
   },
 }
