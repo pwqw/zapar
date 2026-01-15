@@ -27,7 +27,7 @@ class ContentSecurityPolicy
             "default-src 'self'",
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.lemonsqueezy.com{$viteDevServer}",
             "style-src 'self' 'unsafe-inline'{$viteDevServer}",
-            "img-src 'self' data: https: blob:",
+            "img-src 'self' data: https: blob:{$viteDevServer}",
             "font-src 'self' data:",
             "connect-src 'self' wss: ws:{$viteConnectSrc}",
             "media-src 'self' blob:",
