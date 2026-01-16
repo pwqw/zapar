@@ -24,6 +24,7 @@ class UserFactory extends Factory
             ],
             'remember_token' => Str::random(10),
             'organization_id' => Organization::default()->id,
+            'verified' => false,
         ];
     }
 

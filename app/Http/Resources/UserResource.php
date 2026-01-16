@@ -9,7 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    public const array JSON_STRUCTURE = [
+    public const JSON_STRUCTURE = [
         'type',
         'id',
         'name',
@@ -22,11 +22,11 @@ class UserResource extends JsonResource
         'is_admin',
         'role',
         'permissions',
+        'verified',
     ];
 
-    public function __construct(
-        private readonly User $user,
-    ) {
+    public function __construct(private readonly User $user)
+    {
         parent::__construct($user);
     }
 
@@ -47,10 +47,11 @@ class UserResource extends JsonResource
             'sso_id' => $this->user->sso_id,
             'is_admin' => $this->user->role === Role::ADMIN, // @todo remove this backward-compatibility field
             'role' => $this->user->role,
-            'permissions' => $this->when($isCurrentUser, fn () => $this->user
-                ->getPermissionsViaRoles()
-                ->pluck('name')
-                ->toArray()),
+            'permissions' => $this->when(
+                $isCurrentUser,
+                fn () => $this->user->getPermissionsViaRoles()->pluck('name')->toArray(),
+            ),
+            'verified' => $this->user->verified,
         ];
     }
 }

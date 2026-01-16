@@ -20,6 +20,7 @@ final readonly class UserCreateData implements Arrayable
         public ?string $avatar = null,
         public ?string $ssoId = null,
         public ?string $ssoProvider = null,
+        public bool $verified = false,
     ) {
         if ($ssoProvider) {
             SsoUser::assertValidProvider($ssoProvider);
@@ -49,6 +50,7 @@ final readonly class UserCreateData implements Arrayable
         ?string $avatar = null,
         ?string $ssoId = null,
         ?string $ssoProvider = null,
+        bool $verified = false,
     ): self {
         return new self(
             name: $name,
@@ -58,6 +60,7 @@ final readonly class UserCreateData implements Arrayable
             avatar: $avatar,
             ssoId: $ssoId,
             ssoProvider: $ssoProvider,
+            verified: $verified,
         );
     }
 
@@ -72,6 +75,7 @@ final readonly class UserCreateData implements Arrayable
             'avatar' => $this->avatar,
             'sso_id' => $this->ssoId,
             'sso_provider' => $this->ssoProvider,
+            'verified' => $this->verified,
         ];
     }
 }

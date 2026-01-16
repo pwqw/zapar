@@ -47,6 +47,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $organization_id
  * @property string $password
  * @property string $public_id
+ * @property bool $verified
  * @property-read ?string $sso_id
  * @property-read ?string $sso_provider
  * @property-read bool $connected_to_lastfm Whether the user is connected to Last.fm
@@ -79,9 +80,13 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     protected array $auditExclude = ['password', 'remember_token', 'invitation_token'];
     protected $with = ['roles', 'permissions'];
 
-    protected $casts = [
-        'preferences' => UserPreferencesCast::class,
-    ];
+    protected function casts(): array
+    {
+        return [
+            'preferences' => UserPreferencesCast::class,
+            'verified' => 'boolean',
+        ];
+    }
 
     public static function query(): UserBuilder
     {
@@ -323,6 +328,44 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     public function canManage(User $other): bool
     {
         return $this->role->canManage($other->role);
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verified;
+    }
+
+    /**
+     * Check if this user can verify another user.
+     *
+     * - ADMIN can verify any user they can manage (globally)
+     * - MODERATOR can verify users they can manage in their organization
+     * - Manager (verified) can verify their assigned artists
+     * - Manager (not verified) cannot verify anyone
+     */
+    public function canVerify(User $other): bool
+    {
+        // Admin can verify users they can manage globally
+        if ($this->isAdmin()) {
+            return $this->canManage($other);
+        }
+
+        // Moderator can verify users in their organization
+        if ($this->isModerator()) {
+            return $this->organization_id === $other->organization_id && $this->canManage($other);
+        }
+
+        // Manager must be verified to verify others
+        if ($this->isManager()) {
+            if (!$this->isVerified()) {
+                return false;
+            }
+
+            // Can only verify their assigned artists
+            return $other->isArtist() && $this->managedArtists()->whereKey($other->id)->exists();
+        }
+
+        return false;
     }
 
     /**
