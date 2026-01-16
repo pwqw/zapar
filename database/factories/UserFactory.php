@@ -36,6 +36,16 @@ class UserFactory extends Factory
         return $this->afterCreating(static fn (User $user) => $user->syncRoles(Role::MANAGER)); // @phpstan-ignore-line
     }
 
+    public function moderator(): self
+    {
+        return $this->afterCreating(static fn (User $user) => $user->syncRoles(Role::MODERATOR)); // @phpstan-ignore-line
+    }
+
+    public function artist(): self
+    {
+        return $this->afterCreating(static fn (User $user) => $user->syncRoles(Role::ARTIST)); // @phpstan-ignore-line
+    }
+
     public function prospect(): self
     {
         return $this->state(fn () => [ // @phpcs:ignore

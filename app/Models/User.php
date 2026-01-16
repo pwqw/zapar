@@ -168,6 +168,26 @@ class User extends Authenticatable implements AuditableContract, Permissionable
         return $this->hasMany(RadioStation::class);
     }
 
+    public function managedArtists(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            __CLASS__,
+            'manager_artist',
+            'manager_id',
+            'artist_id'
+        )->withTimestamps();
+    }
+
+    public function managers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            __CLASS__,
+            'manager_artist',
+            'artist_id',
+            'manager_id'
+        )->withTimestamps();
+    }
+
     public function themes(): HasMany
     {
         return $this->hasMany(Theme::class);
@@ -255,9 +275,102 @@ class User extends Authenticatable implements AuditableContract, Permissionable
         );
     }
 
+    public function isArtist(): bool
+    {
+        return $this->role === RoleEnum::ARTIST;
+    }
+
+    public function isManager(): bool
+    {
+        return $this->role === RoleEnum::MANAGER;
+    }
+
+    public function isModerator(): bool
+    {
+        return $this->role === RoleEnum::MODERATOR;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === RoleEnum::ADMIN;
+    }
+
+    public function canUploadAs(User $artist): bool
+    {
+        // User can upload as themselves or as an artist they manage
+        if ($this->id === $artist->id) {
+            return true;
+        }
+
+        // Manager can upload as any of their managed artists
+        if ($this->isManager()) {
+            return $this->managedArtists()->whereKey($artist->id)->exists();
+        }
+
+        // Moderator can upload as any artist in their organization
+        if ($this->isModerator() && $artist->organization_id === $this->organization_id) {
+            return true;
+        }
+
+        // Admin can upload as any artist
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function canManage(User $other): bool
     {
         return $this->role->canManage($other->role);
+    }
+
+    /**
+     * Check if this manager can edit content belonging to an artist.
+     *
+     * Rules:
+     * - If artist has only 1 manager: that manager can edit ALL content
+     * - If artist has 2+ managers: each manager can only edit:
+     *   - Content they uploaded themselves (uploaded_by_id = manager.id)
+     *   - Content the artist uploaded themselves (uploaded_by_id = artist.id)
+     *   - But NOT content uploaded by other managers
+     *
+     * @param User $artist The artist who owns the content
+     * @param int|null $uploadedById The ID of who uploaded the content
+     * @return bool
+     */
+    public function canEditArtistContent(User $artist, ?int $uploadedById): bool
+    {
+        // Not a manager relationship? No access
+        if (!$this->isManager() || !$this->managedArtists()->whereKey($artist->id)->exists()) {
+            return false;
+        }
+
+        // If content has no uploader info, allow edit (legacy content)
+        if ($uploadedById === null) {
+            return true;
+        }
+
+        // Manager can always edit content they uploaded themselves
+        if ($uploadedById === $this->id) {
+            return true;
+        }
+
+        // Manager can always edit content the artist uploaded themselves
+        if ($uploadedById === $artist->id) {
+            return true;
+        }
+
+        // Count how many managers this artist has
+        $managerCount = $artist->managers()->count();
+
+        // If artist has only 1 manager, that manager can edit everything
+        if ($managerCount === 1) {
+            return true;
+        }
+
+        // Artist has 2+ managers: can't edit content uploaded by other managers
+        return false;
     }
 
     public static function getPermissionableIdentifier(): string

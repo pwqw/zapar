@@ -22,6 +22,16 @@ function create_manager(array $attributes = []): User
     return User::factory()->manager()->create($attributes);
 }
 
+function create_moderator(array $attributes = []): User
+{
+    return User::factory()->moderator()->create($attributes);
+}
+
+function create_artist(array $attributes = []): User
+{
+    return User::factory()->artist()->create($attributes);
+}
+
 function create_user_prospect(array $attributes = []): User
 {
     return User::factory()->prospect()->create($attributes);
