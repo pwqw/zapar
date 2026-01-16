@@ -162,15 +162,23 @@
     "roles": {
       "admin": {
         "label": "Administrador",
-        "description": "Los administradores pueden gestionar todo."
+        "description": "Acceso completo al sistema y configuración."
+      },
+      "moderator": {
+        "label": "Moderador",
+        "description": "Gestionar usuarios en su organización y publicar contenido."
       },
       "manager": {
-        "label": "Gerente",
-        "description": "Los gerentes pueden gestionar usuarios y realizar otras tareas administrativas."
+        "label": "Manager",
+        "description": "Gestionar un grupo de artistas y subir contenido en su nombre."
+      },
+      "artist": {
+        "label": "Artista",
+        "description": "Subir y gestionar su propio contenido (privado por defecto)."
       },
       "user": {
         "label": "Usuario",
-        "description": "Los usuarios pueden subir y gestionar su propia música."
+        "description": "Escuchar y descargar contenido público."
       }
     },
     "editAction": "Editar…",

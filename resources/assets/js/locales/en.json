@@ -156,15 +156,23 @@
     "roles": {
       "admin": {
         "label": "Admin",
-        "description": "Admins can manage everything."
+        "description": "Full system access and configuration."
+      },
+      "moderator": {
+        "label": "Moderator",
+        "description": "Manage users in their organization and publish content."
       },
       "manager": {
         "label": "Manager",
-        "description": "Managers can manage users and perform other management tasks."
+        "description": "Manage a group of artists and upload content on their behalf."
+      },
+      "artist": {
+        "label": "Artist",
+        "description": "Upload and manage their own content (private by default)."
       },
       "user": {
         "label": "User",
-        "description": "Users can upload and manage their own music."
+        "description": "Listen and download public content."
       }
     },
     "editAction": "Edit…",

@@ -185,6 +185,7 @@ interface BasePlayable extends IStreamable {
 interface Song extends BasePlayable {
   type: 'songs'
   readonly owner_id: User['id']
+  uploaded_by_id?: User['id']
   album_id: Album['id']
   album_name: Album['name']
   album_cover: Album['cover']
@@ -220,6 +221,8 @@ interface Episode extends BasePlayable {
 
 interface RadioStation extends IStreamable {
   readonly type: 'radio-stations'
+  readonly user_id: User['id']
+  uploaded_by_id?: User['id']
   name: string
   url: string
   logo: string | null
@@ -395,8 +398,8 @@ interface UserPreferences extends Record<string, any> {
   lastfm_session_key?: string
 }
 
-type Permission = 'manage settings' | 'manage users' | 'manage songs' | 'manage podcasts' | 'manage radio stations'
-type Role = ('admin' | 'manager' | 'user') & string
+type Permission = 'manage settings' | 'manage all users' | 'manage org users' | 'manage artists' | 'upload content' | 'publish content'
+type Role = ('admin' | 'moderator' | 'manager' | 'artist' | 'user') & string
 
 interface User {
   type: 'users'
