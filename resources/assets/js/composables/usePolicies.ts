@@ -9,7 +9,7 @@ export const usePolicies = () => {
 
   const currentUserCan = {
     editSong: (songs: MaybeArray<Song>) => {
-      if (currentUser.value.permissions.includes('manage songs')) {
+      if (currentUser.value.permissions.includes('upload content')) {
         return true
       }
 
@@ -35,11 +35,37 @@ export const usePolicies = () => {
     },
 
     // If the user has the permission, they can always add a radio station, even in demo mode.
-    addRadioStation: () => !window.IS_DEMO || currentUser.value.permissions.includes('manage radio stations'),
+    addRadioStation: () => !window.IS_DEMO || currentUser.value.permissions.includes('upload content'),
 
     manageSettings: () => currentUser.value.permissions.includes('manage settings'),
-    manageUsers: () => currentUser.value.permissions.includes('manage users'),
-    uploadSongs: () => isPlus.value || currentUser.value.permissions.includes('manage songs'),
+    manageUsers: () => currentUser.value.permissions.includes('manage all users') || currentUser.value.permissions.includes('manage org users') || currentUser.value.permissions.includes('manage artists'),
+    uploadSongs: () => isPlus.value || currentUser.value.permissions.includes('upload content'),
+
+    // New methods for the refactored role system
+    canPublish: () => {
+      // Only moderators and admins can publish (make items public)
+      return currentUser.value.permissions.includes('publish content')
+    },
+
+    canUploadAs: (artistId: string) => {
+      // Managers can upload as their managed artists
+      if (!currentUser.value.permissions.includes('manage artists')) {
+        return false
+      }
+
+      // Current user can always upload as themselves
+      if (artistId === currentUser.value.id) {
+        return true
+      }
+
+      // Admins can upload as anyone
+      return currentUser.value.permissions.includes('manage settings')
+    },
+
+    canManageArtists: () => {
+      // Only managers (and admins via inheritance) can manage artists
+      return currentUser.value.permissions.includes('manage artists')
+    },
   }
 
   return {
