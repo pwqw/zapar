@@ -3,6 +3,7 @@
 namespace Tests\Unit\Rules;
 
 use App\Rules\ValidRadioStationUrl;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -61,10 +62,11 @@ class ValidRadioStationUrlTest extends TestCase
     public function fallsBackToGetWhenHeadFails(): void
     {
         Http::fake([
-            'example.com/stream' => function ($request) {
+            'example.com/stream' => static function ($request) {
                 if ($request->method() === 'HEAD') {
                     return Http::response('', 405); // Method not allowed
                 }
+
                 return Http::response('', 200, ['Content-Type' => 'audio/mpeg']);
             },
         ]);
@@ -118,8 +120,8 @@ class ValidRadioStationUrlTest extends TestCase
     {
         // Only fail when there's a clear connection error
         Http::fake([
-            '*' => function () {
-                throw new \Illuminate\Http\Client\ConnectionException('Connection timeout');
+            '*' => static function (): void {
+                throw new ConnectionException('Connection timeout');
             },
         ]);
 
