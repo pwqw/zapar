@@ -32,8 +32,15 @@ class UserService
 
         /** @var User $user */
         $user = $organization->users()->create($data);
+        $user = $user->syncRoles($dto->role);
 
-        return $user->syncRoles($dto->role);
+        // If the current user is a manager and creating an artist, create the manager-artist relationship
+        $currentUser = auth()->user();
+        if ($currentUser && $currentUser->isManager() && $user->isArtist()) {
+            $currentUser->managedArtists()->attach($user);
+        }
+
+        return $user;
     }
 
     public function createOrUpdateUserFromSso(SsoUser $ssoUser): User
@@ -68,6 +75,11 @@ class UserService
         if ($user->sso_provider) {
             // SSO users cannot change their password or email
             Arr::forget($data, ['password', 'email']);
+        }
+
+        // Only update verified if explicitly set
+        if ($dto->verified !== null) {
+            $data['verified'] = $dto->verified;
         }
 
         $user->update($data);

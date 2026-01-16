@@ -412,6 +412,7 @@ interface User {
   role: Role
   sso_provider: SSOProvider | null
   sso_id: string | null
+  verified: boolean
   preferences?: UserPreferences
   permissions?: Permission[]
 }

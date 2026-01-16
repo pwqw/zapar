@@ -36,6 +36,10 @@
         <template #help>{{ t('users.passwordRequirements') }}</template>
       </FormRow>
       <RolePicker v-model="data.role" />
+      <FormRow v-if="canEditVerified">
+        <template #label>{{ t('users.verified') }}</template>
+        <CheckBox v-model="data.verified" name="verified" :disabled="!canEditVerified" />
+      </FormRow>
     </main>
 
     <footer>
@@ -46,6 +50,7 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { pick } from 'lodash'
 import type { UpdateUserData } from '@/stores/userStore'
@@ -58,6 +63,7 @@ import Btn from '@/components/ui/form/Btn.vue'
 import AlertBox from '@/components/ui/AlertBox.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
+import CheckBox from '@/components/ui/form/CheckBox.vue'
 import RolePicker from '@/components/user/RolePicker.vue'
 
 const props = defineProps<{ user: User }>()
@@ -73,7 +79,7 @@ const close = () => emit('close')
 
 const { data, isPristine, handleSubmit } = useForm<UpdateUserData>({
   initialValues: {
-    ...pick(user, 'name', 'email', 'role'),
+    ...pick(user, 'name', 'email', 'role', 'verified'),
     password: '',
   },
   onSubmit: async data => {
@@ -96,4 +102,30 @@ const maybeClose = async () => {
     close()
   }
 }
+
+const canEditVerified = computed(() => {
+  const currentUser = userStore.current
+  const userRole = currentUser.role
+
+  // Admin can always edit verified
+  if (userRole === 'admin') {
+    return true
+  }
+
+  // Moderator can edit verified for users in their org
+  // (We assume same org since API enforces this)
+  if (userRole === 'moderator') {
+    return true
+  }
+
+  // Verified manager can edit verified for their managed artists
+  if (userRole === 'manager' && currentUser.verified) {
+    // Check if current user manages this user
+    // This would require additional data structure support
+    // For now, we'll enable it and let the backend enforce authorization
+    return user.role === 'artist'
+  }
+
+  return false
+})
 </script>

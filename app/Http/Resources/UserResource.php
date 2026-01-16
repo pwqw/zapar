@@ -22,6 +22,7 @@ class UserResource extends JsonResource
         'is_admin',
         'role',
         'permissions',
+        'verified',
     ];
 
     public function __construct(private readonly User $user)
@@ -50,6 +51,7 @@ class UserResource extends JsonResource
                 $isCurrentUser,
                 fn () => $this->user->getPermissionsViaRoles()->pluck('name')->toArray(),
             ),
+            'verified' => $this->user->verified,
         ];
     }
 }

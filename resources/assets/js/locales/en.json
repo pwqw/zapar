@@ -133,6 +133,7 @@
     "email": "Email",
     "password": "Password",
     "passwordRequirements": "Min. 10 characters. Should be a mix of characters, numbers, and symbols.",
+    "verified": "Verified",
     "save": "Save",
     "update": "Update",
     "cancel": "Cancel",

@@ -139,6 +139,7 @@
     "email": "Correo",
     "password": "Contraseña",
     "passwordRequirements": "Mín. 10 caracteres. Debe ser una mezcla de letras, números y símbolos.",
+    "verified": "Verificado",
     "save": "Guardar",
     "update": "Actualizar",
     "cancel": "Cancelar",
