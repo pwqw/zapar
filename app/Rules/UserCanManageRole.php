@@ -21,7 +21,10 @@ class UserCanManageRole implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!$this->user->role->canManage(Role::from($value))) {
+        $roleToCreate = Role::from($value);
+
+        // Users can only manage roles strictly lower than their own
+        if (!$this->user->role->greaterThan($roleToCreate)) {
             $fail("The role $value is not manageable by the current user's role {$this->user->role->value}.");
         }
     }
