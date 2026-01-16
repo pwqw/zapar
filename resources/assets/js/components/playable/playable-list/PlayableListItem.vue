@@ -27,6 +27,7 @@
       <span class="title-artist flex flex-col gap-2 overflow-hidden">
         <span class="title text-k-fg !flex gap-2 items-center">
           <ExternalMark v-if="external" />
+          <PrivateBadge v-if="isSong(playable) && !playable.is_public" label="Privado" />
           <span class="flex-1">{{ playable.title }}</span>
         </span>
         <span class="artist">{{ artist }}</span>
@@ -70,6 +71,7 @@ import PlayableThumbnail from '@/components/playable/PlayableThumbnail.vue'
 import UserAvatar from '@/components/user/UserAvatar.vue'
 import ExternalMark from '@/components/ui/ExternalMark.vue'
 import FavoriteButton from '@/components/ui/FavoriteButton.vue'
+import PrivateBadge from '@/components/ui/PrivateBadge.vue'
 
 const props = withDefaults(defineProps<{ item: PlayableRow, showDisc?: boolean }>(), {
   showDisc: false,

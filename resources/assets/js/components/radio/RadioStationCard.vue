@@ -11,7 +11,8 @@
 
     <footer class="flex flex-1 flex-col gap-1.5 overflow-hidden">
       <div class="name flex flex-col gap-2 whitespace-nowrap">
-        <h3 class="font-medium text-k-fg">
+        <h3 class="font-medium text-k-fg flex gap-2 items-center">
+          <PrivateBadge v-if="!station.is_public" label="Privado" />
           {{ station.name }}
           <FavoriteButton v-if="station.favorite" :favorite="station.favorite" class="ml-1" @toggle="toggleFavorite" />
         </h3>
@@ -32,6 +33,7 @@ import { radioStationStore } from '@/stores/radioStationStore'
 import { playback } from '@/services/playbackManager'
 
 import RadioStationThumbnail from '@/components/radio/RadioStationThumbnail.vue'
+import PrivateBadge from '@/components/ui/PrivateBadge.vue'
 
 const props = withDefaults(defineProps<{ layout?: CardLayout, station: RadioStation }>(), {
   layout: 'full',

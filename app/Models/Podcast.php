@@ -33,6 +33,7 @@ use PhanAn\Poddle\Values\ChannelMetadata;
  * @property int $added_by
  * @property Carbon $last_synced_at
  * @property ?string $author
+ * @property bool $is_public
  */
 class Podcast extends Model implements Favoriteable
 {
@@ -49,6 +50,7 @@ class Podcast extends Model implements Favoriteable
         'metadata' => PodcastMetadataCast::class,
         'last_synced_at' => 'datetime',
         'explicit' => 'boolean',
+        'is_public' => 'boolean',
     ];
 
     public static function query(): PodcastBuilder

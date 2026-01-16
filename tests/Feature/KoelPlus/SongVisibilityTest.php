@@ -13,7 +13,7 @@ class SongVisibilityTest extends PlusTestCase
     #[Test]
     public function makingSongPublic(): void
     {
-        $currentUser = create_user();
+        $currentUser = create_user(['verified' => true]);
         $anotherUser = create_user();
 
         $externalSongs = Song::factory(2)->for($anotherUser, 'owner')->private()->create();
@@ -22,7 +22,7 @@ class SongVisibilityTest extends PlusTestCase
         $this->putAs('api/songs/publicize', ['songs' => $externalSongs->modelKeys()], $currentUser)
             ->assertForbidden();
 
-        // But we can our own songs.
+        // But we can our own songs (if verified).
         $ownSongs = Song::factory(2)->for($currentUser, 'owner')->create();
 
         $this->putAs('api/songs/publicize', ['songs' => $ownSongs->modelKeys()], $currentUser)
@@ -34,7 +34,7 @@ class SongVisibilityTest extends PlusTestCase
     #[Test]
     public function makingSongPrivate(): void
     {
-        $currentUser = create_user();
+        $currentUser = create_user(['verified' => true]);
         $anotherUser = create_user();
 
         $externalSongs = Song::factory(2)->for($anotherUser, 'owner')->public()->create();
@@ -43,7 +43,7 @@ class SongVisibilityTest extends PlusTestCase
         $this->putAs('api/songs/privatize', ['songs' => $externalSongs->modelKeys()], $currentUser)
             ->assertForbidden();
 
-        // But we can our own songs.
+        // But we can our own songs (if verified).
         $ownSongs = Song::factory(2)->for($currentUser, 'owner')->create();
 
         $this->putAs('api/songs/privatize', ['songs' => $ownSongs->modelKeys()], $currentUser)

@@ -10,7 +10,8 @@
     </aside>
     <main class="flex-1">
       <header>
-        <h3 class="text-3xl font-bold">
+        <h3 class="text-3xl font-bold flex gap-2 items-center">
+          <PrivateBadge v-if="!podcast.is_public" label="Privado" />
           {{ podcast.title }}
           <FavoriteButton
             v-if="podcast.favorite"
@@ -43,6 +44,7 @@ import { useRouter } from '@/composables/useRouter'
 import { podcastStore } from '@/stores/podcastStore'
 import { useContextMenu } from '@/composables/useContextMenu'
 import { defineAsyncComponent } from '@/utils/helpers'
+import PrivateBadge from '@/components/ui/PrivateBadge.vue'
 
 const { podcast } = defineProps<{ podcast: Podcast }>()
 const FavoriteButton = defineAsyncComponent(() => import('@/components/ui/FavoriteButton.vue'))

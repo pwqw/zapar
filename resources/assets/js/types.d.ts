@@ -343,6 +343,7 @@ interface Podcast {
     progresses: Record<Playable['id'], number>
   }
   favorite: boolean
+  is_public: boolean
 }
 
 interface YouTubeVideo {

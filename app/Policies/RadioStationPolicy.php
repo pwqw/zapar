@@ -70,9 +70,24 @@ class RadioStationPolicy
 
     public function publish(User $user, RadioStation $station): bool
     {
-        // Only moderators and admins can publish
-        if ($user->role === Role::MODERATOR || $user->role === Role::ADMIN) {
-            return $user->organization_id === $station->user->organization_id || $user->role === Role::ADMIN;
+        // Admin can always publish
+        if ($user->role === Role::ADMIN) {
+            return true;
+        }
+
+        // Moderator can publish in their organization
+        if ($user->role === Role::MODERATOR) {
+            return $user->organization_id === $station->user->organization_id;
+        }
+
+        // Verified users can publish their own stations
+        if ($user->isVerified() && $station->user_id === $user->id) {
+            return true;
+        }
+
+        // Verified users can publish stations of their managed artists
+        if ($user->isVerified() && $station->user && $user->canEditArtistContent($station->user, $station->uploaded_by_id)) {
+            return true;
         }
 
         return false;

@@ -44,6 +44,11 @@ class RadioStationController extends Controller
     {
         $this->authorize('update', $station);
 
+        // If is_public is being changed, verify publish permission
+        if ($request->has('is_public')) {
+            $this->authorize('publish', $station);
+        }
+
         return RadioStationResource::make($this->radioService->updateRadioStation($station, $request->toDto()));
     }
 
