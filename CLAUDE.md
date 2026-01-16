@@ -1,4 +1,29 @@
 <laravel-boost-guidelines>
+
+## IMPORTANTE: Docker Compose
+
+**Todos los comandos deben ejecutarse dentro del contenedor Docker Compose.**
+
+Utiliza el siguiente formato para ejecutar comandos:
+```bash
+docker exec koel_dev <comando>
+```
+
+Ejemplos:
+```bash
+# PHP/Artisan
+docker exec koel_dev php artisan migrate
+docker exec koel_dev php artisan test
+
+# Node/NPM
+docker exec koel_dev npm run lint
+docker exec koel_dev npm run build
+
+# Composer
+docker exec koel_dev composer install
+docker exec koel_dev composer test
+```
+
 === foundation rules ===
 
 # Laravel Boost Guidelines
