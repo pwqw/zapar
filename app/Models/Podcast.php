@@ -9,8 +9,6 @@ use App\Models\Concerns\MorphsToFavorites;
 use App\Models\Contracts\Favoriteable;
 use App\Models\Song as Episode;
 use Carbon\Carbon;
-use Database\Factories\PodcastFactory;
-use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,10 +33,8 @@ use PhanAn\Poddle\Values\ChannelMetadata;
  * @property int $added_by
  * @property Carbon $last_synced_at
  * @property ?string $author
- *
- * @method static PodcastFactory factory(...$parameters)
+ * @property bool $is_public
  */
-#[UseEloquentBuilder(PodcastBuilder::class)]
 class Podcast extends Model implements Favoriteable
 {
     use HasFactory;
@@ -49,20 +45,23 @@ class Podcast extends Model implements Favoriteable
     protected $hidden = ['created_at', 'updated_at'];
     protected $guarded = [];
 
-    protected function casts(): array
-    {
-        return [
-            'categories' => CategoriesCast::class,
-            'metadata' => PodcastMetadataCast::class,
-            'last_synced_at' => 'datetime',
-            'explicit' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'categories' => CategoriesCast::class,
+        'metadata' => PodcastMetadataCast::class,
+        'last_synced_at' => 'datetime',
+        'explicit' => 'boolean',
+        'is_public' => 'boolean',
+    ];
 
     public static function query(): PodcastBuilder
     {
         /** @var PodcastBuilder */
         return parent::query()->addSelect('podcasts.*');
+    }
+
+    public function newEloquentBuilder($query): PodcastBuilder
+    {
+        return new PodcastBuilder($query);
     }
 
     public function episodes(): HasMany
@@ -72,8 +71,7 @@ class Podcast extends Model implements Favoriteable
 
     public function subscribers(): BelongsToMany
     {
-        return $this
-            ->belongsToMany(User::class)
+        return $this->belongsToMany(User::class)
             ->using(PodcastUserPivot::class)
             ->withPivot('state')
             ->withTimestamps();

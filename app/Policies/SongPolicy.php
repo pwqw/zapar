@@ -81,9 +81,24 @@ class SongPolicy
 
     public function publish(User $user, Song $song): bool
     {
-        // Only moderators and admins can publish
-        if ($user->role === Role::MODERATOR || $user->role === Role::ADMIN) {
-            return $user->organization_id === $song->owner?->organization_id || $user->role === Role::ADMIN;
+        // Admin can always publish
+        if ($user->role === Role::ADMIN) {
+            return true;
+        }
+
+        // Moderator can publish in their organization
+        if ($user->role === Role::MODERATOR) {
+            return $user->organization_id === $song->owner?->organization_id;
+        }
+
+        // Verified users can publish their own songs
+        if ($user->isVerified() && $song->ownedBy($user)) {
+            return true;
+        }
+
+        // Verified users can publish songs of their managed artists
+        if ($user->isVerified() && $song->owner && $user->canEditArtistContent($song->owner, $song->uploaded_by_id)) {
+            return true;
         }
 
         return false;
