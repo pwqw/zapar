@@ -3,21 +3,24 @@
 namespace App\Enums\Acl;
 
 use App\Exceptions\KoelPlusRequiredException;
-use App\Facades\License;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 
 enum Role: string implements Arrayable
 {
     case ADMIN = 'admin';
+    case MODERATOR = 'moderator';
     case MANAGER = 'manager';
+    case ARTIST = 'artist';
     case USER = 'user';
 
     public function label(): string
     {
         return match ($this) {
             self::ADMIN => 'Admin',
+            self::MODERATOR => 'Moderator',
             self::MANAGER => 'Manager',
+            self::ARTIST => 'Artist',
             self::USER => 'User',
         };
     }
@@ -30,8 +33,10 @@ enum Role: string implements Arrayable
     public function level(): int
     {
         return match ($this) {
-            self::ADMIN => 3,
-            self::MANAGER => 2,
+            self::ADMIN => 5,
+            self::MODERATOR => 4,
+            self::MANAGER => 3,
+            self::ARTIST => 2,
             self::USER => 1,
         };
     }
@@ -53,10 +58,7 @@ enum Role: string implements Arrayable
 
     public function available(): bool
     {
-        return match ($this) {
-            self::ADMIN, self::USER => true,
-            self::MANAGER => once(static fn () => License::isPlus()),
-        };
+        return true; // All roles are now available
     }
 
     public function assertAvailable(): void
@@ -72,16 +74,12 @@ enum Role: string implements Arrayable
 
     public function description(): string
     {
-        $isCommunity = once(static fn () => License::isCommunity());
-
         return match ($this) {
-            self::ADMIN => 'Admins can manage everything.',
-            self::MANAGER => $isCommunity
-                ? 'Managers can manage users, upload musics, and perform other management tasks.'
-                : 'Managers can manage users and perform other management tasks.',
-            self::USER => $isCommunity
-                ? 'Users can play music and manage their own playlists.'
-                : 'Users can upload and manage their own music.',
+            self::ADMIN => 'Full system access and configuration.',
+            self::MODERATOR => 'Manage users in their organization and publish content.',
+            self::MANAGER => 'Manage a group of artists and upload content on their behalf.',
+            self::ARTIST => 'Upload and manage their own content (private by default).',
+            self::USER => 'Listen and download public content.',
         };
     }
 

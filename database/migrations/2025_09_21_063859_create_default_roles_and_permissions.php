@@ -16,12 +16,22 @@ return new class extends Migration {
         RoleModel::findOrCreate(Role::ADMIN->value)
             ->givePermissionTo(Permission::cases());
 
+        RoleModel::findOrCreate(Role::MODERATOR->value)
+            ->givePermissionTo([
+                Permission::MANAGE_ORG_USERS,
+                Permission::UPLOAD_CONTENT,
+                Permission::PUBLISH_CONTENT,
+            ]);
+
         RoleModel::findOrCreate(Role::MANAGER->value)
             ->givePermissionTo([
-                Permission::MANAGE_USERS,
-                Permission::MANAGE_PODCASTS,
-                Permission::MANAGE_SONGS,
-                Permission::MANAGE_RADIO_STATIONS,
+                Permission::MANAGE_ARTISTS,
+                Permission::UPLOAD_CONTENT,
+            ]);
+
+        RoleModel::findOrCreate(Role::ARTIST->value)
+            ->givePermissionTo([
+                Permission::UPLOAD_CONTENT,
             ]);
 
         RoleModel::findOrCreate(Role::USER->value);
