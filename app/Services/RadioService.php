@@ -30,6 +30,7 @@ class RadioService
             'logo' => $logoFileName,
             'description' => $dto->description,
             'is_public' => $dto->isPublic,
+            'uploaded_by_id' => $user->id,
         ]);
 
         return $this->repository->findOneWithUserContext($station->id, $user);

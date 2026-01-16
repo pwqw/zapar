@@ -142,15 +142,25 @@ class SongService
         return $this->songRepository->getOne($song->id);
     }
 
-    public function markSongsAsPublic(EloquentCollection $songs): void
+    public function markSongsAsPublic(EloquentCollection $songs, ?User $user = null): void
     {
+        // If a user is provided, only allow if they have publish permission
+        if ($user) {
+            $songs = $songs->filter(static fn (Song $song) => auth()->user()?->can('publish', $song));
+        }
+
         $songs->toQuery()->update(['is_public' => true]);
     }
 
     /** @return array<string> IDs of songs that are marked as private */
-    public function markSongsAsPrivate(EloquentCollection $songs): array
+    public function markSongsAsPrivate(EloquentCollection $songs, ?User $user = null): array
     {
         License::requirePlus();
+
+        // If a user is provided, only allow if they have permission
+        if ($user) {
+            $songs = $songs->filter(static fn (Song $song) => auth()->user()?->can('publish', $song));
+        }
 
         // Songs that are in collaborative playlists can't be marked as private.
         /**
@@ -256,6 +266,7 @@ class SongService
         if ($isFileNew) {
             // Only set the owner if the song is new, i.e., don't override the owner if the song is being updated.
             $data['owner_id'] = $config->owner->id;
+            $data['uploaded_by_id'] = $config->owner->id;
             /** @var Song $song */
             $song = Song::query()->create($data);
         } else {

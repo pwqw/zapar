@@ -52,6 +52,11 @@ class RadioStation extends Model implements AuditableContract, Favoriteable, Per
         return $this->belongsTo(User::class);
     }
 
+    public function uploadedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by_id');
+    }
+
     public static function query(): RadioStationBuilder
     {
         /** @var RadioStationBuilder */

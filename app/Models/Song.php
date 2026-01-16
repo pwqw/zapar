@@ -134,6 +134,11 @@ class Song extends Model implements AuditableContract, Favoriteable, Embeddable
         return $this->belongsTo(User::class);
     }
 
+    public function uploadedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by_id');
+    }
+
     public function newEloquentBuilder($query): SongBuilder
     {
         return new SongBuilder($query);
