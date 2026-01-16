@@ -4,9 +4,10 @@ namespace App\Enums\Acl;
 
 enum Permission: string
 {
-    case MANAGE_SETTINGS = 'manage settings'; // media path, plus edition, SSO, etc.
-    case MANAGE_USERS = 'manage users'; // create, edit, delete users
-    case MANAGE_SONGS = 'manage songs'; // upload, edit, delete
-    case MANAGE_RADIO_STATIONS = 'manage radio stations'; // create, edit, delete
-    case MANAGE_PODCASTS = 'manage podcasts'; // create, edit, delete podcasts
+    case MANAGE_SETTINGS = 'manage settings'; // media path, plus edition, SSO, etc. (ADMIN only)
+    case MANAGE_ALL_USERS = 'manage all users'; // create, edit, delete any user (ADMIN only)
+    case MANAGE_ORG_USERS = 'manage org users'; // create, edit, delete users in organization (MODERATOR+)
+    case MANAGE_ARTISTS = 'manage artists'; // manage artists under a manager (MANAGER)
+    case UPLOAD_CONTENT = 'upload content'; // upload songs, podcasts, radio stations (ARTIST+)
+    case PUBLISH_CONTENT = 'publish content'; // mark content as public (MODERATOR+)
 }
