@@ -53,6 +53,7 @@ class SetLocaleFromBrowser
             $locale = trim($parts[0]);
 
             $quality = 1.0;
+
             if (isset($parts[1]) && str_starts_with($parts[1], 'q=')) {
                 $quality = (float) substr($parts[1], 2);
             }

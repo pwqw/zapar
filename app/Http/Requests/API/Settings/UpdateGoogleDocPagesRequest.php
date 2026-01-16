@@ -42,7 +42,7 @@ class UpdateGoogleDocPagesRequest extends Request
 
         if (count($slugs) !== count(array_unique($slugs))) {
             $this->merge([
-                'pages' => array_map(function ($page, $index) use ($slugs) {
+                'pages' => array_map(static function ($page, $index) use ($slugs) {
                     $slug = $page['slug'] ?? '';
                     $count = array_count_values($slugs)[$slug] ?? 0;
 
@@ -51,14 +51,14 @@ class UpdateGoogleDocPagesRequest extends Request
                     }
 
                     return $page;
-                }, $pages, array_keys($pages))
+                }, $pages, array_keys($pages)),
             ]);
         }
     }
 
     public function withValidator($validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function ($validator): void {
             $pages = $this->pages ?? [];
             $slugs = array_column($pages, 'slug');
 

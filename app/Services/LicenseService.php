@@ -2,22 +2,13 @@
 
 namespace App\Services;
 
-use App\Exceptions\FailedToActivateLicenseException;
 use App\Http\Integrations\LemonSqueezy\LemonSqueezyConnector;
-use App\Http\Integrations\LemonSqueezy\Requests\ActivateLicenseRequest;
-use App\Http\Integrations\LemonSqueezy\Requests\DeactivateLicenseRequest;
-use App\Http\Integrations\LemonSqueezy\Requests\ValidateLicenseRequest;
 use App\Models\License;
 use App\Services\License\Contracts\LicenseServiceInterface;
 use App\Values\License\LicenseInstance;
 use App\Values\License\LicenseMeta;
 use App\Values\License\LicenseStatus;
-use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Saloon\Exceptions\Request\RequestException;
-use Throwable;
 
 class LicenseService implements LicenseServiceInterface
 {
@@ -49,6 +40,7 @@ class LicenseService implements LicenseServiceInterface
         
         // Return existing license or create a dummy one
         $license = License::query()->latest()->first();
+
         if (!$license) {
             $dummyKey = 'dummy-license-key-' . uniqid();
             $license = License::query()->updateOrCreate([
@@ -68,6 +60,7 @@ class LicenseService implements LicenseServiceInterface
                 'expires_at' => null,
             ]);
         }
+
         self::cacheStatus(LicenseStatus::valid($license));
         return $license;
     }
@@ -103,6 +96,7 @@ class LicenseService implements LicenseServiceInterface
         // License system disabled - always return valid status without API calls
         if ($checkCache && Cache::has('license_status')) {
             $cached = Cache::get('license_status');
+
             // Ensure cached status is valid
             if ($cached instanceof LicenseStatus && $cached->isValid()) {
                 return $cached;

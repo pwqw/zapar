@@ -3,6 +3,7 @@
 namespace App\Http\Requests\API\Settings;
 
 use App\Http\Requests\API\Request;
+use Closure;
 
 /**
  * @property-read string $message
@@ -20,7 +21,7 @@ class UpdateWelcomeMessageRequest extends Request
             'variables.*.url' => [
                 'required',
                 'url',
-                function (string $attribute, mixed $value, \Closure $fail): void {
+                static function (string $attribute, mixed $value, Closure $fail): void {
                     if (!is_string($value)) {
                         return;
                     }

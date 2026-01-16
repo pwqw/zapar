@@ -2,14 +2,18 @@
 
 Koel supports multiple users with different roles and permissions.
 
-* **Admins** can do basically anything: manage settings, users, and the shared music library
-* **Users** can access the shared library and manage their own profile and preferences.
-* <PlusBadge /> **Managers** can manage users and the shared library, but not settings.
+## User Roles
+
+* **Administrator** - Full system access including configuration, user management, and all content operations.
+* **Moderator** - Manage users within their organization and publish/unpublish content.
+* **Manager** - Manage a group of assigned artists and upload content on their behalf.
+* **Artist** - Upload and manage their own content (private by default).
+* **User** - Listen and download public content.
 
 :::tip Multi-library support
-In the Community edition, all users share a common library (though playlists, favorites, and other stats are private).
-In [Koel Plus](../plus/what-is-koel-plus), each user manages their own library with the ability to share and collaborate with others.
-A private library can only be managed by its owner.
+Each user manages their own library with the ability to share and collaborate with others.
+Content is private by default and can only be made public by moderators or administrators.
+A private library can only be managed by its owner or assigned managers/moderators.
 :::
 
 ## First Admin User

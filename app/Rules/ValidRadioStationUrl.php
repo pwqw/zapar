@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Translation\PotentiallyTranslatedString;
+use Throwable;
 
 class ValidRadioStationUrl implements ValidationRule
 {
@@ -17,7 +18,6 @@ class ValidRadioStationUrl implements ValidationRule
     /**
      * Valid content types for radio streams.
      *
-     * @var array<string>
      */
     private const VALID_CONTENT_TYPES = [
         'audio/',
@@ -77,6 +77,7 @@ class ValidRadioStationUrl implements ValidationRule
             // Server responded (even if with an error)
             if ($response->successful()) {
                 $contentType = $response->header('Content-Type');
+
                 if ($contentType) {
                     return [
                         'contentType' => $this->extractContentType($contentType),
@@ -90,7 +91,7 @@ class ValidRadioStationUrl implements ValidationRule
                 'contentType' => null,
                 'serverResponded' => true,
             ];
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             // HEAD failed, try GET
         }
 
@@ -106,6 +107,7 @@ class ValidRadioStationUrl implements ValidationRule
             // Server responded (even if with an error)
             if ($response->successful()) {
                 $contentType = $response->header('Content-Type');
+
                 if ($contentType) {
                     return [
                         'contentType' => $this->extractContentType($contentType),
@@ -119,7 +121,7 @@ class ValidRadioStationUrl implements ValidationRule
                 'contentType' => null,
                 'serverResponded' => true,
             ];
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             // Connection failed - this is a real problem
         }
 
@@ -133,7 +135,6 @@ class ValidRadioStationUrl implements ValidationRule
      * Extract the base content type from a header value (remove charset, etc.).
      *
      * @param string $contentType
-     * @return string
      */
     private function extractContentType(string $contentType): string
     {
@@ -145,7 +146,6 @@ class ValidRadioStationUrl implements ValidationRule
      * Check if the content type is valid for a radio stream.
      *
      * @param string $contentType
-     * @return bool
      */
     private function isValidContentType(string $contentType): bool
     {

@@ -9,6 +9,7 @@ use GuzzleHttp\RequestOptions;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class StreamRadioController extends Controller
 {
@@ -32,15 +33,16 @@ class StreamRadioController extends Controller
             
             if ($headResponse->successful()) {
                 $detectedContentType = $headResponse->header('Content-Type');
+
                 if ($detectedContentType) {
                     $contentType = explode(';', $detectedContentType)[0]; // Remove charset, etc.
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             // Ignore errors when detecting content type, use default
         }
 
-        return new StreamedResponse(function () use ($radioStation): void {
+        return new StreamedResponse(static function () use ($radioStation): void {
             try {
                 $client = new Client([
                     RequestOptions::TIMEOUT => 0, // No timeout for streaming
@@ -55,12 +57,14 @@ class StreamRadioController extends Controller
 
                 // Forward the Content-Type if available
                 $responseContentType = $response->getHeaderLine('Content-Type');
+
                 if ($responseContentType) {
                     header("Content-Type: $responseContentType");
                 }
 
                 // Stream the content
                 $body = $response->getBody();
+
                 while (!$body->eof()) {
                     echo $body->read(8192); // Read 8KB at a time
                     flush();
@@ -70,7 +74,7 @@ class StreamRadioController extends Controller
                         break;
                     }
                 }
-            } catch (\Exception $e) {
+            } catch (Throwable $e) {
                 // If streaming fails, log the error but don't expose it to the client
                 logger()->error('Radio stream error', [
                     'station_id' => $radioStation->id,
