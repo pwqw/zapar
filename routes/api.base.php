@@ -30,6 +30,7 @@ use App\Http\Controllers\API\FetchSongsToQueueByGenreController;
 use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\GenreController;
 use App\Http\Controllers\API\GetOneTimeTokenController;
+use App\Http\Controllers\API\GoogleDocPageController;
 use App\Http\Controllers\API\LambdaSongController as S3SongController;
 use App\Http\Controllers\API\LikeMultipleSongsController;
 use App\Http\Controllers\API\MediaBrowser\FetchFolderSongsController;
@@ -58,12 +59,11 @@ use App\Http\Controllers\API\ResetPasswordController;
 use App\Http\Controllers\API\ScrobbleController;
 use App\Http\Controllers\API\SearchYouTubeController;
 use App\Http\Controllers\API\SetLastfmSessionKeyController;
+use App\Http\Controllers\API\Settings\GetGoogleDocPagesController;
 use App\Http\Controllers\API\Settings\UpdateBrandingController;
+use App\Http\Controllers\API\Settings\UpdateGoogleDocPagesController;
 use App\Http\Controllers\API\Settings\UpdateMediaPathController;
 use App\Http\Controllers\API\Settings\UpdateWelcomeMessageController;
-use App\Http\Controllers\API\Settings\UpdateGoogleDocPagesController;
-use App\Http\Controllers\API\Settings\GetGoogleDocPagesController;
-use App\Http\Controllers\API\GoogleDocPageController;
 use App\Http\Controllers\API\SongController;
 use App\Http\Controllers\API\SongSearchController;
 use App\Http\Controllers\API\ThemeController;
@@ -190,6 +190,11 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
         Route::get('genres/{genre}', [GenreController::class, 'show']);
 
         Route::apiResource('users', UserController::class)->except('show');
+
+        // Manager-Artist relationship routes
+        Route::get('managers/{manager}/artists', [UserController::class, 'listManagedArtists']);
+        Route::post('managers/{manager}/artists/{artist}', [UserController::class, 'assignArtist']);
+        Route::delete('managers/{manager}/artists/{artist}', [UserController::class, 'removeArtist']);
 
         // User and user profile routes
         Route::apiResource('user', UserController::class)->except('show');
