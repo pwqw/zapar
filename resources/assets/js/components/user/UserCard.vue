@@ -10,12 +10,24 @@
       <h3 class="font-medium flex gap-2 items-center text-k-fg">
         <span v-if="user.name" class="name">{{ user.name }}</span>
         <span v-else class="name font-light">{{ t('users.anonymous') }}</span>
-        <Icon v-if="isCurrentUser" :icon="faCircleCheck" class="you text-k-highlight" :title="t('ui.tooltips.isYou')" />
+        <Icon v-if="user.verified" :icon="faCircleCheck" class="verified text-k-highlight" :title="t('ui.tooltips.verified')" />
         <Icon
           v-if="hasAdminPrivileges"
           :icon="faShield"
           class="is-admin text-k-primary"
           :title="t('ui.tooltips.adminPrivileges')"
+        />
+        <Icon
+          v-if="isManager"
+          :icon="faUserTie"
+          class="is-manager text-k-primary"
+          :title="t('ui.tooltips.managerRole')"
+        />
+        <Icon
+          v-if="isArtist"
+          :icon="faMicrophone"
+          class="is-artist text-k-primary"
+          :title="t('ui.tooltips.artistRole')"
         />
         <img
           v-if="user.sso_provider === 'Google'"
@@ -41,7 +53,7 @@
 
 <script lang="ts" setup>
 import googleLogo from '@/../img/logos/google.svg'
-import { faCircleCheck, faEllipsis, faShield } from '@fortawesome/free-solid-svg-icons'
+import { faCircleCheck, faEllipsis, faMicrophone, faShield, faUserTie } from '@fortawesome/free-solid-svg-icons'
 import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from '@/composables/useRouter'
@@ -64,7 +76,9 @@ const { openContextMenu } = useContextMenu()
 const { currentUser } = useAuthorization()
 
 const isCurrentUser = computed(() => user.value.id === currentUser.value.id)
-const hasAdminPrivileges = computed(() => user.value.role === 'admin' || user.value.role === 'manager')
+const hasAdminPrivileges = computed(() => user.value.role === 'admin' || user.value.role === 'moderator')
+const isManager = computed(() => user.value.role === 'manager')
+const isArtist = computed(() => user.value.role === 'artist')
 
 const requestContextMenu = (event: MouseEvent) => openContextMenu<'USER'>(UserContextMenu, event, {
   user: user.value,
