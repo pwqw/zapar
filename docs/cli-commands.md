@@ -84,6 +84,39 @@ php artisan koel:clean-up-temp-files
 |----------|-------------------------------------------------------------------------------|
 | `--age=` | The age of temporary files to remove in minutes. Defaults to 1440 (one day).  |
 
+### `dev:setup`
+
+Set up a complete development environment with fresh database, Koel initialization, and sample test data.
+This command is useful for setting up a local development environment quickly with predefined test users and content.
+
+#### Usage
+
+```bash
+docker exec koel_dev php artisan dev:setup
+```
+
+#### Test Accounts
+
+After running this command, you'll have the following test accounts available (password: `KoelIsCool`):
+
+- **admin@koel.dev** - Admin account (created by `koel:init`)
+- **moderador@e.mail** - Moderator account (verified)
+- **manager1@e.mail** - Manager account (verified)
+- **manager2@e.mail** - Manager account (unverified)
+- **artista1@e.mail** - Artist account managed by manager1 (verified)
+- **artista2@e.mail** - Artist account managed by manager2 (unverified)
+- **artista3@e.mail** - Artist account managed by both managers (verified)
+- **artista4@e.mail** - Independent artist account (unverified)
+
+#### Sample Content
+
+Each artist account includes:
+- 1 Artist profile with 1 Album containing 3 Songs
+- 1 RadioStation (rotating between MP3, OPUS, AAC+, and AAC formats)
+- 1 Podcast (with real RSS feed fetching)
+
+This provides a comprehensive test environment for testing different user roles, manager relationships, and content management features.
+
 ### `koel:doctor`
 
 Check Koel setup.

@@ -52,6 +52,21 @@ $ composer dev
 A development version of Koel should now be available at `http://localhost:8000` with full HMR support.
 Every change you make to the client application will be reflected in the browser immediately.
 
+### Setting Up a Development Environment with Sample Data
+
+To quickly set up a development environment with a fresh database, Koel initialization, and comprehensive sample test data, use:
+
+```bash
+docker exec koel_dev php artisan dev:setup
+```
+
+This command will:
+1. Reset the database (`migrate:fresh`)
+2. Initialize Koel (`koel:init`)
+3. Seed sample development data with multiple user roles and content
+
+For a complete overview of the test accounts and sample data created, see the [`dev:setup` command documentation](./cli-commands#devsetup).
+
 ### Testing, Linting, Static Analysis, etc.
 
 ```bash
