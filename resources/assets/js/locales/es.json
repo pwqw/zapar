@@ -773,7 +773,8 @@
       "imageSizeRecommended": "Tamaño recomendado: 512×512 píxeles.",
       "leaveUnchanged": "Dejar sin cambios",
       "selectFile": "Seleccionar un archivo…",
-      "selectImage": "Seleccionar una imagen"
+      "selectImage": "Seleccionar una imagen",
+      "selectOne": "Seleccionar uno…"
     },
     "labels": {
       "trackListing": "Lista de Pistas",

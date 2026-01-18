@@ -16,6 +16,7 @@ final class SongUpdateData implements Arrayable
         public ?string $genre,
         public ?int $year,
         public ?string $lyrics,
+        public ?int $artistUserId,
     ) {
         $this->albumArtistName = $this->albumArtistName ?: $this->artistName;
     }
@@ -30,8 +31,20 @@ final class SongUpdateData implements Arrayable
         ?string $genre = null,
         ?int $year = null,
         ?string $lyrics = null,
+        ?int $artistUserId = null,
     ): self {
-        return new self($title, $artistName, $albumName, $albumArtistName, $track, $disc, $genre, $year, $lyrics);
+        return new self(
+            $title,
+            $artistName,
+            $albumName,
+            $albumArtistName,
+            $track,
+            $disc,
+            $genre,
+            $year,
+            $lyrics,
+            $artistUserId,
+        );
     }
 
     /** @return array<string, mixed> */
@@ -47,6 +60,7 @@ final class SongUpdateData implements Arrayable
             'genre' => $this->genre,
             'year' => $this->year,
             'lyrics' => $this->lyrics,
+            'artist_user_id' => $this->artistUserId,
         ];
     }
 }

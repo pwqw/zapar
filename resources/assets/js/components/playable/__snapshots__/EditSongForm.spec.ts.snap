@@ -235,6 +235,7 @@ exports[`editSongForm.vue > edits a single song 1`] = `
             <!--v-if-->
           </div>
         </div>
+        <!--v-if-->
       </div>
       <div data-v-9c4a3e26="" role="tabpanel" tabindex="0" id="editSongPanelLyrics" aria-labelledby="editSongTabLyrics" style="display: none;">
         <div data-v-9c4a3e26="" class="flex flex-col gap-2"><label class="text-k-fg">
@@ -482,6 +483,7 @@ exports[`editSongForm.vue > edits multiple songs 1`] = `
             <!--v-if-->
           </div>
         </div>
+        <!--v-if-->
       </div>
       <!--v-if-->
     </div>
