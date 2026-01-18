@@ -23,6 +23,7 @@ class UserResource extends JsonResource
         'role',
         'permissions',
         'verified',
+        'managed_artists',
     ];
 
     public function __construct(private readonly User $user)
@@ -52,6 +53,13 @@ class UserResource extends JsonResource
                 fn () => $this->user->getPermissionsViaRoles()->pluck('name')->toArray(),
             ),
             'verified' => $this->user->verified,
+            'managed_artists' => $this->when(
+                $isCurrentUser,
+                fn () => $this->user->managedArtists->map(fn ($artist) => [
+                    'id' => $artist->public_id,
+                    'name' => $artist->name,
+                ])->toArray(),
+            ),
         ];
     }
 }

@@ -29,11 +29,13 @@ class UserController extends Controller
 
         // Admins can see all users
         if ($currentUser->hasPermissionTo(Permission::MANAGE_ALL_USERS)) {
-            $users = $this->userRepository->getAll();
+            $users = User::with('managedArtists')->get();
         }
         // Moderators can see users in their organization
         elseif ($currentUser->hasPermissionTo(Permission::MANAGE_ORG_USERS)) {
-            $users = User::where('organization_id', $currentUser->organization_id)->get();
+            $users = User::with('managedArtists')
+                ->where('organization_id', $currentUser->organization_id)
+                ->get();
         }
         // Managers can only see their assigned artists
         elseif ($currentUser->hasPermissionTo(Permission::MANAGE_ARTISTS)) {

@@ -263,4 +263,21 @@ class ManagerAccessTest extends TestCase
         $this->assertTrue($manager->canEditArtistContent($artist, $song->uploaded_by_id));
         $this->assertTrue($manager->can('edit', $song));
     }
+
+    #[Test]
+    public function artistUserIdFieldCanBeSet(): void
+    {
+        $manager = create_manager();
+        $artist = create_artist();
+        $manager->managedArtists()->attach($artist);
+
+        $song = Song::factory()->create([
+            'owner_id' => $manager->id,
+            'uploaded_by_id' => $manager->id,
+            'artist_user_id' => $artist->id,
+        ]);
+
+        $this->assertEquals($artist->id, $song->artist_user_id);
+        $this->assertEquals($artist->id, $song->artistUser->id);
+    }
 }

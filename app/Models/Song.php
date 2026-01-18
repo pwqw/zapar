@@ -62,6 +62,7 @@ use Webmozart\Assert\Assert;
  * @property int $mtime
  * @property ?string $hash The hash of the song file. Null for legacy songs.
  * @property int $owner_id
+ * @property ?int $artist_user_id The User (Artist role) who is co-owner of this song
  * @property int $track
  * @property ?int $year
  * @property ?int $file_size The size in bytes of the song file, if available.
@@ -137,6 +138,11 @@ class Song extends Model implements AuditableContract, Favoriteable, Embeddable
     public function uploadedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by_id');
+    }
+
+    public function artistUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'artist_user_id');
     }
 
     public function newEloquentBuilder($query): SongBuilder

@@ -46,6 +46,9 @@ class FetchInitialDataController extends Controller
             ? $themeRepository->findUserThemeById($user->preferences->theme, $user)
             : null;
 
+        // Load managed artists for managers
+        $user->load('managedArtists');
+
         return response()->json([
             'settings' => $user->hasPermissionTo(Permission::MANAGE_SETTINGS)
                 ? $settingRepository->getAllAsKeyValueArray()

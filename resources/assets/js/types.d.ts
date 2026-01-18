@@ -186,6 +186,7 @@ interface Song extends BasePlayable {
   type: 'songs'
   readonly owner_id: User['id']
   uploaded_by_id?: User['id']
+  artist_user_id?: User['id']
   album_id: Album['id']
   album_name: Album['name']
   album_cover: Album['cover']
@@ -421,6 +422,7 @@ interface User {
 type CurrentUser = User & {
   preferences: UserPreferences
   permissions: Permission[]
+  managed_artists?: Array<{ id: string, name: string }>
 }
 
 interface Settings {

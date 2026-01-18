@@ -134,6 +134,20 @@
               />
             </FormRow>
           </FormRow>
+
+          <FormRow v-if="editingOnlyOneSong && isCurrentUserManager && managedArtistsOptions.length > 0">
+            <template #label>{{ t('songs.artist') }} (Co-owner)</template>
+            <SelectBox
+              v-model="data.artist_user_id"
+              data-testid="artist-user-id-input"
+              name="artist_user_id"
+            >
+              <option :value="null" disabled>{{ t('form.placeholders.selectOne') }}</option>
+              <option v-for="artist in managedArtistsOptions" :key="artist.value" :value="artist.value">
+                {{ artist.label }}
+              </option>
+            </SelectBox>
+          </FormRow>
         </TabPanel>
 
         <TabPanel
@@ -168,6 +182,7 @@ import { useI18n } from 'vue-i18n'
 import { eventBus } from '@/utils/eventBus'
 import type { SongUpdateData, SongUpdateResult } from '@/stores/playableStore'
 import { playableStore as songStore } from '@/stores/playableStore'
+import { userStore } from '@/stores/userStore'
 import { useDialogBox } from '@/composables/useDialogBox'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import { genres } from '@/config/genres'
@@ -177,6 +192,7 @@ import { useBranding } from '@/composables/useBranding'
 import Btn from '@/components/ui/form/Btn.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import TextArea from '@/components/ui/form/TextArea.vue'
+import SelectBox from '@/components/ui/form/SelectBox.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
 import Tabs from '@/components/ui/tabs/Tabs.vue'
 import TabList from '@/components/ui/tabs/TabList.vue'
@@ -221,6 +237,7 @@ const initialValues: SongUpdateData = {
   disc: allSongsShareSameValue('disc') && songs[0].disc !== 0 ? songs[0].disc : null,
   year: allSongsShareSameValue('year') ? songs[0].year : null,
   genre: allSongsShareSameValue('genre') ? songs[0].genre : '',
+  artist_user_id: allSongsShareSameValue('artist_user_id') ? songs[0].artist_user_id : null,
   ...(editingOnlyOneSong
     ? {
         title: allSongsShareSameValue('title') ? songs[0].title : '',
@@ -249,6 +266,16 @@ const { data, isPristine, handleSubmit } = useForm<SongUpdateData>({
     eventBus.emit('SONGS_UPDATED', result)
     close()
   },
+})
+
+const isCurrentUserManager = computed(() => userStore.current?.role === 'manager')
+
+const managedArtistsOptions = computed(() => {
+  const artists = userStore.current?.managed_artists || []
+  return artists.map((artist: { id: string, name: string }) => ({
+    label: artist.name,
+    value: artist.id,
+  }))
 })
 
 const displayedTitle = computed(() => editingOnlyOneSong ? data.title : t('songs.selected', { count: songs.length }))

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\API;
 
 use App\Models\Song;
+use App\Models\User;
 use App\Values\Song\SongUpdateData;
 use Illuminate\Validation\Rule;
 
@@ -23,6 +24,12 @@ class SongUpdateRequest extends Request
 
     public function toDto(): SongUpdateData
     {
+        $artistUserId = null;
+        if ($artistUserPublicId = $this->input('data.artist_user_id')) {
+            $artistUser = User::where('public_id', $artistUserPublicId)->first();
+            $artistUserId = $artistUser?->id;
+        }
+
         return SongUpdateData::make(
             title: $this->input('data.title'),
             artistName: $this->input('data.artist_name'),
@@ -33,6 +40,7 @@ class SongUpdateRequest extends Request
             genre: $this->input('data.genre'),
             year: (int) $this->input('data.year'),
             lyrics: $this->input('data.lyrics'),
+            artistUserId: $artistUserId,
         );
     }
 }

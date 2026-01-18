@@ -764,7 +764,8 @@
       "imageSizeRecommended": "Recommended size: 512×512 pixels.",
       "leaveUnchanged": "Leave unchanged",
       "selectFile": "Select a file…",
-      "selectImage": "Select an image"
+      "selectImage": "Select an image",
+      "selectOne": "Select one…"
     },
     "labels": {
       "trackListing": "Track Listing",
