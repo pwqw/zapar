@@ -62,7 +62,7 @@
                 >
                 <input
                   v-model="variable.url"
-                  type="url"
+                  type="text"
                   :placeholder="t('settings.variableUrl')"
                   class="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
                 >
