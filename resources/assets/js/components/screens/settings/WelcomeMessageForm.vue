@@ -15,7 +15,7 @@
           />
           <template #help>
             {{ t('settings.welcomeMessageHelpPrefix') }}
-            <code class="mx-1 rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800">{'{ variableName }'}</code>
+            <code class="mx-1 rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800">{variableName}</code>
             {{ t('settings.welcomeMessageHelpSuffix') }}
           </template>
         </FormRow>
@@ -169,6 +169,6 @@ const removeVariable = (index: number): void => {
 }
 
 const formatVariable = (name: string): string => {
-  return `{{ ${name} }}`
+  return `{${name}}`
 }
 </script>
