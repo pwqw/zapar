@@ -102,7 +102,7 @@ const renderedMessage = computed(() => {
 
   // Replace each variable with an HTML link
   welcomeMessageData.variables?.forEach(variable => {
-    const placeholder = `{{ ${variable.name} }}`
+    const placeholder = `{${variable.name}}`
     // Escape special regex characters in the placeholder
     const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     const regex = new RegExp(escapedPlaceholder, 'g')

@@ -63,7 +63,7 @@ class SettingServiceTest extends TestCase
     #[Test]
     public function updateWelcomeMessageWithVariables(): void
     {
-        $message = 'Welcome! Visit {{ privacyPolicy }} and {{ terms }}';
+        $message = 'Welcome! Visit {privacyPolicy} and {terms}';
         $variables = [
             ['name' => 'privacyPolicy', 'url' => 'https://example.com/privacy'],
             ['name' => 'terms', 'url' => 'https://example.com/terms'],

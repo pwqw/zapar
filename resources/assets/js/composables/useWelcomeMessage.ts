@@ -14,7 +14,7 @@ export const useWelcomeMessage = () => {
 
     // Replace each variable with an HTML link
     welcomeMessageData.variables?.forEach(variable => {
-      const placeholder = `{{ ${variable.name} }}`
+      const placeholder = `{${variable.name}}`
       const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')
       message = message.replace(regex, variable.url)
     })
