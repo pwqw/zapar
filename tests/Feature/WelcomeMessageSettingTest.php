@@ -101,6 +101,81 @@ class WelcomeMessageSettingTest extends TestCase
     }
 
     #[Test]
+    public function variablesUrlCanBeInternalRoute(): void
+    {
+        $message = 'Welcome! Visit {document}';
+        $variables = [
+            ['name' => 'document', 'url' => '/#/document/ejemplo'],
+        ];
+
+        $this->putAs('/api/settings/welcome-message', [
+            'message' => $message,
+            'variables' => $variables,
+        ], create_admin())
+            ->assertNoContent();
+
+        self::assertSame($message, Setting::get('welcome_message'));
+        self::assertSame($variables, Setting::get('welcome_message_variables'));
+    }
+
+    #[Test]
+    public function variablesUrlCanBeInternalRouteStartingWithSlash(): void
+    {
+        $message = 'Welcome! Visit {home}';
+        $variables = [
+            ['name' => 'home', 'url' => '/dashboard'],
+        ];
+
+        $this->putAs('/api/settings/welcome-message', [
+            'message' => $message,
+            'variables' => $variables,
+        ], create_admin())
+            ->assertNoContent();
+
+        self::assertSame($message, Setting::get('welcome_message'));
+        self::assertSame($variables, Setting::get('welcome_message_variables'));
+    }
+
+    #[Test]
+    public function variablesUrlCanMixExternalAndInternalRoutes(): void
+    {
+        $message = 'Welcome! Visit {privacy} and {document}';
+        $variables = [
+            ['name' => 'privacy', 'url' => 'https://example.com/privacy'],
+            ['name' => 'document', 'url' => '/#/document/ejemplo'],
+        ];
+
+        $this->putAs('/api/settings/welcome-message', [
+            'message' => $message,
+            'variables' => $variables,
+        ], create_admin())
+            ->assertNoContent();
+
+        self::assertSame($message, Setting::get('welcome_message'));
+        self::assertSame($variables, Setting::get('welcome_message_variables'));
+    }
+
+    #[Test]
+    public function variablesUrlCannotContainDangerousCharactersInInternalRoute(): void
+    {
+        $dangerousRoutes = [
+            '/<script>alert(1)</script>',
+            '/document"onclick="alert(1)',
+            "/document'alert(1)'",
+        ];
+
+        foreach ($dangerousRoutes as $route) {
+            $this->putAs('/api/settings/welcome-message', [
+                'message' => 'Welcome!',
+                'variables' => [
+                    ['name' => 'test', 'url' => $route],
+                ],
+            ], create_admin())
+                ->assertUnprocessable();
+        }
+    }
+
+    #[Test]
     public function variablesNameCannotExceedMaxLength(): void
     {
         $this->putAs('/api/settings/welcome-message', [
