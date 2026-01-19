@@ -13,7 +13,12 @@ export default defineConfig({
         'resources/assets/js/app.ts',
         'resources/assets/js/remote/app.ts'
       ],
-      refresh: true
+      // Solo refrescar cuando cambien vistas o rutas (reduce CPU)
+      refresh: [
+        'resources/views/**',
+        'routes/**',
+        'app/Http/**'
+      ]
     }),
     // Deshabilitar visualizer en desarrollo para reducir carga
     ...(process.env.NODE_ENV === 'production' ? [visualizer({
@@ -45,17 +50,31 @@ export default defineConfig({
       timeout: 60000
     },
     watch: {
-      // SOLUCIÓN RADICAL: Deshabilitar completamente el file watcher
-      // En Docker con volúmenes montados, incluso el watcher nativo consume mucha CPU (136%+)
-      // El watcher está deshabilitado por defecto - ignorar todos los archivos
-      // Para habilitar polling con intervalo largo: VITE_USE_POLLING=true VITE_POLL_INTERVAL=60000
-      usePolling: process.env.VITE_USE_POLLING === 'true',
-      interval: process.env.VITE_USE_POLLING === 'true' 
-        ? parseInt(process.env.VITE_POLL_INTERVAL || '60000') 
-        : undefined,
-      // Ignorar TODOS los archivos - el watch está deshabilitado por defecto
-      // Esto elimina completamente el consumo de CPU del file watcher
-      ignored: ['**/*']
+      // Usar polling en Docker (el watcher nativo no funciona bien con volúmenes montados)
+      // Intervalos optimizados: 1000ms balancea respuesta y consumo de CPU
+      // Basado en mejores prácticas de la comunidad para Docker + Vite
+      usePolling: true,
+      interval: parseInt(process.env.VITE_POLL_INTERVAL || '1000'),
+      binaryInterval: parseInt(process.env.VITE_POLL_BINARY_INTERVAL || '1500'),
+      // Ignorar directorios grandes que no necesitan ser monitoreados
+      // Esto reduce significativamente el número de archivos a verificar
+      ignored: [
+        '**/node_modules/**',
+        '**/storage/**',
+        '**/vendor/**',
+        '**/dist/**',
+        '**/.git/**',
+        '**/database/**',
+        '**/tests/**',
+        '**/.phpunit.cache/**',
+        '**/bootstrap/cache/**'
+      ],
+      // Esperar a que las escrituras de archivos se completen antes de reaccionar
+      // Evita reacciones a escrituras temporales o incompletas
+      awaitWriteFinish: {
+        stabilityThreshold: 200,
+        pollInterval: 100
+      }
     },
     // Optimizaciones para desarrollo
     fs: {
