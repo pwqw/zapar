@@ -82,6 +82,17 @@ else
     echo 'ℹ️  Si necesitas reinicializar, usa: docker exec koel_dev php artisan dev:setup --force'
 fi
 
+# Clear Laravel cache in development to ensure fresh changes are reflected
+# This ensures that view/config/route cache doesn't interfere with hot reload
+APP_ENV_VAL=$(grep "^APP_ENV=" /var/www/html/.env 2>/dev/null | cut -d'=' -f2 | tr -d '"' || echo "production")
+if [ "$APP_ENV_VAL" = "local" ] || [ "$APP_ENV_VAL" = "development" ]; then
+  echo '🧹 Limpiando cache de Laravel para desarrollo...'
+  php artisan config:clear 2>/dev/null || true
+  php artisan view:clear 2>/dev/null || true
+  php artisan route:clear 2>/dev/null || true
+  php artisan cache:clear 2>/dev/null || true
+fi
+
 # Start development server with hot reload
 echo '✅ Iniciando servidor de desarrollo...'
 # Run Laravel server on 0.0.0.0 to be accessible from the host
