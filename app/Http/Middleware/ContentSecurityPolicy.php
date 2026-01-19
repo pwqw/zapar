@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class ContentSecurityPolicy
@@ -22,6 +24,17 @@ class ContentSecurityPolicy
             $viteConnectSrc = " http://localhost:{$vitePort} ws://localhost:{$vitePort}";
         }
 
+        // Get all unique stream hosts from radio stations (cached for 1 hour)
+        $streamHosts = Cache::remember('radio_station_stream_hosts', 3600, function (): array {
+            return DB::table('radio_stations')
+                ->whereNotNull('stream_host')
+                ->distinct()
+                ->pluck('stream_host')
+                ->toArray();
+        });
+
+        $streamHostsStr = !empty($streamHosts) ? ' ' . implode(' ', $streamHosts) : '';
+
         // Build CSP directives
         $csp = [
             "default-src 'self'",
@@ -30,7 +43,7 @@ class ContentSecurityPolicy
             "img-src 'self' data: https: blob:{$viteDevServer}",
             "font-src 'self' data:",
             "connect-src 'self' wss: ws:{$viteConnectSrc}",
-            "media-src 'self' blob:",
+            "media-src 'self' blob:{$streamHostsStr}",
             "object-src 'none'",
             "frame-src 'self' https://docs.google.com https://*.google.com",
             "child-src 'self' https://docs.google.com https://*.google.com",
