@@ -2,48 +2,48 @@
 set -e
 
 
-# Instalar dependencias de Composer (requerido antes de composer koel:init)
+# Install Composer dependencies (required before composer koel:init)
 if [ ! -d /var/www/html/vendor ]; then
     echo '📦 Instalando dependencias de Composer...'
     composer install --no-interaction --prefer-dist
 fi
 
-# Instalar dependencias de Node.js (necesarias para desarrollo)
+# Install Node.js dependencies (required for development)
 if [ ! -d /var/www/html/node_modules ]; then
     echo '📦 Instalando dependencias de Node.js...'
     pnpm install
 fi
 
-# Crear estructura de directorios necesaria
+# Create necessary directory structure
 mkdir -p /var/www/html/database
 mkdir -p /var/www/html/media
 chown -R www-data:www-data /var/www/html/media
 chmod -R 775 /var/www/html/media
 
-# Crear archivo de base de datos SQLite si no existe (necesario antes de koel:init)
+# Create SQLite database file if it doesn't exist (required before koel:init)
 if [ ! -f /var/www/html/database/database.sqlite ]; then
     touch /var/www/html/database/database.sqlite
     chmod 664 /var/www/html/database/database.sqlite
     chown www-data:www-data /var/www/html/database/database.sqlite
 fi
 
-# Crear .env desde .env.example si no existe (koel:init lo hace, pero lo pre-configuramos para modo no-interactivo)
+# Create .env from .env.example if it doesn't exist (koel:init does this, but we pre-configure it for non-interactive mode)
 if [ ! -f /var/www/html/.env ]; then
     echo '📝 Creando archivo .env desde .env.example...'
     cp /var/www/html/.env.example /var/www/html/.env
     
-    # Configurar para SQLite en Docker (requerido para modo no-interactivo)
-    # Según la documentación oficial, DB_CONNECTION debe estar presente para que composer koel:init funcione
+    # Configure for SQLite in Docker (required for non-interactive mode)
+    # According to official documentation, DB_CONNECTION must be present for composer koel:init to work
     sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite-persistent/' /var/www/html/.env
     sed -i 's|^DB_DATABASE=.*|DB_DATABASE=/var/www/html/database/database.sqlite|' /var/www/html/.env
     
-    # Configuraciones recomendadas para Docker/desarrollo
+    # Recommended configurations for Docker/development
     sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' /var/www/html/.env
     sed -i 's/^CACHE_DRIVER=.*/CACHE_DRIVER=file/' /var/www/html/.env
     sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=file/' /var/www/html/.env
     sed -i 's/^MAIL_MAILER=.*/MAIL_MAILER=log/' /var/www/html/.env
     
-    # Configurar MEDIA_PATH para Docker
+    # Configure MEDIA_PATH for Docker
     if ! grep -q "^MEDIA_PATH=" /var/www/html/.env || grep -q "^MEDIA_PATH=$" /var/www/html/.env; then
         if grep -q "^MEDIA_PATH=" /var/www/html/.env; then
             sed -i 's|^MEDIA_PATH=.*|MEDIA_PATH=/var/www/html/media|' /var/www/html/.env
@@ -53,19 +53,41 @@ if [ ! -f /var/www/html/.env ]; then
     fi
 fi
 
-# Ejecutar koel:init siguiendo la documentación oficial
-# La documentación oficial recomienda usar "composer koel:init" en lugar de "php artisan koel:init"
-# Usamos --no-assets porque estamos en modo desarrollo y usamos Vite
-# Usamos --no-scheduler porque no es necesario en Docker para desarrollo
-echo '🚀 Inicializando Koel usando el proceso oficial (composer koel:init)...'
-composer koel:init -- --no-assets --no-interaction --no-scheduler
+# Execute koel:init ONLY if the application is not initialized
+# Check if the application is already initialized by verifying if the migrations table exists
+# This prevents running migrations and seeders every time the container restarts
+# Check if there are executed migrations or if the migrations table exists
+INITIALIZED=false
+if php artisan migrate:status --quiet 2>/dev/null | grep -qE "(Ran|Batch)"; then
+    INITIALIZED=true
+fi
 
-# Iniciar servidor de desarrollo con hot reload
+# Additional verification: if .env file exists and database has content, assume initialized
+if [ "$INITIALIZED" = "false" ] && [ -f /var/www/html/.env ]; then
+    DB_FILE=$(grep "^DB_DATABASE=" /var/www/html/.env 2>/dev/null | cut -d'=' -f2 | tr -d '"' || echo "")
+    if [ -n "$DB_FILE" ] && [ -f "$DB_FILE" ] && [ -s "$DB_FILE" ]; then
+        # If the database file exists and has content, check if it has the migrations table
+        if sqlite3 "$DB_FILE" "SELECT name FROM sqlite_master WHERE type='table' AND name='migrations';" 2>/dev/null | grep -q "migrations"; then
+            INITIALIZED=true
+        fi
+    fi
+fi
+
+if [ "$INITIALIZED" = "false" ]; then
+    echo '🚀 Inicializando Koel usando el proceso oficial (composer koel:init)...'
+    echo '⚠️  Esto solo se ejecuta la primera vez. Si necesitas reinicializar, usa: docker exec koel_dev php artisan dev:setup --force'
+    composer koel:init -- --no-assets --no-interaction --no-scheduler
+else
+    echo '✅ Koel ya está inicializado. Omitiendo koel:init para proteger los datos existentes.'
+    echo 'ℹ️  Si necesitas reinicializar, usa: docker exec koel_dev php artisan dev:setup --force'
+fi
+
+# Start development server with hot reload
 echo '✅ Iniciando servidor de desarrollo...'
-# Ejecutar servidor Laravel en 0.0.0.0 para que sea accesible desde el host
-# Vite está configurado en vite.config.js para escuchar en 0.0.0.0 con HMR en localhost
-# Solo ejecutar queue:listen si QUEUE_CONNECTION no es 'sync' (no necesario para sync)
-# Verificar la configuración de cola antes de iniciar
+# Run Laravel server on 0.0.0.0 to be accessible from the host
+# Vite is configured in vite.config.js to listen on 0.0.0.0 with HMR on localhost
+# Only run queue:listen if QUEUE_CONNECTION is not 'sync' (not needed for sync)
+# Check queue configuration before starting
 QUEUE_CONN=$(grep "^QUEUE_CONNECTION=" /var/www/html/.env 2>/dev/null | cut -d'=' -f2 || echo "sync")
 if [ "$QUEUE_CONN" = "sync" ]; then
   echo 'ℹ️  Queue connection es "sync", omitiendo queue:listen para reducir consumo de CPU'

@@ -34,6 +34,25 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        // ⚠️ PROTECTION: Ensure tests NEVER use the development database
+        // Tests must use in-memory SQLite according to phpunit.xml.dist
+        $dbConnection = config('database.default');
+        if ($dbConnection !== 'sqlite') {
+            throw new \RuntimeException(
+                "Los tests deben usar SQLite en memoria, pero se detectó: {$dbConnection}. " .
+                "Esto podría borrar la base de datos de desarrollo. " .
+                "Verifica que phpunit.xml.dist tenga DB_CONNECTION=sqlite"
+            );
+        }
+
+        $dbDatabase = config("database.connections.{$dbConnection}.database");
+        if ($dbDatabase !== ':memory:' && $dbDatabase !== null) {
+            throw new \RuntimeException(
+                "Los tests deben usar SQLite en memoria (:memory:), pero se detectó: {$dbDatabase}. " .
+                "Esto podría afectar la base de datos de desarrollo."
+            );
+        }
+
         License::swap($this->app->make(CommunityLicenseService::class));
         $this->fileSystem = File::getFacadeRoot();
 
