@@ -74,8 +74,8 @@
     }
   },
   "smartPlaylists": {
-    "new": "New Smart Playlist",
-    "edit": "Edit Smart Playlist",
+    "new": "New Programmable Playlist",
+    "edit": "Edit Programmable Playlist",
     "details": "Details",
     "rules": "Rules",
     "name": "Name *",
@@ -424,8 +424,8 @@
     "mostPlayed": "Most Played",
     "newAlbums": "New Albums",
     "newSongs": "New Songs",
-    "unknownAlbum": "Unknown Album",
-    "unknownArtist": "Unknown Artist",
+    "unknownAlbum": "",
+    "unknownArtist": "",
     "howAboutPlayingRandom": "How about",
     "playingSomeRandomSongs": "playing some random songs",
     "yourLibraryIsEmpty": "Your library is empty.",
@@ -623,7 +623,9 @@
       "downloadAll": "Download all",
       "clickToDismiss": "Click to dismiss",
       "addStation": "Add station",
-      "playPause": "Play/Pause"
+      "playPause": "Play/Pause",
+      "addNewGroup": "Add a new group",
+      "createNewPlaylistOrFolder": "Create a new playlist or folder"
     },
     "equalizer": {
       "preset": "Preset",
@@ -662,7 +664,7 @@
   },
   "menu": {
     "newPlaylist": "New Playlist…",
-    "newSmartPlaylist": "New Smart Playlist…",
+    "newSmartPlaylist": "New Programmable Playlist…",
     "newFolder": "New Folder…",
     "playable": {
       "goTo": "Go to",
@@ -676,7 +678,7 @@
       "queue": "Queue",
       "favorites": "Favorites",
       "newPlaylist": "New Playlist…",
-      "newSmartPlaylist": "New Smart Playlist…",
+      "newSmartPlaylist": "New Programmable Playlist…",
       "newFolder": "New Folder…",
       "open": "Open",
       "removeFromQueue": "Remove from Queue",
