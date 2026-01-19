@@ -80,8 +80,8 @@
     }
   },
   "smartPlaylists": {
-    "new": "Nueva Lista Inteligente",
-    "edit": "Editar Lista Inteligente",
+    "new": "Nueva Lista Programable",
+    "edit": "Editar Lista Programable",
     "details": "Detalles",
     "rules": "Reglas",
     "name": "Nombre *",
@@ -316,8 +316,8 @@
     "appNameDefault": "Koel",
     "appLogo": "Logo de la aplicación",
     "appLogoDescription": "Se utilizará como favicon, icono de aplicación y logo en toda la aplicación.",
-    "appCover": "Portada de la aplicación",
-    "appCoverDescription": "Se utilizará como marcador de posición si no hay arte de álbum, imagen de artista, portada de lista de reproducción, etc. disponibles.",
+    "appCover": "Imagen predeterminada",
+    "appCoverDescription": "Se utilizará como imagen predeterminada si no hay arte de álbum, imagen de artista, portada de lista de reproducción, etc.",
     "reloadToApply": "Configuración guardada. ¿Recargar para aplicar los cambios?",
     "general": "General",
     "welcomeMessage": "Mensaje de Bienvenida",
@@ -432,8 +432,8 @@
     "mostPlayed": "Más Reproducidas",
     "newAlbums": "Álbumes Nuevos",
     "newSongs": "Canciones Nuevas",
-    "unknownAlbum": "Álbum Desconocido",
-    "unknownArtist": "Artista Desconocido",
+    "unknownAlbum": "",
+    "unknownArtist": "",
     "howAboutPlayingRandom": "¿Qué tal",
     "playingSomeRandomSongs": "reproducir algunas canciones aleatorias",
     "yourLibraryIsEmpty": "Tu biblioteca está vacía.",
@@ -447,15 +447,14 @@
       "noSongs": "No se encontraron canciones.",
       "setupLibrary": "¿Ya has configurado tu biblioteca?",
       "greetings": [
-        "¡Hola!",
+        "¡Buenas!",
         "¡Hola, {name}!",
-        "¡Qué onda, {name}!",
-        "¡Ey!",
-        "¿Qué tal, {name}?",
-        "¡Qué pasa, {name}!",
-        "¿Cómo va, {name}?",
-        "¿Cómo estuvo tu día, {name}?",
-        "¿Cómo has estado, {name}?"
+        "Qué parece, {name}",
+        "Dale que so vo, {name}!",
+        "¿Quí hacé, {name}?",
+        "¡Qué onda!",
+        "¿Qué tal le va?",
+        "¿Listo para poner play?"
       ]
     },
     "notFound": {
@@ -633,7 +632,9 @@
       "downloadAll": "Descargar todo",
       "clickToDismiss": "Haz clic para descartar",
       "addStation": "Agregar estación",
-      "playPause": "Reproducir/Pausar"
+      "playPause": "Reproducir/Pausar",
+      "addNewGroup": "Agregar un nuevo grupo",
+      "createNewPlaylistOrFolder": "Crear una nueva lista de reproducción o carpeta"
     },
     "equalizer": {
       "preset": "Preajuste",
@@ -672,7 +673,7 @@
   },
   "menu": {
     "newPlaylist": "Nueva Lista de Reproducción…",
-    "newSmartPlaylist": "Nueva Lista Inteligente…",
+    "newSmartPlaylist": "Nueva Lista Programable…",
     "newFolder": "Nueva Carpeta…",
     "playable": {
       "goTo": "Ir a",
@@ -686,7 +687,7 @@
       "queue": "Cola",
       "favorites": "Favoritos",
       "newPlaylist": "Nueva Lista de Reproducción…",
-      "newSmartPlaylist": "Nueva Lista Inteligente…",
+      "newSmartPlaylist": "Nueva Lista Programable…",
       "newFolder": "Nueva Carpeta…",
       "open": "Abrir",
       "removeFromQueue": "Eliminar de la Cola",
