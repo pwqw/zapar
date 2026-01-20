@@ -32,7 +32,10 @@
     "save": "Save",
     "invalidResetLink": "Invalid reset password link.",
     "passwordSet": "Password set.",
-    "noWantToLogin": "I don't want to log in",
+    "noWantAccount": "I don't want an account!",
+    "internalAccount": "Internal account",
+    "loginWithGoogle": "Login with Google",
+    "back": "Back",
     "anonymousModeActive": "You're in anonymous mode (listening only)",
     "createAccount": "Create account"
   },

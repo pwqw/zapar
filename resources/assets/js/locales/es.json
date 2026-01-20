@@ -32,7 +32,10 @@
     "save": "Guardar",
     "invalidResetLink": "El enlace de restablecimiento de contraseña no es válido.",
     "passwordSet": "Contraseña establecida.",
-    "noWantToLogin": "No quiero ingresar",
+    "noWantAccount": "¡No quiero acceder!",
+    "internalAccount": "Tengo cuenta interna",
+    "loginWithGoogle": "Entrar con Google",
+    "back": "Volver",
     "anonymousModeActive": "Estás en modo anónimo (solo puedes escuchar)",
     "createAccount": "Crear cuenta"
   },

@@ -14,6 +14,10 @@ describe('loginForm.vue', () => {
   const submitForm = async (loginMock: Mock) => {
     const rendered = h.render(Component)
 
+    // First, click on "Internal account" to show the form
+    await h.user.click(screen.getByTestId('internal-account'))
+    await h.tick()
+
     await h.type(screen.getByPlaceholderText('Your email address', { exact: false }), 'john@doe.com')
     await h.type(screen.getByPlaceholderText('Your password', { exact: false }), 'secret')
     await h.user.click(screen.getByTestId('submit'))
@@ -32,16 +36,28 @@ describe('loginForm.vue', () => {
   it('fails to log in', async () => {
     const mock = h.mock(authService, 'login').mockRejectedValue('Unauthenticated')
     const logMock = h.mock(logger, 'error')
-    const { emitted } = await submitForm(mock)
+    const rendered = h.render(Component)
+
+    // First, click on "Internal account" to show the form
+    await h.user.click(screen.getByTestId('internal-account'))
     await h.tick()
 
-    expect(emitted().loggedin).toBeFalsy()
+    await h.type(screen.getByPlaceholderText('Your email address', { exact: false }), 'john@doe.com')
+    await h.type(screen.getByPlaceholderText('Your password', { exact: false }), 'secret')
+    await h.user.click(screen.getByTestId('submit'))
+    await h.tick()
+
+    expect(mock).toHaveBeenCalledWith('john@doe.com', 'secret')
+    expect(rendered.emitted().loggedin).toBeFalsy()
     expect(screen.getByTestId('login-form').classList.contains('error')).toBe(true)
     expect(logMock).toHaveBeenCalledWith('Unauthenticated')
   })
 
   it('shows forgot password form', async () => {
     h.render(Component)
+    // First, click on "Internal account" to show the form
+    await h.user.click(screen.getByTestId('internal-account'))
+    await h.tick()
     await h.user.click(screen.getByText('Forgot password?', { exact: false }))
 
     await waitFor(() => screen.getByTestId('forgot-password-form'))
@@ -58,15 +74,9 @@ describe('loginForm.vue', () => {
   it('shows Google login button', async () => {
     window.SSO_PROVIDERS = ['Google']
 
-    h.render(Component, {
-      global: {
-        stubs: {
-          GoogleLoginButton: h.stub('google-login-button'),
-        },
-      },
-    })
+    h.render(Component)
 
-    screen.getByTestId('google-login-button')
+    screen.getByTestId('google-login')
 
     window.SSO_PROVIDERS = []
   })
