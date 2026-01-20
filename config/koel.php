@@ -204,5 +204,6 @@ return [
         'sponsor_github_url' => 'https://github.com/users/phanan/sponsorship',
         'sponsor_open_collective_url' => 'https://opencollective.com/koel',
         'demo' => env('KOEL_DEMO', false),
+        'allow_anonymous' => env('KOEL_ALLOW_ANONYMOUS', false),
     ],
 ];

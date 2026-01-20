@@ -70,4 +70,56 @@ describe('loginForm.vue', () => {
 
     window.SSO_PROVIDERS = []
   })
+
+  it('shows anonymous login button when allowed', async () => {
+    window.ALLOW_ANONYMOUS = true
+    h.render(Component)
+
+    screen.getByTestId('anonymous-login')
+
+    window.ALLOW_ANONYMOUS = false
+  })
+
+  it('hides anonymous login button when not allowed', async () => {
+    window.ALLOW_ANONYMOUS = false
+    h.render(Component)
+
+    expect(screen.queryByTestId('anonymous-login')).toBeNull()
+  })
+
+  it('logs in anonymously', async () => {
+    window.ALLOW_ANONYMOUS = true
+    const loginAnonymouslyMock = h.mock(authService, 'loginAnonymously').mockResolvedValue({
+      token: 'api-token',
+      'audio-token': 'audio-token',
+    })
+    const setTokensMock = h.mock(authService, 'setTokensUsingCompositeToken')
+
+    const rendered = h.render(Component)
+
+    await h.user.click(screen.getByTestId('anonymous-login'))
+    await h.tick()
+
+    expect(loginAnonymouslyMock).toHaveBeenCalled()
+    expect(setTokensMock).toHaveBeenCalled()
+    expect(rendered.emitted().loggedin).toBeTruthy()
+
+    window.ALLOW_ANONYMOUS = false
+  })
+
+  it('handles anonymous login failure', async () => {
+    window.ALLOW_ANONYMOUS = true
+    const loginAnonymouslyMock = h.mock(authService, 'loginAnonymously').mockRejectedValue('Network error')
+    const logMock = h.mock(logger, 'error')
+
+    h.render(Component)
+
+    await h.user.click(screen.getByTestId('anonymous-login'))
+    await h.tick()
+
+    expect(loginAnonymouslyMock).toHaveBeenCalled()
+    expect(logMock).toHaveBeenCalledWith('Anonymous login failed:', 'Network error')
+
+    window.ALLOW_ANONYMOUS = false
+  })
 })

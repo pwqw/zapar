@@ -32,6 +32,7 @@
 <script>
     window.BASE_URL = @json(base_url());
     window.IS_DEMO = @json(config('koel.misc.demo'));
+    window.ALLOW_ANONYMOUS = @json(config('koel.misc.allow_anonymous'));
 
     window.PUSHER_APP_KEY = @json(config('broadcasting.connections.pusher.key'));
     window.PUSHER_APP_CLUSTER = @json(config('broadcasting.connections.pusher.options.cluster'));

@@ -17,10 +17,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, toRef, toRefs } from 'vue'
+import { computed, onMounted, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { albumStore } from '@/stores/albumStore'
-import { commonStore } from '@/stores/commonStore'
 import { playableStore } from '@/stores/playableStore'
 import { downloadService } from '@/services/downloadService'
 import { useContextMenu } from '@/composables/useContextMenu'
@@ -37,9 +36,8 @@ const { album } = toRefs(props)
 
 const { go, url } = useRouter()
 const { MenuItem, Separator, trigger } = useContextMenu()
-const { currentUserCan } = usePolicies()
+const { currentUserCan, allowDownload } = usePolicies()
 
-const allowDownload = toRef(commonStore.state, 'allows_download')
 const allowEdit = ref(false)
 
 const isStandardAlbum = computed(() => !albumStore.isUnknown(album.value))

@@ -24,6 +24,10 @@ export const authService = {
     this.maybeRedirect()
   },
 
+  async loginAnonymously () {
+    return await http.post<CompositeToken>('me/anonymous')
+  },
+
   async logout () {
     await http.delete('me')
     this.destroy()
@@ -76,4 +80,9 @@ export const authService = {
     lsRemove(REDIRECT_KEY)
     location.assign(url)
   }),
+
+  isAnonymous: (user?: User): boolean => {
+    const checkUser = user || userStore.current
+    return checkUser?.email?.endsWith('@anonymous.koel.dev') ?? false
+  },
 }

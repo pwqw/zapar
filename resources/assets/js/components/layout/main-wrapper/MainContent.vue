@@ -1,8 +1,11 @@
 <template>
   <section
     id="mainContent"
-    class="flex-1 relative overflow-hidden"
+    class="flex-1 relative overflow-hidden flex flex-col"
   >
+    <AnonymousSessionBanner />
+
+    <div class="flex-1 overflow-hidden">
     <!--
       Most of the views are render-expensive and have their own UI states (viewport/scroll position), e.g. the playable
       lists), so we use v-show.
@@ -38,6 +41,7 @@
     <YouTubeScreen v-if="useYouTube" v-show="screen === 'YouTube'" />
     <NotFoundScreen v-if="screen === '404'" />
     <AcceptPlaylistCollaborationInvite v-if="screen === 'Playlist.Collaborate'" />
+    </div>
   </section>
 </template>
 
@@ -50,6 +54,7 @@ import { useRouter } from '@/composables/useRouter'
 import { useThirdPartyServices } from '@/composables/useThirdPartyServices'
 import { CurrentStreamableKey } from '@/symbols'
 import { commonStore } from '@/stores/commonStore'
+import AnonymousSessionBanner from '@/components/layout/AnonymousSessionBanner.vue'
 
 const AcceptPlaylistCollaborationInvite = defineAsyncComponent(
   () => import('@/components/screens/AcceptPlaylistCollaborationInvite.vue'),

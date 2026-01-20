@@ -1,11 +1,16 @@
+import { computed } from 'vue'
 import { arrayify } from '@/utils/helpers'
 import { useAuthorization } from '@/composables/useAuthorization'
 import { useKoelPlus } from '@/composables/useKoelPlus'
 import { acl } from '@/services/acl'
+import { commonStore } from '@/stores/commonStore'
+import { authService } from '@/services/authService'
 
 export const usePolicies = () => {
   const { currentUser } = useAuthorization()
   const { isPlus } = useKoelPlus()
+
+  const allowDownload = computed(() => commonStore.state.allows_download && !authService.isAnonymous())
 
   const currentUserCan = {
     editSong: (songs: MaybeArray<Song>) => {
@@ -70,5 +75,6 @@ export const usePolicies = () => {
 
   return {
     currentUserCan,
+    allowDownload,
   }
 }

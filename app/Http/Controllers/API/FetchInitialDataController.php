@@ -86,6 +86,7 @@ class FetchInitialDataController extends Controller
             'storage_driver' => config('koel.storage_driver'),
             'dir_separator' => DIRECTORY_SEPARATOR,
             'current_theme' => $theme ? ThemeResource::make($theme) : null,
+            'allow_anonymous' => (bool) config('koel.misc.allow_anonymous'),
         ]);
     }
 }

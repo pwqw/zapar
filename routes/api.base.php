@@ -74,6 +74,7 @@ use App\Http\Controllers\API\UpdateUserPreferenceController;
 use App\Http\Controllers\API\UploadController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserInvitationController;
+use App\Http\Controllers\Auth\AnonymousSessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Pusher\Pusher;
@@ -84,6 +85,7 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
     Route::middleware('throttle:10,1')->group(static function (): void {
         Route::post('me', [AuthController::class, 'login'])->name('auth.login');
         Route::post('me/otp', [AuthController::class, 'loginUsingOneTimeToken']);
+        Route::post('me/anonymous', [AnonymousSessionController::class, 'create'])->name('auth.anonymous');
 
         Route::delete('me', [AuthController::class, 'logout']);
 

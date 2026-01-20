@@ -165,6 +165,7 @@ const { go, getRouteParam, isCurrentScreen, url } = useRouter()
 const { MenuItem, Separator, closeContextMenu, trigger } = useContextMenu()
 const { removeFromPlaylist } = usePlaylistContentManagement()
 const { isPlus } = useKoelPlus()
+const { currentUserCan, allowDownload } = usePolicies()
 
 const {
   queueAfterCurrent,
@@ -180,7 +181,7 @@ const {
 const playlists = toRef(playlistStore.state, 'playlists')
 
 const downloadable = computed(() => {
-  if (!commonStore.state.allows_download) {
+  if (!allowDownload.value) {
     return false
   }
 
@@ -190,8 +191,6 @@ const downloadable = computed(() => {
 
 const queue = toRef(queueStore.state, 'playables')
 const currentSong = toRef(queueStore, 'current')
-
-const { currentUserCan } = usePolicies()
 
 const contentType = computed(() => getPlayableCollectionContentType(playables.value))
 const allowEdit = computed(() => contentType.value === 'songs' && currentUserCan.editSong(playables.value as Song[]))

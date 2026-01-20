@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, toRef, toRefs } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { eventBus } from '@/utils/eventBus'
 import { useRouter } from '@/composables/useRouter'
@@ -36,7 +36,6 @@ import { playableStore } from '@/stores/playableStore'
 import { playback } from '@/services/playbackManager'
 import { playlistStore } from '@/stores/playlistStore'
 import { useDialogBox } from '@/composables/useDialogBox'
-import { commonStore } from '@/stores/commonStore'
 import { downloadService } from '@/services/downloadService'
 
 const props = defineProps<{ playlist: Playlist }>()
@@ -47,10 +46,8 @@ const { MenuItem, Separator, trigger } = useContextMenu()
 const { go, url } = useRouter()
 const { toastWarning, toastSuccess } = useMessageToaster()
 const { isPlus } = useKoelPlus()
-const { currentUserCan } = usePolicies()
+const { currentUserCan, allowDownload } = usePolicies()
 const { showConfirmDialog } = useDialogBox()
-
-const allowDownload = toRef(commonStore.state, 'allows_download')
 
 const canEditPlaylist = computed(() => currentUserCan.editPlaylist(playlist.value))
 const canShowCollaboration = computed(() => isPlus.value && !playlist.value?.is_smart)

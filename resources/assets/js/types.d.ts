@@ -73,6 +73,7 @@ interface Window {
   BASE_URL: string
   MAILER_CONFIGURED: boolean
   IS_DEMO: boolean
+  ALLOW_ANONYMOUS?: boolean
 
   DEMO_ACCOUNT?: {
     email: string

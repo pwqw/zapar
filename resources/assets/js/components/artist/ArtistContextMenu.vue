@@ -15,9 +15,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, toRef, toRefs } from 'vue'
+import { computed, onMounted, ref, toRefs } from 'vue'
 import { artistStore } from '@/stores/artistStore'
-import { commonStore } from '@/stores/commonStore'
 import { playableStore } from '@/stores/playableStore'
 import { downloadService } from '@/services/downloadService'
 import { useContextMenu } from '@/composables/useContextMenu'
@@ -31,9 +30,8 @@ const { artist } = toRefs(props)
 
 const { go, url } = useRouter()
 const { MenuItem, Separator, trigger } = useContextMenu()
-const { currentUserCan } = usePolicies()
+const { currentUserCan, allowDownload } = usePolicies()
 
-const allowDownload = toRef(commonStore.state, 'allows_download')
 const allowEdit = ref(false)
 
 const isStandardArtist = computed(() =>
