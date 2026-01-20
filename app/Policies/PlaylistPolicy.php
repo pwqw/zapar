@@ -8,6 +8,12 @@ use App\Models\User;
 
 class PlaylistPolicy
 {
+    public function create(User $user): bool
+    {
+        // Anonymous users cannot create playlists
+        return !str_ends_with($user->email, '@' . User::ANONYMOUS_USER_DOMAIN);
+    }
+
     public function access(User $user, Playlist $playlist): bool
     {
         return $this->own($user, $playlist) || $playlist->hasCollaborator($user);
@@ -20,6 +26,11 @@ class PlaylistPolicy
 
     public function download(User $user, Playlist $playlist): bool
     {
+        // Anonymous users cannot download
+        if (str_ends_with($user->email, '@' . User::ANONYMOUS_USER_DOMAIN)) {
+            return false;
+        }
+
         return $this->access($user, $playlist);
     }
 

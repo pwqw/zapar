@@ -31,7 +31,10 @@
     "passwordRequirements": "Min. 10 characters. Should be a mix of characters, numbers, and symbols.",
     "save": "Save",
     "invalidResetLink": "Invalid reset password link.",
-    "passwordSet": "Password set."
+    "passwordSet": "Password set.",
+    "noWantToLogin": "I don't want to log in",
+    "anonymousModeActive": "You're in anonymous mode (listening only)",
+    "createAccount": "Create account"
   },
   "playlists": {
     "newPlaylist": "New Playlist",

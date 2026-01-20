@@ -39,6 +39,18 @@
           <Btn class="w-full" data-testid="submit" type="submit">{{ t('auth.logIn') }}</Btn>
         </FormRow>
 
+        <FormRow v-if="allowAnonymous">
+          <Btn
+            class="w-full"
+            variant="secondary"
+            data-testid="anonymous-login"
+            type="button"
+            @click="handleAnonymousLogin"
+          >
+            {{ t('auth.noWantToLogin') }}
+          </Btn>
+        </FormRow>
+
         <FormRow v-if="canResetPassword">
           <a class="text-right text-[.95rem] text-k-fg-70" role="button" @click.prevent="showForgotPasswordForm">
             {{ t('auth.forgotPassword') }}
@@ -90,6 +102,7 @@ const failed = ref(false)
 const showingForgotPasswordForm = ref(false)
 const canResetPassword = window.MAILER_CONFIGURED && !window.IS_DEMO
 const ssoProviders = window.SSO_PROVIDERS || []
+const allowAnonymous = window.ALLOW_ANONYMOUS || false
 const emailPlaceholder = window.IS_DEMO ? demoAccount.email : t('auth.yourEmailAddress')
 const passwordPlaceholder = window.IS_DEMO ? demoAccount.password : t('auth.yourPassword')
 
@@ -142,6 +155,17 @@ const { data, handleSubmit } = useForm<{ email: string, password: string }>({
 })
 
 const showForgotPasswordForm = () => (showingForgotPasswordForm.value = true)
+
+const handleAnonymousLogin = async () => {
+  try {
+    const compositeToken = await authService.loginAnonymously()
+    authService.setTokensUsingCompositeToken(compositeToken)
+    emit('loggedin')
+  } catch (error) {
+    logger.error('Anonymous login failed:', error)
+    toastError(t('auth.loginFailed'))
+  }
+}
 
 const onSSOError = (error: any) => {
   logger.error('SSO error: ', error)

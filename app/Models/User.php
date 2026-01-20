@@ -73,6 +73,8 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     public const FIRST_ADMIN_PASSWORD = 'KoelIsCool';
     public const DEMO_PASSWORD = 'demo';
     public const DEMO_USER_DOMAIN = 'demo.koel.dev';
+    public const ANONYMOUS_USER_DOMAIN = 'anonymous.koel.dev';
+    public const ANONYMOUS_PASSWORD = 'anonymous';
 
     protected $guarded = ['id', 'public_id'];
     protected $hidden = ['password', 'remember_token', 'created_at', 'updated_at', 'invitation_accepted_at'];
@@ -249,19 +251,47 @@ class User extends Authenticatable implements AuditableContract, Permissionable
         return 'public_id';
     }
 
-    /** Delete all old and inactive demo users */
+    /** Delete all old and inactive demo and anonymous users */
     public function prunable(): Builder
     {
-        if (!config('koel.misc.demo')) {
-            return static::query()->whereRaw('false');
+        $query = static::query();
+        $demoQuery = null;
+        $anonymousQuery = null;
+
+        if (config('koel.misc.demo')) {
+            $demoQuery = static::query()
+                ->where('created_at', '<=', now()->subWeek())
+                ->where('email', 'like', '%@' . self::DEMO_USER_DOMAIN)
+                ->whereDoesntHave('interactions', static function (Builder $q): void {
+                    $q->where('last_played_at', '>=', now()->subDays(7));
+                });
         }
 
-        return static::query()
-            ->where('created_at', '<=', now()->subWeek())
-            ->where('email', 'like', '%@' . self::DEMO_USER_DOMAIN)
-            ->whereDoesntHave('interactions', static function (Builder $query): void {
-                $query->where('last_played_at', '>=', now()->subDays(7));
+        if (config('koel.misc.allow_anonymous')) {
+            $anonymousQuery = static::query()
+                ->where('email', 'like', '%@' . self::ANONYMOUS_USER_DOMAIN)
+                ->where('updated_at', '<=', now()->subDays(2))
+                ->whereDoesntHave('interactions', static function (Builder $q): void {
+                    $q->where('last_played_at', '>=', now()->subDays(2));
+                });
+        }
+
+        if ($demoQuery && $anonymousQuery) {
+            return $query->where(static function (Builder $q) use ($demoQuery, $anonymousQuery): void {
+                $q->whereIn('id', $demoQuery->select('id'))
+                    ->orWhereIn('id', $anonymousQuery->select('id'));
             });
+        }
+
+        if ($demoQuery) {
+            return $demoQuery;
+        }
+
+        if ($anonymousQuery) {
+            return $anonymousQuery;
+        }
+
+        return static::query()->whereRaw('false');
     }
 
     protected function role(): Attribute

@@ -106,6 +106,11 @@ class SongPolicy
 
     public function download(User $user, Song $song): bool
     {
+        // Anonymous users cannot download
+        if (str_ends_with($user->email, '@' . User::ANONYMOUS_USER_DOMAIN)) {
+            return false;
+        }
+
         return $this->access($user, $song);
     }
 }

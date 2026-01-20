@@ -19,12 +19,16 @@ const REDIRECT_KEY = 'redirect'
 const { get: lsGet, set: lsSet, remove: lsRemove } = useLocalStorage(false) // authentication local storage data aren't namespaced
 
 export const authService = {
-  async login(email: string, password: string) {
+  async login (email: string, password: string) {
     this.setTokensUsingCompositeToken(await http.post<CompositeToken>('me', { email, password }))
     this.maybeRedirect()
   },
 
-  async logout() {
+  async loginAnonymously () {
+    return await http.post<CompositeToken>('me/anonymous')
+  },
+
+  async logout () {
     await http.delete('me')
     this.destroy()
   },
@@ -32,18 +36,18 @@ export const authService = {
   getProfile: async () => await http.get<User>('me'),
 
   updateProfile: async (data: UpdateCurrentProfileData) => {
-    merge(userStore.current, await http.put<User>('me', data))
+    merge(userStore.current, (await http.put<User>('me', data)))
   },
 
   getApiToken: () => lsGet<string>(API_TOKEN_STORAGE_KEY),
 
-  hasApiToken() {
+  hasApiToken () {
     return Boolean(this.getApiToken())
   },
 
   setApiToken: (token: string) => lsSet(API_TOKEN_STORAGE_KEY, token),
 
-  setTokensUsingCompositeToken(compositeToken: CompositeToken) {
+  setTokensUsingCompositeToken (compositeToken: CompositeToken) {
     this.setApiToken(compositeToken.token)
     this.setAudioToken(compositeToken['audio-token'])
   },
@@ -72,9 +76,13 @@ export const authService = {
 
   hasRedirect: () => Boolean(lsGet(REDIRECT_KEY)),
 
-  maybeRedirect: () =>
-    use(lsGet<string | null>(REDIRECT_KEY), url => {
-      lsRemove(REDIRECT_KEY)
-      location.assign(url)
-    }),
+  maybeRedirect: () => use(lsGet<string | null>(REDIRECT_KEY), url => {
+    lsRemove(REDIRECT_KEY)
+    location.assign(url)
+  }),
+
+  isAnonymous: (user?: User): boolean => {
+    const checkUser = user || userStore.current
+    return checkUser?.email?.endsWith('@anonymous.koel.dev') ?? false
+  },
 }

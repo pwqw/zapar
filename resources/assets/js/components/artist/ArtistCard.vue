@@ -28,15 +28,15 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, toRef, toRefs } from 'vue'
+import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { defineAsyncComponent } from '@/utils/helpers'
 import { artistStore } from '@/stores/artistStore'
-import { commonStore } from '@/stores/commonStore'
 import { playableStore } from '@/stores/playableStore'
 import { downloadService } from '@/services/downloadService'
 import { useDraggable } from '@/composables/useDragAndDrop'
 import { useRouter } from '@/composables/useRouter'
+import { usePolicies } from '@/composables/usePolicies'
 import { playback } from '@/services/playbackManager'
 import { useContextMenu } from '@/composables/useContextMenu'
 
@@ -53,11 +53,9 @@ const ContextMenu = defineAsyncComponent(() => import('@/components/artist/Artis
 const { go, url } = useRouter()
 const { startDragging } = useDraggable('artist')
 const { openContextMenu } = useContextMenu()
+const { allowDownload } = usePolicies()
 
 const { artist, layout } = toRefs(props)
-
-// We're not checking for supports_batch_downloading here, as the number of songs by the artist is not yet known.
-const allowDownload = toRef(commonStore.state, 'allows_download')
 
 const showing = computed(() => artistStore.isStandard(artist.value))
 
