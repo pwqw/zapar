@@ -96,6 +96,10 @@ class DevSampleDataSeeder extends Seeder
         $artist4 = $this->createUser('Artista Independiente', 'artista4@e.mail', Role::ARTIST, $organization, false);
         $this->command->info('✓ Artista 4 creado: artista4@e.mail (independiente, no verificado)');
 
+        // 5. Usuario regular
+        $user = $this->createUser('Usuario Regular', 'usuario@e.mail', Role::USER, $organization, true);
+        $this->command->info('✓ Usuario regular creado: usuario@e.mail');
+
         $artists = [$artist1, $artist2, $artist3, $artist4];
 
         // Crear contenido para cada artista
@@ -137,6 +141,7 @@ class DevSampleDataSeeder extends Seeder
         $this->command->info('  - artista2@e.mail (Artista, manager2, no verificado)');
         $this->command->info('  - artista3@e.mail (Artista, ambos managers, verificado)');
         $this->command->info('  - artista4@e.mail (Artista independiente, no verificado)');
+        $this->command->info('  - usuario@e.mail (Usuario regular)');
     }
 
     private function createUser(string $name, string $email, Role $role, Organization $organization, bool $verified): User
@@ -171,6 +176,15 @@ class DevSampleDataSeeder extends Seeder
         $uploadService = app(UploadService::class);
         $songsCreated = 0;
 
+        // Definir géneros para cada canción: Rock, Pop, vacío
+        $genres = ['Rock', 'Pop', ''];
+
+        // Definir álbumes: Artista 1 tiene todas sus canciones en "El disco", los demás en álbum vacío
+        $albumName = $artistNumber === 1 ? 'El disco' : '';
+
+        // Obtener o crear el álbum correspondiente
+        $album = \App\Models\Album::getOrCreate($artist, $albumName);
+
         // Crear 3 canciones por artista usando diferentes archivos de test
         foreach (self::TEST_SONGS as $index => $songFile) {
             if ($index >= 3) {
@@ -192,8 +206,22 @@ class DevSampleDataSeeder extends Seeder
                 // Usar UploadService para crear la canción correctamente
                 $song = $uploadService->handleUpload($tempPath, $owner);
 
-                // Hacer la canción pública
-                $song->update(['is_public' => true]);
+                // Actualizar la metadata de la canción directamente
+                $song->update([
+                    'title' => "Canción " . ($index + 1),
+                    'artist_id' => $artist->id,
+                    'artist_name' => $owner->name,
+                    'album_id' => $album->id,
+                    'album_name' => $album->name,
+                    'track' => $index + 1,
+                    'disc' => 1,
+                    'year' => 2024,
+                    'lyrics' => '',
+                    'is_public' => true,
+                ]);
+
+                // Sincronizar géneros (incluyendo vacío para limpiar géneros previos)
+                $song->syncGenres($genres[$index]);
 
                 $songsCreated++;
             } catch (\Throwable $e) {
