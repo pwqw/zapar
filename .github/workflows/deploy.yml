@@ -3,7 +3,7 @@ name: Deploy to hosting
 on:
   push:
     branches:
-      - zapo
+      - main
 
 jobs:
   deploy:
@@ -42,7 +42,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.REPO_PATH }}
             git fetch origin
-            git reset --hard origin/zapo
+            git reset --hard origin/main
             git clean -fd
           EOF
 
