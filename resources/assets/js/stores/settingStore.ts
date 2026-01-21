@@ -26,7 +26,7 @@ export const settingStore = {
     this.state.media_path = path
   },
 
-  async updateBranding (data: Partial<Branding>) {
+  async updateBranding (data: Partial<Branding & { description?: string | null, og_image?: string | null }>) {
     await http.put('settings/branding', data)
   },
 

@@ -14,7 +14,8 @@
     @php
         $og = koel_opengraph();
         $branding = koel_branding();
-        $ogImage = koel_opengraph('image') ?? $branding->logo;
+        $ogImageFileName = koel_opengraph('image');
+        $ogImage = $ogImageFileName ? image_storage_url($ogImageFileName) : $branding->logo;
     @endphp
     <meta property="og:title" content="{{ koel_branding('name') }}">
     <meta property="og:description" content="{{ koel_tagline() }}">

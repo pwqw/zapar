@@ -88,4 +88,81 @@ class BrandingSettingTest extends PlusTestCase
         ], create_user())
             ->assertForbidden();
     }
+
+    #[Test]
+    public function canUpdateDescriptionViaBranding(): void
+    {
+        $this->putAs('api/settings/branding', [
+            'name' => 'Test App',
+            'description' => 'Stream and organize your music collection',
+        ], create_admin())
+            ->assertNoContent();
+
+        $og = Setting::get('opengraph');
+        self::assertNotNull($og);
+        self::assertSame('Stream and organize your music collection', $og['description']);
+    }
+
+    #[Test]
+    public function canUpdateShareImageViaBranding(): void
+    {
+        $imageData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+        $this->putAs('api/settings/branding', [
+            'name' => 'Test App',
+            'og_image' => $imageData,
+        ], create_admin())
+            ->assertNoContent();
+
+        $og = Setting::get('opengraph');
+        self::assertNotNull($og);
+        self::assertNotNull($og['image']);
+    }
+
+    #[Test]
+    public function canUpdateShareImageUrlViaBranding(): void
+    {
+        $imageUrl = 'https://example.com/image.png';
+
+        $this->putAs('api/settings/branding', [
+            'name' => 'Test App',
+            'og_image' => $imageUrl,
+        ], create_admin())
+            ->assertNoContent();
+
+        $og = Setting::get('opengraph');
+        self::assertNotNull($og);
+        self::assertSame($imageUrl, $og['image']);
+    }
+
+    #[Test]
+    public function descriptionCannotExceedMaxLength(): void
+    {
+        $this->putAs('api/settings/branding', [
+            'name' => 'Test App',
+            'description' => str_repeat('x', 501),
+        ], create_admin())
+            ->assertUnprocessable();
+    }
+
+    #[Test]
+    public function canUpdatePartialOpenGraphSettingsViaBranding(): void
+    {
+        // First, set description
+        $this->putAs('api/settings/branding', [
+            'name' => 'Test App',
+            'description' => 'Original Description',
+        ], create_admin())
+            ->assertNoContent();
+
+        // Then update only description
+        $this->putAs('api/settings/branding', [
+            'name' => 'Test App',
+            'description' => 'Updated Description',
+        ], create_admin())
+            ->assertNoContent();
+
+        $og = Setting::get('opengraph');
+        self::assertSame('Updated Description', $og['description']);
+    }
 }

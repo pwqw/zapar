@@ -109,6 +109,12 @@ interface Branding {
   name: string
   logo: string
   cover: string
+  favicon?: string | null
+}
+
+interface OpenGraph {
+  description?: string | null
+  image?: string | null
 }
 
 type EncyclopediaDisplayMode = 'aside' | 'full'
@@ -428,6 +434,7 @@ type CurrentUser = User & {
 
 interface Settings {
   media_path?: string
+  opengraph?: OpenGraph
 }
 
 interface Interaction {
