@@ -28,7 +28,7 @@ class SettingService
         return $path;
     }
 
-    public function updateBranding(string $name, ?string $logo, ?string $cover): void
+    public function updateBranding(string $name, ?string $logo, ?string $cover, ?string $favicon): void
     {
         $branding = $this->getBranding()->withName($name);
 
@@ -42,6 +42,12 @@ class SettingService
             $branding = $branding->withCover($this->imageStorage->storeImage($cover));
         } elseif (!$cover) {
             $branding = $branding->withoutCover();
+        }
+
+        if ($favicon && $favicon !== $branding->favicon) {
+            $branding = $branding->withFavicon($this->imageStorage->storeImage($favicon));
+        } elseif ($favicon === '') {
+            $branding = $branding->withoutFavicon();
         }
 
         Setting::set('branding', $branding->toArray());
@@ -96,5 +102,28 @@ class SettingService
         }
 
         return null;
+    }
+
+    /**
+     * Update OpenGraph settings (description and image).
+     * These are stored separately but managed through branding.
+     */
+    public function updateOpenGraph(?string $description, ?string $image): void
+    {
+        $current = Arr::wrap(Setting::get('opengraph') ?? []);
+
+        if ($description !== null) {
+            $current['description'] = $description === '' ? null : $description;
+        }
+
+        if ($image !== null) {
+            if ($image === '') {
+                $current['image'] = null;
+            } elseif (!isset($current['image']) || $image !== $current['image']) {
+                $current['image'] = $this->imageStorage->storeImage($image);
+            }
+        }
+
+        Setting::set('opengraph', $current);
     }
 }

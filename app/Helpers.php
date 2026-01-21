@@ -197,7 +197,7 @@ function find_ffmpeg_path(): ?string
 
 function koel_branding(?string $key = null): Branding|string|null
 {
-    Assert::inArray($key, [null, 'name', 'logo', 'cover']);
+    Assert::inArray($key, [null, 'name', 'logo', 'cover', 'favicon']);
 
     $branding = once(static function (): Branding {
         /** @var SettingService $service */
@@ -232,4 +232,32 @@ function koel_welcome_message(): ?array
         'message' => $message,
         'variables' => is_array($variables) ? $variables : [],
     ];
+}
+
+/**
+ * Get OpenGraph setting value.
+ */
+function koel_opengraph(?string $key = null): array|string|null
+{
+    Assert::inArray($key, [null, 'description', 'image']);
+
+    $og = once(static function (): array {
+        return Arr::wrap(Setting::get('opengraph') ?? []);
+    });
+
+    if (!$key) {
+        return $og;
+    }
+
+    return $og[$key] ?? null;
+}
+
+/**
+ * Get the application tagline, using custom description from OpenGraph if available.
+ */
+function koel_tagline(): string
+{
+    $description = koel_opengraph('description');
+
+    return $description ?? config('app.tagline');
 }
