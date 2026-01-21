@@ -32,7 +32,16 @@ class UpdateBrandingController extends Controller
             $request->name,
             $request->logo,
             $request->cover,
+            $request->favicon,
         );
+
+        // Update OpenGraph description and image if provided
+        if ($request->description !== null || $request->og_image !== null) {
+            $this->settingService->updateOpenGraph(
+                $request->description,
+                $request->og_image,
+            );
+        }
 
         return response()->noContent();
     }

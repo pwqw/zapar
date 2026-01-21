@@ -49,6 +49,22 @@ class ImageStorage
             return basename($path);
         }
 
+        // Handle ICO files - preserve original format
+        if ($mime === 'image/x-icon' || $mime === 'image/vnd.microsoft.icon' || $mime === 'image/ico') {
+            $icoData = preg_replace('/^data:image\/(x-icon|vnd\.microsoft\.icon|ico);base64,/', '', $source);
+            $raw = base64_decode($icoData, true);
+
+            if ($raw === false) {
+                throw new RuntimeException('Failed to decode base64 ICO data.');
+            }
+
+            $path ??= self::generateRandomStoragePath('ico');
+
+            File::put($path, $raw);
+
+            return basename($path);
+        }
+
         $path ??= self::generateRandomStoragePath();
         $this->imageWriter->write($path, $source, $config);
 
