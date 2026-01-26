@@ -200,19 +200,14 @@ const normalPlaylists = computed(() => playlists.value.filter(({ is_smart }) => 
 const canBeShared = computed(() => !isPlus.value || (isSong(playables.value[0]) && playables.value[0].is_public))
 
 const makePublic = () => trigger(async () => {
-  if (contentType.value !== 'songs') {
-    throw new Error('Only songs can be marked as public or private')
-  }
-
+  // Both songs and episodes (which are Song models with podcast_id) support visibility changes
   await playableStore.publicizeSongs(playables.value as Song[])
-  toastSuccess(t('misc.unmarkedAsPrivate', { item: pluralize(playables.value, 'song') }))
+  const itemName = contentType.value === 'episodes' ? 'episode' : 'song'
+  toastSuccess(t('misc.unmarkedAsPrivate', { item: pluralize(playables.value, itemName) }))
 })
 
 const makePrivate = () => trigger(async () => {
-  if (contentType.value !== 'songs') {
-    throw new Error('Only songs can be marked as public or private')
-  }
-
+  // Both songs and episodes support visibility changes
   const privatizedIds = await playableStore.privatizeSongs(playables.value as Song[])
 
   if (!privatizedIds.length) {
@@ -220,16 +215,29 @@ const makePrivate = () => trigger(async () => {
     return
   }
 
+  const itemName = contentType.value === 'episodes' ? 'episode' : 'song'
+
   if (privatizedIds.length < playables.value.length) {
     toastWarning(t('misc.someCannotMarkAsPrivate'))
     return
   }
 
-  toastSuccess(t('misc.markedAsPrivate', { item: pluralize(playables.value, 'song') }))
+  toastSuccess(t('misc.markedAsPrivate', { item: pluralize(playables.value, itemName) }))
+})
+
+const canEditVisibility = computed(() => {
+  if (contentType.value === 'songs') {
+    return allowEdit.value
+  }
+  // For episodes, we check if the user can publish
+  if (contentType.value === 'episodes') {
+    return currentUserCan.canPublish()
+  }
+  return false
 })
 
 const visibilityActions = computed(() => {
-  if (contentType.value !== 'songs' || !allowEdit.value) {
+  if (!canEditVisibility.value) {
     return []
   }
 
@@ -237,7 +245,7 @@ const visibilityActions = computed(() => {
     return []
   }
 
-  const visibilities = Array.from(new Set((playables.value as Song[]).map(song => song.is_public
+  const visibilities = Array.from(new Set(playables.value.map(playable => (playable as Song | Episode).is_public
     ? 'public'
     : 'private',
   )))

@@ -121,7 +121,7 @@ const playOrPause = async () => {
   // For that, we query the podcast to get the progress of the episode.
   const podcast = await podcastStore.resolve(episode.value!.podcast_id)
 
-  let startingPoint = Math.min(episode.value!.length, podcast.state.progresses[episode.value!.id] || 0)
+  let startingPoint = Math.min(episode.value!.length, podcast.state?.progresses?.[episode.value!.id] || 0)
 
   if (startingPoint >= episode.value!.length) {
     startingPoint = 0

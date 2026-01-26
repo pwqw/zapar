@@ -35,6 +35,17 @@ class PodcastFactory extends Factory
             ],
             'added_by' => User::factory(),
             'last_synced_at' => now(),
+            'is_public' => false,
         ];
+    }
+
+    public function public(): self
+    {
+        return $this->state(fn () => ['is_public' => true]); // @phpcs:ignore
+    }
+
+    public function private(): self
+    {
+        return $this->state(fn () => ['is_public' => false]); // @phpcs:ignore
     }
 }

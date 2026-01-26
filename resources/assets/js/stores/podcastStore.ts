@@ -32,8 +32,8 @@ export const podcastStore = {
     return this.byId(id)!
   },
 
-  async unsubscribe (podcast: Podcast) {
-    await http.delete(`podcasts/${podcast.id}/subscriptions`)
+  async delete (podcast: Podcast) {
+    await http.delete(`podcasts/${podcast.id}`)
     this.state.podcasts = this.state.podcasts.filter(p => p.id !== podcast.id)
   },
 
@@ -52,5 +52,33 @@ export const podcastStore = {
     })
 
     podcast.favorite = Boolean(favorite)
+  },
+
+  async publicizePodcasts (podcasts: Podcast[]) {
+    await http.put('podcasts/publicize', {
+      podcasts: podcasts.map(podcast => podcast.id),
+    })
+
+    podcasts.forEach(podcast => {
+      const stored = this.byId(podcast.id)
+      if (stored) {
+        stored.is_public = true
+      }
+    })
+  },
+
+  async privatizePodcasts (podcasts: Podcast[]) {
+    const privatizedIds = await http.put<Podcast['id'][]>('podcasts/privatize', {
+      podcasts: podcasts.map(({ id }) => id),
+    })
+
+    privatizedIds.forEach(id => {
+      const podcast = this.byId(id)
+      if (podcast) {
+        podcast.is_public = false
+      }
+    })
+
+    return privatizedIds
   },
 }

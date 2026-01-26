@@ -70,38 +70,50 @@ class SongBuilder extends FavoriteableBuilder
 
         throw_unless($this->user, new LogicException('User must be set to query accessible songs.'));
 
-        // We want to alias both podcasts and podcast_user tables to avoid possible conflicts with other joins.
-        $this->leftJoin('podcasts as podcasts_a11y', 'songs.podcast_id', 'podcasts_a11y.id')
-            ->leftJoin('podcast_user as podcast_user_a11y', function (JoinClause $join): void {
-                $join->on('podcasts_a11y.id', 'podcast_user_a11y.podcast_id')
-                    ->where('podcast_user_a11y.user_id', $this->user->id);
-            })->whereNot(static function (self $query): void {
-                // Episodes must belong to a podcast that the user is subscribed to.
-                $query->whereNotNull('songs.podcast_id')->whereNull('podcast_user_a11y.podcast_id');
-            });
+        // Join podcasts to check accessibility for episodes
+        $this->leftJoin('podcasts as podcasts_a11y', 'songs.podcast_id', 'podcasts_a11y.id');
 
-        // If the song is a podcast episode, we need to ensure that the user has access to it.
         return $this->where(function (self $query): void {
-            $query->whereNotNull('songs.podcast_id')
-                ->orWhere(function (self $q2) {
-                    // Depending on the user preferences, the song must be either:
-                    // - owned by the user, or
-                    // - shared (is_public=true) by the users in the same organization
-                    if (!$this->user->preferences->includePublicMedia) {
-                        return $q2->whereBelongsTo($this->user, 'owner');
-                    }
+            // For podcast episodes: check podcast accessibility (public or owned by user)
+            $query->where(function (self $episodeQuery): void {
+                $episodeQuery->whereNotNull('songs.podcast_id')
+                    ->where(function (self $podcastAccess): void {
+                        // Public podcasts from users in the same organization
+                        $podcastAccess->where(function (self $publicPodcast): void {
+                            $publicPodcast->where('podcasts_a11y.is_public', true)
+                                ->whereExists(function ($subQuery): void {
+                                    $subQuery->select('users.id')
+                                        ->from('users')
+                                        ->whereColumn('users.id', 'podcasts_a11y.added_by')
+                                        ->where('users.organization_id', $this->user->organization_id);
+                                });
+                        })
+                        // Or podcasts added by the user themselves
+                        ->orWhere('podcasts_a11y.added_by', $this->user->id);
+                    });
+            })
+            // For regular songs (not episodes)
+            ->orWhere(function (self $songQuery): void {
+                $songQuery->whereNull('songs.podcast_id')
+                    ->where(function (self $songAccess): void {
+                        // Depending on the user preferences, the song must be either:
+                        // - owned by the user, or
+                        // - shared (is_public=true) by the users in the same organization
+                        if (!$this->user->preferences->includePublicMedia) {
+                            $songAccess->whereBelongsTo($this->user, 'owner');
+                            return;
+                        }
 
-                    return $q2->where(function (self $q3): void {
-                        $q3->whereBelongsTo($this->user, 'owner')
-                            ->orWhere(function (self $q4): void {
-                                $q4->where('songs.is_public', true)
+                        $songAccess->whereBelongsTo($this->user, 'owner')
+                            ->orWhere(function (self $publicSong): void {
+                                $publicSong->where('songs.is_public', true)
                                     ->whereHas('owner', function (Builder $owner): void {
                                         $owner->where('organization_id', $this->user->organization_id)
                                             ->where('owner_id', '<>', $this->user->id);
                                     });
                             });
                     });
-                });
+            });
         });
     }
 

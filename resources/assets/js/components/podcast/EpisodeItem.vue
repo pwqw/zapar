@@ -103,7 +103,7 @@ const publicationDateForHumans = computed(() => {
   })
 })
 
-const currentPosition = computed(() => podcast.value.state.progresses[episode.value.id] || 0)
+const currentPosition = computed(() => podcast.value.state?.progresses[episode.value.id] || 0)
 
 const timeLeft = computed(() => {
   const translations = { hr: t('misc.hr'), min: t('misc.min'), sec: t('misc.sec') }
@@ -115,7 +115,7 @@ const timeLeft = computed(() => {
 })
 
 const shouldShowProgress = computed(() => timeLeft.value !== 0 && episode.value.length && currentPosition.value)
-const isCurrentEpisode = computed(() => podcast.value.state.current_episode === episode.value.id)
+const isCurrentEpisode = computed(() => podcast.value.state?.current_episode === episode.value.id)
 const description = computed(() => DOMPurify.sanitize(episode.value.episode_description))
 
 const onDragStart = (event: DragEvent) => startDragging(event, episode.value)

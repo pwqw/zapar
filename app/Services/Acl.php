@@ -15,6 +15,7 @@ class Acl
     private const VALID_ACTIONS = [
         'edit',
         'delete',
+        'publish',
     ];
 
     public function checkPermission(

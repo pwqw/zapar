@@ -38,7 +38,11 @@ final class EpisodePlayable implements Arrayable, Jsonable
         $file = artifact_path("episodes/{$episode->id}.mp3");
 
         if (!File::exists($file)) {
-            Http::sink($file)->get($episode->path)->throw();
+            Http::timeout(60)
+                ->withOptions(['decode_content' => false])
+                ->sink($file)
+                ->get($episode->path)
+                ->throw();
         }
 
         $playable = new self($file, File::hash($file));

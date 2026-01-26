@@ -11,8 +11,10 @@ export const useEpisodeProgressTracking = () => {
       }
 
       const podcast = await podcastStore.resolve(progressTrackedEpisode.podcast_id)
-      podcast.state.current_episode = progressTrackedEpisode.id
-      podcast.state.progresses[progressTrackedEpisode.id] = progress
+      if (podcast.state) {
+        podcast.state.current_episode = progressTrackedEpisode.id
+        podcast.state.progresses[progressTrackedEpisode.id] = progress
+      }
     })
   }
 

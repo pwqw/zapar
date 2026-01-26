@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Events\UserUnsubscribedFromPodcast;
 use App\Exceptions\FailedToParsePodcastFeedException;
 use App\Exceptions\UserAlreadySubscribedToPodcastException;
+use App\Facades\License;
 use App\Helpers\Uuid;
 use App\Models\Podcast;
 use App\Models\PodcastUserPivot;
@@ -12,11 +13,13 @@ use App\Models\Song as Episode;
 use App\Models\User;
 use App\Repositories\PodcastRepository;
 use App\Repositories\SongRepository;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\RedirectMiddleware;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -154,6 +157,11 @@ class PodcastService
         // Since insert() doesn't trigger model events, Scout operations will not be called.
         // We have to manually update the search index.
         Episode::query()->whereIn('id', $ids)->searchable(); // @phpstan-ignore-line
+
+        // Clear CSP cache so new episode hosts are included in media-src
+        if (!empty($records)) {
+            Cache::forget('podcast_episode_hosts_v1');
+        }
     }
 
     private function subscribeUserToPodcast(User $user, Podcast $podcast): void
@@ -166,10 +174,16 @@ class PodcastService
 
     public function updateEpisodeProgress(User $user, Episode $episode, int $position): void
     {
-        Assert::true($user->subscribedToPodcast($episode->podcast));
+        $podcast = $episode->podcast;
+
+        // Auto-subscribe the user if not already subscribed (for progress tracking)
+        if (!$user->subscribedToPodcast($podcast)) {
+            $user->podcasts()->attach($podcast);
+            $podcast->refresh();
+        }
 
         /** @var PodcastUserPivot $subscription */
-        $subscription = $episode->podcast->subscribers->sole('id', $user->id)->pivot;
+        $subscription = $podcast->subscribers->sole('id', $user->id)->pivot;
 
         $state = $subscription->state->toArray();
         $state['current_episode'] = $episode->id;
@@ -240,10 +254,42 @@ class PodcastService
     public function deletePodcast(Podcast $podcast): void
     {
         $podcast->delete();
+
+        // Clear CSP cache as episode hosts may have changed
+        Cache::forget('podcast_episode_hosts_v1');
     }
 
     private function createParser(string $url): Poddle
     {
         return Poddle::fromUrl($url, 5 * 60, $this->client);
+    }
+
+    /** @param EloquentCollection<array-key, Podcast> $podcasts */
+    public function markPodcastsAsPublic(EloquentCollection $podcasts, ?User $user = null): void
+    {
+        if ($user) {
+            $podcasts = $podcasts->filter(static fn (Podcast $podcast) => $user->can('publish', $podcast));
+        }
+
+        $podcasts->toQuery()->update(['is_public' => true]);
+    }
+
+    /**
+     * @param EloquentCollection<array-key, Podcast> $podcasts
+     * @return array<string> IDs of podcasts that are marked as private
+     */
+    public function markPodcastsAsPrivate(EloquentCollection $podcasts, ?User $user = null): array
+    {
+        License::requirePlus();
+
+        if ($user) {
+            $podcasts = $podcasts->filter(static fn (Podcast $podcast) => $user->can('publish', $podcast));
+        }
+
+        $applicablePodcastIds = $podcasts->modelKeys();
+
+        Podcast::query()->whereKey($applicablePodcastIds)->update(['is_public' => false]);
+
+        return $applicablePodcastIds;
     }
 }

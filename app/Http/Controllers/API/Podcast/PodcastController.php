@@ -27,9 +27,12 @@ class PodcastController extends Controller
 
     public function index(Request $request)
     {
-        return PodcastResource::collection(
-            $this->podcastRepository->getAllSubscribedByUser($request->boolean('favorites_only'), $this->user)
+        $podcasts = $this->podcastRepository->getAllAccessibleByUser(
+            $request->boolean('favorites_only'),
+            $this->user
         );
+
+        return new \App\Http\Resources\PodcastResourceCollection($podcasts, withSubscriptionData: false);
     }
 
     #[DisabledInDemo]
@@ -46,6 +49,18 @@ class PodcastController extends Controller
     {
         $this->authorize('view', $podcast);
 
+        $podcast->load('subscribers');
+
         return PodcastResource::make($podcast);
+    }
+
+    #[DisabledInDemo]
+    public function destroy(Podcast $podcast)
+    {
+        $this->authorize('delete', $podcast);
+
+        $this->podcastService->deletePodcast($podcast);
+
+        return response()->noContent();
     }
 }

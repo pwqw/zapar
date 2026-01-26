@@ -730,8 +730,13 @@
       "undoFavorite": "Quitar de Favoritos",
       "favorite": "Añadir a Favoritos",
       "visitWebsite": "Visitar Sitio Web",
-      "unsubscribe": "Desuscribirse",
-      "unsubscribeConfirm": "¿Desuscribirse del podcast?"
+      "delete": "Eliminar",
+      "deleteConfirm": "¿Eliminar el podcast? ¡Esta acción NO es reversible!",
+      "deleted": "Podcast eliminado.",
+      "markAsPublic": "Marcar como Público",
+      "markAsPrivate": "Marcar como Privado",
+      "markedAsPublic": "Podcast marcado como público.",
+      "markedAsPrivate": "Podcast marcado como privado."
     },
     "mediaBrowser": {
       "open": "Abrir",

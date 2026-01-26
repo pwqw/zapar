@@ -27,12 +27,22 @@ class PodcastRepository extends Repository implements ScoutableRepository
     }
 
     /** @return Collection<Podcast>|array<array-key, Podcast> */
+    public function getAllAccessibleByUser(bool $favoritesOnly, ?User $user = null): Collection
+    {
+        return Podcast::query()
+            ->setScopedUser($user ?? $this->auth->user())
+            ->withFavoriteStatus(favoritesOnly: $favoritesOnly)
+            ->accessible()
+            ->get();
+    }
+
+    /** @return Collection<Podcast>|array<array-key, Podcast> */
     public function getMany(array $ids, bool $preserveOrder = false, ?User $user = null): Collection
     {
         $podcasts = Podcast::query()
             ->with('subscribers')
             ->setScopedUser($user ?? $this->auth->user())
-            ->subscribed()
+            ->accessible()
             ->whereIn('podcasts.id', $ids)
             ->distinct()
             ->get();

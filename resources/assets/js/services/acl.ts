@@ -1,8 +1,8 @@
 import { http } from '@/services/http'
 import { cache } from '@/services/cache'
 
-type ResourceType = 'album' | 'artist' | 'radio-station' | 'user'
-type Action = 'edit' | 'delete'
+type ResourceType = 'album' | 'artist' | 'podcast' | 'radio-station' | 'user'
+type Action = 'edit' | 'delete' | 'publish'
 
 export const acl = {
   checkResourcePermission: async (type: ResourceType, id: string | number, action: Action) => {

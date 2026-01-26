@@ -196,7 +196,7 @@ const displayedEpisodes = computed(() => {
   return search(keywords.value)
 })
 
-const inProgress = computed(() => Boolean(podcast.value?.state.current_episode))
+const inProgress = computed(() => Boolean(podcast.value?.state?.current_episode))
 
 const currentPlayingItemIsPartOfPodcast = computed(() => {
   const currentPlayable = queueStore.current
@@ -237,12 +237,12 @@ const playOrPause = async () => {
   }
 
   if (inProgress.value) {
-    const currentEpisode = episodes.value?.find(episode => episode.id === podcast.value?.state.current_episode)
+    const currentEpisode = episodes.value?.find(episode => episode.id === podcast.value?.state?.current_episode)
     if (!currentEpisode) {
       return
     }
 
-    await playback().play(currentEpisode, podcast.value?.state.progresses[currentEpisode.id] || 0)
+    await playback().play(currentEpisode, podcast.value?.state?.progresses[currentEpisode.id] || 0)
     return
   }
 
@@ -288,7 +288,7 @@ const toggleFavorite = () => podcastStore.toggleFavorite(podcast.value!)
 
 onMounted(() => init())
 
-eventBus.on('PODCAST_UNSUBSCRIBED', ({ id }) => id === podcast.value?.id && go(url('podcasts.index')))
+eventBus.on('PODCAST_DELETED', ({ id }) => id === podcast.value?.id && go(url('podcasts.index')))
 </script>
 
 <style scoped lang="postcss">

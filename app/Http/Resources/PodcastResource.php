@@ -44,17 +44,22 @@ class PodcastResource extends JsonResource
             'description' => $this->podcast->description,
             'author' => $this->podcast->author,
             'favorite' => $this->podcast->favorite,
+            'is_public' => $this->podcast->is_public,
         ];
 
         if ($this->withSubscriptionData) {
             /** @var User $user */
             $user = $request->user();
 
-            /** @var PodcastUserPivot $pivot */
-            $pivot = $this->podcast->subscribers->sole('id', $user->id)->pivot;
-            $data['subscribed_at'] = $pivot->created_at;
-            $data['last_played_at'] = $pivot->updated_at;
-            $data['state'] = $pivot->state->toArray();
+            $subscriber = $this->podcast->subscribers->firstWhere('id', $user->id);
+
+            if ($subscriber) {
+                /** @var PodcastUserPivot $pivot */
+                $pivot = $subscriber->pivot;
+                $data['subscribed_at'] = $pivot->created_at;
+                $data['last_played_at'] = $pivot->updated_at;
+                $data['state'] = $pivot->state->toArray();
+            }
         }
 
         return $data;

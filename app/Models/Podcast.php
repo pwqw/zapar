@@ -88,4 +88,9 @@ class Podcast extends Model implements Favoriteable
             'author' => $this->metadata->author,
         ];
     }
+
+    public static function getPermissionableIdentifier(): string
+    {
+        return 'id';
+    }
 }

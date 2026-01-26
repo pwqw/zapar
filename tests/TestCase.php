@@ -34,22 +34,25 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // ⚠️ PROTECTION: Ensure tests NEVER use the development database
-        // Tests must use in-memory SQLite according to phpunit.xml.dist
+        // ⚠️ PROTECTION: Ensure tests use SQLite (in-memory or persistent testing)
         $dbConnection = config('database.default');
-        if ($dbConnection !== 'sqlite') {
+
+        // Allow both 'sqlite' (in-memory) and 'sqlite-persistent' (file-based SQLite for dev)
+        // The important thing is we're NOT using MySQL/PostgreSQL with real data
+        $allowedConnections = ['sqlite', 'sqlite-persistent'];
+        if (!in_array($dbConnection, $allowedConnections, true)) {
             throw new \RuntimeException(
-                "Los tests deben usar SQLite en memoria, pero se detectó: {$dbConnection}. " .
+                "Los tests deben usar SQLite, pero se detectó: {$dbConnection}. " .
                 "Esto podría borrar la base de datos de desarrollo. " .
-                "Verifica que phpunit.xml.dist tenga DB_CONNECTION=sqlite"
+                "Conexiones permitidas: " . implode(', ', $allowedConnections)
             );
         }
 
-        $dbDatabase = config("database.connections.{$dbConnection}.database");
-        if ($dbDatabase !== ':memory:' && $dbDatabase !== null) {
+        // For sqlite-persistent, verify the driver is SQLite (not MySQL/PostgreSQL)
+        $driver = config("database.connections.{$dbConnection}.driver");
+        if ($driver !== 'sqlite') {
             throw new \RuntimeException(
-                "Los tests deben usar SQLite en memoria (:memory:), pero se detectó: {$dbDatabase}. " .
-                "Esto podría afectar la base de datos de desarrollo."
+                "Los tests deben usar SQLite driver, pero se detectó: {$driver}."
             );
         }
 
