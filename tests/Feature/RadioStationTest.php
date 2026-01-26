@@ -6,7 +6,7 @@ use App\Helpers\Ulid;
 use App\Http\Resources\RadioStationResource;
 use App\Models\Organization;
 use App\Models\RadioStation;
-use Illuminate\Support\Facades\Http;
+use App\Rules\ValidRadioStationUrl;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -20,7 +20,8 @@ class RadioStationTest extends TestCase
     {
         parent::setUp();
 
-        Http::fake(['*' => Http::response('', 200, ['Content-Type' => 'audio/mpeg'])]);
+        $validator = app(ValidRadioStationUrl::class);
+        $validator->bypass = true;
     }
 
     #[Test]
@@ -30,18 +31,13 @@ class RadioStationTest extends TestCase
 
         $ulid = Ulid::freeze();
 
-        $this
-            ->postAs(
-                '/api/radio/stations',
-                [
-                    'url' => 'https://example.com/stream',
-                    'name' => 'Test Radio Station',
-                    'logo' => minimal_base64_encoded_image(),
-                    'description' => 'A test radio station',
-                    'is_public' => true,
-                ],
-                $user,
-            )
+        $this->postAs('/api/radio/stations', [
+            'url' => 'https://example.com/stream',
+            'name' => 'Test Radio Station',
+            'logo' => minimal_base64_encoded_image(),
+            'description' => 'A test radio station',
+            'is_public' => true,
+        ], $user)
             ->assertCreated()
             ->assertJsonStructure(RadioStationResource::JSON_STRUCTURE);
 
@@ -58,21 +54,17 @@ class RadioStationTest extends TestCase
     #[Test]
     public function updateKeepingLogoIntact(): void
     {
-        $station = RadioStation::factory()->createOne([
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create([
             'logo' => 'neat-logo.webp',
         ]);
 
-        $this
-            ->putAs(
-                "/api/radio/stations/{$station->id}",
-                [
-                    'url' => 'https://example.com/updated-stream',
-                    'name' => 'Updated Radio Station',
-                    'description' => 'An updated test radio station',
-                    'is_public' => false,
-                ],
-                $station->user,
-            )
+        $this->putAs("/api/radio/stations/{$station->id}", [
+            'url' => 'https://example.com/updated-stream',
+            'name' => 'Updated Radio Station',
+            'description' => 'An updated test radio station',
+            'is_public' => false,
+        ], $station->user)
             ->assertOk()
             ->assertJsonStructure(RadioStationResource::JSON_STRUCTURE);
 
@@ -88,21 +80,19 @@ class RadioStationTest extends TestCase
     #[Test]
     public function updateWithNewLogo(): void
     {
-        $station = RadioStation::factory()->createOne();
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
+        // User needs to be verified to publish (make public)
+        $station->user->update(['verified' => true]);
 
         $ulid = Ulid::freeze();
 
-        $this
-            ->putAs(
-                "/api/radio/stations/{$station->id}",
-                [
-                    'url' => 'https://example.com/updated-stream',
-                    'name' => 'Updated Radio Station',
-                    'logo' => minimal_base64_encoded_image(),
-                    'is_public' => true,
-                ],
-                $station->user,
-            )
+        $this->putAs("/api/radio/stations/{$station->id}", [
+            'url' => 'https://example.com/updated-stream',
+            'name' => 'Updated Radio Station',
+            'logo' => minimal_base64_encoded_image(),
+            'is_public' => true,
+        ], $station->user)
             ->assertOk()
             ->assertJsonStructure(RadioStationResource::JSON_STRUCTURE);
 
@@ -112,19 +102,17 @@ class RadioStationTest extends TestCase
     #[Test]
     public function updateRemovingLogo(): void
     {
-        $station = RadioStation::factory()->createOne();
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
+        // User needs to be verified to publish (make public)
+        $station->user->update(['verified' => true]);
 
-        $this
-            ->putAs(
-                "/api/radio/stations/{$station->id}",
-                [
-                    'url' => 'https://example.com/updated-stream',
-                    'name' => 'Updated Radio Station',
-                    'logo' => '',
-                    'is_public' => true,
-                ],
-                $station->user,
-            )
+        $this->putAs("/api/radio/stations/{$station->id}", [
+            'url' => 'https://example.com/updated-stream',
+            'name' => 'Updated Radio Station',
+            'logo' => '',
+            'is_public' => true,
+        ], $station->user)
             ->assertOk()
             ->assertJsonStructure(RadioStationResource::JSON_STRUCTURE);
 
@@ -134,7 +122,8 @@ class RadioStationTest extends TestCase
     #[Test]
     public function normalNonAdminCannotUpdate(): void
     {
-        $station = RadioStation::factory()->createOne();
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
         $data = [
             'url' => 'https://example.com/updated-stream',
             'name' => 'Updated Radio Station',
@@ -143,13 +132,15 @@ class RadioStationTest extends TestCase
             'is_public' => false,
         ];
 
-        $this->putAs("/api/radio/stations/{$station->id}", $data, create_user())->assertForbidden();
+        $this->putAs("/api/radio/stations/{$station->id}", $data, create_user())
+            ->assertForbidden();
     }
 
     #[Test]
     public function adminFromSameOrgCanUpdate(): void
     {
-        $station = RadioStation::factory()->createOne();
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
         $data = [
             'url' => 'https://example.com/updated-stream',
             'name' => 'Updated Radio Station',
@@ -158,13 +149,15 @@ class RadioStationTest extends TestCase
             'is_public' => false,
         ];
 
-        $this->putAs("/api/radio/stations/{$station->id}", $data, create_admin())->assertOk();
+        $this->putAs("/api/radio/stations/{$station->id}", $data, create_admin())
+            ->assertOk();
     }
 
     #[Test]
     public function adminFromOtherOrgCannotUpdate(): void
     {
-        $station = RadioStation::factory()->createOne();
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
         $data = [
             'url' => 'https://example.com/updated-stream',
             'name' => 'Updated Radio Station',
@@ -175,27 +168,31 @@ class RadioStationTest extends TestCase
 
         $this->putAs("/api/radio/stations/{$station->id}", $data, create_admin([
             'organization_id' => Organization::factory(),
-        ]))->assertForbidden();
+        ]))
+            ->assertForbidden();
     }
 
     #[Test]
     public function listAll(): void
     {
         $user = create_user();
-        $ownStation = RadioStation::factory()->for($user)->createOne();
-        $publicStation = RadioStation::factory()->createOne(['is_public' => true]);
+
+        /** @var RadioStation $ownStation */
+        $ownStation = RadioStation::factory()->for($user)->create();
+
+        /** @var RadioStation $publicStation */
+        $publicStation = RadioStation::factory()->create(['is_public' => true]);
 
         // Non-public station should not be included
         RadioStation::factory()->count(2)->create(['is_public' => false]);
 
         // Public station but in another organization should not be included
-        RadioStation::factory()->createOne([
+        RadioStation::factory()->create([
             'is_public' => true,
             'user_id' => create_user(['organization_id' => Organization::factory()])->id,
         ]);
 
-        $this
-            ->getAs('/api/radio/stations', $user)
+        $this->getAs('/api/radio/stations', $user)
             ->assertOk()
             ->assertJsonStructure(['*' => RadioStationResource::JSON_STRUCTURE])
             ->assertJsonCount(2, '*')
@@ -206,9 +203,11 @@ class RadioStationTest extends TestCase
     #[Test]
     public function destroy(): void
     {
-        $station = RadioStation::factory()->createOne();
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
 
-        $this->deleteAs("/api/radio/stations/{$station->id}", [], $station->user)->assertNoContent();
+        $this->deleteAs("/api/radio/stations/{$station->id}", [], $station->user)
+            ->assertNoContent();
 
         $this->assertModelMissing($station);
     }
@@ -216,27 +215,33 @@ class RadioStationTest extends TestCase
     #[Test]
     public function nonAdminCannotDelete(): void
     {
-        $station = RadioStation::factory()->createOne();
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
 
-        $this->deleteAs("/api/radio/stations/{$station->id}", [], create_user())->assertForbidden();
+        $this->deleteAs("/api/radio/stations/{$station->id}", [], create_user())
+            ->assertForbidden();
     }
 
     #[Test]
     public function adminFromOtherOrgCannotDelete(): void
     {
-        $station = RadioStation::factory()->createOne();
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
 
         $this->deleteAs("/api/radio/stations/{$station->id}", [], create_admin([
             'organization_id' => Organization::factory(),
-        ]))->assertForbidden();
+        ]))
+            ->assertForbidden();
     }
 
     #[Test]
     public function adminFromSameOrgCanDelete(): void
     {
-        $station = RadioStation::factory()->createOne();
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
 
-        $this->deleteAs("/api/radio/stations/{$station->id}", [], create_admin())->assertNoContent();
+        $this->deleteAs("/api/radio/stations/{$station->id}", [], create_admin())
+            ->assertNoContent();
 
         $this->assertModelMissing($station);
     }

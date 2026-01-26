@@ -34,6 +34,11 @@ class RadioStationPolicy
 
     public function edit(User $user, RadioStation $station): bool
     {
+        // ADMIN and MODERATOR can edit ANY radio station (system-wide rule)
+        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+            return true;
+        }
+
         // Owner can edit
         if ($station->user_id === $user->id) {
             return true;
@@ -49,13 +54,7 @@ class RadioStationPolicy
             return true;
         }
 
-        // Moderator can edit in their organization
-        if ($user->role === Role::MODERATOR && $user->organization_id === $station->user->organization_id) {
-            return true;
-        }
-
-        // Admin can edit in their organization
-        return $user->role === Role::ADMIN && $user->organization_id === $station->user->organization_id;
+        return false;
     }
 
     public function update(User $user, RadioStation $station): bool
