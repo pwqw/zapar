@@ -43,7 +43,10 @@ class AlbumService
 
         $album->update($data);
 
-        return $album->refresh();
+        $album->refresh();
+        $album->load('artist');
+
+        return $album;
     }
 
     public function storeAlbumCover(Album $album, mixed $source): ?string

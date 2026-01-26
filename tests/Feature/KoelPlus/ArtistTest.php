@@ -15,14 +15,15 @@ class ArtistTest extends PlusTestCase
     #[Test]
     public function updateAsOwner(): void
     {
-        $artist = Artist::factory()->createOne();
+        /** @var Artist $artist */
+        $artist = Artist::factory()->create();
 
         $this->putAs(
             "api/artists/{$artist->id}",
             [
                 'name' => 'Updated Artist Name',
             ],
-            $artist->user,
+            $artist->user
         )->assertJsonStructure(ArtistResource::JSON_STRUCTURE);
 
         $artist->refresh();
@@ -31,26 +32,30 @@ class ArtistTest extends PlusTestCase
     }
 
     #[Test]
-    public function adminCannotUpdateIfNonOwner(): void
+    public function adminCanUpdateIfNonOwner(): void
     {
-        $artist = Artist::factory()->createOne();
+        /** @var Artist $artist */
+        $artist = Artist::factory()->create();
         $scaryBossMan = create_admin();
 
         self::assertFalse($artist->belongsToUser($scaryBossMan));
 
+        // ADMIN can edit ANY artist (system-wide rule)
         $this->putAs(
             "api/artists/{$artist->id}",
             [
                 'name' => 'Updated Artist Name',
             ],
-            $scaryBossMan,
-        )->assertForbidden();
+            $scaryBossMan
+        )->assertJsonStructure(ArtistResource::JSON_STRUCTURE)
+            ->assertOk();
     }
 
     #[Test]
     public function updateForbiddenForNonOwners(): void
     {
-        $artist = Artist::factory()->createOne();
+        /** @var Artist $artist */
+        $artist = Artist::factory()->create();
         $randomDude = create_user();
 
         self::assertFalse($artist->belongsToUser($randomDude));
@@ -60,7 +65,7 @@ class ArtistTest extends PlusTestCase
             [
                 'name' => 'Updated Artist Name',
             ],
-            $randomDude,
+            $randomDude
         )->assertForbidden();
     }
 }
