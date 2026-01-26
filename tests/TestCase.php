@@ -56,6 +56,9 @@ abstract class TestCase extends BaseTestCase
             );
         }
 
+        // Disable rate limiting in tests
+        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+
         License::swap($this->app->make(CommunityLicenseService::class));
         $this->fileSystem = File::getFacadeRoot();
 
