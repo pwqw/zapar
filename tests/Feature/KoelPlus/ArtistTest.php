@@ -32,7 +32,7 @@ class ArtistTest extends PlusTestCase
     }
 
     #[Test]
-    public function adminCannotUpdateIfNonOwner(): void
+    public function adminCanUpdateIfNonOwner(): void
     {
         /** @var Artist $artist */
         $artist = Artist::factory()->create();
@@ -40,13 +40,15 @@ class ArtistTest extends PlusTestCase
 
         self::assertFalse($artist->belongsToUser($scaryBossMan));
 
+        // ADMIN can edit ANY artist (system-wide rule)
         $this->putAs(
             "api/artists/{$artist->id}",
             [
                 'name' => 'Updated Artist Name',
             ],
             $scaryBossMan
-        )->assertForbidden();
+        )->assertJsonStructure(ArtistResource::JSON_STRUCTURE)
+            ->assertOk();
     }
 
     #[Test]

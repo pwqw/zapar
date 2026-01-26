@@ -34,7 +34,7 @@ class AlbumTest extends PlusTestCase
     }
 
     #[Test]
-    public function adminCannotUpdateIfNonOwner(): void
+    public function adminCanUpdateIfNonOwner(): void
     {
         /** @var Album $album */
         $album = Album::factory()->create();
@@ -42,6 +42,7 @@ class AlbumTest extends PlusTestCase
 
         self::assertFalse($album->belongsToUser($scaryBossMan));
 
+        // ADMIN can edit ANY album (system-wide rule)
         $this->putAs(
             "api/albums/{$album->id}",
             [
@@ -49,7 +50,8 @@ class AlbumTest extends PlusTestCase
                 'year' => 2023,
             ],
             $scaryBossMan
-        )->assertForbidden();
+        )->assertJsonStructure(AlbumResource::JSON_STRUCTURE)
+            ->assertOk();
     }
 
     #[Test]

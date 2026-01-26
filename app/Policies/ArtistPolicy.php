@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Enums\Acl\Permission;
+use App\Enums\Acl\Role;
 use App\Facades\License;
 use App\Models\Artist;
 use App\Models\User;
@@ -14,19 +14,50 @@ class ArtistPolicy
         return License::isCommunity() || $artist->belongsToUser($user);
     }
 
+    /**
+     * Rules follow the same logic as SongPolicy::edit():
+     * - ADMIN and MODERATOR can edit ANY artist (system-wide rule)
+     * - Owner (artist) can edit their own artists
+     * - Manager can edit artists if they can edit at least one song of the artist
+     * - Uploader can edit artists if they uploaded songs of the artist
+     */
     public function update(User $user, Artist $artist): bool
     {
         if ($artist->is_unknown || $artist->is_various) {
             return false;
         }
 
-        // For CE, if the user can manage songs, they can update any artist.
-        if ($user->hasPermissionTo(Permission::MANAGE_SONGS) && License::isCommunity()) {
+        // ADMIN and MODERATOR can edit ANY artist (system-wide rule)
+        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
             return true;
         }
 
-        // For Plus, only the owner of the artist can update it.
-        return $artist->belongsToUser($user) && License::isPlus();
+        // Owner (artist) can edit their own artists
+        if ($artist->belongsToUser($user)) {
+            return true;
+        }
+
+        // Check if user can edit at least one song of the artist
+        // This follows the same rules as SongPolicy::edit()
+        $canEditAnySong = $artist->songs()
+            ->where(function ($query) use ($user) {
+                // Owner can edit
+                $query->where('owner_id', $user->id)
+                    // Uploader can edit (if different from owner)
+                    ->orWhere('uploaded_by_id', $user->id);
+            })
+            ->exists();
+
+        // If no song found via simple queries, check manager permissions
+        if (!$canEditAnySong) {
+            $canEditAnySong = $artist->songs()
+                ->get()
+                ->contains(function ($song) use ($user, $artist) {
+                    return $user->canEditArtistContent($artist, $song->uploaded_by_id);
+                });
+        }
+
+        return $canEditAnySong;
     }
 
     public function edit(User $user, Artist $artist): bool
