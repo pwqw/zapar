@@ -198,7 +198,7 @@ class Song extends Model implements AuditableContract, Favoriteable, Embeddable
     public function accessibleBy(User $user): bool
     {
         if ($this->isEpisode()) {
-            return $user->subscribedToPodcast($this->podcast);
+            return $user->can('access', $this->podcast);
         }
 
         return $this->is_public || $this->ownedBy($user);

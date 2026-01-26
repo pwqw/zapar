@@ -56,7 +56,7 @@ const { openContextMenu } = useContextMenu()
 
 const description = computed(() => DOMPurify.sanitize(podcast.description))
 
-const lastPlayedAt = computed(() => podcast.state.current_episode
+const lastPlayedAt = computed(() => podcast.state?.current_episode && podcast.last_played_at
   ? formatTimeAgo(new Date(podcast.last_played_at))
   : null,
 )

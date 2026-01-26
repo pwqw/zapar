@@ -49,8 +49,10 @@ use App\Http\Controllers\API\PlaylistSongController;
 use App\Http\Controllers\API\Podcast\PodcastController;
 use App\Http\Controllers\API\Podcast\PodcastEpisodeController;
 use App\Http\Controllers\API\Podcast\UnsubscribeFromPodcastController;
+use App\Http\Controllers\API\PrivatizePodcastsController;
 use App\Http\Controllers\API\PrivatizeSongsController;
 use App\Http\Controllers\API\ProfileController;
+use App\Http\Controllers\API\PublicizePodcastsController;
 use App\Http\Controllers\API\PublicizeSongsController;
 use App\Http\Controllers\API\QueueStateController;
 use App\Http\Controllers\API\RadioStationController;
@@ -245,6 +247,8 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
         Route::delete('playlists/{playlist}/collaborators', [PlaylistCollaboratorController::class, 'destroy']);
 
         // Podcast routes
+        Route::put('podcasts/publicize', PublicizePodcastsController::class);
+        Route::put('podcasts/privatize', PrivatizePodcastsController::class);
         Route::apiResource('podcasts', PodcastController::class);
         Route::apiResource('podcasts.episodes', PodcastEpisodeController::class);
         Route::delete('podcasts/{podcast}/subscriptions', UnsubscribeFromPodcastController::class);

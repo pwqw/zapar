@@ -214,6 +214,7 @@ interface Episode extends BasePlayable {
   podcast_id: string
   podcast_title: string
   podcast_author: string
+  is_public: boolean
 }
 
 interface RadioStation extends IStreamable {
@@ -354,9 +355,9 @@ interface Podcast {
   readonly image: string
   readonly description: string
   readonly author: string
-  readonly subscribed_at: string
-  readonly last_played_at: string
-  readonly state: {
+  readonly subscribed_at?: string
+  readonly last_played_at?: string
+  readonly state?: {
     current_episode: Playable['id'] | null
     progresses: Record<Playable['id'], number>
   }

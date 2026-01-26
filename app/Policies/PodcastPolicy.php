@@ -10,11 +10,6 @@ class PodcastPolicy
 {
     public function access(User $user, Podcast $podcast): bool
     {
-        // Subscribers can access
-        if ($user->subscribedToPodcast($podcast)) {
-            return true;
-        }
-
         // Admin can access any podcast
         if ($user->role === Role::ADMIN) {
             return true;
@@ -22,6 +17,19 @@ class PodcastPolicy
 
         // Moderator can access podcasts added by users in their organization
         if ($user->role === Role::MODERATOR && $podcast->added_by) {
+            $addedByUser = User::find($podcast->added_by);
+            if ($addedByUser && $user->organization_id === $addedByUser->organization_id) {
+                return true;
+            }
+        }
+
+        // User who added the podcast can access it
+        if ($podcast->added_by === $user->id) {
+            return true;
+        }
+
+        // Public podcasts are accessible to all users in the same organization
+        if ($podcast->is_public && $podcast->added_by) {
             $addedByUser = User::find($podcast->added_by);
             if ($addedByUser && $user->organization_id === $addedByUser->organization_id) {
                 return true;
