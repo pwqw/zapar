@@ -82,6 +82,8 @@ class RadioStationTest extends TestCase
     {
         /** @var RadioStation $station */
         $station = RadioStation::factory()->create();
+        // User needs to be verified to publish (make public)
+        $station->user->update(['verified' => true]);
 
         $ulid = Ulid::freeze();
 
@@ -102,6 +104,8 @@ class RadioStationTest extends TestCase
     {
         /** @var RadioStation $station */
         $station = RadioStation::factory()->create();
+        // User needs to be verified to publish (make public)
+        $station->user->update(['verified' => true]);
 
         $this->putAs("/api/radio/stations/{$station->id}", [
             'url' => 'https://example.com/updated-stream',

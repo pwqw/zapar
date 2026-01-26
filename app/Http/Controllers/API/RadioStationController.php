@@ -44,8 +44,8 @@ class RadioStationController extends Controller
     {
         $this->authorize('update', $station);
 
-        // If is_public is being changed, verify publish permission
-        if ($request->has('is_public')) {
+        // Only verify publish permission when making the station public (not when making it private)
+        if ($request->has('is_public') && $request->boolean('is_public') && !$station->is_public) {
             $this->authorize('publish', $station);
         }
 
