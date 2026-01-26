@@ -100,7 +100,7 @@ describe('loginForm.vue', () => {
   it('logs in anonymously', async () => {
     window.ALLOW_ANONYMOUS = true
     const loginAnonymouslyMock = h.mock(authService, 'loginAnonymously').mockResolvedValue({
-      token: 'api-token',
+      'token': 'api-token',
       'audio-token': 'audio-token',
     })
     const setTokensMock = h.mock(authService, 'setTokensUsingCompositeToken')

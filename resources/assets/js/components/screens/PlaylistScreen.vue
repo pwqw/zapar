@@ -117,12 +117,6 @@ const { t } = useI18n()
 const { triggerNotFound, getRouteParam, onScreenActivated, go, url } = useRouter()
 const { openContextMenu } = useContextMenu()
 
-const itemCountText = computed(() => {
-  const count = filteredPlayables.value.length
-  const itemText = count === 1 ? t('messages.genericItemSingular') : t('messages.genericItemPlural')
-  return `${count.toLocaleString()} ${itemText}`
-})
-
 const states = new Map<Playlist['id'], PlaylistScreenState>()
 
 const blankState = (): PlaylistScreenState => {
@@ -167,6 +161,12 @@ const {
   sort: baseSort,
   config: listConfig,
 } = usePlayableList(allPlayables, { type: 'Playlist' })
+
+const itemCountText = computed(() => {
+  const count = filteredPlayables.value.length
+  const itemText = count === 1 ? t('messages.genericItemSingular') : t('messages.genericItemPlural')
+  return `${count.toLocaleString()} ${itemText}`
+})
 
 const { PlayableListControls, config: controlsConfig } = usePlayableListControls('Playlist')
 const { removeFromPlaylist } = usePlaylistContentManagement()

@@ -62,11 +62,11 @@ const onFileInputChange = (e: InputEvent) => {
   }
 
   const file = target.files[0]
-  
+
   // Check if it's an ICO file
-  const isIco = file.name.toLowerCase().endsWith('.ico') || 
-                file.type === 'image/x-icon' || 
-                file.type === 'image/vnd.microsoft.icon'
+  const isIco = file.name.toLowerCase().endsWith('.ico')
+    || file.type === 'image/x-icon'
+    || file.type === 'image/vnd.microsoft.icon'
 
   readAsDataUrl(file, dataUrl => {
     // If it's an ICO, ensure the data URI has the correct MIME type
