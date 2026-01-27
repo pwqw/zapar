@@ -45,12 +45,12 @@ class AnonymousSessionTest extends TestCase
     #[Test]
     public function anonymousSessionWithConsentRecordsConsent(): void
     {
-        User::where('email', 'like', '%@anonymous.koel.dev')->delete();
+        User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->delete();
 
         $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
-        $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        $anonymousUser = User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->first();
         self::assertNotNull($anonymousUser);
         self::assertNotNull($anonymousUser->terms_accepted_at);
         self::assertNotNull($anonymousUser->privacy_accepted_at);
@@ -72,21 +72,21 @@ class AnonymousSessionTest extends TestCase
             ]);
 
         // Verify anonymous user was created with default locale (en) name
-        $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        $anonymousUser = User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->first();
         self::assertNotNull($anonymousUser);
-        self::assertTrue(str_ends_with($anonymousUser->email, '@anonymous.koel.dev'));
+        self::assertTrue(str_ends_with($anonymousUser->email, '@' . User::ANONYMOUS_USER_DOMAIN));
         self::assertSame('strange being', $anonymousUser->name);
     }
 
     #[Test]
     public function createAnonymousSessionWithSpanishLocaleUsesTranslatedName(): void
     {
-        User::where('email', 'like', '%@anonymous.koel.dev')->delete();
+        User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->delete();
 
         $this->postJson('api/me/anonymous', $this->consentPayload(['locale' => 'es']))
             ->assertOk();
 
-        $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        $anonymousUser = User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->first();
         self::assertNotNull($anonymousUser);
         self::assertSame('extraño ser', $anonymousUser->name);
     }
@@ -95,20 +95,20 @@ class AnonymousSessionTest extends TestCase
     public function reuseExistingAnonymousUserForSameIp(): void
     {
         // Clear any existing anonymous users for this test
-        User::where('email', 'like', '%@anonymous.koel.dev')->delete();
+        User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->delete();
 
         $response1 = $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
-        $user1 = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        $user1 = User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->first();
 
         $response2 = $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
-        $user2 = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        $user2 = User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->first();
 
         self::assertSame($user1->id, $user2->id);
-        self::assertSame(1, User::where('email', 'like', '%@anonymous.koel.dev')->count());
+        self::assertSame(1, User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->count());
     }
 
     #[Test]
@@ -126,7 +126,7 @@ class AnonymousSessionTest extends TestCase
         $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
-        $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        $anonymousUser = User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->first();
 
         // Create a test song owned by another user
         $owner = User::factory()->create();
@@ -143,7 +143,7 @@ class AnonymousSessionTest extends TestCase
         $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
-        $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        $anonymousUser = User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->first();
 
         // Check if can create playlist
         $can = $anonymousUser->can('create', \App\Models\Playlist::class);
@@ -156,7 +156,7 @@ class AnonymousSessionTest extends TestCase
         $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
-        $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        $anonymousUser = User::where('email', 'like', '%@' . User::ANONYMOUS_USER_DOMAIN)->first();
 
         // Check if can create interaction (favorite)
         $can = $anonymousUser->can('create', \App\Models\Interaction::class);

@@ -100,6 +100,6 @@ export const authService = {
 
   isAnonymous: (user?: User): boolean => {
     const checkUser = user || userStore.current
-    return checkUser?.email?.endsWith('@anonymous.koel.dev') ?? false
+    return checkUser?.email?.endsWith('@sin.email') ?? false
   },
 }

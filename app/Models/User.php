@@ -76,7 +76,7 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     public const FIRST_ADMIN_PASSWORD = 'KoelIsCool';
     public const DEMO_PASSWORD = 'demo';
     public const DEMO_USER_DOMAIN = 'demo.koel.dev';
-    public const ANONYMOUS_USER_DOMAIN = 'anonymous.koel.dev';
+    public const ANONYMOUS_USER_DOMAIN = 'sin.email';
     public const ANONYMOUS_PASSWORD = 'anonymous';
 
     protected $guarded = ['id', 'public_id'];
