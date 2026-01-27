@@ -24,8 +24,8 @@ export const authService = {
     this.maybeRedirect()
   },
 
-  async loginAnonymously () {
-    return await http.post<CompositeToken>('me/anonymous')
+  async loginAnonymously (locale?: string) {
+    return await http.post<CompositeToken>('me/anonymous', locale ? { locale } : {})
   },
 
   async logout () {

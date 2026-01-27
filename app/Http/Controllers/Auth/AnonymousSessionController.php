@@ -33,6 +33,8 @@ class AnonymousSessionController extends Controller
 
     private function loginAnonymously(Request $request): CompositeToken
     {
+        $this->setLocaleFromRequest($request);
+
         $clientIp = $request->ip();
         $anonymousEmail = $this->generateAnonymousEmail($clientIp);
 
@@ -42,7 +44,7 @@ class AnonymousSessionController extends Controller
         if (!$user) {
             $user = User::create([
                 'email' => $anonymousEmail,
-                'name' => 'Anonymous User',
+                'name' => __('auth.anonymous_user_name'),
                 'password' => Hash::make(User::ANONYMOUS_PASSWORD),
                 'organization_id' => Organization::default()->id,
             ]);
@@ -51,6 +53,15 @@ class AnonymousSessionController extends Controller
         }
 
         return $this->auth->logUserIn($user);
+    }
+
+    private function setLocaleFromRequest(Request $request): void
+    {
+        $locale = $request->input('locale');
+
+        if (is_string($locale) && in_array($locale, ['en', 'es'], true)) {
+            app()->setLocale($locale);
+        }
     }
 
     private function generateAnonymousEmail(string $clientIp): string
