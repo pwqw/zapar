@@ -30,8 +30,12 @@ use Spatie\Permission\Traits\HasRoles;
 /**
  * @property ?Carbon $invitation_accepted_at
  * @property ?Carbon $invited_at
+ * @property ?Carbon $terms_accepted_at
+ * @property ?Carbon $privacy_accepted_at
+ * @property ?Carbon $age_verified_at
  * @property ?User $invitedBy
  * @property ?string $invitation_token
+ * @property Collection<array-key, UserConsentLog> $consentLogs
  * @property Collection<array-key, Playlist> $collaboratedPlaylists
  * @property Collection<array-key, Playlist> $playlists
  * @property Collection<array-key, PlaylistFolder> $playlistFolders
@@ -86,6 +90,9 @@ class User extends Authenticatable implements AuditableContract, Permissionable
         return [
             'preferences' => UserPreferencesCast::class,
             'verified' => 'boolean',
+            'terms_accepted_at' => 'datetime',
+            'privacy_accepted_at' => 'datetime',
+            'age_verified_at' => 'datetime',
         ];
     }
 
@@ -197,6 +204,11 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     public function themes(): HasMany
     {
         return $this->hasMany(Theme::class);
+    }
+
+    public function consentLogs(): HasMany
+    {
+        return $this->hasMany(UserConsentLog::class);
     }
 
     public function subscribedToPodcast(Podcast $podcast): bool

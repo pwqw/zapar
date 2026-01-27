@@ -50,7 +50,15 @@ class UserInvitationController extends Controller
     public function accept(AcceptUserInvitationRequest $request)
     {
         try {
-            $user = $this->invitationService->accept($request->token, $request->name, $request->password);
+            $user = $this->invitationService->accept(
+                $request->token,
+                $request->name,
+                $request->password,
+                [
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]
+            );
 
             return response()->json($this->auth->login($user->email, $request->password)->toArray());
         } catch (InvitationNotFoundException) {

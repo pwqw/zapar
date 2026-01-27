@@ -811,6 +811,13 @@
       "passwordMinRequirements": "Mín. 10 caracteres. Debe ser una mezcla de letras, números y símbolos.",
       "acceptLogin": "Aceptar e Iniciar Sesión"
     },
+    "legal": {
+      "acceptTerms": "Acepto los Términos y Condiciones",
+      "acceptPrivacy": "Acepto la Política de Privacidad",
+      "ageVerification": "Confirmo que tengo 13 años o más",
+      "mustAcceptAll": "Debes aceptar todos los términos para continuar",
+      "viewDocument": "(ver)"
+    },
     "qrLogin": {
       "mainText": "Escanea este código QR en tu dispositivo móvil para iniciar sesión al instante.",
       "insteadOfPassword": "En lugar de usar una contraseña, puedes escanear el código QR a continuación para iniciar sesión en",

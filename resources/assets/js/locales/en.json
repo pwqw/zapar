@@ -803,6 +803,13 @@
       "passwordMinRequirements": "Min. 10 characters. Should be a mix of characters, numbers, and symbols.",
       "acceptLogin": "Accept & Log In"
     },
+    "legal": {
+      "acceptTerms": "I accept the Terms and Conditions",
+      "acceptPrivacy": "I accept the Privacy Policy",
+      "ageVerification": "I confirm that I am 13 years old or older",
+      "mustAcceptAll": "You must accept all terms to continue",
+      "viewDocument": "(view)"
+    },
     "qrLogin": {
       "mainText": "Scan this QR code on your mobile device to log in instantly.",
       "insteadOfPassword": "Instead of using a password, you can scan the QR code below to log in to",

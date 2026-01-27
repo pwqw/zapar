@@ -2,11 +2,22 @@ import { authService } from '@/services/authService'
 import { http } from '@/services/http'
 import { userStore } from '@/stores/userStore'
 
+interface ConsentData {
+  terms_accepted: boolean
+  privacy_accepted: boolean
+  age_verified: boolean
+}
+
 export const invitationService = {
   getUserProspect: async (token: string) => await http.get<User>(`invitations?token=${token}`),
 
-  async accept (token: string, name: string, password: string) {
-    const compositeToken = await http.post<CompositeToken>('invitations/accept', { token, name, password })
+  async accept (token: string, name: string, password: string, consents: ConsentData) {
+    const compositeToken = await http.post<CompositeToken>('invitations/accept', {
+      token,
+      name,
+      password,
+      ...consents,
+    })
 
     authService.setAudioToken(compositeToken['audio-token'])
     authService.setApiToken(compositeToken.token)

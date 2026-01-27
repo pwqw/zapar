@@ -33,14 +33,25 @@
       </FormRow>
 
       <FormRow>
-        <Btn :disabled="loading" data-testid="submit" type="submit">{{ t('content.invitation.acceptLogin') }}</Btn>
+        <LegalCheckboxes
+          v-model:terms-accepted="termsAccepted"
+          v-model:privacy-accepted="privacyAccepted"
+          v-model:age-verified="ageVerified"
+          :show-error="showConsentError"
+        />
+      </FormRow>
+
+      <FormRow>
+        <Btn :disabled="loading || !allConsentsAccepted" data-testid="submit" type="submit">
+          {{ t('content.invitation.acceptLogin') }}
+        </Btn>
       </FormRow>
     </form>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { invitationService } from '@/services/invitationService'
 import { useErrorHandler } from '@/composables/useErrorHandler'
@@ -50,6 +61,7 @@ import Btn from '@/components/ui/form/Btn.vue'
 import PasswordField from '@/components/ui/form/PasswordField.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
+import LegalCheckboxes from '@/components/ui/form/LegalCheckboxes.vue'
 
 const { t } = useI18n()
 
@@ -61,12 +73,28 @@ const password = ref('')
 const userProspect = ref<User>()
 const loading = ref(false)
 
+const termsAccepted = ref(false)
+const privacyAccepted = ref(false)
+const ageVerified = ref(false)
+const showConsentError = ref(false)
+
+const allConsentsAccepted = computed(() => termsAccepted.value && privacyAccepted.value && ageVerified.value)
+
 const token = String(getRouteParam('token')!)
 
 const submit = async () => {
+  if (!allConsentsAccepted.value) {
+    showConsentError.value = true
+    return
+  }
+
   try {
     loading.value = true
-    await invitationService.accept(token, name.value, password.value)
+    await invitationService.accept(token, name.value, password.value, {
+      terms_accepted: termsAccepted.value,
+      privacy_accepted: privacyAccepted.value,
+      age_verified: ageVerified.value,
+    })
     window.location.href = '/'
   } catch (error: unknown) {
     handleHttpError(error)

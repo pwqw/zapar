@@ -64,17 +64,44 @@ class UserInvitationService
         return $invitee;
     }
 
-    public function accept(string $token, string $name, string $password): User
+    /**
+     * @param array{ip_address?: string, user_agent?: string} $consentMeta
+     */
+    public function accept(string $token, string $name, string $password, array $consentMeta = []): User
     {
         $user = $this->getUserProspectByToken($token);
+        $now = now();
 
         $user->update(attributes: [
             'name' => $name,
             'password' => Hash::make($password),
             'invitation_token' => null,
-            'invitation_accepted_at' => now(),
+            'invitation_accepted_at' => $now,
+            'terms_accepted_at' => $now,
+            'privacy_accepted_at' => $now,
+            'age_verified_at' => $now,
         ]);
 
+        $this->logConsent($user, $consentMeta);
+
         return $user;
+    }
+
+    /**
+     * @param array{ip_address?: string, user_agent?: string} $meta
+     */
+    private function logConsent(User $user, array $meta): void
+    {
+        $consentTypes = ['terms', 'privacy', 'age_verification'];
+
+        foreach ($consentTypes as $type) {
+            $user->consentLogs()->create([
+                'consent_type' => $type,
+                'version' => config('app.legal_version', '1.0'),
+                'ip_address' => $meta['ip_address'] ?? null,
+                'user_agent' => $meta['user_agent'] ?? null,
+                'accepted' => true,
+            ]);
+        }
     }
 }
