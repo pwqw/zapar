@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <title>Aceptar Condiciones | {{ koel_branding('name') }}</title>
+    <title>{{ __('sso.page_title') }} | {{ koel_branding('name') }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#282828">
+    <meta name="theme-color" content="#181818">
 
     @php
         $branding = koel_branding();
@@ -13,6 +13,19 @@
     <link rel="icon" href="{{ koel_branding('logo') ?? static_url('img/icon.png') }}">
 
     <style>
+        /* Mismas variables que resources/assets/css/partials/vars.pcss (Login) */
+        :root {
+            --color-fg: #ffffff;
+            --color-bg: #181818;
+            --color-highlight: #19d163;
+            --color-highlight-fg: #000000;
+            --color-danger: #c34848;
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+        }
+
+        /* k-fg-10 = color-mix(in srgb, var(--color-fg), transparent 90%) */
+        /* k-fg-70 = color-mix(in srgb, var(--color-fg), transparent 30%) */
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -20,32 +33,53 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #181818;
-            color: #fff;
+            font-family: var(--font-family);
+            background-color: var(--color-bg);
+            color: var(--color-fg);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 1.5rem;
+        }
+
+        .page {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 2rem;
-            max-width: 400px;
             width: 100%;
+            max-width: 360px;
+            padding: 1.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid transparent;
+            background-color: color-mix(in srgb, var(--color-fg) 10%, transparent);
         }
 
-        .logo {
+        .identity {
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .logo img {
-            max-width: 120px;
+        .identity .logo {
+            margin-bottom: 0.75rem;
+        }
+
+        .identity .logo img {
+            width: 156px;
             height: auto;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .identity .site-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-fg);
+            margin: 0;
         }
 
         h1 {
@@ -55,31 +89,33 @@
         }
 
         .user-info {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: color-mix(in srgb, var(--color-fg) 10%, transparent);
             padding: 1rem;
-            border-radius: 4px;
+            border-radius: 0.25rem;
             margin-bottom: 1.5rem;
         }
 
         .user-info p {
             margin: 0.25rem 0;
             font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.7);
+            color: color-mix(in srgb, var(--color-fg) 70%, transparent);
         }
 
         .user-info strong {
-            color: #fff;
+            color: var(--color-fg);
         }
 
         .checkbox-group {
             margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
 
         .checkbox-item {
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
-            margin-bottom: 1rem;
             cursor: pointer;
         }
 
@@ -88,7 +124,7 @@
             height: 20px;
             flex-shrink: 0;
             cursor: pointer;
-            accent-color: #f97316;
+            accent-color: var(--color-highlight);
         }
 
         .checkbox-item label {
@@ -98,7 +134,7 @@
         }
 
         .checkbox-item a {
-            color: #f97316;
+            color: var(--color-highlight);
             text-decoration: none;
         }
 
@@ -107,47 +143,49 @@
         }
 
         .error-message {
-            background-color: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ef4444;
+            background-color: color-mix(in srgb, var(--color-danger) 15%, transparent);
+            border: 1px solid color-mix(in srgb, var(--color-danger) 50%, transparent);
+            color: var(--color-danger);
             padding: 0.75rem;
-            border-radius: 4px;
+            border-radius: 0.25rem;
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
 
         .btn {
             width: 100%;
-            padding: 0.875rem;
-            background-color: #f97316;
-            color: #fff;
+            padding: 0.5rem 0.875rem;
+            background-color: var(--color-highlight);
+            color: var(--color-highlight-fg);
             border: none;
-            border-radius: 4px;
+            border-radius: 0.25rem;
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: box-shadow 0.15s;
         }
 
         .btn:hover {
-            background-color: #ea580c;
+            box-shadow: inset 0 0 0 10rem rgba(0, 0, 0, 0.1);
         }
 
         .btn:disabled {
-            background-color: rgba(249, 115, 22, 0.5);
+            opacity: 0.5;
             cursor: not-allowed;
         }
     </style>
 </head>
 <body>
+    <div class="page">
     <div class="container">
-        @if($branding->logo)
-        <div class="logo">
-            <img src="{{ $branding->logo }}" alt="{{ koel_branding('name') }}">
+        <div class="identity">
+            <div class="logo">
+                <img src="{{ $branding->logo ?? static_url('img/icon.png') }}" alt="{{ koel_branding('name') }}" width="156" height="auto">
+            </div>
+            <p class="site-name">{{ koel_branding('name') }}</p>
         </div>
-        @endif
 
-        <h1>Completar Registro</h1>
+        <h1>{{ __('sso.complete_registration') }}</h1>
 
         <div class="user-info">
             <p><strong>{{ $name }}</strong></p>
@@ -167,14 +205,14 @@
                 <div class="checkbox-item">
                     <input type="checkbox" name="terms_accepted" id="terms_accepted" value="1" required>
                     <label for="terms_accepted">
-                        Acepto los <a href="{{ config('app.terms_url', '#') }}" target="_blank" rel="noopener">Términos y Condiciones</a>
+                        Acepto los <a href="{{ $terms_url ?? '#' }}" target="_blank" rel="noopener">Términos y Condiciones</a>
                     </label>
                 </div>
 
                 <div class="checkbox-item">
                     <input type="checkbox" name="privacy_accepted" id="privacy_accepted" value="1" required>
                     <label for="privacy_accepted">
-                        Acepto la <a href="{{ config('app.privacy_url', '#') }}" target="_blank" rel="noopener">Política de Privacidad</a>
+                        Acepto la <a href="{{ $privacy_url ?? '#' }}" target="_blank" rel="noopener">Política de Privacidad</a>
                     </label>
                 </div>
 
@@ -190,6 +228,7 @@
                 Aceptar y Continuar
             </button>
         </form>
+    </div>
     </div>
 </body>
 </html>
