@@ -365,6 +365,13 @@
     "noPagesAdded": "Sin páginas agregadas aún. Haz clic en 'Agregar Página' para comenzar.",
     "pageUrl": "URL de la Página:",
     "googleDocPagesSaved": "Páginas embebidas guardadas correctamente.",
+    "consentLegalUrls": "URLs legales de consentimiento",
+    "consentLegalUrlsHelp": "URLs de Términos y Condiciones y Política de Privacidad mostradas en la pantalla de consentimiento SSO. Dejar vacío para usar páginas embebidas (ej. slug terms-and-conditions / privacy-policy) o para no mostrar enlace.",
+    "termsUrl": "URL de Términos y Condiciones",
+    "termsUrlPlaceholder": "/#/document/terms-and-conditions",
+    "privacyUrl": "URL de Política de Privacidad",
+    "privacyUrlPlaceholder": "/#/document/privacy-policy",
+    "consentLegalUrlsSaved": "URLs legales de consentimiento guardadas.",
     "errorSaving": "Error al guardar la configuración."
   },
   "integrations": {

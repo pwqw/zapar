@@ -34,6 +34,13 @@
         >
           {{ t('settings.googleDocPages') }}
         </TabButton>
+        <TabButton
+          :selected="currentTab === 'consent-legal'"
+          aria-controls="settingsPaneConsentLegal"
+          @click="currentTab = 'consent-legal'"
+        >
+          {{ t('settings.consentLegalUrls') }}
+        </TabButton>
       </TabList>
 
       <TabPanelContainer>
@@ -51,6 +58,10 @@
 
         <TabPanel v-if="currentTab === 'google-docs'" id="settingsPaneGoogleDocs" aria-labelledby="settingsPaneGoogleDocs">
           <GoogleDocPagesForm />
+        </TabPanel>
+
+        <TabPanel v-if="currentTab === 'consent-legal'" id="settingsPaneConsentLegal" aria-labelledby="settingsPaneConsentLegal">
+          <ConsentLegalUrlsForm />
         </TabPanel>
       </TabPanelContainer>
     </Tabs>
@@ -82,10 +93,11 @@ const { isPlus } = useKoelPlus()
 
 const WelcomeMessageForm = defineAsyncComponent(() => import('@/components/screens/settings/WelcomeMessageForm.vue'))
 const GoogleDocPagesForm = defineAsyncComponent(() => import('@/components/screens/settings/GoogleDocPagesForm.vue'))
+const ConsentLegalUrlsForm = defineAsyncComponent(() => import('@/components/screens/settings/ConsentLegalUrlsForm.vue'))
 
 const { get, set } = useLocalStorage()
 
-const currentTab = ref(get<'general' | 'branding' | 'welcome' | 'google-docs'>('settingsScreenTab', 'general'))
+const currentTab = ref(get<'general' | 'branding' | 'welcome' | 'google-docs' | 'consent-legal'>('settingsScreenTab', 'general'))
 
 watch(currentTab, tab => set('settingsScreenTab', tab))
 </script>

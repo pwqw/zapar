@@ -448,6 +448,8 @@ type CurrentUser = User & {
 interface Settings {
   media_path?: string
   opengraph?: OpenGraph
+  terms_url?: string | null
+  privacy_url?: string | null
 }
 
 interface Interaction {
