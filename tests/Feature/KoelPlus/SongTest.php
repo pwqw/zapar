@@ -111,7 +111,7 @@ class SongTest extends PlusTestCase
     #[Test]
     public function markSongsAsPublic(): void
     {
-        $user = create_user();
+        $user = create_user(['verified' => true]);
 
         $songs = Song::factory()
             ->for($user, 'owner')

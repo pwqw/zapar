@@ -17,7 +17,8 @@ class PrivatizeSongsController extends Controller
     public function __invoke(ChangeSongsVisibilityRequest $request, SongService $songService, Authenticatable $user)
     {
         $songs = Song::query()->findMany($request->songs);
-        $songs->each(fn ($song) => $this->authorize('publish', $song));
+        // Making private only requires edit permission, not publish
+        $songs->each(fn ($song) => $this->authorize('edit', $song));
 
         return response()->json($songService->markSongsAsPrivate($songs));
     }
