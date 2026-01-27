@@ -13,21 +13,6 @@
 
       <div class="current-version">
         {{ appName }} {{ currentVersion }}
-        <span v-if="isPlus" class="badge">{{ t('meta.plus') }}</span>
-        <span v-else>{{ t('meta.community') }}</span>
-        {{ t('meta.edition') }}
-        <p v-if="isPlus" class="plus-badge">
-          {{ t('meta.licensedTo', { name: license.customerName, email: license.customerEmail }) }}
-          <br>
-          {{ t('meta.licenseKey') }} <span class="key font-mono">{{ license.shortKey }}</span>
-        </p>
-
-        <template v-else>
-          <p v-if="currentUserCan.manageSettings()" class="py-3">
-            <!-- close the modal first to prevent it from overlapping Lemonsqueezy's overlay -->
-            <BtnUpgradeToPlus class="!w-auto inline-block !px-6" @click.prevent="showPlusModal" />
-          </p>
-        </template>
       </div>
 
       <p v-if="shouldNotifyNewVersion" data-testid="new-version-about">
@@ -44,13 +29,6 @@
       </p>
 
       <CreditsBlock v-if="isDemo" />
-
-      <p v-if="!isPlus">
-        {{ t('meta.supportDevelopment') }}
-        <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">{{ t('meta.gitHubSponsors') }}</a>
-        {{ t('meta.and') }}
-        <a href="https://opencollective.com/koel" rel="noopener" target="_blank">{{ t('meta.openCollective') }}</a>.
-      </p>
     </main>
 
     <footer>
@@ -61,14 +39,11 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { useKoelPlus } from '@/composables/useKoelPlus'
 import { useNewVersionNotification } from '@/composables/useNewVersionNotification'
-import { eventBus } from '@/utils/eventBus'
 import { usePolicies } from '@/composables/usePolicies'
 import { useBranding } from '@/composables/useBranding'
 
 import Btn from '@/components/ui/form/Btn.vue'
-import BtnUpgradeToPlus from '@/components/koel-plus/BtnUpgradeToPlus.vue'
 import CreditsBlock from '@/components/meta/CreditsBlock.vue'
 
 const emit = defineEmits<{ (e: 'close'): void }>()
@@ -81,15 +56,9 @@ const {
   latestVersionReleaseUrl,
 } = useNewVersionNotification()
 
-const { isPlus, license } = useKoelPlus()
 const { currentUserCan } = usePolicies()
 
 const close = () => emit('close')
-
-const showPlusModal = () => {
-  close()
-  eventBus.emit('MODAL_SHOW_KOEL_PLUS')
-}
 
 const isDemo = window.IS_DEMO
 </script>

@@ -3,7 +3,6 @@
 namespace App\Builders;
 
 use App\Builders\Concerns\CanScopeByUser;
-use App\Facades\License;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
@@ -63,9 +62,6 @@ class SongBuilder extends FavoriteableBuilder
 
     public function accessible(): self
     {
-        if (License::isCommunity()) {
-            // In the Community Edition, all songs are accessible by all users.
-            return $this;
         }
 
         throw_unless($this->user, new LogicException('User must be set to query accessible songs.'));

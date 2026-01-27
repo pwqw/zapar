@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\API\Artist;
 
-use App\Attributes\RequiresPlus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\LiveEventResource;
 use App\Models\Artist;
 use App\Services\TicketmasterService;
 use Illuminate\Http\Request;
 
-#[RequiresPlus]
 class FetchArtistEventsController extends Controller
 {
     public function __invoke(

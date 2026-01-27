@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Attributes\RequiresPlus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\ChangeSongsVisibilityRequest;
 use App\Models\Song;
@@ -10,7 +9,6 @@ use App\Models\User;
 use App\Services\SongService;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-#[RequiresPlus]
 class PrivatizeSongsController extends Controller
 {
     /** @param User $user */

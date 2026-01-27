@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Attributes\RequiresPlus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\ThemeStoreRequest;
 use App\Http\Resources\ThemeResource;
@@ -12,7 +11,6 @@ use App\Repositories\ThemeRepository;
 use App\Services\ThemeService;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-#[RequiresPlus]
 class ThemeController extends Controller
 {
     /** @param User $user */

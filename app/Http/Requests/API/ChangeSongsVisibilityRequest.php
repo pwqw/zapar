@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\API;
 
-use App\Facades\License;
 use App\Models\Song;
 use Illuminate\Validation\Rule;
 
@@ -21,6 +20,6 @@ class ChangeSongsVisibilityRequest extends Request
 
     public function authorize(): bool
     {
-        return License::isPlus();
+        return true;
     }
 }

@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Attributes\RequiresPlus;
 use Illuminate\Http\Request;
 
-#[RequiresPlus]
 class AuthorizeDropboxController extends Controller
 {
     public function __invoke(Request $request)

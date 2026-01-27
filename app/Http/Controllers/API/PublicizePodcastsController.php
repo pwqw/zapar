@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Attributes\RequiresPlus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\ChangeVisibilityRequest;
 use App\Models\Podcast;
@@ -10,7 +9,6 @@ use App\Models\User;
 use App\Services\PodcastService;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-#[RequiresPlus]
 class PublicizePodcastsController extends Controller
 {
     /** @param User $user */

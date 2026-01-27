@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Attributes\DisabledInDemo;
-use App\Facades\License;
 use App\Services\AuthenticationService;
 use App\Services\ProxyAuthService;
 use Illuminate\Http\Request;
@@ -18,7 +17,7 @@ class IndexController extends Controller
     ) {
         $data = ['token' => null];
 
-        if (License::isPlus() && config('koel.proxy_auth.enabled')) {
+        if (config('koel.proxy_auth.enabled')) {
             $data['token'] = optional(
                 $proxyAuthService->tryGetProxyAuthenticatedUserFromRequest($request),
                 static fn ($user) => $auth->logUserIn($user)->toArray()

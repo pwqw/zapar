@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Facades\License;
 use App\Models\Album;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -57,7 +56,6 @@ class AlbumResource extends JsonResource
     /** @inheritdoc */
     public function toArray(Request $request): array
     {
-        $isPlus = once(static fn () => License::isPlus());
         $user = $this->user ?? once(static fn () => auth()->user());
         $embedding = $request->routeIs('embeds.payload');
 
@@ -72,7 +70,7 @@ class AlbumResource extends JsonResource
             'year' => $this->album->year,
             'is_external' => $this->unless(
                 $embedding,
-                fn () => $isPlus && $this->album->user_id !== $user->id,
+                fn () => $this->album->user_id !== $user->id,
             ),
             'favorite' => $this->unless($embedding, $this->album->favorite),
         ];

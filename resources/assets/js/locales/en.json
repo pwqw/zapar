@@ -499,21 +499,7 @@
       "podcastEpisode": "Podcast Episode"
     }
   },
-  "koelPlus": {
-    "enterLicenseKey": "Enter your license key",
-    "activate": "Activate",
-    "activationMessage": "Thanks for purchasing Koel Plus! Koel will now refresh to activate the changes.",
-    "description": "Koel Plus adds premium features on top of the default installation.<br>Pay <em>once</em> and enjoy all additional features forever — including those to be built into the app in the future!",
-    "purchase": "Purchase Koel Plus",
-    "haveLicenseKey": "I have a license key",
-    "visitForMoreInfo": "Visit <a href=\"https://koel.dev#plus\" target=\"_blank\">koel.dev</a> for more information."
-  },
   "meta": {
-    "plus": "Plus",
-    "community": "Community",
-    "edition": "Edition",
-    "licensedTo": "Licensed to {name} <{email}>",
-    "licenseKey": "License key:",
     "newVersion": "A new version of {app} is available ({version})!",
     "newVersionAvailable": "New version available!",
     "about": "About {app}",
@@ -669,7 +655,6 @@
       "backgroundImage": "Background image",
       "musicbrainzLogo": "MusicBrainz Logo",
       "qrCode": "QR Code",
-      "koelPlus": "Koel Plus",
       "episodeThumbnail": "Episode thumbnail",
       "podcastThumbnail": "Podcast thumbnail",
       "podcastImage": "Podcast image"

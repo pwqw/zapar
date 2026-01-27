@@ -4,7 +4,6 @@ namespace App\Http\Controllers\API\Embed;
 
 use App\Enums\EmbeddableType;
 use App\Exceptions\EmbeddableNotFoundException;
-use App\Facades\License;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Embed\ResolveEmbedRequest;
 use App\Http\Resources\EmbedOptionsResource;
@@ -45,7 +44,7 @@ class EmbedController extends Controller
     {
         try {
             $options = EmbedOptions::fromRequest($request);
-            $theme = License::isPlus() ? $this->themeRepository->findOne($options->theme) : null;
+            $theme = $this->themeRepository->findOne($options->theme);
 
             return response()->json([
                 'embed' => EmbedResource::make($embed, $this->songRepository->getForEmbed($embed)),

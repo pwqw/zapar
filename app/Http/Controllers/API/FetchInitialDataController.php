@@ -18,7 +18,6 @@ use App\Repositories\ThemeRepository;
 use App\Services\ApplicationInformationService;
 use App\Services\ITunesService;
 use App\Services\LastfmService;
-use App\Services\License\Contracts\LicenseServiceInterface;
 use App\Services\MediaBrowser;
 use App\Services\MusicBrainzService;
 use App\Services\QueueService;
@@ -38,13 +37,9 @@ class FetchInitialDataController extends Controller
         ApplicationInformationService $applicationInformationService,
         QueueService $queueService,
         ThemeRepository $themeRepository,
-        LicenseServiceInterface $licenseService,
         Authenticatable $user
     ) {
-        $licenseStatus = $licenseService->getStatus();
-        $theme = $licenseStatus->isValid()
-            ? $themeRepository->findUserThemeById($user->preferences->theme, $user)
-            : null;
+        $theme = $themeRepository->findUserThemeById($user->preferences->theme, $user);
 
         // Load managed artists for managers
         $user->load('managedArtists');
@@ -77,11 +72,11 @@ class FetchInitialDataController extends Controller
             'song_length' => $songRepository->getTotalSongLength(),
             'queue_state' => QueueStateResource::make($queueService->getQueueState($user)),
             'koel_plus' => [
-                'active' => $licenseStatus->isValid(),
-                'short_key' => $licenseStatus->license?->short_key,
-                'customer_name' => $licenseStatus->license?->meta->customerName,
-                'customer_email' => $licenseStatus->license?->meta->customerEmail,
-                'product_id' => config('lemonsqueezy.product_id'),
+                'active' => true,
+                'short_key' => null,
+                'customer_name' => null,
+                'customer_email' => null,
+                'product_id' => null,
             ],
             'storage_driver' => config('koel.storage_driver'),
             'dir_separator' => DIRECTORY_SEPARATOR,

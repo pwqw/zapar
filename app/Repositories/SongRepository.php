@@ -7,7 +7,6 @@ use App\Enums\EmbeddableType;
 use App\Enums\PlayableType;
 use App\Exceptions\EmbeddableNotFoundException;
 use App\Exceptions\NonSmartPlaylistException;
-use App\Facades\License;
 use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Embed;
@@ -197,17 +196,14 @@ class SongRepository extends Repository implements ScoutableRepository
             ->withUserContext()
             ->leftJoin('playlist_song', 'songs.id', '=', 'playlist_song.song_id')
             ->leftJoin('playlists', 'playlists.id', '=', 'playlist_song.playlist_id')
-            ->when(License::isPlus(), static function (SongBuilder $query): SongBuilder {
-                return
-                    $query->join('users as collaborators', 'playlist_song.user_id', '=', 'collaborators.id')
-                        ->addSelect(
-                            'collaborators.public_id as collaborator_public_id',
-                            'collaborators.name as collaborator_name',
-                            'collaborators.email as collaborator_email',
-                            'collaborators.avatar as collaborator_avatar',
-                            'playlist_song.created_at as added_at'
-                        );
-            })
+            ->join('users as collaborators', 'playlist_song.user_id', '=', 'collaborators.id')
+            ->addSelect(
+                'collaborators.public_id as collaborator_public_id',
+                'collaborators.name as collaborator_name',
+                'collaborators.email as collaborator_email',
+                'collaborators.avatar as collaborator_avatar',
+                'playlist_song.created_at as added_at'
+            )
             ->where('playlists.id', $playlist->id)
             ->orderBy('playlist_song.position')
             ->get();
@@ -278,18 +274,15 @@ class SongRepository extends Repository implements ScoutableRepository
     {
         return Song::query(user: $scopedUser ?? $this->auth->user())
             ->withUserContext()
-            ->when(License::isPlus(), static function (SongBuilder $query): SongBuilder {
-                return
-                    $query->leftJoin('playlist_song', 'songs.id', '=', 'playlist_song.song_id')
-                        ->leftJoin('playlists', 'playlists.id', '=', 'playlist_song.playlist_id')
-                        ->join('users as collaborators', 'playlist_song.user_id', '=', 'collaborators.id')
-                        ->addSelect(
-                            'collaborators.public_id as collaborator_public_id',
-                            'collaborators.name as collaborator_name',
-                            'collaborators.email as collaborator_email',
-                            'playlist_song.created_at as added_at'
-                        );
-            })
+            ->leftJoin('playlist_song', 'songs.id', '=', 'playlist_song.song_id')
+            ->leftJoin('playlists', 'playlists.id', '=', 'playlist_song.playlist_id')
+            ->join('users as collaborators', 'playlist_song.user_id', '=', 'collaborators.id')
+            ->addSelect(
+                'collaborators.public_id as collaborator_public_id',
+                'collaborators.name as collaborator_name',
+                'collaborators.email as collaborator_email',
+                'playlist_song.created_at as added_at'
+            )
             ->whereIn('songs.id', $ids)
             ->get();
     }

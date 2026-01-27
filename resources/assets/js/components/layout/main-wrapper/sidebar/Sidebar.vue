@@ -24,10 +24,6 @@
       <SidebarManageSection v-if="showManageOptions" />
     </section>
 
-    <section v-if="canUpgradeToPlus" class="p-6 flex-1 flex flex-col-reverse">
-      <BtnUpgradeToPlus />
-    </section>
-
     <SidebarToggleButton
       v-model="expanded"
       class="opacity-0 no-hover:hidden group-hover:opacity-100 transition"
@@ -40,12 +36,10 @@
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { computed, ref, watch } from 'vue'
 import { eventBus } from '@/utils/eventBus'
-import { useKoelPlus } from '@/composables/useKoelPlus'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 import { useRouter } from '@/composables/useRouter'
 import { usePolicies } from '@/composables/usePolicies'
 
-import BtnUpgradeToPlus from '@/components/koel-plus/BtnUpgradeToPlus.vue'
 import HomeButton from '@/components/layout/main-wrapper/sidebar/HomeButton.vue'
 import SearchForm from '@/components/ui/SearchForm.vue'
 import SideSheetButton from '@/components/layout/main-wrapper/side-sheet/SideSheetButton.vue'
@@ -56,7 +50,6 @@ import SidebarYourMusicSection from './SidebarYourLibrarySection.vue'
 
 const { onRouteChanged } = useRouter()
 const { currentUserCan } = usePolicies()
-const { isPlus } = useKoelPlus()
 const { get: lsGet, set: lsSet } = useLocalStorage()
 
 const mobileShowing = ref(false)
@@ -98,8 +91,6 @@ const showManageOptions = computed(() =>
   || currentUserCan.manageUsers()
   || currentUserCan.uploadSongs(),
 )
-
-const canUpgradeToPlus = computed(() => !isPlus.value && currentUserCan.manageSettings())
 
 onRouteChanged(_ => (mobileShowing.value = false))
 

@@ -40,7 +40,6 @@ const modalNameToComponentMap: Record<keyof Modals, Closure> = {
   EDIT_USER_FORM: defineAsyncComponent(() => import('@/components/user/EditUserForm.vue')),
   EQUALIZER: defineAsyncComponent(() => import('@/components/ui/equalizer/Equalizer.vue')),
   INVITE_USER_FORM: defineAsyncComponent(() => import('@/components/user/InviteUserForm.vue')),
-  KOEL_PLUS: defineAsyncComponent(() => import('@/components/koel-plus/KoelPlusModal.vue')),
   PLAYLIST_COLLABORATION: defineAsyncComponent(() => import('@/components/playlist/PlaylistCollaborationModal.vue')),
 }
 
@@ -69,7 +68,6 @@ const showModal = <N extends keyof Modals> (
 }
 
 eventBus.on('MODAL_SHOW_ABOUT_KOEL', () => showModal('ABOUT_KOEL'))
-  .on('MODAL_SHOW_KOEL_PLUS', () => showModal('KOEL_PLUS'))
   .on('MODAL_SHOW_ADD_USER_FORM', () => showModal('ADD_USER_FORM'))
   .on('MODAL_SHOW_INVITE_USER_FORM', () => showModal('INVITE_USER_FORM'))
   .on('MODAL_SHOW_CREATE_EMBED_FORM', embeddable => showModal('CREATE_EMBED_FORM', { embeddable }))

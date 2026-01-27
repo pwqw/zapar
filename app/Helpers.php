@@ -1,6 +1,5 @@
 <?php
 
-use App\Facades\License;
 use App\Models\Setting;
 use App\Services\SettingService;
 use App\Values\Branding;
@@ -101,10 +100,6 @@ function mailer_configured(): bool
 /** @return array<string> */
 function collect_sso_providers(): array
 {
-    if (License::isCommunity()) {
-        return [];
-    }
-
     $providers = [];
 
     if (

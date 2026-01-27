@@ -2,7 +2,6 @@
 
 namespace App\Rules;
 
-use App\Facades\License;
 use App\Models\User;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -16,18 +15,10 @@ final class AllPlaylistsAreAccessibleBy implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $accessiblePlaylists = $this->user->playlists;
-
-        if (License::isPlus()) {
-            $accessiblePlaylists = $accessiblePlaylists->merge($this->user->collaboratedPlaylists);
-        }
+        $accessiblePlaylists = $this->user->playlists->merge($this->user->collaboratedPlaylists);
 
         if (array_diff(Arr::wrap($value), $accessiblePlaylists->modelKeys())) {
-            $fail(
-                License::isPlus()
-                    ? 'Not all playlists are accessible by the user'
-                    : 'Not all playlists belong to the user'
-            );
+            $fail('Not all playlists are accessible by the user');
         }
     }
 }

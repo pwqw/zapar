@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Exceptions\MediaBrowserNotSupportedException;
 use App\Exceptions\MediaPathNotSetException;
-use App\Facades\License;
 use App\Models\Folder;
 use App\Models\Setting;
 use App\Models\Song;
@@ -19,7 +18,7 @@ class MediaBrowser
 
     public static function used(): bool
     {
-        return config('koel.media_browser.enabled') && License::isPlus();
+        return config('koel.media_browser.enabled');
     }
 
     /**

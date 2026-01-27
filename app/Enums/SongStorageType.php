@@ -2,8 +2,6 @@
 
 namespace App\Enums;
 
-use App\Facades\License;
-
 enum SongStorageType: string
 {
     case S3 = 's3';
@@ -14,7 +12,7 @@ enum SongStorageType: string
 
     public function supported(): bool
     {
-        return ($this === self::LOCAL || $this === self::S3_LAMBDA) || License::isPlus();
+        return true;
     }
 
     public function supportsFolderStructureExtraction(): bool

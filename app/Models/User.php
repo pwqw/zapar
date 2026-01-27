@@ -6,7 +6,6 @@ use App\Builders\UserBuilder;
 use App\Casts\UserPreferencesCast;
 use App\Enums\Acl\Role as RoleEnum;
 use App\Exceptions\UserAlreadySubscribedToPodcastException;
-use App\Facades\License;
 use App\Models\Contracts\Permissionable;
 use App\Values\User\UserPreferences;
 use Carbon\Carbon;
@@ -238,7 +237,7 @@ class User extends Authenticatable implements AuditableContract, Permissionable
 
     protected function isSso(): Attribute
     {
-        return Attribute::get(fn (): bool => License::isPlus() && $this->sso_provider)->shouldCache();
+        return Attribute::get(fn (): bool => (bool) $this->sso_provider)->shouldCache();
     }
 
     protected function connectedToLastfm(): Attribute

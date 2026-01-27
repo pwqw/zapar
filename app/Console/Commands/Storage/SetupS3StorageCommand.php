@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\Storage;
 
-use App\Facades\License;
 use App\Services\SongStorages\S3CompatibleStorage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -21,12 +20,6 @@ class SetupS3StorageCommand extends Command
 
     public function handle(): int
     {
-        if (!License::isPlus()) {
-            $this->components->error('S3 as a storage driver is only available in Koel Plus.');
-
-            return self::FAILURE;
-        }
-
         $this->components->info('Setting up S3 or an S3-compatible service as the storage driver for Koel.');
         $this->components->warn('Changing the storage configuration can cause irreversible data loss.');
         $this->components->warn('Consider backing up your data before proceeding.');

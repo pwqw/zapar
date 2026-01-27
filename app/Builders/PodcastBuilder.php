@@ -4,7 +4,6 @@ namespace App\Builders;
 
 use App\Builders\Concerns\CanScopeByUser;
 use App\Enums\Acl\Role;
-use App\Facades\License;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use LogicException;
@@ -25,8 +24,6 @@ class PodcastBuilder extends FavoriteableBuilder
 
     public function accessible(): self
     {
-        if (License::isCommunity()) {
-            return $this;
         }
 
         throw_if(!$this->user, new LogicException('User must be set to query accessible podcasts.'));

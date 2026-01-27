@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API\Settings;
 
-use App\Attributes\RequiresPlus;
 use App\Enums\Acl\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Settings\UpdateBrandingRequest;
@@ -11,7 +10,6 @@ use App\Services\SettingService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Response;
 
-#[RequiresPlus]
 class UpdateBrandingController extends Controller
 {
     /** @param User $user */

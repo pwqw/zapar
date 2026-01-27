@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Builders\ArtistBuilder;
-use App\Facades\License;
 use App\Facades\Util;
 use App\Models\Concerns\MorphsToEmbeds;
 use App\Models\Concerns\MorphsToFavorites;
@@ -107,13 +106,8 @@ class Artist extends Model implements AuditableContract, Embeddable, Favoriteabl
 
         $name = trim($name) ?: self::UNKNOWN_NAME;
 
-        // In the Community license, all artists are shared, so we determine the first artist by the name only.
-        // In the Plus license, artists are user-specific, so we create or return the artist for the given user.
-        $where = ['name' => $name];
-
-        if (License::isPlus()) {
-            $where['user_id'] = $user->id;
-        }
+        // Artists are user-specific, so we create or return the artist for the given user.
+        $where = ['name' => $name, 'user_id' => $user->id];
 
         return static::query()->where($where)->firstOr(static function () use ($user, $name): Artist {
             return static::query()->create([

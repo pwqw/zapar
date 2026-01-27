@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Facades\License;
 use App\Http\Integrations\Ticketmaster\Requests\AttractionSearchRequest;
 use App\Http\Integrations\Ticketmaster\Requests\EventSearchRequest;
 use App\Http\Integrations\Ticketmaster\TicketmasterConnector;
@@ -24,7 +23,7 @@ class TicketmasterService
 
     public static function used(): bool
     {
-        return License::isPlus() && config('koel.services.ticketmaster.key');
+        return (bool) config('koel.services.ticketmaster.key');
     }
 
     /** @return Collection<TicketmasterEvent>|array<array-key, TicketmasterEvent> */

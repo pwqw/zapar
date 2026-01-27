@@ -1,14 +1,12 @@
 import { computed } from 'vue'
 import { arrayify } from '@/utils/helpers'
 import { useAuthorization } from '@/composables/useAuthorization'
-import { useKoelPlus } from '@/composables/useKoelPlus'
 import { acl } from '@/services/acl'
 import { commonStore } from '@/stores/commonStore'
 import { authService } from '@/services/authService'
 
 export const usePolicies = () => {
   const { currentUser } = useAuthorization()
-  const { isPlus } = useKoelPlus()
 
   const allowDownload = computed(() => commonStore.state.allows_download && !authService.isAnonymous())
 
@@ -16,10 +14,6 @@ export const usePolicies = () => {
     editSong: (songs: MaybeArray<Song>) => {
       if (currentUser.value.permissions.includes('upload content')) {
         return true
-      }
-
-      if (!isPlus.value) {
-        return false
       }
 
       return arrayify(songs).every(song => song.owner_id === currentUser.value.id)
@@ -44,7 +38,7 @@ export const usePolicies = () => {
 
     manageSettings: () => currentUser.value.permissions.includes('manage settings'),
     manageUsers: () => currentUser.value.permissions.includes('manage all users') || currentUser.value.permissions.includes('manage org users') || currentUser.value.permissions.includes('manage artists'),
-    uploadSongs: () => isPlus.value || currentUser.value.permissions.includes('upload content'),
+    uploadSongs: () => currentUser.value.permissions.includes('upload content'),
 
     // New methods for the refactored role system
     canPublish: () => {

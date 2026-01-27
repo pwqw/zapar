@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Events\UserUnsubscribedFromPodcast;
 use App\Exceptions\FailedToParsePodcastFeedException;
 use App\Exceptions\UserAlreadySubscribedToPodcastException;
-use App\Facades\License;
 use App\Helpers\Uuid;
 use App\Models\Podcast;
 use App\Models\PodcastUserPivot;
@@ -280,8 +279,6 @@ class PodcastService
      */
     public function markPodcastsAsPrivate(EloquentCollection $podcasts, ?User $user = null): array
     {
-        License::requirePlus();
-
         if ($user) {
             $podcasts = $podcasts->filter(static fn (Podcast $podcast) => $user->can('publish', $podcast));
         }

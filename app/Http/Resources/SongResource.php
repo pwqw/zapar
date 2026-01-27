@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Facades\License;
 use App\Models\Song;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -76,7 +75,6 @@ class SongResource extends JsonResource
     /** @inheritDoc */
     public function toArray(Request $request): array
     {
-        $isPlus = once(static fn () => License::isPlus());
         $user = $this->user ?? once(static fn () => auth()->user());
         $embedding = $request->routeIs('embeds.payload');
 
@@ -126,7 +124,7 @@ class SongResource extends JsonResource
                 'owner_id' => $this->unless($embedding, $this->song->owner->public_id),
                 'is_external' => $this->unless(
                     $embedding,
-                    fn () => $isPlus && !$this->song->ownedBy($user),
+                    fn () => !$this->song->ownedBy($user),
                 ),
             ];
         }

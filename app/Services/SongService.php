@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Events\LibraryChanged;
 use App\Facades\Dispatcher;
-use App\Facades\License;
 use App\Jobs\DeleteSongFilesJob;
 use App\Jobs\DeleteTranscodeFilesJob;
 use App\Jobs\ExtractSongFolderStructureJob;
@@ -157,8 +156,6 @@ class SongService
     /** @return array<string> IDs of songs that are marked as private */
     public function markSongsAsPrivate(EloquentCollection $songs, ?User $user = null): array
     {
-        License::requirePlus();
-
         // If a user is provided, only allow if they have edit permission (making private doesn't require publish)
         if ($user) {
             $songs = $songs->filter(static fn (Song $song) => auth()->user()?->can('edit', $song));

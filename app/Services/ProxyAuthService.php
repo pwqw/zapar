@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Attributes\RequiresPlus;
 use App\Models\User;
 use App\Values\User\SsoUser;
 use Illuminate\Http\Request;
@@ -10,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Throwable;
 
-#[RequiresPlus]
 class ProxyAuthService
 {
     public function __construct(private readonly UserService $userService)

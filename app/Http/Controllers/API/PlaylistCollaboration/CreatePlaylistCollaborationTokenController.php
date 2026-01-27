@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\API\PlaylistCollaboration;
 
-use App\Attributes\RequiresPlus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PlaylistCollaborationTokenResource;
 use App\Models\Playlist;
 use App\Services\PlaylistCollaborationService;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-#[RequiresPlus]
 class CreatePlaylistCollaborationTokenController extends Controller
 {
     public function __invoke(

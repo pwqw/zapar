@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API\PlaylistCollaboration;
 
-use App\Attributes\RequiresPlus;
 use App\Exceptions\CannotRemoveOwnerFromPlaylistException;
 use App\Exceptions\NotAPlaylistCollaboratorException;
 use App\Http\Controllers\Controller;
@@ -12,7 +11,6 @@ use App\Repositories\UserRepository;
 use App\Services\PlaylistCollaborationService;
 use Illuminate\Http\Response;
 
-#[RequiresPlus]
 class PlaylistCollaboratorController extends Controller
 {
     public function __construct(

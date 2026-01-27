@@ -2,8 +2,6 @@
 
 namespace App\Rules;
 
-use App\Enums\Acl\Role;
-use App\Facades\License;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Translation\PotentiallyTranslatedString;
@@ -17,12 +15,6 @@ class AvailableRole implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (License::isPlus()) {
-            return;
-        }
-
-        if (!Role::from($value)->available()) {
-            $fail("Invalid role $value.");
-        }
+        // All roles are available with Koel Plus (always enabled)
     }
 }

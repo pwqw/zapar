@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Enums\Acl\Role;
-use App\Facades\License;
 use App\Models\Artist;
 use App\Models\User;
 
@@ -11,7 +10,7 @@ class ArtistPolicy
 {
     public function access(User $user, Artist $artist): bool
     {
-        return License::isCommunity() || $artist->belongsToUser($user);
+        return $artist->belongsToUser($user);
     }
 
     /**

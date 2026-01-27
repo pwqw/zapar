@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\Storage;
 
-use App\Facades\License;
 use App\Services\SongStorages\DropboxStorage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -22,12 +21,6 @@ class SetupDropboxStorageCommand extends Command
 
     public function handle(bool $firstTry = true): int
     {
-        if (!License::isPlus()) {
-            $this->components->error('Dropbox as a storage driver is only available in Koel Plus.');
-
-            return self::FAILURE;
-        }
-
         if ($firstTry) {
             $this->components->info('Setting up Dropbox as the storage driver for Koel.');
             $this->components->warn('Changing the storage configuration can cause irreversible data loss.');
