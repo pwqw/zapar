@@ -23,8 +23,8 @@ class UserCanManageRole implements ValidationRule
     {
         $roleToCreate = Role::from($value);
 
-        // Users can only manage roles strictly lower than their own
-        if (!$this->user->role->greaterThan($roleToCreate)) {
+        // Users can invite same level or lower (admin→admin, user→user, etc.)
+        if (!$this->user->role->canManage($roleToCreate)) {
             $fail("The role $value is not manageable by the current user's role {$this->user->role->value}.");
         }
     }

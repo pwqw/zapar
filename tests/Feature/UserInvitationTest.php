@@ -42,14 +42,17 @@ class UserInvitationTest extends TestCase
     }
 
     #[Test]
-    public function cannotInviteNonAvailableRole(): void
+    public function adminCanInviteManager(): void
     {
+        Mail::fake();
+
         $this->postAs('api/invitations', [
             'emails' => ['foo@bar.io', 'bar@baz.ai'],
             'role' => 'manager',
         ], create_admin())
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('role');
+            ->assertSuccessful();
+
+        Mail::assertQueued(UserInvite::class, 2);
     }
 
     #[Test]
