@@ -24,8 +24,6 @@ class PodcastBuilder extends FavoriteableBuilder
 
     public function accessible(): self
     {
-        }
-
         throw_if(!$this->user, new LogicException('User must be set to query accessible podcasts.'));
 
         // Admins see ALL podcasts

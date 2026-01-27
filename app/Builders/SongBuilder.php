@@ -62,8 +62,6 @@ class SongBuilder extends FavoriteableBuilder
 
     public function accessible(): self
     {
-        }
-
         throw_unless($this->user, new LogicException('User must be set to query accessible songs.'));
 
         // Join podcasts to check accessibility for episodes
