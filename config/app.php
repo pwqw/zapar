@@ -2,7 +2,6 @@
 
 use App\Facades\Download;
 use App\Facades\ITunes;
-use App\Facades\License;
 use App\Facades\Util;
 use App\Facades\YouTube;
 use App\Services\Dispatcher;
@@ -193,7 +192,6 @@ return [
         'YouTube' => YouTube::class,
         'Download' => Download::class,
         'ITunes' => ITunes::class,
-        'License' => License::class,
         'Dispatcher' => Dispatcher::class,
     ],
 ];

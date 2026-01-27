@@ -92,7 +92,7 @@ class Artist extends Model implements AuditableContract, Embeddable, Favoriteabl
     }
 
     /**
-     * Get an Artist object from their name (and if Koel Plus, belonging to a specific user).
+     * Get an Artist object from their name, optionally belonging to a specific user.
      * If such is not found, a new artist will be created.
      */
     public static function getOrCreate(User $user, ?string $name = null): self

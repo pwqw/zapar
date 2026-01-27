@@ -1,6 +1,5 @@
 <?php
 
-use App\Facades\License;
 use App\Helpers\Ulid;
 use App\Models\Song;
 use Illuminate\Database\Migrations\Migration;
@@ -70,13 +69,9 @@ return new class extends Migration {
                     ]);
             });
 
-        // For the CE, we stop here. All artists and albums are owned by the default user and shared across all users.
-        if (License::isCommunity()) {
-            return;
-        }
-
-        // For Koel Plus, we need to update songs that are not owned by the default user to
-        // have their corresponding artist and album owned by the same user.
+        // Update songs that are not owned by the default user so their artist and album are owned by the same user.
+        $artistCache = [];
+        $albumCache = [];
         DB::table('songs')
             ->join('albums', 'songs.album_id', '=', 'albums.id')
             ->join('artists', 'albums.artist_id', '=', 'artists.id')

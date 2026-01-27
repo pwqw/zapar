@@ -15,6 +15,6 @@ class AvailableRole implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // All roles are available with Koel Plus (always enabled)
+        // All roles are available
     }
 }
