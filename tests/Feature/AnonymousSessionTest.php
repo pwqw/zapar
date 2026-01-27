@@ -29,11 +29,24 @@ class AnonymousSessionTest extends TestCase
                 'audio-token',
             ]);
 
-        // Verify anonymous user was created
+        // Verify anonymous user was created with default locale (en) name
         $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
         self::assertNotNull($anonymousUser);
         self::assertTrue(str_ends_with($anonymousUser->email, '@anonymous.koel.dev'));
-        self::assertSame('Anonymous User', $anonymousUser->name);
+        self::assertSame('strange being', $anonymousUser->name);
+    }
+
+    #[Test]
+    public function createAnonymousSessionWithSpanishLocaleUsesTranslatedName(): void
+    {
+        User::where('email', 'like', '%@anonymous.koel.dev')->delete();
+
+        $this->postJson('api/me/anonymous', ['locale' => 'es'])
+            ->assertOk();
+
+        $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        self::assertNotNull($anonymousUser);
+        self::assertSame('extraño ser', $anonymousUser->name);
     }
 
     #[Test]

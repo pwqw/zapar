@@ -124,7 +124,7 @@ import { openPopup } from '@/utils/helpers'
 
 const emit = defineEmits<{ (e: 'loggedin'): void }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { toastWarning, toastError } = useMessageToaster()
 const { logo } = useBranding()
 const { hasWelcomeMessage, welcomeMessageData } = useWelcomeMessage()
@@ -195,7 +195,7 @@ const showForgotPasswordForm = () => (showingForgotPasswordForm.value = true)
 
 const handleAnonymousLogin = async () => {
   try {
-    const compositeToken = await authService.loginAnonymously()
+    const compositeToken = await authService.loginAnonymously(locale.value)
     authService.setTokensUsingCompositeToken(compositeToken)
     emit('loggedin')
   } catch (error) {
