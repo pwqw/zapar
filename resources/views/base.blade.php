@@ -15,16 +15,21 @@
         $og = koel_opengraph();
         $branding = koel_branding();
         $ogImageFileName = koel_opengraph('image');
-        $ogImage = $ogImageFileName ? image_storage_url($ogImageFileName) : $branding->logo;
+        $defaultOgImage = $ogImageFileName ? image_storage_url($ogImageFileName) : $branding->logo;
+        $ogTitle = $og_title ?? koel_branding('name');
+        $ogDescription = $og_description ?? koel_tagline();
+        $ogImage = $og_image ?? $defaultOgImage;
+        $ogUrl = $og_url ?? url()->current();
+        $ogType = $og_type ?? 'website';
     @endphp
-    <meta property="og:title" content="{{ koel_branding('name') }}">
-    <meta property="og:description" content="{{ koel_tagline() }}">
-    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $ogTitle }}">
+    <meta property="og:description" content="{{ $ogDescription }}">
+    <meta property="og:type" content="{{ $ogType }}">
     <meta property="og:site_name" content="{{ koel_branding('name') }}">
     @if($ogImage)
     <meta property="og:image" content="{{ $ogImage }}">
     @endif
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $ogUrl }}">
 
     <link rel="manifest" href="{{ static_url('manifest.json') }}" />
     <meta name="msapplication-config" content="{{ static_url('browserconfig.xml') }}" />

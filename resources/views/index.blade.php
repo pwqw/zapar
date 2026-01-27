@@ -3,6 +3,15 @@
 @section('title', koel_branding('name'))
 
 @push('scripts')
+    @if (isset($shareable_redirect))
+    <script>
+        (function () {
+            if (location.pathname.match(/^\/podcasts\/[^/]+$/) && !location.hash) {
+                location.replace(location.origin + @json($shareable_redirect));
+            }
+        })();
+    </script>
+    @endif
     <script>
         window.LOCALE = @json(app()->getLocale());
         window.MAILER_CONFIGURED = @json(mailer_configured());

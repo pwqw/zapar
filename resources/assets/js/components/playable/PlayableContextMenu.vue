@@ -139,7 +139,7 @@ import { albumStore } from '@/stores/albumStore'
 import { pluralize } from '@/utils/formatters'
 import { eventBus } from '@/utils/eventBus'
 import { copyText } from '@/utils/helpers'
-import { getPlayableCollectionContentType, isSong } from '@/utils/typeGuards'
+import { getPlayableCollectionContentType, isEpisode, isSong } from '@/utils/typeGuards'
 import { commonStore } from '@/stores/commonStore'
 import { playlistStore } from '@/stores/playlistStore'
 import { queueStore } from '@/stores/queueStore'
@@ -197,7 +197,11 @@ const allowEdit = computed(() => contentType.value === 'songs' && currentUserCan
 const onlyOneSelected = computed(() => playables.value.length === 1)
 const firstSongPlaying = computed(() => playables.value.length ? playables.value[0].playback_state === 'Playing' : false)
 const normalPlaylists = computed(() => playlists.value.filter(({ is_smart }) => !is_smart))
-const canBeShared = computed(() => !isPlus.value || (isSong(playables.value[0]) && playables.value[0].is_public))
+const canBeShared = computed(
+  () => !isPlus.value
+    || (isSong(playables.value[0]) && playables.value[0].is_public)
+    || isEpisode(playables.value[0]),
+)
 
 const makePublic = () => trigger(async () => {
   // Both songs and episodes (which are Song models with podcast_id) support visibility changes
