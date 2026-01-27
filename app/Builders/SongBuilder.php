@@ -3,6 +3,7 @@
 namespace App\Builders;
 
 use App\Builders\Concerns\CanScopeByUser;
+use App\Enums\Acl\Role;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +64,10 @@ class SongBuilder extends FavoriteableBuilder
     public function accessible(): self
     {
         throw_unless($this->user, new LogicException('User must be set to query accessible songs.'));
+
+        if ($this->user->role === Role::ADMIN) {
+            return $this;
+        }
 
         // Join podcasts to check accessibility for episodes
         $this->leftJoin('podcasts as podcasts_a11y', 'songs.podcast_id', 'podcasts_a11y.id');
