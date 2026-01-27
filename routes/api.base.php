@@ -1,6 +1,5 @@
 <?php
 
-use App\Facades\YouTube;
 use App\Helpers\Uuid;
 use App\Http\Controllers\API\Acl\CheckResourcePermissionController;
 use App\Http\Controllers\API\Acl\FetchAssignableRolesController;
@@ -210,10 +209,8 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
         Route::post('lastfm/session-key', SetLastfmSessionKeyController::class);
         Route::delete('lastfm/disconnect', DisconnectFromLastfmController::class)->name('lastfm.disconnect');
 
-        // YouTube-related routes
-        if (YouTube::enabled()) {
-            Route::get('youtube/search/song/{song}', SearchYouTubeController::class);
-        }
+        // YouTube-related routes (always registered; controller returns 501 when not enabled)
+        Route::get('youtube/search/song/{song}', SearchYouTubeController::class);
 
         // Media information routes
         Route::get('albums/{album}/information', FetchAlbumInformationController::class);
