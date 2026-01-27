@@ -152,9 +152,14 @@ describe('playableStore', () => {
     expect(playableStore.getSourceUrl(song)).toBe(`http://test/play/${song.id}/1?t=hadouken`)
   })
 
-  it('gets shareable URL', () => {
+  it('gets shareable URL for a song', () => {
     const song = h.factory('song')
     expect(playableStore.getShareableUrl(song)).toBe(`http://test/#/songs/${song.id}`)
+  })
+
+  it('gets shareable URL for an episode (podcast URL for Open Graph)', () => {
+    const episode = h.factory('episode', { podcast_id: 'abc-podcast-uuid' })
+    expect(playableStore.getShareableUrl(episode)).toBe('http://test/podcasts/abc-podcast-uuid')
   })
 
   it('syncs with the vault', () => {

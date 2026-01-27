@@ -189,7 +189,13 @@ export const playableStore = {
       : `${commonStore.state.cdn_url}play/${playable.id}?t=${authService.getAudioToken()}`
   },
 
-  getShareableUrl: (song: Playable) => `${window.BASE_URL}#/songs/${song.id}`,
+  getShareableUrl: (playable: Playable) => {
+    const base = window.BASE_URL.replace(/\/$/, '')
+    if ('podcast_id' in playable && playable.podcast_id) {
+      return `${base}/podcasts/${playable.podcast_id}`
+    }
+    return `${base}/#/songs/${playable.id}`
+  },
 
   syncWithVault (playables: MaybeArray<Playable>) {
     return arrayify(playables).map(playable => {

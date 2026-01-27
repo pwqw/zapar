@@ -11,6 +11,7 @@ use App\Http\Controllers\Download\DownloadPlaylistController;
 use App\Http\Controllers\Download\DownloadSongsController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\LastfmController;
+use App\Http\Controllers\ShareablePodcastController;
 use App\Http\Controllers\PlayController;
 use App\Http\Controllers\SSO\GoogleCallbackController;
 use App\Http\Controllers\SSO\GoogleConsentController;
@@ -21,6 +22,10 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 
 Route::middleware('web')->group(static function (): void {
+    Route::get('/podcasts/{id}', ShareablePodcastController::class)
+        ->name('podcasts.share')
+        ->where('id', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
+
     // Using a closure to determine the controller instead of static configuration to allow for testing.
     Route::get(
         '/',
