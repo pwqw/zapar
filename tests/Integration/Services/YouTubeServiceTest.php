@@ -23,6 +23,7 @@ class YouTubeServiceTest extends TestCase
     {
         parent::setUp();
 
+        config(['koel.services.youtube.key' => 'test-key']);
         $this->service = app(YouTubeService::class);
     }
 

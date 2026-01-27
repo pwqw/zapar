@@ -47,11 +47,12 @@ class ExcerptSearchTest extends TestCase
         Podcast::factory()->hasAttached($user, relationship: 'subscribers')->create(['title' => 'Foo Podcast']);
 
         $this->getAs('api/search?q=foo', $user)
+            ->assertOk()
             ->assertJsonStructure([
-                'songs' => [0 => SongResource::JSON_STRUCTURE],
-                'podcasts' => [0 => PodcastResource::JSON_STRUCTURE],
-                'artists' => [0 => ArtistResource::JSON_STRUCTURE],
-                'albums' => [0 => AlbumResource::JSON_STRUCTURE],
+                'songs' => ['*' => SongResource::JSON_STRUCTURE],
+                'podcasts' => ['*' => PodcastResource::JSON_STRUCTURE],
+                'artists' => ['*' => ArtistResource::JSON_STRUCTURE],
+                'albums' => ['*' => AlbumResource::JSON_STRUCTURE],
             ]);
     }
 }

@@ -35,27 +35,16 @@ abstract class TestCase extends BaseTestCase
 
     public function setUp(): void
     {
+        // Forzar SQLite en memoria antes de boot para que LazilyRefreshDatabase migre sobre esta conexión
+        putenv('DB_CONNECTION=sqlite');
+        $_ENV['DB_CONNECTION'] = 'sqlite';
+
         parent::setUp();
 
-        // ⚠️ PROTECTION: Ensure tests use SQLite (in-memory or persistent testing)
-        $dbConnection = config('database.default');
-
-        // Allow both 'sqlite' (in-memory) and 'sqlite-persistent' (file-based SQLite for dev)
-        // The important thing is we're NOT using MySQL/PostgreSQL with real data
-        $allowedConnections = ['sqlite', 'sqlite-persistent'];
-        if (!in_array($dbConnection, $allowedConnections, true)) {
-            throw new \RuntimeException(
-                "Los tests deben usar SQLite, pero se detectó: {$dbConnection}. " .
-                "Esto podría borrar la base de datos de desarrollo. " .
-                "Conexiones permitidas: " . implode(', ', $allowedConnections)
-            );
-        }
-
-        // For sqlite-persistent, verify the driver is SQLite (not MySQL/PostgreSQL)
-        $driver = config("database.connections.{$dbConnection}.driver");
+        $driver = config('database.connections.' . config('database.default') . '.driver');
         if ($driver !== 'sqlite') {
             throw new \RuntimeException(
-                "Los tests deben usar SQLite driver, pero se detectó: {$driver}."
+                'Los tests deben usar SQLite driver, pero se detectó: ' . $driver . '.'
             );
         }
 

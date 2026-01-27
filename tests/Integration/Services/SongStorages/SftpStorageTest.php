@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Integration\KoelPlus\Services\SongStorages;
+namespace Tests\Integration\Services\SongStorages;
 
 use App\Helpers\Ulid;
 use App\Services\SongStorages\SftpStorage;

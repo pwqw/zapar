@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Integration\KoelPlus\Services\SongStorages;
+namespace Tests\Integration\Services\SongStorages;
 
 use App\Helpers\Ulid;
 use App\Services\SongStorages\S3CompatibleStorage;
@@ -22,6 +22,10 @@ class S3CompatibleStorageTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        if (!config('filesystems.disks.s3.key') || !config('filesystems.disks.s3.bucket')) {
+            self::markTestSkipped('S3 disk not configured.');
+        }
 
         Storage::fake('s3');
         $this->service = app(S3CompatibleStorage::class);

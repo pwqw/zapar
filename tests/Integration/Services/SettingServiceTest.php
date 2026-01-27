@@ -22,15 +22,10 @@ class SettingServiceTest extends TestCase
     #[Test]
     public function getBrandingForCommunityEdition(): void
     {
-        $assert = function (): void {
-            $branding = $this->service->getBranding();
-
-            self::assertSame('Koel', $branding->name);
-            self::assertNull($branding->logo);
-            self::assertNull($branding->cover);
-        };
-
-        $assert();
+        $branding = $this->service->getBranding();
+        self::assertSame('Koel', $branding->name);
+        self::assertNull($branding->logo);
+        self::assertNull($branding->cover);
 
         Setting::set('branding', Branding::make(
             name: 'Test Branding',
@@ -38,7 +33,10 @@ class SettingServiceTest extends TestCase
             cover: 'test-cover.png',
         ));
 
-        $assert();
+        $branding = $this->service->getBranding();
+        self::assertSame('Test Branding', $branding->name);
+        self::assertStringContainsString('test-logo.png', $branding->logo ?? '');
+        self::assertStringContainsString('test-cover.png', $branding->cover ?? '');
     }
 
     #[Test]

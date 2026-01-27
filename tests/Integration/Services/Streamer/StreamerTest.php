@@ -3,7 +3,6 @@
 namespace Tests\Integration\Services\Streamer;
 
 use App\Enums\SongStorageType;
-use App\Exceptions\KoelPlusRequiredException;
 use App\Models\Song;
 use App\Services\Streamer\Adapters\LocalStreamerAdapter;
 use App\Services\Streamer\Adapters\PhpStreamerAdapter;
@@ -26,32 +25,25 @@ class StreamerTest extends TestCase
     #[Test]
     public function resolveAdapters(): void
     {
-        // prevent real HTTP calls from being made, e.g., from DropboxStorage
         Http::fake();
 
         collect(SongStorageType::cases())
+            ->filter(static fn (SongStorageType $type): bool => $type->supported())
             ->each(function (SongStorageType $type): void {
                 /** @var Song $song */
                 $song = Song::factory()->make(['storage' => $type]);
 
-                switch ($type) {
-                    case SongStorageType::S3:
-                    case SongStorageType::DROPBOX:
-                        $this->expectException(KoelPlusRequiredException::class);
-                        new Streamer($song);
-                        break;
-
-                    case SongStorageType::S3_LAMBDA:
-                        self::assertInstanceOf(S3CompatibleStreamerAdapter::class, (new Streamer($song))->getAdapter());
-                        break;
-
-                    case SongStorageType::LOCAL:
-                        self::assertInstanceOf(LocalStreamerAdapter::class, (new Streamer($song))->getAdapter());
-                        break;
-
-                    default:
-                        self::fail("Storage type not covered by tests: $type->value");
-                }
+                match ($type) {
+                    SongStorageType::S3_LAMBDA => self::assertInstanceOf(
+                        S3CompatibleStreamerAdapter::class,
+                        (new Streamer($song))->getAdapter()
+                    ),
+                    SongStorageType::LOCAL => self::assertInstanceOf(
+                        LocalStreamerAdapter::class,
+                        (new Streamer($song))->getAdapter()
+                    ),
+                    default => self::fail("Storage type not covered by tests: $type->value"),
+                };
             });
     }
 

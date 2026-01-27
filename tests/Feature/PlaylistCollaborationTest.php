@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\KoelPlus;
+namespace Tests\Feature;
 
 use App\Http\Resources\PlaylistCollaborationTokenResource;
 use App\Http\Resources\PlaylistResource;

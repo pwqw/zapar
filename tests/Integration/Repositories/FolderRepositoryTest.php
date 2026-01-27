@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Integration\KoelPlus\Repositories;
+namespace Tests\Integration\Repositories;
 
 use App\Models\Folder;
 use App\Repositories\FolderRepository;

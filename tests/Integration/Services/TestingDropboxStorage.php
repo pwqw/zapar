@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Integration\KoelPlus\Services;
+namespace Tests\Integration\Services;
 
 use Illuminate\Support\Facades\Http;
 

@@ -33,14 +33,14 @@ class EmbedOptionsTest extends TestCase
     }
 
     #[Test]
-    public function themeAndPreviewCannotBeCustomizedForCommunityLicense(): void
+    public function themeAndPreviewArePreservedWhenEncrypted(): void
     {
         $encrypted = (string) EmbedOptions::make('cat', 'compact', true);
         $options = EmbedOptions::fromEncrypted($encrypted);
 
-        self::assertSame('classic', $options->theme);
+        self::assertSame('cat', $options->theme);
         self::assertSame('compact', $options->layout);
-        self::assertFalse($options->preview);
+        self::assertTrue($options->preview);
     }
 
     #[Test]

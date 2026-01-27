@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Integration\KoelPlus\Services\SongStorages;
+namespace Tests\Integration\Services\SongStorages;
 
 use App\Filesystems\DropboxFilesystem;
 use App\Helpers\Ulid;
@@ -16,7 +16,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Dropbox\Client;
 use Spatie\FlysystemDropbox\DropboxAdapter;
-use Tests\Integration\KoelPlus\Services\TestingDropboxStorage;
+use Tests\Integration\Services\TestingDropboxStorage;
 use Tests\TestCase;
 
 use function Tests\create_user;

@@ -12,7 +12,6 @@ use App\Values\Playlist\PlaylistUpdateData;
 use App\Values\SmartPlaylist\SmartPlaylistRuleGroupCollection;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Tests\TestCase;
 
 use function Tests\create_playlist;
 use function Tests\create_user;
@@ -227,10 +226,8 @@ class PlaylistServiceTest extends TestCase
         $playlist->addPlayables(Song::factory(2)->create());
 
         /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create();
+        $podcast = Podcast::factory()->create(['added_by' => $playlist->owner->id]);
         $episodes = Song::factory(2)->asEpisode()->for($podcast)->create();
-
-        $playlist->owner->subscribeToPodcast($podcast);
 
         $addedEpisodes = $this->service->addPlayablesToPlaylist($playlist, $episodes, $playlist->owner);
         $playlist->refresh();
@@ -245,22 +242,22 @@ class PlaylistServiceTest extends TestCase
     {
         $playlist = create_playlist();
         $playlist->addPlayables(Song::factory(2)->create());
-        $playables = Song::factory(2)->asEpisode()->create()
+
+        $podcast = Podcast::factory()->create(['added_by' => $playlist->owner->id]);
+        $playables = Song::factory(2)->asEpisode()->for($podcast)->create()
             ->merge(Song::factory(2)->create());
 
-        $addedEpisodes = $this->service->addPlayablesToPlaylist($playlist, $playables, $playlist->owner);
+        $addedPlayables = $this->service->addPlayablesToPlaylist($playlist, $playables, $playlist->owner);
         $playlist->refresh();
 
-        self::assertCount(4, $addedEpisodes);
+        self::assertCount(4, $addedPlayables);
         self::assertCount(6, $playlist->playables);
-        self::assertEqualsCanonicalizing($addedEpisodes->modelKeys(), $playables->modelKeys());
+        self::assertEqualsCanonicalizing($addedPlayables->modelKeys(), $playables->modelKeys());
     }
 
     #[Test]
     public function privateSongsAreMadePublicWhenAddedToCollaborativePlaylist(): void
     {
-        PlusTestCase::enablePlusLicense();
-
         $playlist = create_playlist();
         $user = create_user();
         $playlist->collaborators()->attach($user);

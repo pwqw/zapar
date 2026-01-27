@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\KoelPlus;
+namespace Tests\Feature;
 
 use App\Models\Podcast;
 use PHPUnit\Framework\Attributes\Test;

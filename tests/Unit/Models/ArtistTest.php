@@ -23,6 +23,16 @@ class ArtistTest extends TestCase
     }
 
     #[Test]
+    public function getOrCreateWithDifferentUserReturnsDifferentArtist(): void
+    {
+        /** @var Artist $artist */
+        $artist = Artist::factory()->create(['name' => 'Foo']);
+
+        self::assertTrue(Artist::getOrCreate($artist->user, 'Foo')->is($artist));
+        self::assertFalse(Artist::getOrCreate(create_user(), 'Foo')->is($artist));
+    }
+
+    #[Test]
     public function newArtistIsCreatedWithName(): void
     {
         self::assertNull(Artist::query()->where('name', 'Foo')->first());

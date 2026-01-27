@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Integration\KoelPlus\Services;
+namespace Tests\Integration\Services;
 
 use App\Events\NewPlaylistCollaboratorJoined;
 use App\Exceptions\CannotRemoveOwnerFromPlaylistException;

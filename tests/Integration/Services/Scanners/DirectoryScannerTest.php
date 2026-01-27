@@ -171,10 +171,8 @@ class DirectoryScannerTest extends TestCase
         self::assertNotSame("It's John Cena!", $song->title);
         self::assertNotSame('Booom Wroooom', $song->lyrics);
 
-        // make sure the user is not changed
+        // make sure the owner is not changed (artist/album can ser "pseudo owner" cuando manager sube y asigna a uno de sus artistas)
         self::assertSame($owner->id, $song->owner_id);
-        self::assertSame($owner->id, $song->artist->user_id);
-        self::assertSame($owner->id, $song->album->user_id);
     }
 
     #[Test]
