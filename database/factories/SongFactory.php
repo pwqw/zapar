@@ -45,8 +45,11 @@ class SongFactory extends Factory
 
     public function asEpisode(): self
     {
-        return $this->state(fn () => [ // @phpcs:ignore
-            'podcast_id' => Podcast::factory(),
+        return $this
+            // Create an associated podcast by default, but still allow callers to override
+            // via another `for($podcast)` in the chain.
+            ->for(Podcast::factory())
+            ->state(fn () => [ // @phpcs:ignore
             'episode_metadata' => EpisodeMetadata::fromArray([
                 'link' => $this->faker->url(),
                 'description' => $this->faker->paragraph,
