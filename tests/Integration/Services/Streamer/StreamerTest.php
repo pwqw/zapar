@@ -7,12 +7,15 @@ use App\Models\Song;
 use App\Services\Streamer\Adapters\LocalStreamerAdapter;
 use App\Services\Streamer\Adapters\PhpStreamerAdapter;
 use App\Services\Streamer\Adapters\PodcastStreamerAdapter;
+use App\Services\Streamer\Adapters\DropboxStreamerAdapter;
 use App\Services\Streamer\Adapters\S3CompatibleStreamerAdapter;
+use App\Services\Streamer\Adapters\SftpStreamerAdapter;
 use App\Services\Streamer\Adapters\TranscodingStreamerAdapter;
 use App\Services\Streamer\Adapters\XAccelRedirectStreamerAdapter;
 use App\Services\Streamer\Adapters\XSendFileStreamerAdapter;
 use App\Services\Streamer\Streamer;
 use App\Values\RequestedStreamingConfig;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -25,7 +28,14 @@ class StreamerTest extends TestCase
     #[Test]
     public function resolveAdapters(): void
     {
-        Http::fake();
+        Cache::put('dropbox_access_token', 'test-access-token', now()->addHour());
+
+        Http::fake([
+            'https://api.dropboxapi.com/oauth2/token' => Http::response([
+                'access_token' => 'test-access-token',
+                'expires_in' => 3600,
+            ]),
+        ]);
 
         collect(SongStorageType::cases())
             ->filter(static fn (SongStorageType $type): bool => $type->supported())
@@ -34,8 +44,16 @@ class StreamerTest extends TestCase
                 $song = Song::factory()->make(['storage' => $type]);
 
                 match ($type) {
-                    SongStorageType::S3_LAMBDA => self::assertInstanceOf(
+                    SongStorageType::S3, SongStorageType::S3_LAMBDA => self::assertInstanceOf(
                         S3CompatibleStreamerAdapter::class,
+                        (new Streamer($song))->getAdapter()
+                    ),
+                    SongStorageType::SFTP => self::assertInstanceOf(
+                        SftpStreamerAdapter::class,
+                        (new Streamer($song))->getAdapter()
+                    ),
+                    SongStorageType::DROPBOX => self::assertInstanceOf(
+                        DropboxStreamerAdapter::class,
                         (new Streamer($song))->getAdapter()
                     ),
                     SongStorageType::LOCAL => self::assertInstanceOf(
