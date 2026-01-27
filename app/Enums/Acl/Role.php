@@ -2,7 +2,6 @@
 
 namespace App\Enums\Acl;
 
-use App\Exceptions\KoelPlusRequiredException;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 
@@ -58,12 +57,12 @@ enum Role: string implements Arrayable
 
     public function available(): bool
     {
-        return true; // All roles are now available
+        return true;
     }
 
     public function assertAvailable(): void
     {
-        throw_unless($this->available(), KoelPlusRequiredException::class);
+        // No license gate — all roles available
     }
 
     /** @return Collection<self> */

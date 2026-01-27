@@ -10,6 +10,10 @@ class SongPolicy
 {
     public function access(User $user, Song $song): bool
     {
+        if ($user->role === Role::ADMIN) {
+            return true;
+        }
+
         // Check if accessible via ownership or public visibility
         if ($song->accessibleBy($user)) {
             return true;
