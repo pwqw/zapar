@@ -97,7 +97,22 @@ describe('loginForm.vue', () => {
     expect(screen.queryByTestId('anonymous-login')).toBeNull()
   })
 
-  it('logs in anonymously', async () => {
+  it('shows consent step when anonymous login is clicked', async () => {
+    window.ALLOW_ANONYMOUS = true
+    h.render(Component)
+
+    await h.user.click(screen.getByTestId('anonymous-login'))
+    await h.tick()
+
+    expect(screen.getByTestId('anonymous-consent-submit')).toBeTruthy()
+    expect(screen.getByTestId('terms-checkbox')).toBeTruthy()
+    expect(screen.getByTestId('privacy-checkbox')).toBeTruthy()
+    expect(screen.getByTestId('age-checkbox')).toBeTruthy()
+
+    window.ALLOW_ANONYMOUS = false
+  })
+
+  it('logs in anonymously after accepting consent', async () => {
     window.ALLOW_ANONYMOUS = true
     const loginAnonymouslyMock = h.mock(authService, 'loginAnonymously').mockResolvedValue({
       'token': 'api-token',
@@ -110,7 +125,17 @@ describe('loginForm.vue', () => {
     await h.user.click(screen.getByTestId('anonymous-login'))
     await h.tick()
 
-    expect(loginAnonymouslyMock).toHaveBeenCalled()
+    await h.user.click(screen.getByTestId('terms-checkbox'))
+    await h.user.click(screen.getByTestId('privacy-checkbox'))
+    await h.user.click(screen.getByTestId('age-checkbox'))
+    await h.user.click(screen.getByTestId('anonymous-consent-submit'))
+    await h.tick()
+
+    expect(loginAnonymouslyMock).toHaveBeenCalledWith(expect.objectContaining({
+      terms_accepted: true,
+      privacy_accepted: true,
+      age_verified: true,
+    }))
     expect(setTokensMock).toHaveBeenCalled()
     expect(rendered.emitted().loggedin).toBeTruthy()
 
@@ -125,6 +150,11 @@ describe('loginForm.vue', () => {
     h.render(Component)
 
     await h.user.click(screen.getByTestId('anonymous-login'))
+    await h.tick()
+    await h.user.click(screen.getByTestId('terms-checkbox'))
+    await h.user.click(screen.getByTestId('privacy-checkbox'))
+    await h.user.click(screen.getByTestId('age-checkbox'))
+    await h.user.click(screen.getByTestId('anonymous-consent-submit'))
     await h.tick()
 
     expect(loginAnonymouslyMock).toHaveBeenCalled()

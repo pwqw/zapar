@@ -37,7 +37,16 @@
     "loginWithGoogle": "Login with Google",
     "back": "Back",
     "anonymousModeActive": "You're in anonymous mode (listening only)",
-    "createAccount": "Create account"
+    "createAccount": "Create account",
+    "anonymousConsentIntro": "To continue anonymously, please accept the following.",
+    "acceptAndContinue": "Accept and Continue"
+  },
+  "legal": {
+    "acceptTermsPrefix": "I accept the ",
+    "termsDocumentTitle": "Terms and Conditions",
+    "acceptPrivacyPrefix": "I accept the ",
+    "privacyDocumentTitle": "Privacy Policy",
+    "ageVerification": "I confirm that I am 13 years old or older"
   },
   "playlists": {
     "newPlaylist": "New Playlist",
@@ -814,7 +823,6 @@
       "acceptTerms": "I accept the Terms and Conditions",
       "acceptPrivacy": "I accept the Privacy Policy",
       "ageVerification": "I confirm that I am 13 years old or older",
-      "mustAcceptAll": "You must accept all terms to continue",
       "viewDocument": "(view)"
     },
     "qrLogin": {

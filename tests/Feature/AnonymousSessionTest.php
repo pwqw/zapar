@@ -17,12 +17,54 @@ class AnonymousSessionTest extends TestCase
     {
         parent::setUp();
         config(['koel.misc.allow_anonymous' => true]);
+        \Illuminate\Support\Facades\Cache::flush();
+    }
+
+    /**
+     * @return array{terms_accepted: bool, privacy_accepted: bool, age_verified: bool, locale?: string}
+     */
+    private function consentPayload(array $extra = []): array
+    {
+        return array_merge([
+            'terms_accepted' => true,
+            'privacy_accepted' => true,
+            'age_verified' => true,
+        ], $extra);
+    }
+
+    #[Test]
+    public function anonymousSessionRequiresConsent(): void
+    {
+        $this->postJson('api/me/anonymous', [])
+            ->assertUnprocessable();
+
+        $this->postJson('api/me/anonymous', ['terms_accepted' => true, 'privacy_accepted' => true])
+            ->assertUnprocessable();
+    }
+
+    #[Test]
+    public function anonymousSessionWithConsentRecordsConsent(): void
+    {
+        User::where('email', 'like', '%@anonymous.koel.dev')->delete();
+
+        $this->postJson('api/me/anonymous', $this->consentPayload())
+            ->assertOk();
+
+        $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
+        self::assertNotNull($anonymousUser);
+        self::assertNotNull($anonymousUser->terms_accepted_at);
+        self::assertNotNull($anonymousUser->privacy_accepted_at);
+        self::assertNotNull($anonymousUser->age_verified_at);
+
+        self::assertCount(3, $anonymousUser->consentLogs);
+        $types = $anonymousUser->consentLogs->pluck('consent_type')->sort()->values()->all();
+        self::assertSame(['age_verification', 'privacy', 'terms'], $types);
     }
 
     #[Test]
     public function createAnonymousSession(): void
     {
-        $response = $this->post('api/me/anonymous')
+        $response = $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk()
             ->assertJsonStructure([
                 'token',
@@ -41,7 +83,7 @@ class AnonymousSessionTest extends TestCase
     {
         User::where('email', 'like', '%@anonymous.koel.dev')->delete();
 
-        $this->postJson('api/me/anonymous', ['locale' => 'es'])
+        $this->postJson('api/me/anonymous', $this->consentPayload(['locale' => 'es']))
             ->assertOk();
 
         $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
@@ -55,12 +97,12 @@ class AnonymousSessionTest extends TestCase
         // Clear any existing anonymous users for this test
         User::where('email', 'like', '%@anonymous.koel.dev')->delete();
 
-        $response1 = $this->post('api/me/anonymous')
+        $response1 = $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
         $user1 = User::where('email', 'like', '%@anonymous.koel.dev')->first();
 
-        $response2 = $this->post('api/me/anonymous')
+        $response2 = $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
         $user2 = User::where('email', 'like', '%@anonymous.koel.dev')->first();
@@ -74,17 +116,16 @@ class AnonymousSessionTest extends TestCase
     {
         config(['koel.misc.allow_anonymous' => false]);
 
-        $this->post('api/me/anonymous')
+        $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertForbidden();
     }
 
     #[Test]
     public function anonymousUserCannotDownload(): void
     {
-        $response = $this->post('api/me/anonymous')
+        $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
-        $token = $response->json('token');
         $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
 
         // Create a test song owned by another user
@@ -99,7 +140,7 @@ class AnonymousSessionTest extends TestCase
     #[Test]
     public function anonymousUserCannotCreatePlaylist(): void
     {
-        $this->post('api/me/anonymous')
+        $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
         $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
@@ -112,7 +153,7 @@ class AnonymousSessionTest extends TestCase
     #[Test]
     public function anonymousUserCannotCreateInteraction(): void
     {
-        $this->post('api/me/anonymous')
+        $this->postJson('api/me/anonymous', $this->consentPayload())
             ->assertOk();
 
         $anonymousUser = User::where('email', 'like', '%@anonymous.koel.dev')->first();
@@ -129,7 +170,7 @@ class AnonymousSessionTest extends TestCase
 
         // Make 11 requests quickly (limit is 10 per minute)
         for ($i = 0; $i < 11; $i++) {
-            $response = $this->post('api/me/anonymous');
+            $response = $this->postJson('api/me/anonymous', $this->consentPayload());
 
             if ($i < 10) {
                 $response->assertOk();

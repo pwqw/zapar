@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Attributes\DisabledInDemo;
 use App\Services\AuthenticationService;
 use App\Services\ProxyAuthService;
+use App\Services\SettingService;
 use Illuminate\Http\Request;
 
 #[DisabledInDemo]
@@ -14,6 +15,7 @@ class IndexController extends Controller
         Request $request,
         ProxyAuthService $proxyAuthService,
         AuthenticationService $auth,
+        SettingService $settingService,
     ) {
         $data = ['token' => null];
 
@@ -22,6 +24,10 @@ class IndexController extends Controller
                 $proxyAuthService->tryGetProxyAuthenticatedUserFromRequest($request),
                 static fn ($user) => $auth->logUserIn($user)->toArray()
             );
+        }
+
+        if (config('koel.misc.allow_anonymous')) {
+            $data['consent_legal_urls'] = $settingService->getConsentLegalUrls();
         }
 
         return view('index', $data);

@@ -24,7 +24,7 @@
 
         <!-- Initial Buttons View -->
         <Transition name="fade" mode="out-in">
-          <div v-if="!showInternalForm" key="buttons" class="space-y-3">
+          <div v-if="!showInternalForm && !showAnonymousConsent" key="buttons" class="space-y-3">
             <FormRow v-if="ssoProviders.includes('Google')">
               <Btn
                 class="w-full flex items-center justify-center gap-2"
@@ -44,7 +44,7 @@
                 danger
                 data-testid="anonymous-login"
                 type="button"
-                @click="handleAnonymousLogin"
+                @click="showAnonymousConsent = true"
               >
                 {{ t('auth.noWantAccount') }}
               </Btn>
@@ -54,6 +54,42 @@
               <Btn class="w-full" data-testid="internal-account" type="button" @click="showInternalForm = true">
                 {{ t('auth.internalAccount') }}
               </Btn>
+            </FormRow>
+          </div>
+
+          <!-- Anonymous Consent View -->
+          <div v-else-if="showAnonymousConsent" key="consent" class="space-y-3">
+            <p class="text-sm text-k-fg-70">
+              {{ t('auth.anonymousConsentIntro') }}
+            </p>
+            <FormRow>
+              <LegalCheckboxes
+                v-model:terms-accepted="termsAccepted"
+                v-model:privacy-accepted="privacyAccepted"
+                v-model:age-verified="ageVerified"
+                :terms-url="consentTermsUrl"
+                :privacy-url="consentPrivacyUrl"
+              />
+            </FormRow>
+            <FormRow>
+              <Btn
+                class="w-full"
+                data-testid="anonymous-consent-submit"
+                :disabled="!allConsentsAccepted"
+                type="button"
+                @click="submitAnonymousConsent"
+              >
+                {{ t('auth.acceptAndContinue') }}
+              </Btn>
+            </FormRow>
+            <FormRow>
+              <button
+                class="text-center text-[.95rem] text-k-fg-70 hover:text-k-fg-90 w-full"
+                type="button"
+                @click="showAnonymousConsent = false"
+              >
+                ← {{ t('auth.back') }}
+              </button>
             </FormRow>
           </div>
 
@@ -115,6 +151,7 @@ import { sanitizeUrl } from '@/utils/sanitizeHtml'
 import DOMPurify from 'dompurify'
 
 import Btn from '@/components/ui/form/Btn.vue'
+import LegalCheckboxes from '@/components/ui/form/LegalCheckboxes.vue'
 import PasswordField from '@/components/ui/form/PasswordField.vue'
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
@@ -137,7 +174,14 @@ const demoAccount = window.DEMO_ACCOUNT || {
 const failed = ref(false)
 const showingForgotPasswordForm = ref(false)
 const showInternalForm = ref(false)
+const showAnonymousConsent = ref(false)
+const termsAccepted = ref(false)
+const privacyAccepted = ref(false)
+const ageVerified = ref(false)
 const canResetPassword = window.MAILER_CONFIGURED && !window.IS_DEMO
+const consentTermsUrl = window.CONSENT_LEGAL_URLS?.terms_url ?? undefined
+const consentPrivacyUrl = window.CONSENT_LEGAL_URLS?.privacy_url ?? undefined
+const allConsentsAccepted = computed(() => termsAccepted.value && privacyAccepted.value && ageVerified.value)
 const ssoProviders = window.SSO_PROVIDERS || []
 const allowAnonymous = window.ALLOW_ANONYMOUS || false
 const emailPlaceholder = window.IS_DEMO ? demoAccount.email : t('auth.yourEmailAddress')
@@ -193,9 +237,21 @@ const { data, handleSubmit } = useForm<{ email: string, password: string }>({
 
 const showForgotPasswordForm = () => (showingForgotPasswordForm.value = true)
 
-const handleAnonymousLogin = async () => {
+const submitAnonymousConsent = async () => {
+  if (!allConsentsAccepted.value) {
+    return
+  }
+  await handleAnonymousLogin({
+    terms_accepted: termsAccepted.value,
+    privacy_accepted: privacyAccepted.value,
+    age_verified: ageVerified.value,
+    locale: locale.value,
+  })
+}
+
+const handleAnonymousLogin = async (params: { terms_accepted: boolean, privacy_accepted: boolean, age_verified: boolean, locale?: string }) => {
   try {
-    const compositeToken = await authService.loginAnonymously(locale.value)
+    const compositeToken = await authService.loginAnonymously(params)
     authService.setTokensUsingCompositeToken(compositeToken)
     emit('loggedin')
   } catch (error) {

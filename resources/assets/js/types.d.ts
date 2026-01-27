@@ -75,6 +75,8 @@ interface Window {
   IS_DEMO: boolean
   ALLOW_ANONYMOUS?: boolean
 
+  CONSENT_LEGAL_URLS?: { terms_url: string | null, privacy_url: string | null } | null
+
   DEMO_ACCOUNT?: {
     email: string
     password: string

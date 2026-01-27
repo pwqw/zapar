@@ -37,7 +37,16 @@
     "loginWithGoogle": "Entrar con Google",
     "back": "Volver",
     "anonymousModeActive": "Estás en modo anónimo (solo puedes escuchar)",
-    "createAccount": "Crear cuenta"
+    "createAccount": "Crear cuenta",
+    "anonymousConsentIntro": "Para continuar anónimamente, acepta lo siguiente.",
+    "acceptAndContinue": "Aceptar y Continuar"
+  },
+  "legal": {
+    "acceptTermsPrefix": "Acepto los ",
+    "termsDocumentTitle": "Términos y Condiciones",
+    "acceptPrivacyPrefix": "Acepto la ",
+    "privacyDocumentTitle": "Política de Privacidad",
+    "ageVerification": "Confirmo que tengo 13 años o más"
   },
   "playlists": {
     "newPlaylist": "Nueva Lista de Reproducción",
@@ -822,7 +831,6 @@
       "acceptTerms": "Acepto los Términos y Condiciones",
       "acceptPrivacy": "Acepto la Política de Privacidad",
       "ageVerification": "Confirmo que tengo 13 años o más",
-      "mustAcceptAll": "Debes aceptar todos los términos para continuar",
       "viewDocument": "(ver)"
     },
     "qrLogin": {

@@ -24,8 +24,25 @@ export const authService = {
     this.maybeRedirect()
   },
 
-  async loginAnonymously (locale?: string) {
-    return await http.post<CompositeToken>('me/anonymous', locale ? { locale } : {})
+  async loginAnonymously (params: { terms_accepted: boolean, privacy_accepted: boolean, age_verified: boolean, locale?: string }) {
+    const hasValidConsent =
+      params &&
+      params.terms_accepted === true &&
+      params.privacy_accepted === true &&
+      params.age_verified === true
+
+    if (!hasValidConsent) {
+      throw new Error('Consent required to continue anonymously.')
+    }
+
+    const body = {
+      terms_accepted: params.terms_accepted,
+      privacy_accepted: params.privacy_accepted,
+      age_verified: params.age_verified,
+      ...(params.locale ? { locale: params.locale } : {}),
+    }
+
+    return await http.post<CompositeToken>('me/anonymous', body)
   },
 
   async logout () {
