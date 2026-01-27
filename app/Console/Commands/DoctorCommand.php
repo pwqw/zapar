@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Enums\DoctorResult;
 use App\Enums\SongStorageType;
-use App\Facades\License;
 use App\Helpers\Ulid;
 use App\Http\Integrations\Lastfm\LastfmConnector;
 use App\Http\Integrations\Lastfm\Requests\GetArtistInfoRequest;
@@ -74,7 +73,6 @@ class DoctorCommand extends Command
         $this->checkServiceIntegrations();
         $this->checkMailConfiguration();
         $this->checkScheduler();
-        $this->checkPlusLicense();
 
         if ($this->errors) {
             $this->reportErroneousResult();
@@ -103,28 +101,6 @@ class DoctorCommand extends Command
             foreach ($this->errors as $i => $error) {
                 $this->line("  <error>[$i]</error> " . $error->getMessage());
             }
-        }
-    }
-
-    private function checkPlusLicense(): void
-    {
-        try {
-            $status = License::getStatus(checkCache: false);
-
-            if ($status->hasNoLicense()) {
-                $this->reportInfo('Koel Plus license status', 'Not available');
-
-                return;
-            }
-
-            if ($status->isValid()) {
-                $this->reportSuccess('Koel Plus license status', 'Active');
-            } else {
-                $this->reportError('Koel Plus license status', 'Invalid');
-            }
-        } catch (Throwable $e) {
-            $this->collectError($e);
-            $this->reportWarning('Cannot check for Koel Plus license status');
         }
     }
 

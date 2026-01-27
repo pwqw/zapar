@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Casts\SmartPlaylistRulesCast;
-use App\Facades\License as LicenseFacade;
 use App\Models\Concerns\MorphsToEmbeds;
 use App\Models\Contracts\Embeddable;
 use App\Models\Song as Playable;
@@ -175,7 +174,7 @@ class Playlist extends Model implements AuditableContract, Embeddable
     protected function isCollaborative(): Attribute
     {
         return Attribute::get(
-            fn (): bool => !$this->is_smart && LicenseFacade::isPlus() && $this->collaborators->isNotEmpty()
+            fn (): bool => !$this->is_smart && $this->collaborators->isNotEmpty()
         )->shouldCache();
     }
 
