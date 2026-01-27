@@ -13,6 +13,14 @@ use Illuminate\Validation\Rule;
 class InviteUserRequest extends Request
 {
     /**
+     * Authorize before validation so non-inviters get 403, not 422.
+     */
+    public function authorize(): bool
+    {
+        return $this->user()->can('manage', $this->user());
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules(): array
