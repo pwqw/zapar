@@ -30,6 +30,11 @@ abstract class TestCase extends BaseTestCase
      */
     private Filesystem $fileSystem;
 
+    protected function disableRateLimitInTests(): bool
+    {
+        return true;
+    }
+
     public function setUp(): void
     {
         parent::setUp();
@@ -56,8 +61,10 @@ abstract class TestCase extends BaseTestCase
             );
         }
 
-        // Disable rate limiting in tests
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        // Disable rate limiting in tests (override disableRateLimitInTests() to keep it in specific tests)
+        if ($this->disableRateLimitInTests()) {
+            $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        }
 
         License::swap($this->app->make(CommunityLicenseService::class));
         $this->fileSystem = File::getFacadeRoot();

@@ -28,6 +28,8 @@ class LastfmTest extends TestCase
     #[Test]
     public function connectToLastfm(): void
     {
+        config(['koel.services.lastfm.key' => 'foo', 'koel.services.lastfm.secret' => 'bar']);
+
         $user = create_user();
         $token = $user->createToken('Koel')->plainTextToken;
 
@@ -46,10 +48,11 @@ class LastfmTest extends TestCase
             ->with($user)
             ->andReturn($temporaryToken);
 
-        $this->get('lastfm/connect?api_token=' . $token)
-            ->assertRedirect(
-                'https://www.last.fm/api/auth/?api_key=foo&cb=http%3A%2F%2Flocalhost%2Flastfm%2Fcallback%3Fapi_token%3Dtmp-token' // @phpcs-ignore-line
-            );
+        $response = $this->get('lastfm/connect?api_token=' . $token);
+        $response->assertRedirect();
+        $expectedCb = route('lastfm.callback', [], true) . '?api_token=tmp-token';
+        $expected = 'https://www.last.fm/api/auth/?api_key=foo&cb=' . urlencode($expectedCb);
+        $this->assertSame($expected, $response->headers->get('Location'));
     }
 
     #[Test]

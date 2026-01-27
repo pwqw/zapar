@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Support\Facades\URL;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -11,6 +12,7 @@ class ApplicationTest extends TestCase
     public function staticUrlsWithoutCdnAreConstructedCorrectly(): void
     {
         config(['koel.cdn.url' => '']);
+        URL::forceRootUrl('http://localhost');
 
         self::assertSame('http://localhost/', static_url());
         self::assertSame('http://localhost/foo.css', static_url('/foo.css '));

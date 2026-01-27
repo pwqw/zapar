@@ -104,7 +104,7 @@ class TicketmasterServiceTest extends TestCase
         Cache::put(cache_key('Ticketmaster events', 'Coolio', 'BR'), $events, now()->addDay());
         Cache::put(cache_key('IP to country code', '84.124.22.13'), 'BR', now()->addDay());
 
-        self::assertSame($events, $this->service->searchEventForArtist('Coolio', '84.124.22.13'));
+        self::assertEquals($events->values()->all(), $this->service->searchEventForArtist('Coolio', '84.124.22.13')->values()->all());
         Saloon::assertNothingSent();
     }
 }

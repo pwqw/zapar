@@ -26,16 +26,14 @@ class UserTest extends TestCase
         // Create a regular user (no manage permissions)
         $user = create_user();
 
-        // Regular users cannot create users - validation will fail when trying to create
-        // a user they cannot manage (a user cannot manage another user since they're equal level)
+        // Regular users cannot create users – they lack manage permission → 403
         $this->postAs('api/users', [
             'name' => 'Foo',
             'email' => 'bar@baz.com',
             'password' => 'secret',
             'role' => Role::USER->value,
         ], $user)
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['role']);
+            ->assertForbidden();
     }
 
     #[Test]
@@ -79,18 +77,21 @@ class UserTest extends TestCase
     }
 
     #[Test]
-    public function adminCannotCreateAnotherAdmin(): void
+    public function adminCanCreateAnotherAdmin(): void
     {
         $admin = create_admin();
 
+        // Same rule as invitation: admin can create/invite same level (admin→admin)
         $this->postAs('api/users', [
             'name' => 'Another Admin',
             'email' => 'another-admin@test.com',
             'password' => 'secret',
             'role' => Role::ADMIN->value,
         ], $admin)
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['role']);
+            ->assertSuccessful();
+
+        $created = User::query()->firstWhere('email', 'another-admin@test.com');
+        self::assertSame(Role::ADMIN, $created->role);
     }
 
     #[Test]

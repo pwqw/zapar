@@ -15,7 +15,9 @@ class YouTubeTest extends TestCase
 
     public function setUp(): void
     {
+        putenv('YOUTUBE_API_KEY=test-key');
         parent::setUp();
+        config(['koel.services.youtube.key' => 'test-key']);
 
         $this->youTubeService = $this->mock(YouTubeService::class);
     }

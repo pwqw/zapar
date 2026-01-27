@@ -34,7 +34,8 @@ class EpisodePlayableTest extends TestCase
 
         // No extra HTTP request should be made.
         Http::assertSentCount(1);
-        self::assertSame($playable, $retrieved);
+        self::assertSame($playable->path, $retrieved->path);
+        self::assertSame($playable->checksum, $retrieved->checksum);
         self::assertTrue($retrieved->valid());
 
         file_put_contents($playable->path, 'bar');

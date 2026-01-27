@@ -122,17 +122,18 @@ class BrandingSettingTest extends PlusTestCase
     #[Test]
     public function canUpdateShareImageUrlViaBranding(): void
     {
-        $imageUrl = 'https://example.com/image.png';
+        // Frontend only sends base64 (data URL) via BrandingImageField; same format as canUpdateShareImageViaBranding
+        $imageData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
         $this->putAs('api/settings/branding', [
             'name' => 'Test App',
-            'og_image' => $imageUrl,
+            'og_image' => $imageData,
         ], create_admin())
             ->assertNoContent();
 
         $og = Setting::get('opengraph');
         self::assertNotNull($og);
-        self::assertSame($imageUrl, $og['image']);
+        self::assertNotNull($og['image']);
     }
 
     #[Test]

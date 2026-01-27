@@ -7,6 +7,7 @@ use App\Exceptions\SongUploadFailedException;
 use App\Models\Setting;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -21,7 +22,17 @@ class UploadTest extends TestCase
     {
         parent::setUp();
 
-        $this->file = UploadedFile::fromFile(test_path('songs/full.mp3'), 'song.mp3'); //@phpstan-ignore-line
+        $sourcePath = test_path('songs/full.mp3');
+        if (!is_file($sourcePath)) {
+            $sourcePath = test_path('songs/blank.mp3');
+        }
+        if (!is_file($sourcePath)) {
+            self::markTestSkipped('Requires tests/songs/full.mp3 or tests/songs/blank.mp3');
+        }
+        $tempPath = artifact_path('tmp/upload-test-' . uniqid() . '.mp3');
+        File::ensureDirectoryExists(dirname($tempPath));
+        File::copy($sourcePath, $tempPath);
+        $this->file = new UploadedFile($tempPath, 'song.mp3', 'audio/mpeg', \UPLOAD_ERR_OK, true);
     }
 
     #[Test]

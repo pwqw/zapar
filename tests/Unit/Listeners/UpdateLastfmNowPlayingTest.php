@@ -17,11 +17,13 @@ class UpdateLastfmNowPlayingTest extends TestCase
     #[Test]
     public function updateNowPlayingStatus(): void
     {
+        config(['koel.services.lastfm.key' => 'key', 'koel.services.lastfm.secret' => 'secret']);
+
         $user = create_user();
 
         /** @var Song $song */
         $song = Song::factory()->create();
-        $lastfm = Mockery::mock(LastfmService::class, ['enabled' => true]);
+        $lastfm = Mockery::mock(LastfmService::class);
 
         $lastfm->expects('updateNowPlaying')
             ->with($song, $user);

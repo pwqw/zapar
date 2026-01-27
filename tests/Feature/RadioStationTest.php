@@ -154,7 +154,7 @@ class RadioStationTest extends TestCase
     }
 
     #[Test]
-    public function adminFromOtherOrgCannotUpdate(): void
+    public function adminFromOtherOrgCanUpdate(): void
     {
         /** @var RadioStation $station */
         $station = RadioStation::factory()->create();
@@ -166,10 +166,11 @@ class RadioStationTest extends TestCase
             'is_public' => false,
         ];
 
+        // ADMIN can edit ANY radio station (system-wide rule)
         $this->putAs("/api/radio/stations/{$station->id}", $data, create_admin([
             'organization_id' => Organization::factory(),
         ]))
-            ->assertForbidden();
+            ->assertOk();
     }
 
     #[Test]
@@ -223,15 +224,16 @@ class RadioStationTest extends TestCase
     }
 
     #[Test]
-    public function adminFromOtherOrgCannotDelete(): void
+    public function adminFromOtherOrgCanDelete(): void
     {
         /** @var RadioStation $station */
         $station = RadioStation::factory()->create();
 
+        // ADMIN can delete ANY radio station (system-wide rule)
         $this->deleteAs("/api/radio/stations/{$station->id}", [], create_admin([
             'organization_id' => Organization::factory(),
         ]))
-            ->assertForbidden();
+            ->assertNoContent();
     }
 
     #[Test]

@@ -8,6 +8,11 @@ use Tests\TestCase;
 
 class AnonymousSessionTest extends TestCase
 {
+    protected function disableRateLimitInTests(): bool
+    {
+        return false;
+    }
+
     public function setUp(): void
     {
         parent::setUp();
@@ -107,6 +112,8 @@ class AnonymousSessionTest extends TestCase
     #[Test]
     public function rateLimitingApplies(): void
     {
+        \Illuminate\Support\Facades\Cache::flush();
+
         // Make 11 requests quickly (limit is 10 per minute)
         for ($i = 0; $i < 11; $i++) {
             $response = $this->post('api/me/anonymous');

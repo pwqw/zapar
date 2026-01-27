@@ -17,12 +17,14 @@ class LoveTrackOnLastFmTest extends TestCase
     #[Test]
     public function handleFavoriteCase(): void
     {
+        config(['koel.services.lastfm.key' => 'key', 'koel.services.lastfm.secret' => 'secret']);
+
         /** @var Song $song */
         $song = Song::factory()->create();
 
         $user = create_user();
 
-        $lastfm = Mockery::mock(LastfmService::class, ['enabled' => true]);
+        $lastfm = Mockery::mock(LastfmService::class);
         $lastfm->expects('toggleLoveTrack')->with($song, $user, true);
 
         (new LoveTrackOnLastfm($lastfm))->handle(new SongFavoriteToggled($song, true, $user));
@@ -31,12 +33,14 @@ class LoveTrackOnLastFmTest extends TestCase
     #[Test]
     public function handleUndoFavoriteCase(): void
     {
+        config(['koel.services.lastfm.key' => 'key', 'koel.services.lastfm.secret' => 'secret']);
+
         /** @var Song $song */
         $song = Song::factory()->create();
 
         $user = create_user();
 
-        $lastfm = Mockery::mock(LastfmService::class, ['enabled' => true]);
+        $lastfm = Mockery::mock(LastfmService::class);
         $lastfm->expects('toggleLoveTrack')->with($song, $user, false);
 
         (new LoveTrackOnLastfm($lastfm))->handle(new SongFavoriteToggled($song, false, $user));
