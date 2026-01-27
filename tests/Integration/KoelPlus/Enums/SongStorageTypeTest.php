@@ -4,9 +4,9 @@ namespace Tests\Integration\KoelPlus\Enums;
 
 use App\Enums\SongStorageType;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class SongStorageTypeTest extends PlusTestCase
+class SongStorageTypeTest extends TestCase
 {
     #[Test]
     public function supported(): void

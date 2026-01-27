@@ -1,25 +1,54 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\KoelPlus;
 
 use App\Models\Song;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-use function Tests\create_admin;
+use function Tests\create_user;
 
 class SongVisibilityTest extends TestCase
 {
     #[Test]
-    public function changingVisibilityIsForbiddenInCommunityEdition(): void
+    public function makingSongPublic(): void
     {
-        $owner = create_admin();
-        Song::factory(2)->create();
+        $currentUser = create_user(['verified' => true]);
+        $anotherUser = create_user();
 
-        $this->putAs('api/songs/publicize', ['songs' => Song::query()->get()->modelKeys()], $owner)
-            ->assertNotFound();
+        $externalSongs = Song::factory(2)->for($anotherUser, 'owner')->private()->create();
 
-        $this->putAs('api/songs/privatize', ['songs' => Song::query()->get()->modelKeys()], $owner)
-            ->assertNotFound();
+        // We can't make public songs that are not ours.
+        $this->putAs('api/songs/publicize', ['songs' => $externalSongs->modelKeys()], $currentUser)
+            ->assertForbidden();
+
+        // But we can our own songs (if verified).
+        $ownSongs = Song::factory(2)->for($currentUser, 'owner')->create();
+
+        $this->putAs('api/songs/publicize', ['songs' => $ownSongs->modelKeys()], $currentUser)
+            ->assertSuccessful();
+
+        $ownSongs->each(static fn (Song $song) => self::assertTrue($song->refresh()->is_public));
+    }
+
+    #[Test]
+    public function makingSongPrivate(): void
+    {
+        $currentUser = create_user(['verified' => true]);
+        $anotherUser = create_user();
+
+        $externalSongs = Song::factory(2)->for($anotherUser, 'owner')->public()->create();
+
+        // We can't Mark as Private songs that are not ours.
+        $this->putAs('api/songs/privatize', ['songs' => $externalSongs->modelKeys()], $currentUser)
+            ->assertForbidden();
+
+        // But we can our own songs (if verified).
+        $ownSongs = Song::factory(2)->for($currentUser, 'owner')->create();
+
+        $this->putAs('api/songs/privatize', ['songs' => $ownSongs->modelKeys()], $currentUser)
+            ->assertSuccessful();
+
+        $ownSongs->each(static fn (Song $song) => self::assertFalse($song->refresh()->is_public));
     }
 }

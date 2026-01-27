@@ -7,12 +7,12 @@ use App\Http\Resources\PlaylistResource;
 use App\Models\PlaylistCollaborationToken;
 use App\Models\PlaylistFolder;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_playlist;
 use function Tests\create_user;
 
-class PlaylistCollaborationTest extends PlusTestCase
+class PlaylistCollaborationTest extends TestCase
 {
     #[Test]
     public function createPlaylistCollaborationToken(): void

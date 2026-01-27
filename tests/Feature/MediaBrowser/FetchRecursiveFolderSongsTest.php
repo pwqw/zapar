@@ -6,9 +6,9 @@ use App\Models\Folder;
 use App\Models\Setting;
 use App\Models\Song;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class FetchRecursiveFolderSongsTest extends PlusTestCase
+class FetchRecursiveFolderSongsTest extends TestCase
 {
     public function setUp(): void
     {

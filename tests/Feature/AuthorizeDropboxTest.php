@@ -3,9 +3,9 @@
 namespace Tests\Feature\KoelPlus;
 
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class AuthorizeDropboxTest extends PlusTestCase
+class AuthorizeDropboxTest extends TestCase
 {
     #[Test]
     public function authorize(): void

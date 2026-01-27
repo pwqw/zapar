@@ -12,12 +12,12 @@ use App\Services\PlaylistCollaborationService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_playlist;
 use function Tests\create_user;
 
-class PlaylistCollaborationServiceTest extends PlusTestCase
+class PlaylistCollaborationServiceTest extends TestCase
 {
     private PlaylistCollaborationService $service;
 

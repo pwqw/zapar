@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_user;
 use function Tests\test_path;
 
-class SftpStorageTest extends PlusTestCase
+class SftpStorageTest extends TestCase
 {
     private SftpStorage $service;
     private string $uploadedFilePath;

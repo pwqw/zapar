@@ -7,9 +7,9 @@ use App\Models\Folder;
 use App\Models\Song;
 use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class PaginateFolderSongsTest extends PlusTestCase
+class PaginateFolderSongsTest extends TestCase
 {
     #[Test]
     public function paginate(): void

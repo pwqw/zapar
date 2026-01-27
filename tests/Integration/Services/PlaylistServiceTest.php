@@ -11,7 +11,7 @@ use App\Values\Playlist\PlaylistCreateData;
 use App\Values\Playlist\PlaylistUpdateData;
 use App\Values\SmartPlaylist\SmartPlaylistRuleGroupCollection;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 use Tests\TestCase;
 
 use function Tests\create_playlist;

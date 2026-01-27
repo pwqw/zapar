@@ -5,11 +5,11 @@ namespace Tests\Integration\KoelPlus\Repositories;
 use App\Models\Folder;
 use App\Repositories\FolderRepository;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_user;
 
-class FolderRepositoryTest extends PlusTestCase
+class FolderRepositoryTest extends TestCase
 {
     private FolderRepository $repository;
 

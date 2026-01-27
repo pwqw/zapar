@@ -4,9 +4,9 @@ namespace Tests\Unit\KoelPlus\Values;
 
 use App\Values\EmbedOptions;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class EmbedOptionsTest extends PlusTestCase
+class EmbedOptionsTest extends TestCase
 {
     #[Test]
     public function themeAndPreviewCanBeCustomizedForCommunityLicense(): void

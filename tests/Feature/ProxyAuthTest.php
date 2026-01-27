@@ -5,11 +5,11 @@ namespace Tests\Feature\KoelPlus;
 use App\Models\User;
 use Laravel\Sanctum\PersonalAccessToken;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_user;
 
-class ProxyAuthTest extends PlusTestCase
+class ProxyAuthTest extends TestCase
 {
     public function setUp(): void
     {

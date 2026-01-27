@@ -9,9 +9,9 @@ use App\Models\Song;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class FetchFolderSongsTest extends PlusTestCase
+class FetchFolderSongsTest extends TestCase
 {
     public function setUp(): void
     {

@@ -5,9 +5,9 @@ namespace Tests\Unit\KoelPlus\Models;
 use App\Models\Album;
 use App\Models\Artist;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class AlbumTest extends PlusTestCase
+class AlbumTest extends TestCase
 {
     #[Test]
     public function getOrCreate(): void

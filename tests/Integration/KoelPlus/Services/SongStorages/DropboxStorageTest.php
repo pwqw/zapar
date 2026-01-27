@@ -17,12 +17,12 @@ use PHPUnit\Framework\Attributes\Test;
 use Spatie\Dropbox\Client;
 use Spatie\FlysystemDropbox\DropboxAdapter;
 use Tests\Integration\KoelPlus\Services\TestingDropboxStorage;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_user;
 use function Tests\test_path;
 
-class DropboxStorageTest extends PlusTestCase
+class DropboxStorageTest extends TestCase
 {
     use TestingDropboxStorage;
 

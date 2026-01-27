@@ -4,11 +4,11 @@ namespace Tests\Unit\KoelPlus\Models;
 
 use App\Models\Artist;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_user;
 
-class ArtistTest extends PlusTestCase
+class ArtistTest extends TestCase
 {
     #[Test]
     public function getOrCreate(): void

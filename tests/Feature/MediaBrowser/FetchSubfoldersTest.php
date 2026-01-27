@@ -7,9 +7,9 @@ use App\Models\Folder;
 use App\Models\Setting;
 use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class FetchSubfoldersTest extends PlusTestCase
+class FetchSubfoldersTest extends TestCase
 {
     public function setUp(): void
     {

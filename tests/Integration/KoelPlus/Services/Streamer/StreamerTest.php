@@ -11,9 +11,9 @@ use App\Services\Streamer\Adapters\SftpStreamerAdapter;
 use App\Services\Streamer\Streamer;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Integration\KoelPlus\Services\TestingDropboxStorage;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class StreamerTest extends PlusTestCase
+class StreamerTest extends TestCase
 {
     use TestingDropboxStorage;
 

@@ -5,12 +5,12 @@ namespace Tests\Feature\KoelPlus;
 use App\Http\Resources\ThemeResource;
 use App\Models\Theme;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_user;
 use function Tests\minimal_base64_encoded_image;
 
-class ThemeTest extends PlusTestCase
+class ThemeTest extends TestCase
 {
     #[Test]
     public function listTheme(): void

@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Mockery;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_user;
 
-class UserServiceTest extends PlusTestCase
+class UserServiceTest extends TestCase
 {
     private UserService $service;
 

@@ -2,11 +2,9 @@
 
 namespace Tests;
 
-use App\Facades\License;
 use App\Helpers\Ulid;
 use App\Helpers\Uuid;
 use App\Models\Album;
-use App\Services\License\CommunityLicenseService;
 use App\Services\MediaBrowser;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -66,7 +64,6 @@ abstract class TestCase extends BaseTestCase
             $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
         }
 
-        License::swap($this->app->make(CommunityLicenseService::class));
         $this->fileSystem = File::getFacadeRoot();
 
         // During the Album's `saved` event, we attempt to generate a thumbnail by dispatching a job.

@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use function Tests\create_user;
 use function Tests\test_path;
 
-class S3CompatibleStorageTest extends PlusTestCase
+class S3CompatibleStorageTest extends TestCase
 {
     private S3CompatibleStorage $service;
     private string $uploadedFilePath;

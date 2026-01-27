@@ -6,9 +6,9 @@ use App\Models\Setting;
 use App\Services\SettingService;
 use App\Values\Branding;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
-class SettingServiceTest extends PlusTestCase
+class SettingServiceTest extends TestCase
 {
     private SettingService $service;
 

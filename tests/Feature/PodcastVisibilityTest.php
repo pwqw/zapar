@@ -4,14 +4,14 @@ namespace Tests\Feature\KoelPlus;
 
 use App\Models\Podcast;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\TestCase;
 
 use App\Models\Song as Episode;
 
 use function Tests\create_admin;
 use function Tests\create_user;
 
-class PodcastVisibilityTest extends PlusTestCase
+class PodcastVisibilityTest extends TestCase
 {
     #[Test]
     public function makingPodcastPublic(): void
