@@ -16,8 +16,6 @@ class S3CompatibleStreamerAdapter implements StreamerAdapter
 
     public function stream(Song $song, ?RequestedStreamingConfig $config = null): Redirector|RedirectResponse
     {
-        $this->storage->assertSupported();
-
         return redirect($this->storage->getPresignedUrl($song->storage_metadata->getPath()));
     }
 }

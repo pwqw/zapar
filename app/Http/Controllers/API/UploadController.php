@@ -30,7 +30,6 @@ class UploadController extends Controller
         Authenticatable $user
     ) {
         $this->authorize('upload', User::class);
-        $storage->assertSupported();
 
         try {
             $file = $request->file->move(

@@ -3,7 +3,6 @@
 namespace App\Services\Streamer;
 
 use App\Enums\SongStorageType;
-use App\Exceptions\KoelPlusRequiredException;
 use App\Models\Song;
 use App\Services\Streamer\Adapters\DropboxStreamerAdapter;
 use App\Services\Streamer\Adapters\LocalStreamerAdapter;
@@ -26,8 +25,6 @@ class Streamer
 
     private function resolveAdapter(): StreamerAdapter
     {
-        throw_unless($this->song->storage->supported(), KoelPlusRequiredException::class);
-
         if ($this->song->isEpisode()) {
             return app(PodcastStreamerAdapter::class);
         }
