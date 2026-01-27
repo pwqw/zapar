@@ -6,7 +6,6 @@ use App\Providers\BroadcastServiceProvider;
 use App\Providers\DownloadServiceProvider;
 use App\Providers\EventServiceProvider;
 use App\Providers\ITunesServiceProvider;
-use App\Providers\LicenseServiceProvider;
 use App\Providers\MacroProvider;
 use App\Providers\ObjectStorageServiceProvider;
 use App\Providers\SongStorageServiceProvider;
@@ -39,5 +38,4 @@ return [
     SongStorageServiceProvider::class,
     ObjectStorageServiceProvider::class,
     MacroProvider::class,
-    LicenseServiceProvider::class,
 ];

@@ -37,7 +37,7 @@ class ContentSecurityPolicy
         // Build CSP directives
         $csp = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.lemonsqueezy.com{$viteDevServer}",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'{$viteDevServer}",
             "style-src 'self' 'unsafe-inline'{$viteDevServer}",
             "img-src 'self' data: https: blob:{$viteDevServer}",
             "font-src 'self' data:",

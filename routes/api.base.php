@@ -3,7 +3,6 @@
 use App\Helpers\Uuid;
 use App\Http\Controllers\API\Acl\CheckResourcePermissionController;
 use App\Http\Controllers\API\Acl\FetchAssignableRolesController;
-use App\Http\Controllers\API\ActivateLicenseController;
 use App\Http\Controllers\API\AlbumController;
 use App\Http\Controllers\API\AlbumSongController;
 use App\Http\Controllers\API\Artist\ArtistAlbumController;
@@ -233,9 +232,6 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
 
         Route::put('songs/publicize', PublicizeSongsController::class);
         Route::put('songs/privatize', PrivatizeSongsController::class);
-
-        // License routes
-        Route::post('licenses/activate', ActivateLicenseController::class);
 
         // Playlist collaboration routes
         Route::post('playlists/{playlist}/collaborators/invite', CreatePlaylistCollaborationTokenController::class);

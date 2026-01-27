@@ -5,7 +5,6 @@ use App\Http\Middleware\ContentSecurityPolicy;
 use App\Http\Middleware\ForceHttps;
 use App\Http\Middleware\HandleDemoMode;
 use App\Http\Middleware\ObjectStorageAuthenticate;
-use App\Http\Middleware\RestrictPlusFeatures;
 use App\Http\Middleware\SetLocaleFromBrowser;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\AuthenticationException;
@@ -30,7 +29,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: [
             ContentSecurityPolicy::class,
             SetLocaleFromBrowser::class,
-            RestrictPlusFeatures::class,
             HandleDemoMode::class,
             ForceHttps::class,
         ]);
@@ -38,7 +36,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             ContentSecurityPolicy::class,
             SetLocaleFromBrowser::class,
-            RestrictPlusFeatures::class,
             HandleDemoMode::class,
             ForceHttps::class,
         ]);
