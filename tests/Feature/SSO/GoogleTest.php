@@ -20,15 +20,20 @@ class GoogleTest extends TestCase
             'getEmail' => 'bruce@iron.com',
             'getName' => 'Bruce Dickinson',
             'getAvatar' => 'https://lh3.googleusercontent.com/a/vatar',
-            'getId' => Str::random(),
+            'getId' => 'new-user-google-id',
         ]);
 
         Socialite::expects('driver->user')->andReturn($googleUser);
 
         $response = $this->get('auth/google/callback');
-        $response->assertOk();
-        $response->assertViewIs('sso-callback');
-        $response->assertViewHas('token');
+        $response->assertRedirect(route('sso.consent'));
+        $response->assertSessionHas('sso_pending', [
+            'provider' => 'Google',
+            'id' => 'new-user-google-id',
+            'email' => 'bruce@iron.com',
+            'name' => 'Bruce Dickinson',
+            'avatar' => 'https://lh3.googleusercontent.com/a/vatar',
+        ]);
     }
 
     #[Test]
