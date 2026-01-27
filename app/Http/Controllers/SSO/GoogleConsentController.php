@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\SSO;
 
 use App\Http\Controllers\Controller;
-use App\Models\UserConsentLog;
 use App\Services\AuthenticationService;
+use App\Services\ConsentService;
 use App\Services\SettingService;
 use App\Services\UserService;
 use App\Values\User\SsoUser;
@@ -18,6 +18,7 @@ class GoogleConsentController extends Controller
         private readonly UserService $userService,
         private readonly AuthenticationService $auth,
         private readonly SettingService $settingService,
+        private readonly ConsentService $consentService,
     ) {
     }
 
@@ -56,33 +57,10 @@ class GoogleConsentController extends Controller
         $ssoUser = SsoUser::fromArray($ssoData);
         $user = $this->userService->createOrUpdateUserFromSso($ssoUser);
 
-        $now = now();
-        $user->update([
-            'terms_accepted_at' => $now,
-            'privacy_accepted_at' => $now,
-            'age_verified_at' => $now,
-        ]);
-
-        $this->logConsent($user->id, $request);
+        $this->consentService->recordConsent($user, $request);
 
         session()->forget('sso_pending');
 
         return view('sso-callback')->with('token', $this->auth->logUserIn($user)->toArray());
-    }
-
-    private function logConsent(int $userId, Request $request): void
-    {
-        $consentTypes = ['terms', 'privacy', 'age_verification'];
-
-        foreach ($consentTypes as $type) {
-            UserConsentLog::create([
-                'user_id' => $userId,
-                'consent_type' => $type,
-                'version' => config('app.legal_version', '1.0'),
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'accepted' => true,
-            ]);
-        }
     }
 }

@@ -4,6 +4,7 @@
     ref="button"
     class="text-base text-white border border-transparent bg-k-primary px-3.5 py-2 rounded cursor-pointer"
     type="button"
+    :disabled="disabled"
   >
     <slot>Click me</slot>
   </button>
@@ -11,6 +12,7 @@
     v-else
     ref="button"
     class="text-base text-white border border-transparent bg-k-primary px-3.5 py-2 rounded cursor-pointer"
+    :aria-disabled="disabled"
   >
     <slot>Click me</slot>
   </a>
@@ -19,8 +21,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-withDefaults(defineProps<{ tag?: 'button' | 'a' }>(), {
+withDefaults(defineProps<{ tag?: 'button' | 'a', disabled?: boolean }>(), {
   tag: 'button',
+  disabled: false,
 })
 
 const button = ref<HTMLButtonElement>()
@@ -36,6 +39,10 @@ defineExpose({
  */
 button,
 a {
+  &[disabled] {
+    @apply cursor-not-allowed opacity-60;
+  }
+
   &:not([disabled]):hover {
     box-shadow: inset 0 0 0 10rem rgba(0, 0, 0, 0.1);
   }

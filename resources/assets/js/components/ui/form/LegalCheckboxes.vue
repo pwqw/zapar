@@ -3,7 +3,7 @@
     <label class="flex items-start gap-2 cursor-pointer">
       <CheckBox v-model="termsAccepted" data-testid="terms-checkbox" required />
       <span class="text-sm">
-        {{ t('legal.acceptTerms') }}
+        {{ t('legal.acceptTermsPrefix') }}
         <a
           v-if="termsUrl"
           :href="termsUrl"
@@ -11,15 +11,16 @@
           rel="noopener"
           class="text-k-highlight hover:underline"
         >
-          {{ t('legal.viewDocument') }}
+          {{ t('legal.termsDocumentTitle') }}
         </a>
+        <template v-else>{{ t('legal.termsDocumentTitle') }}</template>
       </span>
     </label>
 
     <label class="flex items-start gap-2 cursor-pointer">
       <CheckBox v-model="privacyAccepted" data-testid="privacy-checkbox" required />
       <span class="text-sm">
-        {{ t('legal.acceptPrivacy') }}
+        {{ t('legal.acceptPrivacyPrefix') }}
         <a
           v-if="privacyUrl"
           :href="privacyUrl"
@@ -27,8 +28,9 @@
           rel="noopener"
           class="text-k-highlight hover:underline"
         >
-          {{ t('legal.viewDocument') }}
+          {{ t('legal.privacyDocumentTitle') }}
         </a>
+        <template v-else>{{ t('legal.privacyDocumentTitle') }}</template>
       </span>
     </label>
 
@@ -36,10 +38,6 @@
       <CheckBox v-model="ageVerified" data-testid="age-checkbox" required />
       <span class="text-sm">{{ t('legal.ageVerification') }}</span>
     </label>
-
-    <p v-if="showError" class="text-red-500 text-xs mt-2">
-      {{ t('legal.mustAcceptAll') }}
-    </p>
   </div>
 </template>
 
@@ -57,7 +55,6 @@ const ageVerified = defineModel<boolean>('ageVerified', { default: false })
 defineProps<{
   termsUrl?: string
   privacyUrl?: string
-  showError?: boolean
 }>()
 
 const allAccepted = computed(() => termsAccepted.value && privacyAccepted.value && ageVerified.value)

@@ -37,7 +37,6 @@
           v-model:terms-accepted="termsAccepted"
           v-model:privacy-accepted="privacyAccepted"
           v-model:age-verified="ageVerified"
-          :show-error="showConsentError"
         />
       </FormRow>
 
@@ -76,7 +75,6 @@ const loading = ref(false)
 const termsAccepted = ref(false)
 const privacyAccepted = ref(false)
 const ageVerified = ref(false)
-const showConsentError = ref(false)
 
 const allConsentsAccepted = computed(() => termsAccepted.value && privacyAccepted.value && ageVerified.value)
 
@@ -84,7 +82,6 @@ const token = String(getRouteParam('token')!)
 
 const submit = async () => {
   if (!allConsentsAccepted.value) {
-    showConsentError.value = true
     return
   }
 
