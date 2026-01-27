@@ -103,6 +103,43 @@ class SettingService
     }
 
     /**
+     * Get terms and privacy URLs for the consent page.
+     * Uses explicit settings first; falls back to Google Doc pages by slug when unset.
+     *
+     * @return array{terms_url: ?string, privacy_url: ?string}
+     */
+    public function getConsentLegalUrls(): array
+    {
+        $termsSetting = Setting::get('terms_url');
+        $privacySetting = Setting::get('privacy_url');
+
+        $base = rtrim(url('/'), '/');
+        $termsPage = $this->findGoogleDocPageBySlug('terms-and-conditions');
+        $privacyPage = $this->findGoogleDocPageBySlug('privacy-policy');
+
+        return [
+            'terms_url' => $termsSetting !== null && $termsSetting !== ''
+                ? $termsSetting
+                : ($termsPage ? "{$base}/#/document/terms-and-conditions" : null),
+            'privacy_url' => $privacySetting !== null && $privacySetting !== ''
+                ? $privacySetting
+                : ($privacyPage ? "{$base}/#/document/privacy-policy" : null),
+        ];
+    }
+
+    /**
+     * Update the terms and privacy URLs used on the SSO consent screen.
+     *
+     * @param string|null $termsUrl
+     * @param string|null $privacyUrl
+     */
+    public function updateConsentLegalUrls(?string $termsUrl, ?string $privacyUrl): void
+    {
+        Setting::set('terms_url', $termsUrl === '' ? null : $termsUrl);
+        Setting::set('privacy_url', $privacyUrl === '' ? null : $privacyUrl);
+    }
+
+    /**
      * Update OpenGraph settings (description and image).
      * These are stored separately but managed through branding.
      */

@@ -61,6 +61,7 @@ use App\Http\Controllers\API\SearchYouTubeController;
 use App\Http\Controllers\API\SetLastfmSessionKeyController;
 use App\Http\Controllers\API\Settings\GetGoogleDocPagesController;
 use App\Http\Controllers\API\Settings\UpdateBrandingController;
+use App\Http\Controllers\API\Settings\UpdateConsentLegalUrlsController;
 use App\Http\Controllers\API\Settings\UpdateGoogleDocPagesController;
 use App\Http\Controllers\API\Settings\UpdateMediaPathController;
 use App\Http\Controllers\API\Settings\UpdateWelcomeMessageController;
@@ -130,6 +131,7 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
         Route::put('settings/welcome-message', UpdateWelcomeMessageController::class);
         Route::put('settings/google-doc-pages', UpdateGoogleDocPagesController::class);
         Route::get('settings/google-doc-pages', GetGoogleDocPagesController::class);
+        Route::put('settings/consent-legal-urls', UpdateConsentLegalUrlsController::class);
 
         Route::apiResource('albums', AlbumController::class);
         Route::apiResource('albums.songs', AlbumSongController::class);

@@ -357,6 +357,13 @@
     "noPagesAdded": "No pages added yet. Click 'Add Page' to get started.",
     "pageUrl": "Page URL:",
     "googleDocPagesSaved": "Embedded pages saved successfully.",
+    "consentLegalUrls": "Consent legal URLs",
+    "consentLegalUrlsHelp": "URLs for Terms & Conditions and Privacy Policy shown on the SSO consent screen. Leave empty to use embedded pages (e.g. with slug terms-and-conditions / privacy-policy) or to show no link.",
+    "termsUrl": "Terms & Conditions URL",
+    "termsUrlPlaceholder": "/#/document/terms-and-conditions",
+    "privacyUrl": "Privacy Policy URL",
+    "privacyUrlPlaceholder": "/#/document/privacy-policy",
+    "consentLegalUrlsSaved": "Consent legal URLs saved.",
     "errorSaving": "Error saving settings."
   },
   "integrations": {

@@ -12,10 +12,21 @@ export interface GoogleDocPage {
 export const settingStore = {
   state: reactive<Settings>({
     media_path: '',
+    terms_url: null,
+    privacy_url: null,
   }),
 
   init (settings: Settings) {
     merge(this.state, settings)
+  },
+
+  async updateConsentLegalUrls (termsUrl: string | null, privacyUrl: string | null) {
+    await http.put('settings/consent-legal-urls', {
+      terms_url: termsUrl || null,
+      privacy_url: privacyUrl || null,
+    })
+    this.state.terms_url = termsUrl
+    this.state.privacy_url = privacyUrl
   },
 
   async updateMediaPath (path: string) {

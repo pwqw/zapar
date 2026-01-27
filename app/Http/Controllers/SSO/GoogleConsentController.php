@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SSO;
 use App\Http\Controllers\Controller;
 use App\Models\UserConsentLog;
 use App\Services\AuthenticationService;
+use App\Services\SettingService;
 use App\Services\UserService;
 use App\Values\User\SsoUser;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +17,7 @@ class GoogleConsentController extends Controller
     public function __construct(
         private readonly UserService $userService,
         private readonly AuthenticationService $auth,
+        private readonly SettingService $settingService,
     ) {
     }
 
@@ -27,9 +29,13 @@ class GoogleConsentController extends Controller
             return redirect('/');
         }
 
+        $legalUrls = $this->settingService->getConsentLegalUrls();
+
         return view('sso-consent', [
             'email' => $ssoData['email'],
             'name' => $ssoData['name'],
+            'terms_url' => $legalUrls['terms_url'],
+            'privacy_url' => $legalUrls['privacy_url'],
         ]);
     }
 
