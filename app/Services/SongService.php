@@ -159,9 +159,9 @@ class SongService
     {
         License::requirePlus();
 
-        // If a user is provided, only allow if they have permission
+        // If a user is provided, only allow if they have edit permission (making private doesn't require publish)
         if ($user) {
-            $songs = $songs->filter(static fn (Song $song) => auth()->user()?->can('publish', $song));
+            $songs = $songs->filter(static fn (Song $song) => auth()->user()?->can('edit', $song));
         }
 
         // Songs that are in collaborative playlists can't be marked as private.
