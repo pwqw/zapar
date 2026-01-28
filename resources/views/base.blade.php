@@ -3,7 +3,7 @@
 <head>
     <title>@yield('title')</title>
 
-    <meta name="description" content="{{ koel_tagline() }}">
+    <meta name="description" content="{{ $meta_description ?? koel_tagline() }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
@@ -21,7 +21,9 @@
         $ogImage = $og_image ?? $defaultOgImage;
         $ogUrl = $og_url ?? url()->current();
         $ogType = $og_type ?? 'website';
+        $canonicalUrl = $canonical_url ?? $ogUrl;
     @endphp
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     <meta property="og:title" content="{{ $ogTitle }}">
     <meta property="og:description" content="{{ $ogDescription }}">
     <meta property="og:type" content="{{ $ogType }}">
@@ -30,6 +32,12 @@
     <meta property="og:image" content="{{ $ogImage }}">
     @endif
     <meta property="og:url" content="{{ $ogUrl }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $ogTitle }}">
+    <meta name="twitter:description" content="{{ $ogDescription }}">
+    @if($ogImage)
+    <meta name="twitter:image" content="{{ $ogImage }}">
+    @endif
 
     <link rel="manifest" href="{{ static_url('manifest.json') }}" />
     <meta name="msapplication-config" content="{{ static_url('browserconfig.xml') }}" />

@@ -1,6 +1,6 @@
 @extends('base')
 
-@section('title', koel_branding('name'))
+@section('title', $page_title ?? koel_branding('name'))
 
 @push('scripts')
     @if (isset($shareable_redirect))
