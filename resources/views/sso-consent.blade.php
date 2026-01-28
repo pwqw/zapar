@@ -3,7 +3,7 @@
 <head>
     <title>{{ __('sso.page_title') }} | {{ koel_branding('name') }}</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#181818">
 
     @php

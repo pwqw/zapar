@@ -135,7 +135,7 @@ nav {
     @mixin themed-background {
     }
 
-    transform: translateX(-100vw);
+    transform: translateX(-100%);
     transition: transform 0.2s ease-in-out;
 
     &.showing {
