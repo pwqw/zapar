@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('user_consent_logs');
+
         Schema::create('user_consent_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->string('consent_type'); // 'terms', 'privacy', 'age_verification'
             $table->string('version')->nullable();
             $table->string('ip_address', 45)->nullable();
