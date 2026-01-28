@@ -1,23 +1,23 @@
 <laravel-boost-guidelines>
 
-## IMPORTANTE: Docker Compose
+## IMPORTANT: Docker Compose
 
-**Todos los comandos deben ejecutarse dentro del contenedor Docker Compose.**
+**All commands must be run inside the Docker Compose container.** The project uses **pnpm** and is always in development.
 
-Utiliza el siguiente formato para ejecutar comandos:
+Use the following format to run commands:
 ```bash
-docker exec koel_dev <comando>
+docker exec koel_dev <command>
 ```
 
-Ejemplos:
+Examples:
 ```bash
 # PHP/Artisan
 docker exec koel_dev php artisan migrate
 docker exec koel_dev php artisan test
 
-# Node/NPM
-docker exec koel_dev npm run lint
-docker exec koel_dev npm run build
+# Node/pnpm (frontend)
+docker exec koel_dev pnpm run lint
+docker exec koel_dev pnpm run build
 
 # Composer
 docker exec koel_dev composer install
@@ -57,7 +57,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - Do not change the application's dependencies without approval.
 
 ## Frontend Bundling
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
+- If a frontend change is not reflected in the UI, run `docker exec koel_dev pnpm run build` (or keep `composer dev` running so Vite recompiles on save). The project uses pnpm.
 
 ## Replies
 - Be concise in your explanations - focus on what's important rather than explaining obvious details.
