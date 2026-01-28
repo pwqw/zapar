@@ -1,7 +1,7 @@
 <template>
   <section
     id="mainContent"
-    class="flex-1 relative overflow-hidden flex flex-col"
+    class="flex-1 min-w-0 relative overflow-hidden flex flex-col"
   >
     <AnonymousSessionBanner />
 
