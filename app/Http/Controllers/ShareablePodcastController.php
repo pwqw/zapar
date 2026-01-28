@@ -31,11 +31,16 @@ class ShareablePodcastController extends Controller
             ? $podcast->image
             : image_storage_url($podcast->image);
 
+        $description = Str::limit(strip_tags($podcast->description), 200);
+
+        $data['page_title'] = $podcast->title;
+        $data['meta_description'] = Str::limit(strip_tags($podcast->description), 160);
         $data['og_title'] = $podcast->title;
-        $data['og_description'] = Str::limit(strip_tags($podcast->description), 200);
+        $data['og_description'] = $description;
         $data['og_image'] = $ogImage;
         $data['og_url'] = $request->url();
         $data['og_type'] = 'website';
+        $data['canonical_url'] = $request->url();
         $data['shareable_redirect'] = "/#/podcasts/{$podcast->id}";
 
         return view('index', $data);
