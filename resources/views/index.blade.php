@@ -6,7 +6,7 @@
     @if (isset($shareable_redirect))
     <script>
         (function () {
-            if (location.pathname.match(/^\/podcasts\/[^/]+$/) && !location.hash) {
+            if (!location.hash) {
                 location.replace(location.origin + @json($shareable_redirect));
             }
         })();
