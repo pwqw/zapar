@@ -18,7 +18,7 @@
 
 <script lang="ts" setup>
 import { computed, toRefs } from 'vue'
-import { getPlayableCover } from '@/utils/helpers'
+import { getPlayableCover, getPlayableProp } from '@/utils/helpers'
 import { isRadioStation } from '@/utils/typeGuards'
 import { useBranding } from '@/composables/useBranding'
 

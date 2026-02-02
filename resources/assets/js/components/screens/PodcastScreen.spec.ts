@@ -147,7 +147,7 @@ describe('podcastScreen.vue', () => {
   it('goes back to podcast list if current one is unsubscribed', async () => {
     const goMock = h.mock(Router, 'go')
     const { podcast } = await renderComponent()
-    eventBus.emit('PODCAST_UNSUBSCRIBED', podcast)
+    eventBus.emit('PODCAST_DELETED', podcast)
 
     expect(goMock).toHaveBeenCalledWith('/#/podcasts')
   })

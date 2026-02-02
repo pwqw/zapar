@@ -7,7 +7,7 @@ exports[`artistCard.vue > renders 1`] = `
         <!--v-if--> Led Zeppelin
         <!--v-if-->
       </a></div>
-    <p data-v-2487c4e3="" class="meta text-[0.9rem] flex gap-1.5 opacity-70 hover:opacity-100"><a title="Shuffle all songs by Led Zeppelin" role="button"> Shuffle </a><a title="Download all songs by Led Zeppelin" role="button"> Download </a></p>
+    <p data-v-2487c4e3="" class="meta text-[0.9rem] flex gap-1.5 opacity-70 hover:opacity-100"><a title="Shuffle all songs" role="button">Shuffle</a><a title="Download all songs" role="button">Download</a></p>
   </footer>
 </article>
 `;
@@ -18,7 +18,7 @@ exports[`artistCard.vue > renders external artist 1`] = `
     <div data-v-2487c4e3="" class="name flex flex-col gap-2 whitespace-nowrap"><a href="/#/artists/led-zeppelin" class="font-medium" data-testid="name"><span class="!opacity-50 mr-1"><br data-testid="Icon" icon="[object Object]"></span> Led Zeppelin
         <!--v-if-->
       </a></div>
-    <p data-v-2487c4e3="" class="meta text-[0.9rem] flex gap-1.5 opacity-70 hover:opacity-100"><a title="Shuffle all songs by Led Zeppelin" role="button"> Shuffle </a><a title="Download all songs by Led Zeppelin" role="button"> Download </a></p>
+    <p data-v-2487c4e3="" class="meta text-[0.9rem] flex gap-1.5 opacity-70 hover:opacity-100"><a title="Shuffle all songs" role="button">Shuffle</a><a title="Download all songs" role="button">Download</a></p>
   </footer>
 </article>
 `;

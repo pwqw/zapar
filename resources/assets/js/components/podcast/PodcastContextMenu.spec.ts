@@ -3,6 +3,7 @@ import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { playbackService } from '@/services/QueuePlaybackService'
 import { playableStore as episodeStore } from '@/stores/playableStore'
+import { acl } from '@/services/acl'
 import Component from './PodcastContextMenu.vue'
 import { podcastStore } from '@/stores/podcastStore'
 
@@ -15,6 +16,8 @@ describe('podcastContextMenu.vue', () => {
       author: 'Stephen Hawking',
       favorite: false,
     })
+
+    h.mock(acl, 'checkResourcePermission').mockResolvedValue(true)
 
     const rendered = h.actingAsAdmin().render(Component, {
       props: {

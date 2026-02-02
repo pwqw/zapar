@@ -25,8 +25,8 @@ const { t } = useI18n()
 
 const themes = toRef(themeStore.state, 'themes')
 
-const builtInThemes = computed(() => themes.value.filter(theme => !theme.is_custom))
-const customThemes = computed(() => themes.value.filter(theme => theme.is_custom))
+const builtInThemes = computed(() => (themes.value ?? []).filter(theme => theme && !theme.is_custom))
+const customThemes = computed(() => (themes.value ?? []).filter(theme => theme && theme.is_custom))
 
 const { isPlus } = useKoelPlus()
 

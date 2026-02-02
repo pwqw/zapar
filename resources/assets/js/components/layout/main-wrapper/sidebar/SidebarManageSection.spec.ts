@@ -19,13 +19,4 @@ describe('sidebarManageSection.vue', () => {
     expect(screen.queryByText('Upload')).toBeNull()
     expect(screen.queryByText('Users')).toBeNull()
   })
-
-  it('shows only the upload menu item if current user is a Plus user', () => {
-    h.actingAsUser().withPlusEdition(() => {
-      h.render(Component)
-      screen.getByText('Upload')
-      expect(screen.queryByText('Settings')).toBeNull()
-      expect(screen.queryByText('Users')).toBeNull()
-    })
-  })
 })

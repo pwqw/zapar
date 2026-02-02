@@ -20,13 +20,18 @@ exports[`podcastContextMenu.vue > renders 1`] = `
   </li>
   <li class="separator"></li>
   <li class="focus:outline-none focus:bg-k-highlight focus:text-k-highlight-fg hover:bg-k-highlight hover:text-k-highlight-fg" tabindex="-1">
+    <!--v-if--><span class="label flex-1 overflow-hidden max-w-40 text-ellipsis">Mark as Public</span>
+    <!--v-if-->
+    <!--v-if-->
+  </li>
+  <li class="focus:outline-none focus:bg-k-highlight focus:text-k-highlight-fg hover:bg-k-highlight hover:text-k-highlight-fg" tabindex="-1">
     <!--v-if--><span class="label flex-1 overflow-hidden max-w-40 text-ellipsis">Visit Website</span>
     <!--v-if-->
     <!--v-if-->
   </li>
   <li class="separator"></li>
   <li class="focus:outline-none focus:bg-k-highlight focus:text-k-highlight-fg hover:bg-k-highlight hover:text-k-highlight-fg" tabindex="-1">
-    <!--v-if--><span class="label flex-1 overflow-hidden max-w-40 text-ellipsis">Unsubscribe</span>
+    <!--v-if--><span class="label flex-1 overflow-hidden max-w-40 text-ellipsis">Delete</span>
     <!--v-if-->
     <!--v-if-->
   </li>
