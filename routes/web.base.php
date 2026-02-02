@@ -11,7 +11,10 @@ use App\Http\Controllers\Download\DownloadPlaylistController;
 use App\Http\Controllers\Download\DownloadSongsController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\LastfmController;
+use App\Http\Controllers\ShareableAlbumController;
+use App\Http\Controllers\ShareableArtistController;
 use App\Http\Controllers\ShareablePodcastController;
+use App\Http\Controllers\ShareableSongController;
 use App\Http\Controllers\PlayController;
 use App\Http\Controllers\SSO\GoogleCallbackController;
 use App\Http\Controllers\SSO\GoogleConsentController;
@@ -25,6 +28,17 @@ Route::middleware('web')->group(static function (): void {
     Route::get('/podcasts/{id}', ShareablePodcastController::class)
         ->name('podcasts.share')
         ->where('id', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
+    Route::get('/songs/{id}', ShareableSongController::class)
+        ->name('songs.share')
+        ->where('id', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
+    Route::get('/albums/{id}/{tab?}', ShareableAlbumController::class)
+        ->name('albums.share')
+        ->where('id', '[0-9A-Za-z]{26}')
+        ->where('tab', '(songs|other-albums|information)');
+    Route::get('/artists/{id}/{tab?}', ShareableArtistController::class)
+        ->name('artists.share')
+        ->where('id', '[0-9A-Za-z]{26}')
+        ->where('tab', '(songs|albums|information|events)');
 
     // Using a closure to determine the controller instead of static configuration to allow for testing.
     Route::get(
