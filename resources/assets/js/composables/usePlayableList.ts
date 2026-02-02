@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { commonStore } from '@/stores/commonStore'
 import { queueStore } from '@/stores/queueStore'
 import { playableStore } from '@/stores/playableStore'
-import { arrayify, defineAsyncComponent, getPlayableProp, provideReadonly } from '@/utils/helpers'
+import { arrayify, defineAsyncComponent, getPlayableCover, provideReadonly } from '@/utils/helpers'
 import { eventBus } from '@/utils/eventBus'
 import { useFuzzySearch } from '@/composables/useFuzzySearch'
 import { useRouter } from '@/composables/useRouter'
@@ -20,7 +20,7 @@ import {
   PlayableListSortOrderKey,
   PlayablesKey,
   SelectedPlayablesKey,
-} from '@/config/symbols'
+} from '@/symbols'
 
 const PlayableList = defineAsyncComponent(() => import('@/components/playable/playable-list/PlayableList.vue'))
 const ThumbnailStack = defineAsyncComponent(() => import('@/components/ui/ThumbnailStack.vue'))
@@ -47,14 +47,17 @@ export const usePlayableList = (
   const { isCurrentScreen, go, url } = useRouter()
 
   const fuzzy = config.filterable
-    ? useFuzzySearch(playables, [
-        'title',
-        'artist_name',
-        'album_name',
-        'podcast_title',
-        'podcast_author',
-        'episode_description',
-      ])
+    ? useFuzzySearch(
+        playables,
+        [
+          'title',
+          'artist_name',
+          'album_name',
+          'podcast_title',
+          'podcast_author',
+          'episode_description',
+        ],
+      )
     : null
 
   const playableList = ref<InstanceType<typeof PlayableList>>()
@@ -62,23 +65,21 @@ export const usePlayableList = (
   const selectedPlayables = ref<Playable[]>([])
   const headerLayout = ref<ScreenHeaderLayout>('expanded')
 
-  const sortField = ref<MaybeArray<PlayableListSortField> | null>(
-    (() => {
-      if (!config.sortable) {
-        return null
-      }
+  const sortField = ref<MaybeArray<PlayableListSortField> | null>((() => {
+    if (!config.sortable) {
+      return null
+    }
 
-      if (isCurrentScreen('Artist', 'Album')) {
-        return 'track'
-      }
+    if (isCurrentScreen('Artist', 'Album')) {
+      return 'track'
+    }
 
-      if (isCurrentScreen('Search.Playables', 'Queue', 'RecentlyPlayed')) {
-        return null
-      }
+    if (isCurrentScreen('Search.Playables', 'Queue', 'RecentlyPlayed')) {
+      return null
+    }
 
-      return 'title'
-    })(),
-  )
+    return 'title'
+  })())
 
   /**
    * Extends the sort fields based on the current field(s) to cater to relevant fields.
@@ -129,9 +130,10 @@ export const usePlayableList = (
   })
 
   const thumbnails = computed(() => {
-    const playablesWithCover = playables.value.filter(p => getPlayableProp(p, 'album_cover', 'episode_image'))
+    const playablesWithCover = playables.value.filter(p => getPlayableCover(p))
 
-    const sampleCovers = playablesWithCover.slice(0, 100).map(p => getPlayableProp(p, 'album_cover', 'episode_image'))
+    const sampleCovers = playablesWithCover.slice(0, 100)
+      .map(p => getPlayableCover(p))
 
     return take(Array.from(new Set(sampleCovers)), 4)
   })
@@ -160,9 +162,9 @@ export const usePlayableList = (
       const fields = extendedSortFields.value!
 
       if (
-        fields[0] === 'disc' &&
-        fields.length > 1 &&
-        new Set(filtered.map(p => (p as Song).disc ?? null)).size === 1
+        fields[0] === 'disc'
+        && fields.length > 1
+        && new Set(filtered.map(p => (p as Song).disc ?? null)).size === 1
       ) {
         // If we're sorting by disc and there's only one disc, we remove `disc` from the sort fields.
         // Otherwise, the tracks will be sorted by disc number first, and since there's only one disc,

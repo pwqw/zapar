@@ -237,6 +237,17 @@ const { data, handleSubmit } = useForm<{ email: string, password: string }>({
 
 const showForgotPasswordForm = () => (showingForgotPasswordForm.value = true)
 
+const handleAnonymousLogin = async (params: { terms_accepted: boolean, privacy_accepted: boolean, age_verified: boolean, locale?: string }) => {
+  try {
+    const compositeToken = await authService.loginAnonymously(params)
+    authService.setTokensUsingCompositeToken(compositeToken)
+    emit('loggedin')
+  } catch (error) {
+    logger.error('Anonymous login failed:', error)
+    toastError(t('auth.loginFailed'))
+  }
+}
+
 const submitAnonymousConsent = async () => {
   if (!allConsentsAccepted.value) {
     return
@@ -247,17 +258,6 @@ const submitAnonymousConsent = async () => {
     age_verified: ageVerified.value,
     locale: locale.value,
   })
-}
-
-const handleAnonymousLogin = async (params: { terms_accepted: boolean, privacy_accepted: boolean, age_verified: boolean, locale?: string }) => {
-  try {
-    const compositeToken = await authService.loginAnonymously(params)
-    authService.setTokensUsingCompositeToken(compositeToken)
-    emit('loggedin')
-  } catch (error) {
-    logger.error('Anonymous login failed:', error)
-    toastError(t('auth.loginFailed'))
-  }
 }
 
 const handleGoogleLogin = async () => {

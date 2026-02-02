@@ -66,6 +66,7 @@ use Webmozart\Assert\Assert;
  * @property int $track
  * @property ?int $year
  * @property ?int $file_size The size in bytes of the song file, if available.
+ * @property string $cover The song's custom cover image file name (empty string if none)
  * @property string $id
  * @property string $lyrics
  * @property string $path

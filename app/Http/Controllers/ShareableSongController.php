@@ -35,7 +35,9 @@ class ShareableSongController extends Controller
         $data['meta_description'] = Str::limit($description, 160);
         $data['og_title'] = $song->title;
         $data['og_description'] = Str::limit($description, 200);
-        $data['og_image'] = $this->resolveImageUrl($song->album?->cover ?? $song->artist?->image);
+        $data['og_image'] = $this->resolveImageUrl(
+            ($song->cover ?: $song->album?->cover) ?? $song->artist?->image
+        );
         $data['og_url'] = $request->url();
         $data['og_type'] = 'website';
         $data['canonical_url'] = $request->url();

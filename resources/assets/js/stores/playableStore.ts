@@ -29,6 +29,7 @@ export interface SongUpdateData {
   genre?: string
   visibility?: 'public' | 'private' | 'unchanged'
   artist_user_id?: number | null
+  song_cover?: string | null
 }
 
 export interface SongUpdateResult {

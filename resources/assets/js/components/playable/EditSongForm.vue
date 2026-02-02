@@ -38,6 +38,15 @@
         >
           {{ t('songs.lyrics') }}
         </TabButton>
+        <TabButton
+          id="editSongTabCover"
+          :selected="currentTab === 'cover'"
+          aria-controls="editSongPanelCover"
+          data-testid="edit-song-cover-tab"
+          @click="currentTab = 'cover'"
+        >
+          {{ t('songs.cover') }}
+        </TabButton>
       </TabList>
 
       <TabPanelContainer>
@@ -102,7 +111,7 @@
                 v-model="data.disc"
                 :placeholder="inputPlaceholder"
                 data-testid="disc-input"
-                min="1"
+                min="0"
                 name="disc"
                 type="number"
               />
@@ -166,6 +175,18 @@
             />
           </FormRow>
         </TabPanel>
+
+        <TabPanel
+          v-if="editingOnlyOneSong"
+          v-show="currentTab === 'cover'"
+          id="editSongPanelCover"
+          aria-labelledby="editSongTabCover"
+        >
+          <FormRow>
+            <template #label>{{ t('songs.songCover') }}</template>
+            <ArtworkField v-model="data.song_cover" />
+          </FormRow>
+        </TabPanel>
       </TabPanelContainer>
     </Tabs>
 
@@ -194,6 +215,7 @@ import TextInput from '@/components/ui/form/TextInput.vue'
 import TextArea from '@/components/ui/form/TextArea.vue'
 import SelectBox from '@/components/ui/form/SelectBox.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
+import ArtworkField from '@/components/ui/form/ArtworkField.vue'
 import Tabs from '@/components/ui/tabs/Tabs.vue'
 import TabList from '@/components/ui/tabs/TabList.vue'
 import TabButton from '@/components/ui/tabs/TabButton.vue'
@@ -227,7 +249,7 @@ const allSongsShareSameValue = (key: keyof Song) => editingMultipleSongs
 
 const allSongsAreFromSameArtist = allSongsShareSameValue('artist_name')
 const allSongsAreInSameAlbum = allSongsShareSameValue('album_id')
-const coverUrl = allSongsAreInSameAlbum ? (songs[0].album_cover || defaultCover) : defaultCover
+const initialSongCover = editingOnlyOneSong ? (songs[0].song_cover ?? null) : null
 
 const initialValues: SongUpdateData = {
   album_name: allSongsAreInSameAlbum ? songs[0].album_name : '',
@@ -241,7 +263,8 @@ const initialValues: SongUpdateData = {
   ...(editingOnlyOneSong
     ? {
         title: allSongsShareSameValue('title') ? songs[0].title : '',
-        lyrics: editingOnlyOneSong ? songs[0].lyrics : '',
+        lyrics: songs[0].lyrics,
+        song_cover: initialSongCover,
       }
     : {}),
 }
@@ -260,12 +283,25 @@ const inflect = () => {
 
 const { data, isPristine, handleSubmit } = useForm<SongUpdateData>({
   initialValues,
-  onSubmit: async data => await songStore.updateSongs(songs, data),
+  onSubmit: async payload => {
+    const dataToSend = { ...payload }
+    if (editingOnlyOneSong && dataToSend.song_cover === initialSongCover) {
+      delete dataToSend.song_cover
+    }
+    await songStore.updateSongs(songs, dataToSend)
+  },
   onSuccess: (result: SongUpdateResult) => {
     toastSuccess(t('messages.itemsUpdated', { count: songs.length, item: inflect() }))
     eventBus.emit('SONGS_UPDATED', result)
     close()
   },
+})
+
+const coverUrl = computed(() => {
+  if (editingOnlyOneSong) {
+    return data.song_cover ?? initialSongCover ?? songs[0].album_cover ?? defaultCover
+  }
+  return defaultCover
 })
 
 const isCurrentUserManager = computed(() => userStore.current?.role === 'manager')

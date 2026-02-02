@@ -9,7 +9,7 @@ import { playableStore } from '@/stores/playableStore'
 import { userStore } from '@/stores/userStore'
 import { logger } from '@/utils/logger'
 import { isEpisode, isSong } from '@/utils/typeGuards'
-import { arrayify, getPlayableProp } from '@/utils/helpers'
+import { arrayify, getPlayableCover, getPlayableProp } from '@/utils/helpers'
 import { eventBus } from '@/utils/eventBus'
 import { isAudioContextSupported } from '@/utils/supports'
 import { audioService } from '@/services/audioService'
@@ -158,7 +158,7 @@ export class QueuePlaybackService extends BasePlaybackService {
     if (preferences.show_now_playing_notification) {
       try {
         const notification = new window.Notification(`♫ ${playable.title}`, {
-          icon: getPlayableProp(playable, 'album_cover', 'episode_image'),
+          icon: getPlayableCover(playable),
           body: isSong(playable)
             ? `${playable.album_name} – ${playable.artist_name}`
             : playable.title,
@@ -183,7 +183,7 @@ export class QueuePlaybackService extends BasePlaybackService {
       artist: getPlayableProp(playable, 'artist_name', 'podcast_author'),
       album: getPlayableProp(playable, 'album_name', 'podcast_title'),
       artwork: [48, 64, 96, 128, 192, 256, 384, 512].map(d => ({
-        src: getPlayableProp(playable, 'album_cover', 'episode_image'),
+        src: getPlayableCover(playable),
         sizes: `${d}x${d}`,
         type: 'image/png',
       })),

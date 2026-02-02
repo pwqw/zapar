@@ -3,24 +3,22 @@
 namespace App\Models;
 
 use App\Builders\AlbumBuilder;
-use App\Models\Concerns\Albums\HasAlbumAttributes;
 use App\Models\Concerns\MorphsToEmbeds;
 use App\Models\Concerns\MorphsToFavorites;
 use App\Models\Concerns\SupportsDeleteWhereValueNotIn;
 use App\Models\Contracts\Embeddable;
 use App\Models\Contracts\Favoriteable;
 use App\Models\Contracts\Permissionable;
-use App\Observers\AlbumObserver;
 use Carbon\Carbon;
-use Database\Factories\AlbumFactory;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
@@ -40,15 +38,11 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
  * @property string $cover The album cover's file name
  * @property string $id
  * @property string $name Name of the album
- *
- * @method static AlbumFactory factory(...$parameters)
  */
-#[ObservedBy(AlbumObserver::class)]
-#[UseEloquentBuilder(AlbumBuilder::class)]
 class Album extends Model implements AuditableContract, Embeddable, Favoriteable, Permissionable
 {
     use Auditable;
-    use HasAlbumAttributes;
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
     use HasUlids;
     use MorphsToEmbeds;
@@ -56,7 +50,7 @@ class Album extends Model implements AuditableContract, Embeddable, Favoriteable
     use Searchable;
     use SupportsDeleteWhereValueNotIn;
 
-    public const string UNKNOWN_NAME = 'Unknown Album';
+    public const UNKNOWN_NAME = 'Unknown Album';
 
     protected $guarded = ['id'];
     protected $hidden = ['updated_at'];
@@ -72,19 +66,25 @@ class Album extends Model implements AuditableContract, Embeddable, Favoriteable
         return parent::query()->addSelect('albums.*');
     }
 
+    public function newEloquentBuilder($query): AlbumBuilder
+    {
+        return new AlbumBuilder($query);
+    }
+
     /**
      * Get an album using some provided information.
      * If such is not found, a new album will be created using the information.
      */
     public static function getOrCreate(Artist $artist, ?string $name = null): static
     {
-        return static::query() // @phpstan-ignore-line
-            ->firstOrCreate([
-                'artist_id' => $artist->id,
-                'artist_name' => $artist->name,
-                'user_id' => $artist->user_id,
-                'name' => trim($name) ?: self::UNKNOWN_NAME,
-            ]);
+        $albumName = $name === null ? self::UNKNOWN_NAME : trim($name);
+
+        return static::query()->firstOrCreate([ // @phpstan-ignore-line
+            'artist_id' => $artist->id,
+            'artist_name' => $artist->name,
+            'user_id' => $artist->user_id,
+            'name' => $albumName,
+        ]);
     }
 
     public function artist(): BelongsTo
@@ -105,6 +105,37 @@ class Album extends Model implements AuditableContract, Embeddable, Favoriteable
     public function belongsToUser(User $user): bool
     {
         return $this->user_id === $user->id;
+    }
+
+    protected function isUnknown(): Attribute
+    {
+        return Attribute::get(fn (): bool => $this->name === self::UNKNOWN_NAME);
+    }
+
+    /**
+     * Sometimes the tags extracted from getID3 are HTML entity encoded.
+     * This makes sure they are always sane.
+     */
+    protected function name(): Attribute
+    {
+        return Attribute::get(static fn (?string $value) => html_entity_decode($value))->shouldCache();
+    }
+
+    protected function thumbnail(): Attribute
+    {
+        return Attribute::get(function (): ?string {
+            if (!$this->cover) {
+                return null;
+            }
+
+            return sprintf('%s_thumb.%s', Str::beforeLast($this->cover, '.'), Str::afterLast($this->cover, '.'));
+        })->shouldCache();
+    }
+
+    /** @deprecated Only here for backward compat with mobile apps */
+    protected function isCompilation(): Attribute
+    {
+        return Attribute::get(fn () => $this->artist->is_various);
     }
 
     /** @inheritdoc */

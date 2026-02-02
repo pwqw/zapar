@@ -40,6 +40,25 @@ class ShareableSongTest extends TestCase
     }
 
     #[Test]
+    public function publicSongPageUsesSongCoverWhenPresent(): void
+    {
+        $artist = Artist::factory()->create();
+        $album = Album::factory()->for($artist)->create([
+            'name' => 'Album Uno',
+            'cover' => 'album-cover.jpg',
+        ]);
+        $song = Song::factory()->for($album)->public()->create([
+            'title' => 'Cancion Con Portada',
+            'cover' => 'song-custom-cover.jpg',
+        ]);
+
+        $response = $this->get("/songs/{$song->id}");
+
+        $response->assertOk();
+        $response->assertSee('property="og:image" content="' . image_storage_url($song->cover) . '"', false);
+    }
+
+    #[Test]
     public function privateSongPageServesDefaultOpenGraphWithoutSongData(): void
     {
         $song = Song::factory()->private()->create([
