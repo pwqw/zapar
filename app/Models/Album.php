@@ -77,11 +77,13 @@ class Album extends Model implements AuditableContract, Embeddable, Favoriteable
      */
     public static function getOrCreate(Artist $artist, ?string $name = null): static
     {
+        $albumName = $name === null ? self::UNKNOWN_NAME : trim($name);
+
         return static::query()->firstOrCreate([ // @phpstan-ignore-line
             'artist_id' => $artist->id,
             'artist_name' => $artist->name,
             'user_id' => $artist->user_id,
-            'name' => trim($name) ?: self::UNKNOWN_NAME,
+            'name' => $albumName,
         ]);
     }
 

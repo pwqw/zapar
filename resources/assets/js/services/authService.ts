@@ -25,11 +25,11 @@ export const authService = {
   },
 
   async loginAnonymously (params: { terms_accepted: boolean, privacy_accepted: boolean, age_verified: boolean, locale?: string }) {
-    const hasValidConsent =
-      params &&
-      params.terms_accepted === true &&
-      params.privacy_accepted === true &&
-      params.age_verified === true
+    const hasValidConsent
+      = params
+        && params.terms_accepted === true
+        && params.privacy_accepted === true
+        && params.age_verified === true
 
     if (!hasValidConsent) {
       throw new Error('Consent required to continue anonymously.')

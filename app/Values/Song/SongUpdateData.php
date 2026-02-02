@@ -17,6 +17,7 @@ final class SongUpdateData implements Arrayable
         public ?int $year,
         public ?string $lyrics,
         public ?int $artistUserId,
+        public ?string $songCover,
     ) {
         $this->albumArtistName = $this->albumArtistName ?: $this->artistName;
     }
@@ -32,6 +33,7 @@ final class SongUpdateData implements Arrayable
         ?int $year = null,
         ?string $lyrics = null,
         ?int $artistUserId = null,
+        ?string $songCover = null,
     ): self {
         return new self(
             $title,
@@ -44,6 +46,7 @@ final class SongUpdateData implements Arrayable
             $year,
             $lyrics,
             $artistUserId,
+            $songCover,
         );
     }
 

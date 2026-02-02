@@ -36,26 +36,35 @@ class AlbumTest extends TestCase
         self::assertTrue($album->artist->is($artist));
     }
 
+    #[Test]
+    public function newAlbumWithNullNameIsCreatedAsUnknownAlbum(): void
+    {
+        /** @var Artist $artist */
+        $artist = Artist::factory()->create();
+
+        $album = Album::getOrCreate($artist, null);
+
+        self::assertSame('Unknown Album', $album->name);
+    }
+
     /** @return array<mixed> */
-    public static function provideEmptyAlbumNames(): array
+    public static function provideEmptyOrWhitespaceAlbumNames(): array
     {
         return [
             [''],
             ['  '],
-            [null],
-            [false],
         ];
     }
 
-    #[DataProvider('provideEmptyAlbumNames')]
+    #[DataProvider('provideEmptyOrWhitespaceAlbumNames')]
     #[Test]
-    public function newAlbumWithoutNameIsCreatedAsUnknownAlbum($name): void
+    public function newAlbumWithEmptyOrWhitespaceNameKeepsEmptyName(string $name): void
     {
         /** @var Artist $artist */
         $artist = Artist::factory()->create();
 
         $album = Album::getOrCreate($artist, $name);
 
-        self::assertSame('Unknown Album', $album->name);
+        self::assertSame('', $album->name);
     }
 }

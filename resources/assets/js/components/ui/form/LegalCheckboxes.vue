@@ -46,16 +46,16 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CheckBox from '@/components/ui/form/CheckBox.vue'
 
+defineProps<{
+  termsUrl?: string
+  privacyUrl?: string
+}>()
+
 const { t } = useI18n()
 
 const termsAccepted = defineModel<boolean>('termsAccepted', { default: false })
 const privacyAccepted = defineModel<boolean>('privacyAccepted', { default: false })
 const ageVerified = defineModel<boolean>('ageVerified', { default: false })
-
-defineProps<{
-  termsUrl?: string
-  privacyUrl?: string
-}>()
 
 const allAccepted = computed(() => termsAccepted.value && privacyAccepted.value && ageVerified.value)
 

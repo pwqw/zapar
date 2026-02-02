@@ -18,7 +18,7 @@
 
 <script lang="ts" setup>
 import { computed, toRefs } from 'vue'
-import { getPlayableProp } from '@/utils/helpers'
+import { getPlayableCover } from '@/utils/helpers'
 import { isRadioStation } from '@/utils/typeGuards'
 import { useBranding } from '@/composables/useBranding'
 
@@ -28,11 +28,11 @@ const { streamable } = toRefs(props)
 const { cover: defaultCover } = useBranding()
 
 const coverArt = computed(() => {
-  const src = isRadioStation(streamable.value)
-    ? streamable.value.logo
-    : getPlayableProp(streamable.value, 'album_cover', 'episode_image')
-
-  return src || defaultCover
+  const s = streamable.value
+  if (isRadioStation(s)) {
+    return s.logo || defaultCover
+  }
+  return getPlayableCover(s) || defaultCover
 })
 
 const title = computed(() => isRadioStation(streamable.value) ? streamable.value.name : streamable.value.title)

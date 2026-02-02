@@ -56,7 +56,7 @@ const {
   latestVersionReleaseUrl,
 } = useNewVersionNotification()
 
-const { currentUserCan } = usePolicies()
+const { currentUserCan: _currentUserCan } = usePolicies()
 
 const close = () => emit('close')
 

@@ -22,7 +22,7 @@
 import type { Ref } from 'vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getPlayableProp, requireInjection, use } from '@/utils/helpers'
+import { getPlayableCover, getPlayableProp, requireInjection, use } from '@/utils/helpers'
 import { isSong } from '@/utils/typeGuards'
 import { CurrentStreamableKey } from '@/symbols'
 import { useDraggable } from '@/composables/useDragAndDrop'
@@ -36,10 +36,7 @@ const { cover: defaultCover } = useBranding()
 
 const playable = requireInjection<Ref<Playable | undefined>>(CurrentStreamableKey, ref())
 
-const cover = computed(() => playable.value
-  ? getPlayableProp(playable.value, 'album_cover', 'episode_image')
-  : defaultCover,
-)
+const cover = computed(() => playable.value ? (getPlayableCover(playable.value) || defaultCover) : defaultCover)
 
 const artistOrPodcastUri = computed(() => {
   if (!playable.value) {

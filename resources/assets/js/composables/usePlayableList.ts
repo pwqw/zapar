@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { commonStore } from '@/stores/commonStore'
 import { queueStore } from '@/stores/queueStore'
 import { playableStore } from '@/stores/playableStore'
-import { arrayify, defineAsyncComponent, getPlayableProp, provideReadonly } from '@/utils/helpers'
+import { arrayify, defineAsyncComponent, getPlayableCover, provideReadonly } from '@/utils/helpers'
 import { eventBus } from '@/utils/eventBus'
 import { useFuzzySearch } from '@/composables/useFuzzySearch'
 import { useRouter } from '@/composables/useRouter'
@@ -130,10 +130,10 @@ export const usePlayableList = (
   })
 
   const thumbnails = computed(() => {
-    const playablesWithCover = playables.value.filter(p => getPlayableProp(p, 'album_cover', 'episode_image'))
+    const playablesWithCover = playables.value.filter(p => getPlayableCover(p))
 
     const sampleCovers = playablesWithCover.slice(0, 100)
-      .map(p => getPlayableProp(p, 'album_cover', 'episode_image'))
+      .map(p => getPlayableCover(p))
 
     return take(Array.from(new Set(sampleCovers)), 4)
   })

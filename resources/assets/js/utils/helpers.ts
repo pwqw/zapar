@@ -132,6 +132,13 @@ export const getPlayableProp = <
   return isSong(playable) ? playable[songKey] : playable[episodeKey]
 }
 
+export const getPlayableCover = (playable: Playable): string | null => {
+  if (isSong(playable)) {
+    return playable.song_cover || playable.album_cover || null
+  }
+  return playable.episode_image || null
+}
+
 export const defineAsyncComponent = (loader: AsyncComponentLoader, loadingComponent?: Component) => {
   return baseDefineAsyncComponent({
     loader,

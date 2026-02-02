@@ -4,6 +4,7 @@ namespace App\Http\Requests\API;
 
 use App\Models\Song;
 use App\Models\User;
+use App\Rules\ValidImageData;
 use App\Values\Song\SongUpdateData;
 use Illuminate\Validation\Rule;
 
@@ -18,6 +19,7 @@ class SongUpdateRequest extends Request
     {
         return [
             'data' => 'required|array',
+            'data.song_cover' => ['sometimes', 'nullable', 'string', new ValidImageData()],
             'songs' => ['required', 'array', Rule::exists(Song::class, 'id')->whereNull('podcast_id')],
         ];
     }
@@ -30,17 +32,27 @@ class SongUpdateRequest extends Request
             $artistUserId = $artistUser?->id;
         }
 
+        $songCover = $this->input('data.song_cover');
+        if ($songCover !== null && $songCover !== '') {
+            $songCover = (string) $songCover;
+        } elseif ($this->has('data.song_cover')) {
+            $songCover = '';
+        } else {
+            $songCover = null;
+        }
+
         return SongUpdateData::make(
             title: $this->input('data.title'),
             artistName: $this->input('data.artist_name'),
             albumName: $this->input('data.album_name'),
             albumArtistName: $this->input('data.album_artist_name'),
-            track: (int) $this->input('data.track'),
-            disc: (int) $this->input('data.disc'),
+            track: $this->has('data.track') ? (int) $this->input('data.track') : null,
+            disc: $this->has('data.disc') ? (int) $this->input('data.disc') : null,
             genre: $this->input('data.genre'),
-            year: (int) $this->input('data.year'),
+            year: $this->has('data.year') ? (int) $this->input('data.year') : null,
             lyrics: $this->input('data.lyrics'),
             artistUserId: $artistUserId,
+            songCover: $songCover,
         );
     }
 }

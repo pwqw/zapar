@@ -199,6 +199,7 @@ interface Song extends BasePlayable {
   album_id: Album['id']
   album_name: Album['name']
   album_cover: Album['cover']
+  song_cover?: string | null
   artist_id: Artist['id']
   artist_name: Artist['name']
   album_artist_id: Artist['id']
@@ -608,7 +609,7 @@ interface PaginatorResource<T> {
   }
 }
 
-type EditSongFormTabName = 'details' | 'lyrics' | 'visibility'
+type EditSongFormTabName = 'details' | 'lyrics' | 'cover' | 'visibility'
 
 interface ToastMessage {
   id: string

@@ -20,6 +20,7 @@ use Tests\TestCase;
 
 use function Tests\create_admin;
 use function Tests\create_user;
+use function Tests\minimal_base64_encoded_image;
 use function Tests\test_path;
 
 class SongServiceTest extends TestCase
@@ -190,6 +191,55 @@ class SongServiceTest extends TestCase
 
         self::assertEquals(1, $updatedSongs[0]->track);
         self::assertEquals(2, $updatedSongs[1]->track);
+    }
+
+    #[Test]
+    public function updateSingleSongWithDiscZero(): void
+    {
+        /** @var Song $song */
+        $song = Song::factory()->create(['disc' => 1]);
+
+        $data = SongUpdateData::make(disc: 0);
+
+        $result = $this->service->updateSongs([$song->id], $data);
+        /** @var Song $updatedSong */
+        $updatedSong = $result->updatedSongs->first();
+
+        self::assertSame(0, $updatedSong->disc);
+    }
+
+    #[Test]
+    public function updateSingleSongWithEmptyAlbum(): void
+    {
+        /** @var Song $song */
+        $song = Song::factory()->create();
+        $albumArtist = $song->album_artist;
+
+        $data = SongUpdateData::make(albumName: '');
+
+        $result = $this->service->updateSongs([$song->id], $data);
+        /** @var Song $updatedSong */
+        $updatedSong = $result->updatedSongs->first();
+
+        self::assertSame('', $updatedSong->album->name);
+        self::assertSame('', $updatedSong->album_name);
+        self::assertTrue($updatedSong->album->artist->is($albumArtist));
+    }
+
+    #[Test]
+    public function updateSingleSongWithCustomCover(): void
+    {
+        /** @var Song $song */
+        $song = Song::factory()->create();
+
+        $data = SongUpdateData::make(songCover: minimal_base64_encoded_image());
+
+        $result = $this->service->updateSongs([$song->id], $data);
+        /** @var Song $updatedSong */
+        $updatedSong = $result->updatedSongs->first();
+
+        self::assertNotEmpty($updatedSong->cover);
+        self::assertFileExists(image_storage_path($updatedSong->cover));
     }
 
     #[Test]

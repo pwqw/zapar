@@ -34,6 +34,7 @@ class SongService
         private readonly TranscodeRepository $transcodeRepository,
         private readonly AlbumService $albumService,
         private readonly CacheStrategy $cache,
+        private readonly ImageStorage $imageStorage,
     ) {
     }
 
@@ -41,8 +42,8 @@ class SongService
     {
         if (count($ids) === 1) {
             // If we're only updating one song, an empty non-required should be converted to the default values.
-            // This allows the user to clear those fields.
-            $data->disc = $data->disc ?: 1;
+            // This allows the user to clear those fields. Allow disc = 0; only default to 1 when null.
+            $data->disc = $data->disc !== null ? $data->disc : 1;
             $data->track = $data->track ?: 0;
             $data->lyrics = $data->lyrics ?: '';
             $data->year = $data->year ?: null;
@@ -103,8 +104,9 @@ class SongService
 
     private function updateSong(Song $song, SongUpdateData $data): Song
     {
-        // For non-nullable fields, if the provided data is empty, use the existing value
-        $data->albumName = $data->albumName ?: $song->album->name;
+        // For non-nullable fields, if the provided data is empty, use the existing value.
+        // Allow empty album name (songs without album); only fall back to existing when null.
+        $data->albumName ??= $song->album->name;
         $data->artistName = $data->artistName ?: $song->artist->name;
         $data->title = $data->title ?: $song->title;
 
@@ -133,6 +135,12 @@ class SongService
         $song->disc = $data->disc;
         $song->year = $data->year;
         $song->artist_user_id = $data->artistUserId;
+
+        if ($data->songCover !== null) {
+            $song->cover = $data->songCover === ''
+                ? ''
+                : rescue_if($data->songCover, fn () => $this->imageStorage->storeImage($data->songCover), $song->cover);
+        }
 
         $song->push();
 

@@ -22,6 +22,7 @@ class SongResource extends JsonResource
         'artist_name',
         'album_artist_id',
         'album_artist_name',
+        'song_cover',
         'album_cover',
         'length',
         'liked',
@@ -89,6 +90,7 @@ class SongResource extends JsonResource
             'artist_name' => $this->song->artist?->name,
             'album_artist_id' => $this->unless($embedding, $this->song->album_artist?->id),
             'album_artist_name' => $this->unless($embedding, $this->song->album_artist?->name),
+            'song_cover' => image_storage_url($this->song->cover),
             'album_cover' => image_storage_url($this->song->album?->cover),
             'length' => $this->song->length,
             'liked' => $this->unless($embedding, $this->song->favorite), // backwards compatibility
