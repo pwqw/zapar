@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { equalizerPresets } from '@/config/audio'
+import { equalizerPresets } from '../../config/audio'
 
 const preferences: UserPreferences = {
   volume: 0.7,
@@ -50,6 +50,7 @@ export default (): User => ({
   avatar: 'https://gravatar.com/foo',
   sso_provider: null,
   sso_id: null,
+  verified: false,
 })
 
 export const states: Record<string, Omit<Partial<User>, 'type'>> = {
