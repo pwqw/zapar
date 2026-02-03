@@ -35,16 +35,21 @@ class SongUpdateRequest extends Request
         $songCover = $this->input('data.song_cover');
         if ($songCover !== null && $songCover !== '') {
             $songCover = (string) $songCover;
-        } elseif ($this->has('data.song_cover')) {
+        } elseif ($this->exists('data.song_cover')) {
             $songCover = '';
         } else {
             $songCover = null;
         }
 
+        $albumName = $this->input('data.album_name');
+        if ($albumName === null && $this->exists('data.album_name')) {
+            $albumName = '';
+        }
+
         return SongUpdateData::make(
             title: $this->input('data.title'),
             artistName: $this->input('data.artist_name'),
-            albumName: $this->input('data.album_name'),
+            albumName: $albumName,
             albumArtistName: $this->input('data.album_artist_name'),
             track: $this->has('data.track') ? (int) $this->input('data.track') : null,
             disc: $this->has('data.disc') ? (int) $this->input('data.disc') : null,

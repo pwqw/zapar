@@ -72,6 +72,27 @@ class SongTest extends TestCase
     }
 
     #[Test]
+    public function updateSongCanClearAlbumName(): void
+    {
+        $user = create_user();
+
+        /** @var Song $song */
+        $song = Song::factory()->for($user, 'owner')->create();
+
+        $this->putAs('api/songs', [
+            'songs' => [$song->id],
+            'data' => [
+                'album_name' => '',
+            ],
+        ], $user)->assertSuccessful();
+
+        $song->refresh();
+
+        self::assertSame('', $song->album_name);
+        self::assertSame('', $song->album->name);
+    }
+
+    #[Test]
     public function deleteSongsPolicy(): void
     {
         $currentUser = create_user();
