@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\Acl\Role;
 use App\Models\Album;
 use App\Models\User;
 
@@ -30,7 +29,7 @@ class AlbumPolicy
         }
 
         // ADMIN and MODERATOR can edit ANY album (system-wide rule)
-        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+        if ($user->hasElevatedRole()) {
             return true;
         }
 
@@ -84,7 +83,7 @@ class AlbumPolicy
             return false;
         }
 
-        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+        if ($user->hasElevatedRole()) {
             return true;
         }
 

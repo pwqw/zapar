@@ -341,6 +341,11 @@ class User extends Authenticatable implements AuditableContract, Permissionable
         return $this->role === RoleEnum::ADMIN;
     }
 
+    public function hasElevatedRole(): bool
+    {
+        return $this->role->level() >= RoleEnum::MODERATOR->level();
+    }
+
     public function canUploadAs(User $artist): bool
     {
         // User can upload as themselves or as an artist they manage
@@ -348,19 +353,13 @@ class User extends Authenticatable implements AuditableContract, Permissionable
             return true;
         }
 
+        if ($this->hasElevatedRole()) {
+            return true;
+        }
+
         // Manager can upload as any of their managed artists
         if ($this->isManager()) {
             return $this->managedArtists()->whereKey($artist->id)->exists();
-        }
-
-        // Moderator can upload as any artist in their organization
-        if ($this->isModerator() && $artist->organization_id === $this->organization_id) {
-            return true;
-        }
-
-        // Admin can upload as any artist
-        if ($this->isAdmin()) {
-            return true;
         }
 
         return false;
@@ -379,21 +378,14 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     /**
      * Check if this user can verify another user.
      *
-     * - ADMIN can verify any user they can manage (globally)
-     * - MODERATOR can verify users they can manage in their organization
+     * - Elevated roles (ADMIN, MODERATOR) can verify any user they can manage
      * - Manager (verified) can verify their assigned artists
      * - Manager (not verified) cannot verify anyone
      */
     public function canVerify(User $other): bool
     {
-        // Admin can verify users they can manage globally
-        if ($this->isAdmin()) {
+        if ($this->hasElevatedRole()) {
             return $this->canManage($other);
-        }
-
-        // Moderator can verify users in their organization
-        if ($this->isModerator()) {
-            return $this->organization_id === $other->organization_id && $this->canManage($other);
         }
 
         // Manager must be verified to verify others

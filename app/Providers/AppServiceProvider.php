@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Enums\Acl\Role;
 use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Genre;
@@ -48,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
         // disable wrapping JSON resource in a `data` key
         JsonResource::withoutWrapping();
 
-        self::grantAllPermissionsToSuperAdminRole();
+        self::grantAllPermissionsToElevatedRoles();
 
         $this->app->bind(SpotifySession::class, static function () {
             return SpotifyService::enabled()
@@ -124,8 +123,8 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 
-    private static function grantAllPermissionsToSuperAdminRole(): void
+    private static function grantAllPermissionsToElevatedRoles(): void
     {
-        Gate::after(static fn (User $user) => $user->hasRole(Role::ADMIN));
+        Gate::after(static fn (User $user) => $user->hasElevatedRole());
     }
 }

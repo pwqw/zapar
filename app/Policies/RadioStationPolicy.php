@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\Acl\Role;
 use App\Models\RadioStation;
 use App\Models\User;
 
@@ -10,6 +9,10 @@ class RadioStationPolicy
 {
     public function access(User $user, RadioStation $station): bool
     {
+        if ($user->hasElevatedRole()) {
+            return true;
+        }
+
         // Owner can access
         if ($station->user_id === $user->id) {
             return true;
@@ -25,17 +28,12 @@ class RadioStationPolicy
             return true;
         }
 
-        // Moderators can access any station in their organization
-        return
-            $user->role->level() >= Role::MODERATOR->level()
-            && $user->organization_id === $station->user->organization_id
-        ;
+        return false;
     }
 
     public function edit(User $user, RadioStation $station): bool
     {
-        // ADMIN and MODERATOR can edit ANY radio station (system-wide rule)
-        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+        if ($user->hasElevatedRole()) {
             return true;
         }
 
@@ -69,14 +67,8 @@ class RadioStationPolicy
 
     public function publish(User $user, RadioStation $station): bool
     {
-        // Admin can always publish
-        if ($user->role === Role::ADMIN) {
+        if ($user->hasElevatedRole()) {
             return true;
-        }
-
-        // Moderator can publish in their organization
-        if ($user->role === Role::MODERATOR) {
-            return $user->organization_id === $station->user->organization_id;
         }
 
         // Verified users can publish their own stations

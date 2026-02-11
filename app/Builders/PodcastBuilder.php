@@ -3,7 +3,6 @@
 namespace App\Builders;
 
 use App\Builders\Concerns\CanScopeByUser;
-use App\Enums\Acl\Role;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use LogicException;
@@ -26,13 +25,7 @@ class PodcastBuilder extends FavoriteableBuilder
     {
         throw_if(!$this->user, new LogicException('User must be set to query accessible podcasts.'));
 
-        // Admins see ALL podcasts
-        if ($this->user->role === Role::ADMIN) {
-            return $this;
-        }
-
-        // Moderators see ALL podcasts (same as admin for visibility)
-        if ($this->user->role === Role::MODERATOR) {
+        if ($this->user->hasElevatedRole()) {
             return $this;
         }
 

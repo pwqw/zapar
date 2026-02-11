@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\Acl\Role;
 use App\Models\Song;
 use App\Models\User;
 
@@ -10,7 +9,7 @@ class SongPolicy
 {
     public function access(User $user, Song $song): bool
     {
-        if ($user->role === Role::ADMIN) {
+        if ($user->hasElevatedRole()) {
             return true;
         }
 
@@ -24,11 +23,7 @@ class SongPolicy
             return true;
         }
 
-        // Moderators can access any song in their organization
-        return
-            $user->role->level() >= Role::MODERATOR->level()
-            && $user->organization_id === $song->owner?->organization_id
-        ;
+        return false;
     }
 
     public function own(User $user, Song $song): bool
@@ -38,6 +33,10 @@ class SongPolicy
 
     public function delete(User $user, Song $song): bool
     {
+        if ($user->hasElevatedRole()) {
+            return true;
+        }
+
         // Owner can delete
         if ($song->ownedBy($user)) {
             return true;
@@ -48,17 +47,15 @@ class SongPolicy
             return true;
         }
 
-        // Moderator can delete in their organization
-        if ($user->role === Role::MODERATOR && $user->organization_id === $song->owner?->organization_id) {
-            return true;
-        }
-
-        // Admin can delete in their organization
-        return $user->role === Role::ADMIN && $user->organization_id === $song->owner?->organization_id;
+        return false;
     }
 
     public function edit(User $user, Song $song): bool
     {
+        if ($user->hasElevatedRole()) {
+            return true;
+        }
+
         // Owner can edit
         if ($song->ownedBy($user)) {
             return true;
@@ -74,25 +71,13 @@ class SongPolicy
             return true;
         }
 
-        // Moderator can edit in their organization
-        if ($user->role === Role::MODERATOR && $user->organization_id === $song->owner?->organization_id) {
-            return true;
-        }
-
-        // Admin can edit in their organization
-        return $user->role === Role::ADMIN && $user->organization_id === $song->owner?->organization_id;
+        return false;
     }
 
     public function publish(User $user, Song $song): bool
     {
-        // Admin can always publish
-        if ($user->role === Role::ADMIN) {
+        if ($user->hasElevatedRole()) {
             return true;
-        }
-
-        // Moderator can publish in their organization
-        if ($user->role === Role::MODERATOR) {
-            return $user->organization_id === $song->owner?->organization_id;
         }
 
         // Verified users can publish their own songs

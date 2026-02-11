@@ -3,7 +3,6 @@
 namespace App\Builders;
 
 use App\Builders\Concerns\CanScopeByUser;
-use App\Enums\Acl\Role;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
@@ -65,7 +64,7 @@ class SongBuilder extends FavoriteableBuilder
     {
         throw_unless($this->user, new LogicException('User must be set to query accessible songs.'));
 
-        if ($this->user->role === Role::ADMIN) {
+        if ($this->user->hasElevatedRole()) {
             return $this;
         }
 

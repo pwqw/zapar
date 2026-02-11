@@ -9,6 +9,7 @@ use Tests\TestCase;
 use App\Models\Song as Episode;
 
 use function Tests\create_admin;
+use function Tests\create_moderator;
 use function Tests\create_user;
 
 class PodcastVisibilityTest extends TestCase
@@ -69,6 +70,24 @@ class PodcastVisibilityTest extends TestCase
 
         // Admin should see all podcasts
         $response = $this->getAs('api/podcasts?favorites_only=false', $admin)
+            ->assertSuccessful();
+
+        $podcastIds = collect($response->json())->pluck('id')->all();
+
+        self::assertContains($privatePodcast->id, $podcastIds);
+        self::assertContains($publicPodcast->id, $podcastIds);
+    }
+
+    #[Test]
+    public function moderatorCanSeeAllPodcasts(): void
+    {
+        $moderator = create_moderator();
+        $regularUser = create_user();
+
+        $privatePodcast = Podcast::factory()->private()->create(['added_by' => $regularUser->id]);
+        $publicPodcast = Podcast::factory()->public()->create(['added_by' => $regularUser->id]);
+
+        $response = $this->getAs('api/podcasts?favorites_only=false', $moderator)
             ->assertSuccessful();
 
         $podcastIds = collect($response->json())->pluck('id')->all();

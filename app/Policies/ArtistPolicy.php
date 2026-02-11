@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\Acl\Role;
 use App\Models\Artist;
 use App\Models\User;
 
@@ -27,7 +26,7 @@ class ArtistPolicy
         }
 
         // ADMIN and MODERATOR can edit ANY artist (system-wide rule)
-        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+        if ($user->hasElevatedRole()) {
             return true;
         }
 
@@ -73,7 +72,7 @@ class ArtistPolicy
             return false;
         }
 
-        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+        if ($user->hasElevatedRole()) {
             return true;
         }
 
