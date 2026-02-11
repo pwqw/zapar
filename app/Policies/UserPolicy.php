@@ -23,15 +23,12 @@ class UserPolicy
             return $currentUser->canManage($userToUpdate);
         }
 
-        // Managers can update their assigned artists or themselves
         if ($currentUser->role === Role::MANAGER) {
-            // Can update themselves
             if ($currentUser->is($userToUpdate)) {
                 return true;
             }
 
-            // Can update their assigned artists
-            return $currentUser->managedArtists()->whereKey($userToUpdate->id)->exists()
+            return $this->isManagedArtist($currentUser, $userToUpdate)
                 && $currentUser->canManage($userToUpdate);
         }
 
@@ -45,7 +42,6 @@ class UserPolicy
 
     public function destroy(User $currentUser, User $userToDestroy): bool
     {
-        // Cannot delete self
         if ($currentUser->is($userToDestroy)) {
             return false;
         }
@@ -54,9 +50,8 @@ class UserPolicy
             return $currentUser->canManage($userToDestroy);
         }
 
-        // Managers can delete their assigned artists
         if ($currentUser->role === Role::MANAGER) {
-            return $currentUser->managedArtists()->whereKey($userToDestroy->id)->exists()
+            return $this->isManagedArtist($currentUser, $userToDestroy)
                 && $currentUser->canManage($userToDestroy);
         }
 
@@ -65,12 +60,16 @@ class UserPolicy
 
     public function upload(User $currentUser): bool
     {
-        // Artists and above can upload
         return $currentUser->role->level() >= Role::ARTIST->level();
     }
 
     public function verify(User $currentUser, User $userToVerify): bool
     {
         return $currentUser->canVerify($userToVerify);
+    }
+
+    private function isManagedArtist(User $manager, User $user): bool
+    {
+        return $manager->managedArtists()->whereKey($user->id)->exists();
     }
 }

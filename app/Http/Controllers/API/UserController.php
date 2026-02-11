@@ -62,9 +62,6 @@ class UserController extends Controller
         return response()->noContent();
     }
 
-    /**
-     * List all artists managed by a specific manager.
-     */
     public function listManagedArtists(User $manager)
     {
         $currentUser = auth()->user();
@@ -76,9 +73,6 @@ class UserController extends Controller
         return UserResource::collection($manager->managedArtists);
     }
 
-    /**
-     * Assign an artist to a manager.
-     */
     public function assignArtist(User $manager, User $artist)
     {
         $currentUser = auth()->user();
@@ -87,17 +81,14 @@ class UserController extends Controller
             abort(Response::HTTP_FORBIDDEN, 'You cannot assign artists to this manager.');
         }
 
-        // Verify the artist is actually an artist role
         if ($artist->role !== Role::ARTIST) {
             abort(Response::HTTP_BAD_REQUEST, 'The user must have the artist role.');
         }
 
-        // Verify both users are in the same organization
         if ($manager->organization_id !== $artist->organization_id) {
             abort(Response::HTTP_BAD_REQUEST, 'Manager and artist must be in the same organization.');
         }
 
-        // Attach if not already attached
         if (!$manager->managedArtists()->where('artist_id', $artist->id)->exists()) {
             $manager->managedArtists()->attach($artist->id);
         }
@@ -105,9 +96,6 @@ class UserController extends Controller
         return response()->json(['message' => 'Artist assigned successfully.']);
     }
 
-    /**
-     * Remove an artist from a manager.
-     */
     public function removeArtist(User $manager, User $artist)
     {
         $currentUser = auth()->user();

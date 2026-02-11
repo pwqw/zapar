@@ -13,20 +13,8 @@ class PodcastPolicy
             return true;
         }
 
-        // User who added the podcast can access it
-        if ($podcast->added_by === $user->id) {
-            return true;
-        }
-
-        // Public podcasts are accessible to all users in the same organization
-        if ($podcast->is_public && $podcast->added_by) {
-            $addedByUser = User::find($podcast->added_by);
-            if ($addedByUser && $user->organization_id === $addedByUser->organization_id) {
-                return true;
-            }
-        }
-
-        return false;
+        return $podcast->added_by === $user->id
+            || ($podcast->is_public && $this->isInUsersOrganization($user, $podcast));
     }
 
     public function view(User $user, Podcast $podcast): bool
@@ -40,20 +28,8 @@ class PodcastPolicy
             return true;
         }
 
-        // User who added the podcast can edit
-        if ($podcast->added_by === $user->id) {
-            return true;
-        }
-
-        // Manager can edit podcasts added by their managed artists
-        if ($user->isManager() && $podcast->added_by) {
-            $addedByUser = User::find($podcast->added_by);
-            if ($addedByUser && $user->managedArtists()->whereKey($addedByUser->id)->exists()) {
-                return true;
-            }
-        }
-
-        return false;
+        return $podcast->added_by === $user->id
+            || ($user->isManager() && $this->isAddedByManagedArtist($user, $podcast));
     }
 
     public function update(User $user, Podcast $podcast): bool
@@ -72,19 +48,30 @@ class PodcastPolicy
             return true;
         }
 
-        // Verified user who added the podcast can publish it
-        if ($user->isVerified() && $podcast->added_by === $user->id) {
-            return true;
+        return $user->isVerified()
+            && ($podcast->added_by === $user->id
+                || ($user->isManager() && $this->isAddedByManagedArtist($user, $podcast)));
+    }
+
+    private function isAddedByManagedArtist(User $user, Podcast $podcast): bool
+    {
+        if (!$podcast->added_by) {
+            return false;
         }
 
-        // Verified manager can publish podcasts added by their managed artists
-        if ($user->isVerified() && $user->isManager() && $podcast->added_by) {
-            $addedByUser = User::find($podcast->added_by);
-            if ($addedByUser && $user->managedArtists()->whereKey($addedByUser->id)->exists()) {
-                return true;
-            }
+        $addedByUser = User::find($podcast->added_by);
+
+        return $addedByUser && $user->managedArtists()->whereKey($addedByUser->id)->exists();
+    }
+
+    private function isInUsersOrganization(User $user, Podcast $podcast): bool
+    {
+        if (!$podcast->added_by) {
+            return false;
         }
 
-        return false;
+        $addedByUser = User::find($podcast->added_by);
+
+        return $addedByUser && $addedByUser->organization_id === $user->organization_id;
     }
 }

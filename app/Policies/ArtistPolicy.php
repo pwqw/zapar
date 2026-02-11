@@ -12,41 +12,27 @@ class ArtistPolicy
         return $artist->belongsToUser($user);
     }
 
-    /**
-     * Rules follow the same logic as SongPolicy::edit():
-     * - ADMIN and MODERATOR can edit ANY artist (system-wide rule)
-     * - Owner (artist) can edit their own artists
-     * - Manager can edit artists if they can edit at least one song of the artist
-     * - Uploader can edit artists if they uploaded songs of the artist
-     */
     public function update(User $user, Artist $artist): bool
     {
         if ($artist->is_unknown || $artist->is_various) {
             return false;
         }
 
-        // ADMIN and MODERATOR can edit ANY artist (system-wide rule)
         if ($user->hasElevatedRole()) {
             return true;
         }
 
-        // Owner (artist) can edit their own artists
         if ($artist->belongsToUser($user)) {
             return true;
         }
 
-        // Check if user can edit at least one song of the artist
-        // This follows the same rules as SongPolicy::edit()
         $canEditAnySong = $artist->songs()
             ->where(function ($query) use ($user) {
-                // Owner can edit
                 $query->where('owner_id', $user->id)
-                    // Uploader can edit (if different from owner)
                     ->orWhere('uploaded_by_id', $user->id);
             })
             ->exists();
 
-        // If no song found via simple queries, check manager permissions
         if (!$canEditAnySong) {
             $canEditAnySong = $artist->songs()
                 ->get()
@@ -63,9 +49,6 @@ class ArtistPolicy
         return $this->update($user, $artist);
     }
 
-    /**
-     * ADMIN and MODERATOR can manage encyclopedia data for any artist; otherwise only the owner can.
-     */
     public function fetchEncyclopedia(User $user, Artist $artist): bool
     {
         if ($artist->is_unknown || $artist->is_various) {
