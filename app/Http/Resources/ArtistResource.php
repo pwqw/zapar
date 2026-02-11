@@ -15,6 +15,7 @@ class ArtistResource extends JsonResource
         'name',
         'image',
         'created_at',
+        'can_fetch_encyclopedia',
     ];
 
     public const array PAGINATION_JSON_STRUCTURE = [
@@ -67,6 +68,10 @@ class ArtistResource extends JsonResource
             'created_at' => $this->unless($embedding, $this->artist->created_at),
             'is_external' => $this->unless($embedding, fn () => $isPlus && $this->artist->user_id !== $user->id),
             'favorite' => $this->unless($embedding, $this->artist->favorite),
+            'can_fetch_encyclopedia' => $this->unless(
+                $embedding,
+                fn () => $this->artist->belongsToUser($user),
+            ),
         ];
     }
 }

@@ -124,7 +124,9 @@ class EncyclopediaServiceTest extends TestCase
             ->with($artist)
             ->andReturn($info);
 
-        self::assertSame($info, $this->encyclopediaService->getArtistInformation($artist));
+        $result = $this->encyclopediaService->getArtistInformation($artist);
+        self::assertSame($info, $result);
+        self::assertSame(image_storage_url($artist->image), $result->image);
         self::assertNotNull(cache()->get(cache_key('artist information', $artist->name)));
     }
 
@@ -203,5 +205,31 @@ class EncyclopediaServiceTest extends TestCase
             ->andReturn($info);
 
         self::assertSame($info, $this->encyclopediaService->getArtistInformation($artist));
+    }
+
+    #[Test]
+    public function clearArtistStoredData(): void
+    {
+        /** @var Artist $artist */
+        $artist = Artist::factory()->create(['image' => 'some-image.jpg']);
+        cache()->put(cache_key('artist information', $artist->name), ['bio' => 'foo'], now()->addWeek());
+
+        $this->encyclopediaService->clearArtistStoredData($artist);
+
+        self::assertSame('', $artist->refresh()->image);
+        self::assertNull(cache()->get(cache_key('artist information', $artist->name)));
+    }
+
+    #[Test]
+    public function clearAlbumStoredData(): void
+    {
+        /** @var Album $album */
+        $album = Album::factory()->create(['cover' => 'some-cover.jpg']);
+        cache()->put(cache_key('album information', $album->name, $album->artist->name), ['wiki' => 'foo'], now()->addWeek());
+
+        $this->encyclopediaService->clearAlbumStoredData($album);
+
+        self::assertSame('', $album->refresh()->cover);
+        self::assertNull(cache()->get(cache_key('album information', $album->name, $album->artist->name)));
     }
 }

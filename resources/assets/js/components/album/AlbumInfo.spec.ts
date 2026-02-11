@@ -25,24 +25,30 @@ describe('albumInfo.vue', () => {
       },
       global: {
         stubs: {
-          TrackList: h.stub(),
+          TrackList: h.stub('album-info-tracks'),
           AlbumThumbnail: h.stub('thumbnail'),
         },
       },
     })
 
     await h.tick(1)
-    expect(fetchMock).toHaveBeenCalledWith(album)
+    expect(fetchMock).not.toHaveBeenCalled()
 
     return {
       ...rendered,
       album,
+      fetchMock,
+      info,
     }
   }
 
   it.each<[EncyclopediaDisplayMode]>([['aside'], ['full']])('renders in %s mode', async mode => {
-    await renderComponent(mode)
+    const { fetchMock, album } = await renderComponent(mode)
 
+    await screen.getByTestId('album-info-load').click()
+    await h.tick(1)
+
+    expect(fetchMock).toHaveBeenCalledWith(album)
     screen.getByTestId('album-info-tracks')
 
     if (mode === 'aside') {
@@ -52,5 +58,14 @@ describe('albumInfo.vue', () => {
     }
 
     expect(screen.getByTestId('album-info').classList.contains(mode)).toBe(true)
+  })
+
+  it('fetches album info when load information is clicked', async () => {
+    const { fetchMock, album } = await renderComponent('aside')
+
+    await screen.getByTestId('album-info-load').click()
+    await h.tick(1)
+
+    expect(fetchMock).toHaveBeenCalledWith(album)
   })
 })

@@ -1,23 +1,25 @@
 <template>
-  <ScreenBase :background-image="album?.cover">
+  <ScreenBase>
     <template #header>
       <ScreenHeaderSkeleton v-if="loading && !album" />
 
       <ScreenHeader v-if="album" :disabled="loading" :layout="songs.length ? headerLayout : 'collapsed'">
-        {{ album.name }}
+        {{ albumStore.isUnknown(album) ? t('screens.unknownAlbum') : album.name }}
 
         <template #thumbnail>
           <AlbumThumbnail :entity="album" />
         </template>
 
         <template #meta>
-          <a v-if="isStandardArtist" :href="url('artists.show', { id: album.artist_id })" class="artist">
-            {{ album.artist_name }}
-          </a>
-          <span v-else class="text-k-fg">{{ album.artist_name }}</span>
-          <span v-if="album.year">{{ album.year }}</span>
-          <span>{{ pluralize(songs, 'song') }}</span>
-          <span>{{ duration }}</span>
+          <span class="flex meta-content">
+            <a v-if="isStandardArtist" :href="url('artists.show', { id: album.artist_id })" class="artist">
+              {{ artistName }}
+            </a>
+            <span v-else class="text-k-fg">{{ artistName }}</span>
+            <span v-if="album.year">{{ album.year }}</span>
+            <span>{{ songCountText }}</span>
+            <span>{{ duration }}</span>
+          </span>
         </template>
 
         <template #controls>
@@ -37,7 +39,7 @@
 
             <Btn gray @click="requestContextMenu">
               <Icon :icon="faEllipsis" fixed-width />
-              <span class="sr-only">More Actions</span>
+              <span class="sr-only">{{ t('misc.moreActions') }}</span>
             </Btn>
           </SongListControls>
         </template>
@@ -49,13 +51,13 @@
         <nav>
           <ul>
             <li :class="activeTab === 'songs' && 'active'">
-              <a :href="url('albums.show', { id: album.id, tab: 'songs' })">Songs</a>
+              <a :href="url('albums.show', { id: album.id, tab: 'songs' })">{{ t('misc.songs') }}</a>
             </li>
             <li :class="activeTab === 'other-albums' && 'active'">
-              <a :href="url('albums.show', { id: album.id, tab: 'other-albums' })">Other Albums</a>
+              <a :href="url('albums.show', { id: album.id, tab: 'other-albums' })">{{ t('misc.otherAlbums') }}</a>
             </li>
             <li v-if="useEncyclopedia" :class="activeTab === 'information' && 'active'">
-              <a :href="url('albums.show', { id: album.id, tab: 'information' })">Information</a>
+              <a :href="url('albums.show', { id: album.id, tab: 'information' })">{{ t('screens.information') }}</a>
             </li>
           </ul>
         </nav>
@@ -63,7 +65,12 @@
 
       <div v-show="activeTab === 'songs'" class="songs-pane">
         <SongListSkeleton v-if="loading" />
-        <SongList v-if="!loading && album" ref="songList" @sort="onSort" @press:enter="onPressEnter" @swipe="onSwipe" />
+        <SongList
+          v-if="!loading && album"
+          ref="songList"
+          @press:enter="onPressEnter"
+          @swipe="onSwipe"
+        />
       </div>
 
       <div v-show="activeTab === 'other-albums'" class="albums-pane" data-testid="albums-pane">
@@ -71,7 +78,9 @@
           <GridListView v-if="otherAlbums.length" v-koel-overflow-fade view-mode="list">
             <AlbumCard v-for="otherAlbum in otherAlbums" :key="otherAlbum.id" :album="otherAlbum" layout="compact" />
           </GridListView>
-          <p v-else class="p-6 text-k-fg-50">No other albums by {{ album.artist_name }} found in the library.</p>
+          <p v-else>
+            {{ t('screens.noOtherAlbumsBy', { artist: album.artist_name }) }}
+          </p>
         </template>
         <GridListView v-else view-mode="list">
           <AlbumCardSkeleton v-for="i in 6" :key="i" layout="compact" />
@@ -79,7 +88,7 @@
       </div>
 
       <div v-if="useEncyclopedia && album" v-show="activeTab === 'information'" class="info-pane">
-        <AlbumInfo :album mode="full" />
+        <AlbumInfo :album="album" mode="full" :can-fetch-encyclopedia="album?.can_fetch_encyclopedia ?? false" />
       </div>
     </ScreenTabs>
   </ScreenBase>
@@ -88,8 +97,8 @@
 <script lang="ts" setup>
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons'
 import { computed, defineAsyncComponent, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { eventBus } from '@/utils/eventBus'
-import { pluralize } from '@/utils/formatters'
 import { albumStore } from '@/stores/albumStore'
 import { artistStore } from '@/stores/artistStore'
 import { playableStore } from '@/stores/playableStore'
@@ -97,7 +106,6 @@ import { useErrorHandler } from '@/composables/useErrorHandler'
 import { usePolicies } from '@/composables/usePolicies'
 import { usePlayableList } from '@/composables/usePlayableList'
 import { usePlayableListControls } from '@/composables/usePlayableListControls'
-import { useLocalStorage } from '@/composables/useLocalStorage'
 import { useRouter } from '@/composables/useRouter'
 import { useThirdPartyServices } from '@/composables/useThirdPartyServices'
 import { useContextMenu } from '@/composables/useContextMenu'
@@ -120,10 +128,10 @@ const ContextMenu = defineAsyncComponent(() => import('@/components/album/AlbumC
 const AlbumCardSkeleton = defineAsyncComponent(() => import('@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'))
 const FavoriteButton = defineAsyncComponent(() => import('@/components/ui/FavoriteButton.vue'))
 
+const { t } = useI18n()
 const { getRouteParam, go, onScreenActivated, onRouteChanged, url, triggerNotFound } = useRouter()
 const { currentUserCan } = usePolicies()
 const { PlayableListControls: SongListControls, config } = usePlayableListControls('Album')
-const { get: lsGet, set: lsSet } = useLocalStorage()
 const { useLastfm, useMusicBrainz } = useThirdPartyServices()
 const { openContextMenu } = useContextMenu()
 
@@ -151,12 +159,25 @@ const {
 
 const useEncyclopedia = computed(() => useMusicBrainz.value || useLastfm.value)
 
+const songCountText = computed(() => {
+  const count = songs.value.length
+  const songText = count === 1 ? t('messages.songSingular') : t('messages.songPlural')
+  return `${count.toLocaleString()} ${songText}`
+})
+
 const isStandardArtist = computed(() => {
   if (!album.value) {
     return true
   }
 
   return !artistStore.isVarious(album.value.artist_name) && !artistStore.isUnknown(album.value.artist_name)
+})
+
+const artistName = computed(() => {
+  if (!album.value) {
+    return ''
+  }
+  return artistStore.isUnknown(album.value.artist_name) ? t('screens.unknownArtist') : album.value.artist_name
 })
 
 const toggleFavorite = () => albumStore.toggleFavorite(album.value!)
@@ -177,7 +198,10 @@ const fetchScreenData = async () => {
   loading.value = true
 
   try {
-    ;[album.value, songs.value] = await Promise.all([albumStore.resolve(id), playableStore.fetchSongsForAlbum(id)])
+    [album.value, songs.value] = await Promise.all([
+      albumStore.resolve(id),
+      playableStore.fetchSongsForAlbum(id),
+    ])
 
     if (!album.value) {
       // If the album does not exist, redirect to the album list.
@@ -192,13 +216,11 @@ const fetchScreenData = async () => {
 
     context.entity = album.value
 
-    const restoredField = lsGet<PlayableListSortField>('album-sort-field', 'track')!
-    const restoredOrder = lsGet<SortOrder>('album-sort-order', 'asc')!
-    sort(restoredField, restoredOrder)
+    sort('track')
 
     editable.value = await currentUserCan.editAlbum(album.value!)
   } catch (error: unknown) {
-    if ((error as any)?.status === 404) {
+    if (error?.status === 404) {
       triggerNotFound()
       return
     }
@@ -209,18 +231,12 @@ const fetchScreenData = async () => {
   }
 }
 
-const onSort = (field: MaybeArray<PlayableListSortField>, order: SortOrder) => {
-  lsSet('album-sort-field', field)
-  lsSet('album-sort-order', order)
-}
-
 onScreenActivated('Album', () => fetchScreenData())
 onRouteChanged(route => route.name === 'albums.show' && fetchScreenData())
 
-const requestContextMenu = (event: MouseEvent) =>
-  openContextMenu<'ALBUM'>(ContextMenu, event, {
-    album: album.value!,
-  })
+const requestContextMenu = (event: MouseEvent) => openContextMenu<'ALBUM'>(ContextMenu, event, {
+  album: album.value!,
+})
 
 eventBus.on('SONGS_UPDATED', result => {
   // After songs are updated, check if the current album still exists.
@@ -232,6 +248,11 @@ eventBus.on('SONGS_UPDATED', result => {
 </script>
 
 <style lang="postcss" scoped>
+.meta-content > *:not(:first-child)::before {
+  content: '•';
+  margin: 0 0.25em;
+}
+
 .screen-header :deep(.play-icon) {
   @apply scale-[2];
 }

@@ -7,6 +7,7 @@ use App\Models\Artist;
 use App\Repositories\ArtistRepository;
 use App\Values\Artist\ArtistUpdateData;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Webmozart\Assert\Assert;
 
 class ArtistService
@@ -39,8 +40,13 @@ class ArtistService
             Arr::forget($data, 'image');
         }
 
+        $oldName = $artist->name;
         $artist->update($data);
+        $artist->refresh();
 
-        return $artist->refresh();
+        Cache::forget(cache_key('artist information', $oldName));
+        Cache::forget(cache_key('artist information', $artist->name));
+
+        return $artist;
     }
 }

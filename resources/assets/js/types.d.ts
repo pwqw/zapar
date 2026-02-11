@@ -143,6 +143,7 @@ interface Artist {
   created_at: string
   is_external: boolean
   favorite: boolean
+  can_fetch_encyclopedia?: boolean
 }
 
 interface Album {
@@ -157,6 +158,7 @@ interface Album {
   year: number | null
   is_external: boolean
   favorite: boolean
+  can_fetch_encyclopedia?: boolean
 }
 
 interface IStreamable {

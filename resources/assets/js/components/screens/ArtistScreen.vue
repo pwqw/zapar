@@ -1,5 +1,5 @@
 <template>
-  <ScreenBase :background-image="artist?.image || undefined">
+  <ScreenBase>
     <template #header>
       <ScreenHeaderSkeleton v-if="loading && !artist" />
 
@@ -11,9 +11,11 @@
         </template>
 
         <template #meta>
-          <span>{{ pluralize(albumCount, 'album') }}</span>
-          <span>{{ pluralize(songs, 'song') }}</span>
-          <span>{{ duration }}</span>
+          <span class="flex meta-content">
+            <span>{{ albumCountText }}</span>
+            <span>{{ songCountText }}</span>
+            <span>{{ duration }}</span>
+          </span>
         </template>
 
         <template #controls>
@@ -32,7 +34,7 @@
             />
             <Btn gray @click="requestContextMenu">
               <Icon :icon="faEllipsis" fixed-width />
-              <span class="sr-only">More Actions</span>
+              <span class="sr-only">{{ t('misc.moreActions') }}</span>
             </Btn>
           </SongListControls>
         </template>
@@ -44,16 +46,16 @@
         <nav>
           <ul>
             <li :class="activeTab === 'songs' && 'active'">
-              <a :href="url('artists.show', { id: artist.id, tab: 'songs' })">Songs</a>
+              <a :href="url('artists.show', { id: artist.id, tab: 'songs' })">{{ t('misc.songs') }}</a>
             </li>
             <li :class="activeTab === 'albums' && 'active'">
-              <a :href="url('artists.show', { id: artist.id, tab: 'albums' })">Albums</a>
+              <a :href="url('artists.show', { id: artist.id, tab: 'albums' })">{{ t('misc.albums') }}</a>
             </li>
             <li v-if="useEncyclopedia" :class="activeTab === 'information' && 'active'">
-              <a :href="url('artists.show', { id: artist.id, tab: 'information' })">Information</a>
+              <a :href="url('artists.show', { id: artist.id, tab: 'information' })">{{ t('screens.information') }}</a>
             </li>
             <li v-if="useTicketmaster" :class="activeTab === 'events' && 'active'">
-              <a :href="url('artists.show', { id: artist.id, tab: 'events' })">Events</a>
+              <a :href="url('artists.show', { id: artist.id, tab: 'events' })">{{ t('misc.events') }}</a>
             </li>
           </ul>
         </nav>
@@ -64,7 +66,6 @@
         <SongList
           v-if="!loading && artist"
           ref="songList"
-          @sort="onSort"
           @press:enter="onPressEnter"
           @swipe="onSwipe"
         />
@@ -73,7 +74,13 @@
       <div v-show="activeTab === 'albums'" class="albums-pane">
         <GridListView v-koel-overflow-fade view-mode="list">
           <template v-if="albums">
-            <AlbumCard v-for="album in albums" :key="album.id" :album :show-release-year="true" layout="compact" />
+            <AlbumCard
+              v-for="album in albums"
+              :key="album.id"
+              :album="album"
+              :show-release-year="true"
+              layout="compact"
+            />
           </template>
           <template v-else>
             <AlbumCardSkeleton v-for="i in 6" :key="i" layout="compact" />
@@ -82,11 +89,11 @@
       </div>
 
       <div v-if="useEncyclopedia && artist" v-show="activeTab === 'information'" class="info-pane">
-        <ArtistInfo :artist mode="full" />
+        <ArtistInfo :artist="artist" mode="full" :can-fetch-encyclopedia="artist?.can_fetch_encyclopedia ?? false" />
       </div>
 
       <div v-if="useTicketmaster && artist" v-show="activeTab === 'events'" class="events-pane">
-        <ArtistEventList :artist />
+        <ArtistEventList :artist="artist" />
       </div>
     </ScreenTabs>
   </ScreenBase>
@@ -95,16 +102,15 @@
 <script lang="ts" setup>
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { defineAsyncComponent } from '@/utils/helpers'
 import { eventBus } from '@/utils/eventBus'
-import { pluralize } from '@/utils/formatters'
 import { albumStore } from '@/stores/albumStore'
 import { artistStore } from '@/stores/artistStore'
 import { playableStore } from '@/stores/playableStore'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 import { usePlayableList } from '@/composables/usePlayableList'
 import { usePlayableListControls } from '@/composables/usePlayableListControls'
-import { useLocalStorage } from '@/composables/useLocalStorage'
 import { useThirdPartyServices } from '@/composables/useThirdPartyServices'
 import { useRouter } from '@/composables/useRouter'
 import { usePolicies } from '@/composables/usePolicies'
@@ -127,14 +133,14 @@ const FavoriteButton = defineAsyncComponent(() => import('@/components/ui/Favori
 const ArtistContextMenu = defineAsyncComponent(() => import('@/components/artist/ArtistContextMenu.vue'))
 
 const validTabs = ['songs', 'albums', 'information', 'events'] as const
-type Tab = (typeof validTabs)[number]
+type Tab = typeof validTabs[number]
 
+const { t } = useI18n()
 const { PlayableListControls: SongListControls, config } = usePlayableListControls('Artist')
 const { useLastfm, useMusicBrainz, useTicketmaster } = useThirdPartyServices()
 const { getRouteParam, go, onScreenActivated, onRouteChanged, url, triggerNotFound } = useRouter()
 const { currentUserCan } = usePolicies()
 const { openContextMenu } = useContextMenu()
-const { get: lsGet, set: lsSet } = useLocalStorage()
 
 const activeTab = ref<Tab>('songs')
 const artist = ref<Artist>()
@@ -149,7 +155,6 @@ const {
   playableList: songList,
   context,
   duration,
-  sort,
   onPressEnter,
   playAll,
   playSelected,
@@ -163,6 +168,18 @@ const albumCount = computed(() => {
   const albums = new Set()
   songs.value.forEach(song => albums.add(song.album_id))
   return albums.size
+})
+
+const albumCountText = computed(() => {
+  const count = albumCount.value
+  const albumText = count === 1 ? t('messages.albumSingular') : t('messages.albumPlural')
+  return `${count.toLocaleString()} ${albumText}`
+})
+
+const songCountText = computed(() => {
+  const count = songs.value.length
+  const songText = count === 1 ? t('messages.songSingular') : t('messages.songPlural')
+  return `${count.toLocaleString()} ${songText}`
 })
 
 const toggleFavorite = () => artistStore.toggleFavorite(artist.value!)
@@ -179,7 +196,10 @@ const fetchScreenData = async () => {
   loading.value = true
 
   try {
-    ;[artist.value, songs.value] = await Promise.all([artistStore.resolve(id), playableStore.fetchSongsForArtist(id)])
+    [artist.value, songs.value] = await Promise.all([
+      artistStore.resolve(id),
+      playableStore.fetchSongsForArtist(id),
+    ])
 
     if (!artist.value) {
       triggerNotFound()
@@ -191,14 +211,9 @@ const fetchScreenData = async () => {
     }
 
     context.entity = artist.value
-
-    const restoredField = lsGet<PlayableListSortField>('artist-sort-field', 'track')!
-    const restoredOrder = lsGet<SortOrder>('artist-sort-order', 'asc')!
-    sort(restoredField, restoredOrder)
-
     editable.value = await currentUserCan.editArtist(artist.value!)
   } catch (error: unknown) {
-    if ((error as any)?.status === 404) {
+    if (error?.status === 404) {
       triggerNotFound()
       return
     }
@@ -209,18 +224,12 @@ const fetchScreenData = async () => {
   }
 }
 
-const onSort = (field: MaybeArray<PlayableListSortField>, order: SortOrder) => {
-  lsSet('artist-sort-field', field)
-  lsSet('artist-sort-order', order)
-}
-
 onScreenActivated('Artist', () => fetchScreenData())
 onRouteChanged(route => route.name === 'artists.show' && fetchScreenData())
 
-const requestContextMenu = (event: MouseEvent) =>
-  openContextMenu<'ARTIST'>(ArtistContextMenu, event, {
-    artist: artist.value!,
-  })
+const requestContextMenu = (event: MouseEvent) => openContextMenu<'ARTIST'>(ArtistContextMenu, event, {
+  artist: artist.value!,
+})
 
 eventBus.on('SONGS_UPDATED', result => {
   // After songs are updated, check if the current artist still exists.
@@ -232,6 +241,11 @@ eventBus.on('SONGS_UPDATED', result => {
 </script>
 
 <style lang="postcss" scoped>
+.meta-content > *:not(:first-child)::before {
+  content: '•';
+  margin: 0 0.25em;
+}
+
 .screen-header :deep(.play-icon) {
   @apply scale-[2];
 }

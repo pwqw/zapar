@@ -9,8 +9,8 @@ import { encyclopediaService } from './encyclopediaService'
 describe('encyclopediaService', () => {
   const h = createHarness()
 
-  it('fetches the artist info', async () => {
-    const artist = artistStore.syncWithVault(h.factory('artist'))[0]
+  it('fetches the artist info and sets image when artist has none', async () => {
+    const artist = artistStore.syncWithVault(h.factory('artist', { image: '' }))[0]
     const artistInfo = h.factory('artist-info')
     const getMock = h.mock(http, 'get').mockResolvedValue(artistInfo)
     const hasCacheMock = h.mock(cache, 'has', false)
@@ -22,6 +22,18 @@ describe('encyclopediaService', () => {
     expect(hasCacheMock).toHaveBeenCalledWith(['artist.info', artist.id])
     expect(setCacheMock).toHaveBeenCalledWith(['artist.info', artist.id], artistInfo)
     expect(artist.image).toBe(artistInfo.image)
+  })
+
+  it('does not overwrite artist image when artist already has one', async () => {
+    const artist = artistStore.syncWithVault(h.factory('artist', { image: 'custom.jpg' }))[0]
+    const artistInfo = h.factory('artist-info')
+    h.mock(http, 'get').mockResolvedValue(artistInfo)
+    h.mock(cache, 'has', false)
+    h.mock(cache, 'set')
+
+    await encyclopediaService.fetchForArtist(artist)
+
+    expect(artist.image).toBe('custom.jpg')
   })
 
   it('gets the artist info from cache', async () => {
