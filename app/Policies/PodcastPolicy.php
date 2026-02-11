@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\Acl\Role;
 use App\Models\Podcast;
 use App\Models\User;
 
@@ -10,17 +9,8 @@ class PodcastPolicy
 {
     public function access(User $user, Podcast $podcast): bool
     {
-        // Admin can access any podcast
-        if ($user->role === Role::ADMIN) {
+        if ($user->hasElevatedRole()) {
             return true;
-        }
-
-        // Moderator can access podcasts added by users in their organization
-        if ($user->role === Role::MODERATOR && $podcast->added_by) {
-            $addedByUser = User::find($podcast->added_by);
-            if ($addedByUser && $user->organization_id === $addedByUser->organization_id) {
-                return true;
-            }
         }
 
         // User who added the podcast can access it
@@ -46,6 +36,10 @@ class PodcastPolicy
 
     public function edit(User $user, Podcast $podcast): bool
     {
+        if ($user->hasElevatedRole()) {
+            return true;
+        }
+
         // User who added the podcast can edit
         if ($podcast->added_by === $user->id) {
             return true;
@@ -57,20 +51,6 @@ class PodcastPolicy
             if ($addedByUser && $user->managedArtists()->whereKey($addedByUser->id)->exists()) {
                 return true;
             }
-        }
-
-        // Moderator can edit in their organization
-        if ($user->role === Role::MODERATOR && $podcast->added_by) {
-            $addedByUser = User::find($podcast->added_by);
-            if ($addedByUser && $user->organization_id === $addedByUser->organization_id) {
-                return true;
-            }
-        }
-
-        // Admin can edit in their organization
-        if ($user->role === Role::ADMIN && $podcast->added_by) {
-            $addedByUser = User::find($podcast->added_by);
-            return $addedByUser && $user->organization_id === $addedByUser->organization_id;
         }
 
         return false;
@@ -88,17 +68,8 @@ class PodcastPolicy
 
     public function publish(User $user, Podcast $podcast): bool
     {
-        // Admin can always publish
-        if ($user->role === Role::ADMIN) {
+        if ($user->hasElevatedRole()) {
             return true;
-        }
-
-        // Moderator can publish podcasts added by users in their organization
-        if ($user->role === Role::MODERATOR && $podcast->added_by) {
-            $addedByUser = User::find($podcast->added_by);
-            if ($addedByUser && $user->organization_id === $addedByUser->organization_id) {
-                return true;
-            }
         }
 
         // Verified user who added the podcast can publish it

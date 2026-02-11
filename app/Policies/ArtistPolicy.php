@@ -2,8 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\Acl\Role;
-use App\Facades\License;
 use App\Models\Artist;
 use App\Models\User;
 
@@ -11,7 +9,7 @@ class ArtistPolicy
 {
     public function access(User $user, Artist $artist): bool
     {
-        return License::isCommunity() || $artist->belongsToUser($user);
+        return $artist->belongsToUser($user);
     }
 
     /**
@@ -28,7 +26,7 @@ class ArtistPolicy
         }
 
         // ADMIN and MODERATOR can edit ANY artist (system-wide rule)
-        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+        if ($user->hasElevatedRole()) {
             return true;
         }
 
@@ -74,7 +72,7 @@ class ArtistPolicy
             return false;
         }
 
-        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+        if ($user->hasElevatedRole()) {
             return true;
         }
 

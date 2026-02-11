@@ -3,8 +3,6 @@
 namespace App\Builders;
 
 use App\Builders\Concerns\CanScopeByUser;
-use App\Enums\Acl\Role;
-use App\Facades\License;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use LogicException;
@@ -18,25 +16,16 @@ class PodcastBuilder extends FavoriteableBuilder
         throw_if(!$this->user, new LogicException('User must be set to query subscribed podcasts.'));
 
         return $this->join('podcast_user', function (JoinClause $join): void {
-            $join->on('podcasts.id', 'podcast_user.podcast_id')->where('podcast_user.user_id', $this->user->id);
+            $join->on('podcasts.id', 'podcast_user.podcast_id')
+                ->where('podcast_user.user_id', $this->user->id);
         });
     }
 
     public function accessible(): self
     {
-        if (License::isCommunity()) {
-            return $this;
-        }
-
         throw_if(!$this->user, new LogicException('User must be set to query accessible podcasts.'));
 
-        // Admins see ALL podcasts
-        if ($this->user->role === Role::ADMIN) {
-            return $this;
-        }
-
-        // Moderators see ALL podcasts (same as admin for visibility)
-        if ($this->user->role === Role::MODERATOR) {
+        if ($this->user->hasElevatedRole()) {
             return $this;
         }
 

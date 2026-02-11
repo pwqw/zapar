@@ -10,35 +10,17 @@ class UserPolicy
 {
     public function manage(User $currentUser): bool
     {
-        // Admins can manage users globally
-        if ($currentUser->hasPermissionTo(Permission::MANAGE_ALL_USERS)) {
+        if ($currentUser->hasElevatedRole()) {
             return true;
         }
 
-        // Moderators can manage users in their organization
-        if ($currentUser->hasPermissionTo(Permission::MANAGE_ORG_USERS)) {
-            return true;
-        }
-
-        // Managers can manage their assigned artists
-        if ($currentUser->hasPermissionTo(Permission::MANAGE_ARTISTS)) {
-            return true;
-        }
-
-        return false;
+        return $currentUser->hasPermissionTo(Permission::MANAGE_ARTISTS);
     }
 
     public function update(User $currentUser, User $userToUpdate): bool
     {
-        // Admins can update any user
-        if ($currentUser->role === Role::ADMIN) {
+        if ($currentUser->hasElevatedRole()) {
             return $currentUser->canManage($userToUpdate);
-        }
-
-        // Moderators can update users in their organization
-        if ($currentUser->role === Role::MODERATOR) {
-            return $currentUser->organization_id === $userToUpdate->organization_id
-                && $currentUser->canManage($userToUpdate);
         }
 
         // Managers can update their assigned artists or themselves
@@ -68,15 +50,8 @@ class UserPolicy
             return false;
         }
 
-        // Admins can delete any user
-        if ($currentUser->role === Role::ADMIN) {
+        if ($currentUser->hasElevatedRole()) {
             return $currentUser->canManage($userToDestroy);
-        }
-
-        // Moderators can delete users in their organization
-        if ($currentUser->role === Role::MODERATOR) {
-            return $currentUser->organization_id === $userToDestroy->organization_id
-                && $currentUser->canManage($userToDestroy);
         }
 
         // Managers can delete their assigned artists

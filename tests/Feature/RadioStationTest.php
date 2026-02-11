@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 use function Tests\create_admin;
+use function Tests\create_moderator;
 use function Tests\create_user;
 use function Tests\minimal_base64_encoded_image;
 
@@ -174,6 +175,25 @@ class RadioStationTest extends TestCase
     }
 
     #[Test]
+    public function moderatorFromOtherOrgCanUpdate(): void
+    {
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
+        $data = [
+            'url' => 'https://example.com/updated-stream',
+            'name' => 'Updated Radio Station',
+            'logo' => null,
+            'description' => 'An updated test radio station',
+            'is_public' => false,
+        ];
+
+        $this->putAs("/api/radio/stations/{$station->id}", $data, create_moderator([
+            'organization_id' => Organization::factory(),
+        ]))
+            ->assertOk();
+    }
+
+    #[Test]
     public function listAll(): void
     {
         $user = create_user();
@@ -231,6 +251,18 @@ class RadioStationTest extends TestCase
 
         // ADMIN can delete ANY radio station (system-wide rule)
         $this->deleteAs("/api/radio/stations/{$station->id}", [], create_admin([
+            'organization_id' => Organization::factory(),
+        ]))
+            ->assertNoContent();
+    }
+
+    #[Test]
+    public function moderatorFromOtherOrgCanDelete(): void
+    {
+        /** @var RadioStation $station */
+        $station = RadioStation::factory()->create();
+
+        $this->deleteAs("/api/radio/stations/{$station->id}", [], create_moderator([
             'organization_id' => Organization::factory(),
         ]))
             ->assertNoContent();

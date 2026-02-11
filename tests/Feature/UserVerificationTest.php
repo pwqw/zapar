@@ -58,13 +58,21 @@ class UserVerificationTest extends TestCase
     }
 
     #[Test]
-    public function moderatorCannotVerifyUsersInOtherOrganizations(): void
+    public function moderatorCanVerifyUsersInOtherOrganizations(): void
     {
         $moderator = create_moderator();
         $otherOrg = \App\Models\Organization::factory()->create();
         $otherArtist = create_artist(['organization_id' => $otherOrg->id]);
 
-        self::assertFalse($moderator->canVerify($otherArtist));
+        self::assertTrue($moderator->canVerify($otherArtist));
+
+        $this->patchAs("api/users/{$otherArtist->public_id}", [
+            'name' => $otherArtist->name,
+            'email' => $otherArtist->email,
+            'role' => $otherArtist->role->value,
+            'verified' => true,
+        ], $moderator)
+            ->assertSuccessful();
     }
 
     #[Test]
