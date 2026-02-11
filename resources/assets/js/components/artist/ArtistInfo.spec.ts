@@ -28,11 +28,13 @@ describe('artistInfo.vue', () => {
     })
 
     await h.tick(1)
-    expect(fetchMock).toHaveBeenCalledWith(artist)
+    expect(fetchMock).not.toHaveBeenCalled()
 
     return {
       ...rendered,
       artist,
+      fetchMock,
+      info,
     }
   }
 
@@ -46,5 +48,14 @@ describe('artistInfo.vue', () => {
     }
 
     expect(screen.getByTestId('artist-info').classList.contains(mode)).toBe(true)
+  })
+
+  it('fetches artist info when load information is clicked', async () => {
+    const { fetchMock, artist } = await renderComponent('aside')
+
+    await screen.getByTestId('artist-info-load').click()
+    await h.tick(1)
+
+    expect(fetchMock).toHaveBeenCalledWith(artist)
   })
 })

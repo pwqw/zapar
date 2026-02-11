@@ -89,7 +89,7 @@
       </div>
 
       <div v-if="useEncyclopedia && artist" v-show="activeTab === 'information'" class="info-pane">
-        <ArtistInfo :artist="artist" mode="full" />
+        <ArtistInfo :artist="artist" mode="full" :can-fetch-encyclopedia="artist?.can_fetch_encyclopedia ?? false" />
       </div>
 
       <div v-if="useTicketmaster && artist" v-show="activeTab === 'events'" class="events-pane">

@@ -88,7 +88,7 @@
       </div>
 
       <div v-if="useEncyclopedia && album" v-show="activeTab === 'information'" class="info-pane">
-        <AlbumInfo :album="album" mode="full" />
+        <AlbumInfo :album="album" mode="full" :can-fetch-encyclopedia="album?.can_fetch_encyclopedia ?? false" />
       </div>
     </ScreenTabs>
   </ScreenBase>

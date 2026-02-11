@@ -9,6 +9,7 @@ use App\Http\Controllers\API\Artist\ArtistAlbumController;
 use App\Http\Controllers\API\Artist\ArtistController;
 use App\Http\Controllers\API\Artist\ArtistSongController;
 use App\Http\Controllers\API\Artist\FetchArtistEventsController;
+use App\Http\Controllers\API\Artist\ClearArtistInformationController;
 use App\Http\Controllers\API\Artist\FetchArtistInformationController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DisconnectFromLastfmController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\API\Embed\EmbedController;
 use App\Http\Controllers\API\Embed\EmbedOptionsController;
 use App\Http\Controllers\API\ExcerptSearchController;
 use App\Http\Controllers\API\FavoriteController;
+use App\Http\Controllers\API\ClearAlbumInformationController;
 use App\Http\Controllers\API\FetchAlbumInformationController;
 use App\Http\Controllers\API\FetchAlbumThumbnailController;
 use App\Http\Controllers\API\FetchDemoCreditsController;
@@ -215,7 +217,9 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
 
         // Media information routes
         Route::get('albums/{album}/information', FetchAlbumInformationController::class);
+        Route::delete('albums/{album}/information', ClearAlbumInformationController::class);
         Route::get('artists/{artist}/information', FetchArtistInformationController::class);
+        Route::delete('artists/{artist}/information', ClearArtistInformationController::class);
 
         // Events (shows) routes
         Route::get('artists/{artist}/events', FetchArtistEventsController::class);

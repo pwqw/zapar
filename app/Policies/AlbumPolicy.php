@@ -74,4 +74,14 @@ class AlbumPolicy
     {
         return $this->update($user, $album);
     }
+
+    /**
+     * Only the owner of the album's artist can fetch or clear encyclopedia data.
+     */
+    public function fetchEncyclopedia(User $user, Album $album): bool
+    {
+        return !$album->is_unknown
+            && $album->artist
+            && $album->artist->belongsToUser($user);
+    }
 }

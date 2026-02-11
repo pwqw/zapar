@@ -61,8 +61,11 @@ class EncyclopediaService
                 $info = $this->encyclopedia->getArtistInformation($artist) ?: ArtistInformation::make();
 
                 if ($artist->image || (!SpotifyService::enabled() && !$info->image)) {
-                    // If the artist already has an image, or there's no resource to download an image from,
-                    // just return the info.
+                    // If the artist already has an image, return the stored image URL so the client
+                    // does not overwrite it with the encyclopedia's image. Otherwise return the info as-is.
+                    if ($artist->image) {
+                        $info->image = image_storage_url($artist->image);
+                    }
                     return $info;
                 }
 
@@ -110,5 +113,19 @@ class EncyclopediaService
         $artist->save();
 
         return image_storage_url($fileName);
+    }
+
+    public function clearArtistStoredData(Artist $artist): void
+    {
+        Cache::forget(cache_key('artist information', $artist->name));
+        $artist->image = '';
+        $artist->save();
+    }
+
+    public function clearAlbumStoredData(Album $album): void
+    {
+        Cache::forget(cache_key('album information', $album->name, $album->artist->name));
+        $album->cover = '';
+        $album->save();
     }
 }

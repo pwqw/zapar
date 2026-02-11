@@ -18,6 +18,7 @@ class AlbumResource extends JsonResource
         'cover',
         'created_at',
         'year',
+        'can_fetch_encyclopedia',
     ];
 
     public const PAGINATION_JSON_STRUCTURE = [
@@ -73,6 +74,10 @@ class AlbumResource extends JsonResource
                 fn () => $this->album->user_id !== $user->id,
             ),
             'favorite' => $this->unless($embedding, $this->album->favorite),
+            'can_fetch_encyclopedia' => $this->unless(
+                $embedding,
+                fn () => $this->album->artist && $this->album->artist->belongsToUser($user),
+            ),
         ];
     }
 }

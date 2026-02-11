@@ -44,7 +44,7 @@ class AlbumInformationTest extends TestCase
                 ]
             ));
 
-        $this->getAs("api/albums/{$album->id}/information")
+        $this->getAs("api/albums/{$album->id}/information", $album->artist->user)
             ->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
     }
 
@@ -54,7 +54,45 @@ class AlbumInformationTest extends TestCase
         config(['koel.services.lastfm.key' => null]);
         config(['koel.services.lastfm.secret' => null]);
 
-        $this->getAs('api/albums/' . Album::factory()->create()->id . '/information')
+        /** @var Album $album */
+        $album = Album::factory()->create();
+        $this->getAs("api/albums/{$album->id}/information", $album->artist->user)
             ->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
+    }
+
+    #[Test]
+    public function getInformationForbiddenWhenNotOwner(): void
+    {
+        /** @var Album $album */
+        $album = Album::factory()->create();
+        $otherUser = \App\Models\User::factory()->create();
+
+        $this->getAs("api/albums/{$album->id}/information", $otherUser)
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function clearInformation(): void
+    {
+        /** @var Album $album */
+        $album = Album::factory()->create(['cover' => 'stored-cover.jpg']);
+        self::assertSame('stored-cover.jpg', $album->cover);
+
+        $this->deleteAs("api/albums/{$album->id}/information", [], $album->artist->user)
+            ->assertNoContent();
+
+        $album->refresh();
+        self::assertSame('', $album->cover);
+    }
+
+    #[Test]
+    public function clearInformationForbiddenWhenNotOwner(): void
+    {
+        /** @var Album $album */
+        $album = Album::factory()->create();
+        $otherUser = \App\Models\User::factory()->create();
+
+        $this->deleteAs("api/albums/{$album->id}/information", [], $otherUser)
+            ->assertForbidden();
     }
 }

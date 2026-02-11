@@ -63,4 +63,12 @@ class ArtistPolicy
     {
         return $this->update($user, $artist);
     }
+
+    /**
+     * Only the owner of the artist (user_id) can fetch or clear encyclopedia data.
+     */
+    public function fetchEncyclopedia(User $user, Artist $artist): bool
+    {
+        return !$artist->is_unknown && !$artist->is_various && $artist->belongsToUser($user);
+    }
 }

@@ -8,6 +8,14 @@
 
     <ParagraphSkeleton v-if="loading" />
 
+    <div v-if="!loading && useEncyclopedia && canFetchEncyclopedia && !info" class="flex flex-wrap gap-2">
+      <Btn data-testid="album-info-load" @click="loadInfo">{{ t(loadInfoLabelKey) }}</Btn>
+    </div>
+
+    <div v-if="!loading && useEncyclopedia && canFetchEncyclopedia && info" class="mt-2">
+      <Btn gray data-testid="album-info-clear" @click="clearInfo">{{ t(clearDataLabelKey) }}</Btn>
+    </div>
+
     <template v-if="!loading && info?.wiki">
       <div v-html="info.wiki.full" />
 
@@ -27,7 +35,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, toRefs, watch } from 'vue'
+import { computed, ref, toRefs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { albumStore } from '@/stores/albumStore'
 import { encyclopediaService } from '@/services/encyclopediaService'
@@ -36,29 +44,48 @@ import { defineAsyncComponent } from '@/utils/helpers'
 
 import AlbumThumbnail from '@/components/ui/album-artist/AlbumOrArtistThumbnail.vue'
 import AlbumArtistInfo from '@/components/ui/album-artist/AlbumOrArtistInfo.vue'
+import Btn from '@/components/ui/form/Btn.vue'
 import ParagraphSkeleton from '@/components/ui/ParagraphSkeleton.vue'
 
-const props = withDefaults(defineProps<{ album: Album, mode?: EncyclopediaDisplayMode }>(), { mode: 'aside' })
+const props = withDefaults(defineProps<{
+  album: Album
+  mode?: EncyclopediaDisplayMode
+  canFetchEncyclopedia?: boolean
+}>(), { mode: 'aside', canFetchEncyclopedia: false })
 
 const TrackList = defineAsyncComponent(() => import('@/components/album/AlbumTrackList.vue'))
 
 const { t } = useI18n()
-const { album, mode } = toRefs(props)
+const { album, mode, canFetchEncyclopedia } = toRefs(props)
 
 const { useMusicBrainz, useLastfm, useSpotify } = useThirdPartyServices()
+
+const useEncyclopedia = computed(() => useMusicBrainz.value || useLastfm.value || useSpotify.value)
+
+/** Backend uses Last.fm first, then MusicBrainz (AppServiceProvider). */
+const loadInfoLabelKey = computed(() =>
+  useLastfm.value ? 'screens.loadInformationFromLastfm' : 'screens.loadInformationFromMusicBrainz')
+const clearDataLabelKey = computed(() =>
+  useLastfm.value ? 'screens.clearEncyclopediaDataLastfm' : 'screens.clearEncyclopediaDataMusicBrainz')
 
 const loading = ref(false)
 const info = ref<AlbumInfo | null>(null)
 
-watch(album, async () => {
+watch(album, () => {
   info.value = null
+}, { deep: true })
 
-  if (useMusicBrainz.value || useLastfm.value || useSpotify.value) {
-    loading.value = true
-    info.value = await encyclopediaService.fetchForAlbum(album.value)
-    loading.value = false
-  }
-}, { immediate: true, deep: true })
+async function loadInfo () {
+  if (!useEncyclopedia.value) return
+  loading.value = true
+  info.value = await encyclopediaService.fetchForAlbum(album.value)
+  loading.value = false
+}
+
+async function clearInfo () {
+  await encyclopediaService.clearAlbumEncyclopediaData(album.value)
+  info.value = null
+}
 </script>
 
 <style lang="postcss" scoped>
