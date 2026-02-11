@@ -13,22 +13,9 @@ class RadioStationPolicy
             return true;
         }
 
-        // Owner can access
-        if ($station->user_id === $user->id) {
-            return true;
-        }
-
-        // Public stations are accessible
-        if ($station->is_public) {
-            return true;
-        }
-
-        // If uploader is different from owner, allow access if user is the uploader
-        if ($station->uploaded_by_id && $user->id === $station->uploaded_by_id) {
-            return true;
-        }
-
-        return false;
+        return $station->user_id === $user->id
+            || $station->is_public
+            || ($station->uploaded_by_id && $user->id === $station->uploaded_by_id);
     }
 
     public function edit(User $user, RadioStation $station): bool
@@ -37,22 +24,9 @@ class RadioStationPolicy
             return true;
         }
 
-        // Owner can edit
-        if ($station->user_id === $user->id) {
-            return true;
-        }
-
-        // Manager can edit content of their managed artists (with restrictions)
-        if ($station->user && $user->canEditArtistContent($station->user, $station->uploaded_by_id)) {
-            return true;
-        }
-
-        // Uploader can edit (if different from owner and not covered by manager rules)
-        if ($station->uploaded_by_id && $user->id === $station->uploaded_by_id) {
-            return true;
-        }
-
-        return false;
+        return $station->user_id === $user->id
+            || ($station->user && $user->canEditArtistContent($station->user, $station->uploaded_by_id))
+            || ($station->uploaded_by_id && $user->id === $station->uploaded_by_id);
     }
 
     public function update(User $user, RadioStation $station): bool
@@ -71,16 +45,8 @@ class RadioStationPolicy
             return true;
         }
 
-        // Verified users can publish their own stations
-        if ($user->isVerified() && $station->user_id === $user->id) {
-            return true;
-        }
-
-        // Verified users can publish stations of their managed artists
-        if ($user->isVerified() && $station->user && $user->canEditArtistContent($station->user, $station->uploaded_by_id)) {
-            return true;
-        }
-
-        return false;
+        return $user->isVerified()
+            && ($station->user_id === $user->id
+                || ($station->user && $user->canEditArtistContent($station->user, $station->uploaded_by_id)));
     }
 }
