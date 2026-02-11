@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Enums\Acl\Permission;
+use App\Enums\Acl\Role;
 use App\Exceptions\UserProspectUpdateDeniedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\UserStoreRequest;
 use App\Http\Requests\API\UserUpdateRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Repositories\UserRepository;
 use App\Services\UserService;
 use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
     public function __construct(
-        private readonly UserRepository $userRepository,
         private readonly UserService $userService,
     ) {
     }
@@ -27,18 +25,9 @@ class UserController extends Controller
 
         $currentUser = auth()->user();
 
-        // Admins can see all users
-        if ($currentUser->hasPermissionTo(Permission::MANAGE_ALL_USERS)) {
+        if ($currentUser->hasElevatedRole()) {
             $users = User::with('managedArtists')->get();
-        }
-        // Moderators can see users in their organization
-        elseif ($currentUser->hasPermissionTo(Permission::MANAGE_ORG_USERS)) {
-            $users = User::with('managedArtists')
-                ->where('organization_id', $currentUser->organization_id)
-                ->get();
-        }
-        // Managers can only see their assigned artists
-        elseif ($currentUser->hasPermissionTo(Permission::MANAGE_ARTISTS)) {
+        } elseif ($currentUser->isManager()) {
             $users = $currentUser->managedArtists;
         } else {
             $users = collect();
@@ -80,12 +69,7 @@ class UserController extends Controller
     {
         $currentUser = auth()->user();
 
-        // Only the manager themselves, moderators, or admins can list managed artists
-        if (
-            !$currentUser->is($manager) &&
-            !$currentUser->hasPermissionTo(Permission::MANAGE_ORG_USERS) &&
-            !$currentUser->hasPermissionTo(Permission::MANAGE_ALL_USERS)
-        ) {
+        if (!$this->canManageArtistsForManager($currentUser, $manager)) {
             abort(Response::HTTP_FORBIDDEN, 'You cannot view this manager\'s artists.');
         }
 
@@ -99,17 +83,12 @@ class UserController extends Controller
     {
         $currentUser = auth()->user();
 
-        // Only the manager themselves, moderators, or admins can assign artists
-        if (
-            !$currentUser->is($manager) &&
-            !$currentUser->hasPermissionTo(Permission::MANAGE_ORG_USERS) &&
-            !$currentUser->hasPermissionTo(Permission::MANAGE_ALL_USERS)
-        ) {
+        if (!$this->canManageArtistsForManager($currentUser, $manager)) {
             abort(Response::HTTP_FORBIDDEN, 'You cannot assign artists to this manager.');
         }
 
         // Verify the artist is actually an artist role
-        if ($artist->role->value !== 'artist') {
+        if ($artist->role !== Role::ARTIST) {
             abort(Response::HTTP_BAD_REQUEST, 'The user must have the artist role.');
         }
 
@@ -133,17 +112,17 @@ class UserController extends Controller
     {
         $currentUser = auth()->user();
 
-        // Only the manager themselves, moderators, or admins can remove artists
-        if (
-            !$currentUser->is($manager) &&
-            !$currentUser->hasPermissionTo(Permission::MANAGE_ORG_USERS) &&
-            !$currentUser->hasPermissionTo(Permission::MANAGE_ALL_USERS)
-        ) {
+        if (!$this->canManageArtistsForManager($currentUser, $manager)) {
             abort(Response::HTTP_FORBIDDEN, 'You cannot remove artists from this manager.');
         }
 
         $manager->managedArtists()->detach($artist->id);
 
         return response()->json(['message' => 'Artist removed successfully.']);
+    }
+
+    private function canManageArtistsForManager(User $currentUser, User $manager): bool
+    {
+        return $currentUser->is($manager) || $currentUser->hasElevatedRole();
     }
 }

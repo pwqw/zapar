@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\Organization;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 use function Tests\create_admin;
+use function Tests\create_moderator;
+use function Tests\create_user;
 
 class UserTest extends TestCase
 {
@@ -32,5 +35,20 @@ class UserTest extends TestCase
             'role' => 'manager',
         ], create_admin())
             ->assertSuccessful();
+    }
+
+    #[Test]
+    public function moderatorCanListUsersFromOtherOrganizations(): void
+    {
+        $moderator = create_moderator();
+        $otherOrganization = Organization::factory()->create();
+        $otherOrganizationUser = create_user(['organization_id' => $otherOrganization->id]);
+
+        $response = $this->getAs('api/users', $moderator)
+            ->assertSuccessful();
+
+        $publicIds = collect($response->json())->pluck('id')->all();
+
+        self::assertContains($otherOrganizationUser->public_id, $publicIds);
     }
 }
