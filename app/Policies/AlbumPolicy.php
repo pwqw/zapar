@@ -76,12 +76,18 @@ class AlbumPolicy
     }
 
     /**
-     * Only the owner of the album's artist can fetch or clear encyclopedia data.
+     * ADMIN and MODERATOR can manage encyclopedia data for any album; otherwise only the artist owner can.
      */
     public function fetchEncyclopedia(User $user, Album $album): bool
     {
-        return !$album->is_unknown
-            && $album->artist
-            && $album->artist->belongsToUser($user);
+        if ($album->is_unknown || !$album->artist) {
+            return false;
+        }
+
+        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+            return true;
+        }
+
+        return $album->artist->belongsToUser($user);
     }
 }

@@ -60,6 +60,23 @@ class ArtistInformationTest extends TestCase
     }
 
     #[Test]
+    public function adminCanGetInformationForAnyArtist(): void
+    {
+        /** @var Artist $artist */
+        $artist = Artist::factory()->create();
+        $admin = \Tests\create_admin();
+
+        $this->mock(EncyclopediaService::class)
+            ->expects('getArtistInformation')
+            ->with(Mockery::on(static fn (Artist $a) => $a->is($artist)))
+            ->andReturn(ArtistInformation::make());
+
+        $this->getAs("api/artists/{$artist->id}/information", $admin)
+            ->assertOk()
+            ->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
+    }
+
+    #[Test]
     public function clearInformation(): void
     {
         /** @var Artist $artist */
@@ -82,5 +99,19 @@ class ArtistInformationTest extends TestCase
 
         $this->deleteAs("api/artists/{$artist->id}/information", [], $otherUser)
             ->assertForbidden();
+    }
+
+    #[Test]
+    public function adminCanClearInformationForAnyArtist(): void
+    {
+        /** @var Artist $artist */
+        $artist = Artist::factory()->create(['image' => 'stored-image.jpg']);
+        $admin = \Tests\create_admin();
+
+        $this->deleteAs("api/artists/{$artist->id}/information", [], $admin)
+            ->assertNoContent();
+
+        $artist->refresh();
+        self::assertSame('', $artist->image);
     }
 }

@@ -65,10 +65,18 @@ class ArtistPolicy
     }
 
     /**
-     * Only the owner of the artist (user_id) can fetch or clear encyclopedia data.
+     * ADMIN and MODERATOR can manage encyclopedia data for any artist; otherwise only the owner can.
      */
     public function fetchEncyclopedia(User $user, Artist $artist): bool
     {
-        return !$artist->is_unknown && !$artist->is_various && $artist->belongsToUser($user);
+        if ($artist->is_unknown || $artist->is_various) {
+            return false;
+        }
+
+        if ($user->role === Role::ADMIN || $user->role === Role::MODERATOR) {
+            return true;
+        }
+
+        return $artist->belongsToUser($user);
     }
 }

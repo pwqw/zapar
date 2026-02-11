@@ -69,7 +69,7 @@ class ArtistResource extends JsonResource
             'favorite' => $this->unless($embedding, $this->artist->favorite),
             'can_fetch_encyclopedia' => $this->unless(
                 $embedding,
-                fn () => $this->artist->belongsToUser($user),
+                fn () => $user->can('fetchEncyclopedia', $this->artist),
             ),
         ];
     }

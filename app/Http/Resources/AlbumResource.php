@@ -76,7 +76,7 @@ class AlbumResource extends JsonResource
             'favorite' => $this->unless($embedding, $this->album->favorite),
             'can_fetch_encyclopedia' => $this->unless(
                 $embedding,
-                fn () => $this->album->artist && $this->album->artist->belongsToUser($user),
+                fn () => $user->can('fetchEncyclopedia', $this->album),
             ),
         ];
     }
