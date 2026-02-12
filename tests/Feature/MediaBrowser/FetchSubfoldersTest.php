@@ -1,0 +1,47 @@
+<?php
+
+namespace Tests\Feature\KoelPlus\MediaBrowser;
+
+use App\Http\Resources\FolderResource;
+use App\Models\Folder;
+use Illuminate\Database\Eloquent\Collection;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Concerns\ConfiguresMediaPath;
+use Tests\TestCase;
+
+class FetchSubfoldersTest extends TestCase
+{
+    use ConfiguresMediaPath;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->setUpMediaPath();
+    }
+
+    #[Test]
+    public function testFetch(): void
+    {
+        /** @var Folder $folder */
+        $folder = Folder::factory()->create();
+
+        /** @var Collection $subfolders */
+        $subfolders = Folder::factory()->for($folder, 'parent')->count(2)->create();
+
+        $response = $this->getAs('/api/browse/folders?path=' . $folder->path)
+            ->assertJsonStructure([0 => FolderResource::JSON_STRUCTURE]);
+
+        self::assertEqualsCanonicalizing($subfolders->pluck('id')->toArray(), $response->json('*.id'));
+    }
+
+    #[Test]
+    public function tesFetchUnderMediaRoot(): void
+    {
+        $subfolders = Folder::factory()->count(2)->create();
+
+        $response = $this->getAs('/api/browse/folders')
+            ->assertJsonStructure([0 => FolderResource::JSON_STRUCTURE]);
+
+        self::assertEqualsCanonicalizing($subfolders->pluck('id')->toArray(), $response->json('*.id'));
+    }
+}

@@ -3,39 +3,35 @@
 namespace Tests\Feature\KoelPlus\MediaBrowser;
 
 use App\Models\Folder;
-use App\Models\Setting;
 use App\Models\Song;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\Concerns\ConfiguresMediaPath;
+use Tests\TestCase;
 
-class FetchRecursiveFolderSongsTest extends PlusTestCase
+class FetchRecursiveFolderSongsTest extends TestCase
 {
+    use ConfiguresMediaPath;
+
     public function setUp(): void
     {
         parent::setUp();
-
-        Setting::set('media_path', '/var/media');
+        $this->setUpMediaPath();
     }
 
     #[Test]
     public function includesSongsInNestedFolder(): void
     {
-        $folder = Folder::factory()->createOne(['path' => 'foo']);
-        $subfolder = Folder::factory()->for($folder, 'parent')->createOne(['path' => 'foo/bar']);
+        /** @var Folder $folder */
+        $folder = Folder::factory()->create(['path' => 'foo']);
 
-        $irrelevantFolder = Folder::factory()->createOne(['path' => 'foo/baz']);
-        Song::factory()->for($irrelevantFolder)->createOne();
+        /** @var Folder $subfolder */
+        $subfolder = Folder::factory()->for($folder, 'parent')->create(['path' => 'foo/bar']);
 
-        $songs = Song::factory()
-            ->for($subfolder)
-            ->count(2)
-            ->create()
-            ->merge(
-                Song::factory()
-                    ->for($folder)
-                    ->count(1)
-                    ->create(),
-            );
+        $irrelevantFolder = Folder::factory()->create(['path' => 'foo/baz']);
+        Song::factory()->for($irrelevantFolder)->create();
+
+        $songs = Song::factory()->for($subfolder)->count(2)->create()
+            ->merge(Song::factory()->for($folder)->count(1)->create());
 
         $response = $this->postAs('/api/songs/by-folders', [
             'paths' => ['foo', 'foo/bar'],
@@ -47,13 +43,11 @@ class FetchRecursiveFolderSongsTest extends PlusTestCase
     #[Test]
     public function resolveWhenOneOfThePathsIsRoot(): void
     {
-        $folder = Folder::factory()->createOne(['path' => 'foo']);
+        /** @var Folder $folder */
+        $folder = Folder::factory()->create(['path' => 'foo']);
 
-        $songs = Song::factory()
-            ->for($folder)
-            ->count(2)
-            ->create()
-            ->merge(Song::factory()->createMany(1));
+        $songs = Song::factory()->for($folder)->count(2)->create()
+            ->merge(Song::factory()->count(1)->create());
 
         $response = $this->postAs('/api/songs/by-folders', [
             'paths' => ['', 'foo'],

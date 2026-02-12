@@ -4,9 +4,12 @@ namespace App\Policies;
 
 use App\Models\Album;
 use App\Models\User;
+use App\Policies\Concerns\ChecksArtistContentPermissions;
 
 class AlbumPolicy
 {
+    use ChecksArtistContentPermissions;
+
     public function access(User $user, Album $album): bool
     {
         return $album->belongsToUser($user);
@@ -22,8 +25,6 @@ class AlbumPolicy
             return true;
         }
 
-        $artist = $album->artist;
-
         if ($album->belongsToUser($user)) {
             return true;
         }
@@ -32,22 +33,11 @@ class AlbumPolicy
             return false;
         }
 
-        $canEditAnySong = $album->songs()
-            ->where(function ($query) use ($user) {
-                $query->where('owner_id', $user->id)
-                    ->orWhere('uploaded_by_id', $user->id);
-            })
-            ->exists();
-
-        if (!$canEditAnySong && $artist) {
-            $canEditAnySong = $album->songs()
-                ->get()
-                ->contains(function ($song) use ($user, $artist) {
-                    return $user->canEditArtistContent($artist, $song->uploaded_by_id);
-                });
+        if (!$album->artist) {
+            return false;
         }
 
-        return $canEditAnySong;
+        return $this->canEditArtistSongs($user, $album->artist, $album->songs()->getQuery());
     }
 
     public function edit(User $user, Album $album): bool

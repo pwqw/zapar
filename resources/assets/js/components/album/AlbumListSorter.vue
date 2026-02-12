@@ -1,28 +1,28 @@
 <template>
-  <BasicListSorter :items :field :order @sort="sort" />
+  <EntityListSorter :items :field :order @sort="sort" />
 </template>
 
 <script setup lang="ts">
-import BasicListSorter from '@/components/ui/BasicListSorter.vue'
+import { useI18n } from 'vue-i18n'
+import EntityListSorter from '@/components/ui/EntityListSorter.vue'
 
-withDefaults(
-  defineProps<{
-    field?: AlbumListSortField
-    order?: SortOrder
-  }>(),
-  {
-    field: 'name',
-    order: 'asc',
-  },
-)
+withDefaults(defineProps<{
+  field?: AlbumListSortField
+  order?: SortOrder
+}>(), {
+  field: 'name',
+  order: 'asc',
+})
 
 const emit = defineEmits<{ (e: 'sort', field: AlbumListSortField, order: SortOrder): void }>()
 
-const items: { label: string; field: AlbumListSortField }[] = [
-  { label: 'Name', field: 'name' },
-  { label: 'Artist', field: 'artist_name' },
-  { label: 'Release Year', field: 'year' },
-  { label: 'Date Added', field: 'created_at' },
+const { t } = useI18n()
+
+const items: { label: string, field: AlbumListSortField }[] = [
+  { label: t('albums.sortFields.name'), field: 'name' },
+  { label: t('albums.sortFields.artist_name'), field: 'artist_name' },
+  { label: t('albums.sortFields.year'), field: 'year' },
+  { label: t('albums.sortFields.created_at'), field: 'created_at' },
 ]
 
 const sort = (field: AlbumListSortField, order: SortOrder) => emit('sort', field, order)

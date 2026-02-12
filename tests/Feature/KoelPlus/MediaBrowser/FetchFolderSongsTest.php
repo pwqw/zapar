@@ -4,36 +4,34 @@ namespace Tests\Feature\KoelPlus\MediaBrowser;
 
 use App\Http\Resources\SongFileResource;
 use App\Models\Folder;
-use App\Models\Setting;
 use App\Models\Song;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\PlusTestCase;
+use Tests\Concerns\ConfiguresMediaPath;
+use Tests\TestCase;
 
-class FetchFolderSongsTest extends PlusTestCase
+class FetchFolderSongsTest extends TestCase
 {
+    use ConfiguresMediaPath;
+
     public function setUp(): void
     {
         parent::setUp();
-
-        Setting::set('media_path', '/var/media');
+        $this->setUpMediaPath();
     }
 
     #[Test]
     public function fetchSongsInFolderWithAValidPath(): void
     {
-        $folder = Folder::factory()->createOne(['path' => 'foo']);
-        $subfolder = Folder::factory()->for($folder, 'parent')->createOne(['path' => 'foo/bar']);
+        $folder = Folder::factory()->create(['path' => 'foo']);
+        $subfolder = Folder::factory()->for($folder, 'parent')->create(['path' => 'foo/bar']);
 
         /** @var Collection $songs */
-        $songs = Song::factory()
-            ->for($folder)
-            ->count(2)
-            ->create();
+        $songs = Song::factory()->for($folder)->count(2)->create();
 
         // create songs in the subfolder, which should not be returned
-        Song::factory()->for($subfolder)->createOne();
+        Song::factory()->for($subfolder)->create();
 
         $response = $this->getAs('api/songs/in-folder?path=foo');
 
@@ -45,12 +43,12 @@ class FetchFolderSongsTest extends PlusTestCase
     public function fetchSongsInFolderWithEmptyPath(): void
     {
         /** @var Collection $songs */
-        $songs = Song::factory()->createMany(2);
+        $songs = Song::factory()->count(2)->create();
 
-        $folder = Folder::factory()->createOne(['path' => 'foo']);
+        $folder = Folder::factory()->create(['path' => 'foo']);
 
         // create songs in the folder, which should not be returned
-        Song::factory()->for($folder)->createOne();
+        Song::factory()->for($folder)->create();
 
         $response = $this->getAs('api/songs/in-folder?path=');
 
@@ -67,9 +65,9 @@ class FetchFolderSongsTest extends PlusTestCase
     public function doesNotFetchPrivateSongsFromOtherUsers(): void
     {
         /** @var Collection $songs */
-        $songs = Song::factory()->createMany(2);
+        $songs = Song::factory()->count(2)->create();
 
-        Song::factory()->createOne(['is_public' => false]);
+        Song::factory()->create(['is_public' => false]);
 
         $response = $this->getAs('api/songs/in-folder?path=');
 

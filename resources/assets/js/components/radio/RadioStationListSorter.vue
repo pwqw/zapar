@@ -1,11 +1,11 @@
 <template>
-  <BasicListSorter :items :field :order @sort="sort" />
+  <EntityListSorter :items :field :order @sort="sort" />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import BasicListSorter from '@/components/ui/BasicListSorter.vue'
+import EntityListSorter from '@/components/ui/EntityListSorter.vue'
 
 withDefaults(defineProps<{
   field?: RadioStationListSortField

@@ -3,11 +3,9 @@
 namespace App\Builders;
 
 use App\Builders\Concerns\CanScopeByUser;
-use App\Facades\License;
 use App\Models\Artist;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 use LogicException;
@@ -17,12 +15,12 @@ class ArtistBuilder extends FavoriteableBuilder
 {
     use CanScopeByUser;
 
-    public const array SORT_COLUMNS_NORMALIZE_MAP = [
+    public const SORT_COLUMNS_NORMALIZE_MAP = [
         'name' => 'artists.name',
         'created_at' => 'artists.created_at',
     ];
 
-    private const array VALID_SORT_COLUMNS = [
+    private const VALID_SORT_COLUMNS = [
         'artists.name',
         'artists.created_at',
     ];
@@ -34,28 +32,23 @@ class ArtistBuilder extends FavoriteableBuilder
 
     private function accessible(): self
     {
-        if (License::isCommunity()) {
-            return $this;
-        }
-
         throw_unless($this->user, new LogicException('User must be set to query accessible artists.'));
 
         if (!$this->user->preferences->includePublicMedia) {
+            // If the user does not want to include public media, we only return artists
+            // that belong to them.
             return $this->whereBelongsTo($this->user);
         }
 
+        // otherwise, we return artists that belong to the user or
+        // artists who have at least one public song owned by the user in the same organization.
         return $this->where(function (Builder $query): void {
-            $query
-                ->whereBelongsTo($this->user)
-                ->orWhereExists(function (QueryBuilder $sub): void {
-                    $sub
-                        ->select(DB::raw(1))
-                        ->from('songs')
-                        ->join('users', 'songs.owner_id', 'users.id')
-                        ->whereColumn('songs.artist_id', 'artists.id')
-                        ->where('songs.is_public', true)
-                        ->where('users.organization_id', $this->user->organization_id)
-                        ->where('songs.owner_id', '<>', $this->user->id);
+            $query->whereBelongsTo($this->user)
+                ->orWhereHas('songs', function (Builder $q): void {
+                    $q->where('songs.is_public', true)
+                        ->whereHas('owner', function (Builder $owner): void {
+                            $this->scopeToSameOrganizationExceptCurrentUser($owner);
+                        });
                 });
         });
     }
@@ -64,20 +57,19 @@ class ArtistBuilder extends FavoriteableBuilder
     {
         throw_unless($this->user, new LogicException('User must be set to query play counts.'));
 
-        $groupColumns = $includingFavoriteStatus ? ['artists.id', 'favorites.created_at'] : ['artists.id'];
+        $groupColumns = $includingFavoriteStatus
+            ? ['artists.id', 'favorites.created_at']
+            : ['artists.id'];
 
         // As we might have joined the `songs` table already, use an alias for the `songs` table
         // in this join to avoid conflicts.
-        return $this
-            ->leftJoin('songs as songs_for_playcount', 'artists.id', 'songs_for_playcount.artist_id')
-            ->leftJoin('interactions', function (JoinClause $join): void {
-                $join->on('interactions.song_id', 'songs_for_playcount.id')->where(
-                    'interactions.user_id',
-                    $this->user->id,
-                );
+        return $this->leftJoin('songs as songs_for_playcount', 'artists.id', 'songs_for_playcount.artist_id')
+            ->join('interactions', function (JoinClause $join): void {
+                $join->on('interactions.song_id', 'songs_for_playcount.id')
+                    ->where('interactions.user_id', $this->user->id);
             })
             ->groupBy($groupColumns)
-            ->addSelect(DB::raw('COALESCE(SUM(interactions.play_count), 0) as play_count'));
+            ->addSelect(DB::raw("SUM(interactions.play_count) as play_count"));
     }
 
     private static function normalizeSortColumn(string $column): string
@@ -105,8 +97,7 @@ class ArtistBuilder extends FavoriteableBuilder
     ): self {
         $this->user = $user;
 
-        return $this
-            ->accessible()
+        return $this->accessible()
             ->when($includeFavoriteStatus, static fn (self $query) => $query->withFavoriteStatus($favoritesOnly))
             ->when($includePlayCount, static fn (self $query) => $query->withPlayCount($includeFavoriteStatus));
     }

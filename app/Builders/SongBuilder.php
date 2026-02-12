@@ -106,8 +106,7 @@ class SongBuilder extends FavoriteableBuilder
                             ->orWhere(function (self $publicSong): void {
                                 $publicSong->where('songs.is_public', true)
                                     ->whereHas('owner', function (Builder $owner): void {
-                                        $owner->where('organization_id', $this->user->organization_id)
-                                            ->where('owner_id', '<>', $this->user->id);
+                                        $this->scopeToSameOrganizationExceptCurrentUser($owner);
                                     });
                             });
                     });
