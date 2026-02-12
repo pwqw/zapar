@@ -463,11 +463,11 @@ class User extends Authenticatable implements AuditableContract, Permissionable
      * Check if this manager can edit content belonging to an artist.
      *
      * Rules:
-     * - If artist has only 1 manager: that manager can edit ALL content
-     * - If artist has 2+ managers: each manager can only edit:
-     *   - Content they uploaded themselves (uploaded_by_id = manager.id)
-     *   - Content the artist uploaded themselves (uploaded_by_id = artist.id)
-     *   - But NOT content uploaded by other managers
+     * - Manager can edit content they uploaded themselves
+     * - Manager can edit content the artist uploaded themselves
+     * - If artist has only 1 manager: that manager can edit content uploaded by non-managers
+     * - If artist has 2+ managers: each manager can only edit their own uploads or artist's uploads
+     * - A manager can NEVER edit content uploaded by another manager of the same artist
      *
      * @param User $artist The artist who owns the content
      * @param int|null $uploadedById The ID of who uploaded the content
@@ -495,16 +495,13 @@ class User extends Authenticatable implements AuditableContract, Permissionable
             return true;
         }
 
-        // Count how many managers this artist has
-        $managerCount = $artist->managers()->count();
-
-        // If artist has only 1 manager, that manager can edit everything
-        if ($managerCount === 1) {
-            return true;
+        // Uploader is another manager of this artist: this manager cannot edit
+        if ($artist->managers()->whereKey($uploadedById)->exists()) {
+            return false;
         }
 
-        // Artist has 2+ managers: can't edit content uploaded by other managers
-        return false;
+        // Non-manager uploaded: sole manager can edit
+        return $artist->managers()->count() === 1;
     }
 
     public static function getPermissionableIdentifier(): string

@@ -27,9 +27,15 @@ class SongUpdateRequest extends Request
                 'nullable',
                 'string',
                 Rule::when(
-                    $user && $user->canAssignCoOwnerArtist(),
-                    fn () => Rule::in($user->getAssignableArtistsForCoOwner()->pluck('id')->all()),
-                    fn () => 'prohibited',
+                    $user && ($user->canAssignCoOwnerArtist() || $user->isArtist()),
+                    function () use ($user) {
+                        if ($user->canAssignCoOwnerArtist()) {
+                            return Rule::in($user->getAssignableArtistsForCoOwner()->pluck('id')->all());
+                        }
+
+                        return Rule::in([$user->public_id, null, '']);
+                    },
+                    'prohibited',
                 ),
             ],
             'songs' => ['required', 'array', Rule::exists(Song::class, 'id')->whereNull('podcast_id')],

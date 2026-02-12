@@ -314,4 +314,60 @@ class ManagerAccessTest extends TestCase
         $response->assertOk();
         $this->assertEquals($artist->id, $song->fresh()->artist_user_id);
     }
+
+    #[Test]
+    public function manager2CannotEditManager1SongDespiteManagingSameArtist(): void
+    {
+        $manager1 = create_manager();
+        $manager2 = create_manager();
+        $artist = create_artist();
+
+        $manager1->managedArtists()->attach($artist);
+        $manager2->managedArtists()->attach($artist);
+
+        // Manager1 sube una canción y asigna al artista como co-owner
+        $song = Song::factory()->create([
+            'owner_id' => $artist->id,
+            'uploaded_by_id' => $manager1->id,
+            'artist_user_id' => $artist->id,
+        ]);
+
+        // Manager2 NO puede editar aunque gestione al mismo artista
+        $this->assertFalse($manager2->canEditArtistContent($artist, $song->uploaded_by_id));
+        $this->assertFalse($manager2->can('edit', $song));
+        $this->assertFalse($manager2->can('delete', $song));
+
+        // Manager1 sí puede editar (es el subidor)
+        $this->assertTrue($manager1->can('edit', $song));
+        $this->assertTrue($manager1->can('delete', $song));
+
+        // El artista (co-owner) sí puede editar
+        $this->assertTrue($artist->can('edit', $song));
+    }
+
+    #[Test]
+    public function artistCanUpdateOwnSongWithArtistUserIdIncluded(): void
+    {
+        $manager = create_manager();
+        $artist = create_artist();
+        $manager->managedArtists()->attach($artist);
+
+        $song = Song::factory()->create([
+            'owner_id' => $artist->id,
+            'uploaded_by_id' => $manager->id,
+            'artist_user_id' => $artist->id,
+        ]);
+
+        $response = $this->putAs('api/songs', [
+            'songs' => [$song->id],
+            'data' => [
+                'title' => 'Updated by Artist',
+                'artist_user_id' => $artist->public_id,
+            ],
+        ], $artist);
+
+        $response->assertOk();
+        $this->assertEquals('Updated by Artist', $song->fresh()->title);
+        $this->assertEquals($artist->id, $song->fresh()->artist_user_id);
+    }
 }

@@ -29,6 +29,8 @@ class SongPolicy
         }
 
         return $song->ownedBy($user)
+            || ($song->artist_user_id && $user->id === $song->artist_user_id)
+            || ($song->uploaded_by_id && $user->id === $song->uploaded_by_id)
             || ($song->owner && $user->canEditArtistContent($song->owner, $song->uploaded_by_id));
     }
 
@@ -39,8 +41,9 @@ class SongPolicy
         }
 
         return $song->ownedBy($user)
-            || ($song->owner && $user->canEditArtistContent($song->owner, $song->uploaded_by_id))
-            || ($song->uploaded_by_id && $user->id === $song->uploaded_by_id);
+            || ($song->artist_user_id && $user->id === $song->artist_user_id)
+            || ($song->uploaded_by_id && $user->id === $song->uploaded_by_id)
+            || ($song->owner && $user->canEditArtistContent($song->owner, $song->uploaded_by_id));
     }
 
     public function publish(User $user, Song $song): bool
@@ -51,6 +54,8 @@ class SongPolicy
 
         return $user->isVerified()
             && ($song->ownedBy($user)
+                || ($song->artist_user_id && $user->id === $song->artist_user_id)
+                || ($song->uploaded_by_id && $user->id === $song->uploaded_by_id)
                 || ($song->owner && $user->canEditArtistContent($song->owner, $song->uploaded_by_id)));
     }
 
