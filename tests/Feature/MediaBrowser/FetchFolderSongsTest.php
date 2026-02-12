@@ -4,20 +4,21 @@ namespace Tests\Feature\KoelPlus\MediaBrowser;
 
 use App\Http\Resources\SongFileResource;
 use App\Models\Folder;
-use App\Models\Setting;
 use App\Models\Song;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Concerns\ConfiguresMediaPath;
 use Tests\TestCase;
 
 class FetchFolderSongsTest extends TestCase
 {
+    use ConfiguresMediaPath;
+
     public function setUp(): void
     {
         parent::setUp();
-
-        Setting::set('media_path', '/var/media');
+        $this->setUpMediaPath();
     }
 
     #[Test]

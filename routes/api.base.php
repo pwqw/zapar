@@ -49,11 +49,8 @@ use App\Http\Controllers\API\PlaylistSongController;
 use App\Http\Controllers\API\Podcast\PodcastController;
 use App\Http\Controllers\API\Podcast\PodcastEpisodeController;
 use App\Http\Controllers\API\Podcast\UnsubscribeFromPodcastController;
-use App\Http\Controllers\API\PrivatizePodcastsController;
-use App\Http\Controllers\API\PrivatizeSongsController;
 use App\Http\Controllers\API\ProfileController;
-use App\Http\Controllers\API\PublicizePodcastsController;
-use App\Http\Controllers\API\PublicizeSongsController;
+use App\Http\Controllers\API\ResourceVisibilityController;
 use App\Http\Controllers\API\QueueStateController;
 use App\Http\Controllers\API\RadioStationController;
 use App\Http\Controllers\API\RegisterPlayController;
@@ -236,8 +233,8 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
         Route::post('invitations', [UserInvitationController::class, 'invite']);
         Route::delete('invitations', [UserInvitationController::class, 'revoke']);
 
-        Route::put('songs/publicize', PublicizeSongsController::class);
-        Route::put('songs/privatize', PrivatizeSongsController::class);
+        Route::put('songs/publicize', [ResourceVisibilityController::class, 'publicizeSongs']);
+        Route::put('songs/privatize', [ResourceVisibilityController::class, 'privatizeSongs']);
 
         // Playlist collaboration routes
         Route::post('playlists/{playlist}/collaborators/invite', CreatePlaylistCollaborationTokenController::class);
@@ -246,8 +243,8 @@ Route::prefix('api')->middleware('api')->group(static function (): void {
         Route::delete('playlists/{playlist}/collaborators', [PlaylistCollaboratorController::class, 'destroy']);
 
         // Podcast routes
-        Route::put('podcasts/publicize', PublicizePodcastsController::class);
-        Route::put('podcasts/privatize', PrivatizePodcastsController::class);
+        Route::put('podcasts/publicize', [ResourceVisibilityController::class, 'publicizePodcasts']);
+        Route::put('podcasts/privatize', [ResourceVisibilityController::class, 'privatizePodcasts']);
         Route::apiResource('podcasts', PodcastController::class);
         Route::apiResource('podcasts.episodes', PodcastEpisodeController::class);
         Route::delete('podcasts/{podcast}/subscriptions', UnsubscribeFromPodcastController::class);

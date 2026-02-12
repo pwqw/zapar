@@ -72,7 +72,9 @@ class Playlist extends Model implements AuditableContract, Embeddable
 
     protected function owner(): Attribute
     {
-        return Attribute::get(fn () => $this->users()->wherePivot('role', 'owner')->sole())->shouldCache();
+        return Attribute::get(
+            fn (): User => $this->users->sole(static fn (User $user): bool => $user->pivot->role === 'owner')
+        )->shouldCache();
     }
 
     public function collaborators(): BelongsToMany

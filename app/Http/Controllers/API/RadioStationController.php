@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Attributes\DisabledInDemo;
+use App\Http\Controllers\API\Concerns\AuthorizesVisibilityChanges;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Radio\RadioStationStoreRequest;
 use App\Http\Requests\API\Radio\RadioStationUpdateRequest;
@@ -16,6 +17,8 @@ use Illuminate\Http\Response;
 
 class RadioStationController extends Controller
 {
+    use AuthorizesVisibilityChanges;
+
     /** @param User $user */
     public function __construct(
         private readonly RadioStationRepository $repository,
@@ -44,9 +47,13 @@ class RadioStationController extends Controller
     {
         $this->authorize('update', $station);
 
-        // Only verify publish permission when making the station public (not when making it private)
-        if ($request->has('is_public') && $request->boolean('is_public') && !$station->is_public) {
-            $this->authorize('publish', $station);
+        if ($request->has('is_public') && $request->boolean('is_public') !== $station->is_public) {
+            $this->authorizeVisibilityChange(
+                resource: $station,
+                isPublic: $request->boolean('is_public'),
+                publishAbility: 'publish',
+                privatizeAbility: 'update',
+            );
         }
 
         return RadioStationResource::make($this->radioService->updateRadioStation($station, $request->toDto()));

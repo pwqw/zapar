@@ -4,18 +4,19 @@ namespace Tests\Feature\KoelPlus\MediaBrowser;
 
 use App\Http\Resources\FolderResource;
 use App\Models\Folder;
-use App\Models\Setting;
 use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Concerns\ConfiguresMediaPath;
 use Tests\TestCase;
 
 class FetchSubfoldersTest extends TestCase
 {
+    use ConfiguresMediaPath;
+
     public function setUp(): void
     {
         parent::setUp();
-
-        Setting::set('media_path', '/var/media');
+        $this->setUpMediaPath();
     }
 
     #[Test]

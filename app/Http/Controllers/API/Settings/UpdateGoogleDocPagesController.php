@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\API\Settings;
 
-use App\Enums\Acl\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\API\Settings\Concerns\AuthorizesManageSettings;
 use App\Http\Requests\API\Settings\UpdateGoogleDocPagesRequest;
 use App\Models\User;
 use App\Services\SettingService;
@@ -12,6 +12,8 @@ use Illuminate\Http\Response;
 
 class UpdateGoogleDocPagesController extends Controller
 {
+    use AuthorizesManageSettings;
+
     /** @param User $user */
     public function __construct(
         private readonly SettingService $settingService,
@@ -21,10 +23,7 @@ class UpdateGoogleDocPagesController extends Controller
 
     public function __invoke(UpdateGoogleDocPagesRequest $request): Response
     {
-        abort_unless(
-            $this->user->hasPermissionTo(Permission::MANAGE_SETTINGS),
-            Response::HTTP_FORBIDDEN,
-        );
+        $this->authorizeManageSettings($this->user);
 
         $this->settingService->updateGoogleDocPages($request->pages);
 

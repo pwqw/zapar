@@ -42,7 +42,6 @@ class RadioService
             'url' => $dto->url,
             'name' => $dto->name,
             'description' => $dto->description,
-            'is_public' => $dto->isPublic,
         ];
 
         if (is_string($dto->logo)) {
@@ -50,7 +49,17 @@ class RadioService
         }
 
         $radioStation->update($data);
+        $this->setVisibility($radioStation, $dto->isPublic);
 
         return $this->repository->findOneWithUserContext($radioStation->id, $radioStation->user);
+    }
+
+    public function setVisibility(RadioStation $radioStation, bool $isPublic): void
+    {
+        if ($radioStation->is_public === $isPublic) {
+            return;
+        }
+
+        $radioStation->update(['is_public' => $isPublic]);
     }
 }

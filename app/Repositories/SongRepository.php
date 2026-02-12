@@ -192,18 +192,10 @@ class SongRepository extends Repository implements ScoutableRepository
     {
         throw_if($playlist->is_smart, new LogicException('Not a standard playlist.'));
 
-        return Song::query(user: $scopedUser ?? $this->auth->user())
-            ->withUserContext()
-            ->leftJoin('playlist_song', 'songs.id', '=', 'playlist_song.song_id')
-            ->leftJoin('playlists', 'playlists.id', '=', 'playlist_song.playlist_id')
-            ->join('users as collaborators', 'playlist_song.user_id', '=', 'collaborators.id')
-            ->addSelect(
-                'collaborators.public_id as collaborator_public_id',
-                'collaborators.name as collaborator_name',
-                'collaborators.email as collaborator_email',
-                'collaborators.avatar as collaborator_avatar',
-                'playlist_song.created_at as added_at'
-            )
+        return $this->withCollaborativePlaylistContext(
+            Song::query(user: $scopedUser ?? $this->auth->user())->withUserContext(),
+            includeCollaboratorAvatar: true,
+        )
             ->where('playlists.id', $playlist->id)
             ->orderBy('playlist_song.position')
             ->get();
@@ -272,19 +264,33 @@ class SongRepository extends Repository implements ScoutableRepository
      */
     public function getManyInCollaborativeContext(array $ids, ?User $scopedUser = null): Collection
     {
-        return Song::query(user: $scopedUser ?? $this->auth->user())
-            ->withUserContext()
+        return $this->withCollaborativePlaylistContext(
+            Song::query(user: $scopedUser ?? $this->auth->user())->withUserContext(),
+        )
+            ->whereIn('songs.id', $ids)
+            ->get();
+    }
+
+    private function withCollaborativePlaylistContext(
+        SongBuilder $query,
+        bool $includeCollaboratorAvatar = false,
+    ): SongBuilder {
+        $columns = [
+            'collaborators.public_id as collaborator_public_id',
+            'collaborators.name as collaborator_name',
+            'collaborators.email as collaborator_email',
+            'playlist_song.created_at as added_at',
+        ];
+
+        if ($includeCollaboratorAvatar) {
+            $columns[] = 'collaborators.avatar as collaborator_avatar';
+        }
+
+        return $query
             ->leftJoin('playlist_song', 'songs.id', '=', 'playlist_song.song_id')
             ->leftJoin('playlists', 'playlists.id', '=', 'playlist_song.playlist_id')
             ->join('users as collaborators', 'playlist_song.user_id', '=', 'collaborators.id')
-            ->addSelect(
-                'collaborators.public_id as collaborator_public_id',
-                'collaborators.name as collaborator_name',
-                'collaborators.email as collaborator_email',
-                'playlist_song.created_at as added_at'
-            )
-            ->whereIn('songs.id', $ids)
-            ->get();
+            ->addSelect($columns);
     }
 
     /** @param string $id */

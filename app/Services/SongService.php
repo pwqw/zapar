@@ -57,22 +57,35 @@ class SongService
             $noTrackUpdate = $multiSong && !$data->track;
             $affectedAlbums = collect();
             $affectedArtists = collect();
+            $affectedAlbumIds = [];
+            $affectedArtistIds = [];
 
             Song::query()->with('artist.user', 'album.artist', 'album.artist.user')->findMany($ids)->each(
-                function (Song $song) use ($data, $result, $noTrackUpdate, $affectedAlbums, $affectedArtists): void {
+                function (Song $song) use (
+                    $data,
+                    $result,
+                    $noTrackUpdate,
+                    $affectedAlbums,
+                    $affectedArtists,
+                    &$affectedAlbumIds,
+                    &$affectedArtistIds,
+                ): void {
                     if ($noTrackUpdate) {
                         $data->track = $song->track;
                     }
 
-                    if ($affectedAlbums->pluck('id')->doesntContain($song->album_id)) {
+                    if (!isset($affectedAlbumIds[$song->album_id])) {
+                        $affectedAlbumIds[$song->album_id] = true;
                         $affectedAlbums->push($song->album);
                     }
 
-                    if ($affectedArtists->pluck('id')->doesntContain($song->artist_id)) {
+                    if (!isset($affectedArtistIds[$song->artist_id])) {
+                        $affectedArtistIds[$song->artist_id] = true;
                         $affectedArtists->push($song->artist);
                     }
 
-                    if ($affectedArtists->pluck('id')->doesntContain($song->album->artist_id)) {
+                    if (!isset($affectedArtistIds[$song->album->artist_id])) {
+                        $affectedArtistIds[$song->album->artist_id] = true;
                         $affectedArtists->push($song->album_artist);
                     }
 
@@ -84,15 +97,27 @@ class SongService
                 },
             );
 
-            $affectedAlbums->each(static function (Album $album) use ($result): void {
-                if ($album->refresh()->songs()->count() === 0) {
+            $albumCounts = Song::query()
+                ->whereIn('album_id', $affectedAlbums->pluck('id'))
+                ->selectRaw('album_id, count(*) as songs_count')
+                ->groupBy('album_id')
+                ->pluck('songs_count', 'album_id');
+
+            $affectedAlbums->each(static function (Album $album) use ($result, $albumCounts): void {
+                if (($albumCounts[$album->id] ?? 0) === 0) {
                     $result->addRemovedAlbum($album);
                     $album->delete();
                 }
             });
 
-            $affectedArtists->each(static function (Artist $artist) use ($result): void {
-                if ($artist->refresh()->songs()->count() === 0) {
+            $artistCounts = Song::query()
+                ->whereIn('artist_id', $affectedArtists->pluck('id'))
+                ->selectRaw('artist_id, count(*) as songs_count')
+                ->groupBy('artist_id')
+                ->pluck('songs_count', 'artist_id');
+
+            $affectedArtists->each(static function (Artist $artist) use ($result, $artistCounts): void {
+                if (($artistCounts[$artist->id] ?? 0) === 0) {
                     $result->addRemovedArtist($artist);
                     $artist->delete();
                 }
@@ -153,9 +178,8 @@ class SongService
 
     public function markSongsAsPublic(EloquentCollection $songs, ?User $user = null): void
     {
-        // If a user is provided, only allow if they have publish permission
         if ($user) {
-            $songs = $songs->filter(static fn (Song $song) => auth()->user()?->can('publish', $song));
+            $songs = $songs->filter(static fn (Song $song) => $user->can('publish', $song));
         }
 
         $songs->toQuery()->update(['is_public' => true]);
@@ -164,9 +188,8 @@ class SongService
     /** @return array<string> IDs of songs that are marked as private */
     public function markSongsAsPrivate(EloquentCollection $songs, ?User $user = null): array
     {
-        // If a user is provided, only allow if they have edit permission (making private doesn't require publish)
         if ($user) {
-            $songs = $songs->filter(static fn (Song $song) => auth()->user()?->can('edit', $song));
+            $songs = $songs->filter(static fn (Song $song) => $user->can('edit', $song));
         }
 
         // Songs that are in collaborative playlists can't be marked as private.

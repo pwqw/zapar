@@ -25,7 +25,7 @@ import { podcastStore } from '@/stores/podcastStore'
 import { playback } from '@/services/playbackManager'
 import { useDialogBox } from '@/composables/useDialogBox'
 import { useMessageToaster } from '@/composables/useMessageToaster'
-import { acl } from '@/services/acl'
+import { usePolicies } from '@/composables/usePolicies'
 
 const props = defineProps<{ podcast: Podcast }>()
 const { podcast } = toRefs(props)
@@ -35,13 +35,14 @@ const { go, url } = useRouter()
 const { MenuItem, Separator, trigger } = useContextMenu()
 const { showConfirmDialog } = useDialogBox()
 const { toastSuccess } = useMessageToaster()
+const { currentUserCan } = usePolicies()
 
 const canDelete = ref(false)
 const canChangeVisibility = ref(false)
 
 onMounted(async () => {
-  canDelete.value = await acl.checkResourcePermission('podcast', podcast.value.id, 'delete')
-  canChangeVisibility.value = await acl.checkResourcePermission('podcast', podcast.value.id, 'publish')
+  canDelete.value = await currentUserCan.deletePodcast(podcast.value)
+  canChangeVisibility.value = await currentUserCan.publishPodcast(podcast.value)
 })
 
 const play = () => trigger(async () => {

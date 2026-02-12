@@ -22,6 +22,9 @@ export const usePolicies = () => {
     editPlaylist: (playlist: Playlist) => playlist.owner_id === currentUser.value.id,
     editAlbum: async (album: Album) => await acl.checkResourcePermission('album', album.id, 'edit'),
     editArtist: async (artist: Artist) => await acl.checkResourcePermission('artist', artist.id, 'edit'),
+    editPodcast: async (podcast: Podcast) => await acl.checkResourcePermission('podcast', podcast.id, 'edit'),
+    deletePodcast: async (podcast: Podcast) => await acl.checkResourcePermission('podcast', podcast.id, 'delete'),
+    publishPodcast: async (podcast: Podcast) => await acl.checkResourcePermission('podcast', podcast.id, 'publish'),
     editUser: async (user: User) => await acl.checkResourcePermission('user', user.id, 'edit'),
     deleteUser: async (user: User) => await acl.checkResourcePermission('user', user.id, 'delete'),
 
