@@ -436,6 +436,7 @@ type CurrentUser = User & {
   preferences: UserPreferences
   permissions: Permission[]
   managed_artists?: Array<{ id: string, name: string }>
+  co_owner_artist_options?: Array<{ id: string, name: string }>
 }
 
 interface Settings {

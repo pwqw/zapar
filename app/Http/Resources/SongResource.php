@@ -124,6 +124,9 @@ class SongResource extends JsonResource
         } else {
             $data += [
                 'owner_id' => $this->unless($embedding, $this->song->owner->public_id),
+                'artist_user_id' => $this->unless($embedding, fn () => $this->song->relationLoaded('artistUser')
+                ? $this->song->artistUser?->public_id
+                : ($this->song->artist_user_id ? User::whereKey($this->song->artist_user_id)->value('public_id') : null)),
                 'is_external' => $this->unless(
                     $embedding,
                     fn () => !$this->song->ownedBy($user),

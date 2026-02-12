@@ -17,9 +17,21 @@ class SongUpdateRequest extends Request
     /** @inheritdoc */
     public function rules(): array
     {
+        $user = $this->user();
+
         return [
             'data' => 'required|array',
             'data.song_cover' => ['sometimes', 'nullable', 'string', new ValidImageData()],
+            'data.artist_user_id' => [
+                'sometimes',
+                'nullable',
+                'string',
+                Rule::when(
+                    $user && $user->canAssignCoOwnerArtist(),
+                    fn () => Rule::in($user->getAssignableArtistsForCoOwner()->pluck('id')->all()),
+                    fn () => 'prohibited',
+                ),
+            ],
             'songs' => ['required', 'array', Rule::exists(Song::class, 'id')->whereNull('podcast_id')],
         ];
     }

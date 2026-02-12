@@ -346,6 +346,64 @@ class User extends Authenticatable implements AuditableContract, Permissionable
         return $this->role->level() >= RoleEnum::MODERATOR->level();
     }
 
+    /**
+     * Whether this user can assign a co-owner (artist) to songs in the edit form.
+     * Admin, moderator, and manager can—each with different artist visibility.
+     */
+    public function canAssignCoOwnerArtist(): bool
+    {
+        return $this->isAdmin() || $this->isModerator() || $this->isManager();
+    }
+
+    /**
+     * Users (artist role) this user can assign as song co-owner.
+     * Admin: all artists; Moderator: artists in same org; Manager: managed artists only.
+     *
+     * @return \Illuminate\Support\Collection<int, array{id: string, name: string}>
+     */
+    public function getAssignableArtistsForCoOwner(): \Illuminate\Support\Collection
+    {
+        if ($this->isAdmin()) {
+            return static::query()
+                ->whereRole(RoleEnum::ARTIST)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (User $u) => ['id' => $u->public_id, 'name' => $u->name]);
+        }
+
+        if ($this->isModerator()) {
+            return static::query()
+                ->whereRole(RoleEnum::ARTIST)
+                ->where('organization_id', $this->organization_id)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (User $u) => ['id' => $u->public_id, 'name' => $u->name]);
+        }
+
+        if ($this->isManager()) {
+            return $this->managedArtists
+                ->sortBy('name')
+                ->map(fn (User $u) => ['id' => $u->public_id, 'name' => $u->name])
+                ->values();
+        }
+
+        return collect();
+    }
+
+    /**
+     * Whether the given artist user (by public_id) can be assigned as co-owner by this user.
+     */
+    public function canAssignArtistAsCoOwner(?string $artistUserPublicId): bool
+    {
+        if ($artistUserPublicId === null || $artistUserPublicId === '') {
+            return true;
+        }
+
+        $assignableIds = $this->getAssignableArtistsForCoOwner()->pluck('id')->all();
+
+        return in_array($artistUserPublicId, $assignableIds, true);
+    }
+
     public function canUploadAs(User $artist): bool
     {
         // User can upload as themselves or as an artist they manage
