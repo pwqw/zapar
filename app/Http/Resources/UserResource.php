@@ -24,6 +24,7 @@ class UserResource extends JsonResource
         'permissions',
         'verified',
         'managed_artists',
+        'co_owner_artist_options',
     ];
 
     public function __construct(private readonly User $user)
@@ -59,6 +60,10 @@ class UserResource extends JsonResource
                     'id' => $artist->public_id,
                     'name' => $artist->name,
                 ])->toArray(),
+            ),
+            'co_owner_artist_options' => $this->when(
+                $isCurrentUser && $this->user->canAssignCoOwnerArtist(),
+                fn () => $this->user->getAssignableArtistsForCoOwner()->values()->all(),
             ),
         ];
     }

@@ -117,7 +117,7 @@ class Song extends Model implements AuditableContract, Favoriteable, Embeddable
         'favorite' => 'bool',
     ];
 
-    protected $with = ['album', 'artist', 'album.artist', 'podcast', 'genres', 'owner'];
+    protected $with = ['album', 'artist', 'album.artist', 'podcast', 'genres', 'owner', 'artistUser'];
 
     public static function query(?PlayableType $type = null, ?User $user = null): SongBuilder
     {

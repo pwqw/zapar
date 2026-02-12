@@ -9,8 +9,10 @@ use App\Models\User;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+use function Tests\create_admin;
 use function Tests\create_artist;
 use function Tests\create_manager;
+use function Tests\create_moderator;
 
 class ManagerAccessTest extends TestCase
 {
@@ -279,5 +281,37 @@ class ManagerAccessTest extends TestCase
 
         $this->assertEquals($artist->id, $song->artist_user_id);
         $this->assertEquals($artist->id, $song->artistUser->id);
+    }
+
+    #[Test]
+    public function adminCanSetArtistUserIdViaApi(): void
+    {
+        $admin = create_admin();
+        $artist = create_artist();
+        $song = Song::factory()->for($admin, 'owner')->create(['artist_user_id' => null]);
+
+        $response = $this->putAs('api/songs', [
+            'songs' => [$song->id],
+            'data' => ['artist_user_id' => $artist->public_id],
+        ], $admin);
+
+        $response->assertOk();
+        $this->assertEquals($artist->id, $song->fresh()->artist_user_id);
+    }
+
+    #[Test]
+    public function moderatorCanSetArtistUserIdForArtistInSameOrg(): void
+    {
+        $moderator = create_moderator();
+        $artist = create_artist(['organization_id' => $moderator->organization_id]);
+        $song = Song::factory()->for($moderator, 'owner')->create(['artist_user_id' => null]);
+
+        $response = $this->putAs('api/songs', [
+            'songs' => [$song->id],
+            'data' => ['artist_user_id' => $artist->public_id],
+        ], $moderator);
+
+        $response->assertOk();
+        $this->assertEquals($artist->id, $song->fresh()->artist_user_id);
     }
 }

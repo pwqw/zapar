@@ -144,7 +144,7 @@
             </FormRow>
           </FormRow>
 
-          <FormRow v-if="editingOnlyOneSong && isCurrentUserManager && managedArtistsOptions.length > 0">
+          <FormRow v-if="editingOnlyOneSong && canAssignCoOwnerArtist && coOwnerArtistOptions.length > 0">
             <template #label>{{ t('songs.artist') }} (Co-owner)</template>
             <SelectBox
               v-model="data.artist_user_id"
@@ -152,7 +152,7 @@
               name="artist_user_id"
             >
               <option :value="null" disabled>{{ t('form.placeholders.selectOne') }}</option>
-              <option v-for="artist in managedArtistsOptions" :key="artist.value" :value="artist.value">
+              <option v-for="artist in coOwnerArtistOptions" :key="artist.value" :value="artist.value">
                 {{ artist.label }}
               </option>
             </SelectBox>
@@ -304,10 +304,13 @@ const coverUrl = computed(() => {
   return defaultCover
 })
 
-const isCurrentUserManager = computed(() => userStore.current?.role === 'manager')
+const canAssignCoOwnerArtist = computed(() => {
+  const role = userStore.current?.role
+  return role === 'admin' || role === 'moderator' || role === 'manager'
+})
 
-const managedArtistsOptions = computed(() => {
-  const artists = userStore.current?.managed_artists || []
+const coOwnerArtistOptions = computed(() => {
+  const artists = userStore.current?.co_owner_artist_options || userStore.current?.managed_artists || []
   return artists.map((artist: { id: string, name: string }) => ({
     label: artist.name,
     value: artist.id,

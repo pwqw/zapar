@@ -242,6 +242,7 @@ class SongRepository extends Repository implements ScoutableRepository
     {
         $songs = Song::query(user: $scopedUser ?? $this->auth->user())
             ->withUserContext()
+            ->with('artistUser')
             ->whereIn('songs.id', $ids)
             ->get();
 
