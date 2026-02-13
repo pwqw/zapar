@@ -86,13 +86,25 @@ class SongRepository extends Repository implements ScoutableRepository
         array $sortColumns,
         string $sortDirection,
         ?User $scopedUser = null,
-        int $perPage = 50
+        int $perPage = 50,
+        bool $ownedOnly = false
     ): Paginator {
         $scopedUser ??= $this->auth->user();
 
-        return Song::query(type: PlayableType::SONG, user: $scopedUser)
-            ->withUserContext()
-            ->sort($sortColumns, $sortDirection)
+        $query = Song::query(type: PlayableType::SONG, user: $scopedUser)
+            ->withUserContext();
+
+        if ($ownedOnly && $scopedUser) {
+            $query->where(function (Builder $q) use ($scopedUser): void {
+                $q->where('uploaded_by_id', $scopedUser->id)
+                    ->orWhere(function (Builder $artistQ) use ($scopedUser): void {
+                        $artistQ->whereNotNull('artist_user_id')
+                            ->where('artist_user_id', $scopedUser->id);
+                    });
+            });
+        }
+
+        return $query->sort($sortColumns, $sortDirection)
             ->simplePaginate($perPage);
     }
 
@@ -120,10 +132,23 @@ class SongRepository extends Repository implements ScoutableRepository
         string $sortDirection,
         int $limit = self::LIST_SIZE_LIMIT,
         ?User $scopedUser = null,
+        bool $ownedOnly = false
     ): Collection {
-        return Song::query(type: PlayableType::SONG, user: $scopedUser ?? $this->auth->user())
-            ->withUserContext()
-            ->sort($sortColumns, $sortDirection)
+        $scopedUser ??= $this->auth->user();
+        $query = Song::query(type: PlayableType::SONG, user: $scopedUser)
+            ->withUserContext();
+
+        if ($ownedOnly && $scopedUser) {
+            $query->where(function (Builder $q) use ($scopedUser): void {
+                $q->where('uploaded_by_id', $scopedUser->id)
+                    ->orWhere(function (Builder $artistQ) use ($scopedUser): void {
+                        $artistQ->whereNotNull('artist_user_id')
+                            ->where('artist_user_id', $scopedUser->id);
+                    });
+            });
+        }
+
+        return $query->sort($sortColumns, $sortDirection)
             ->limit($limit)
             ->get();
     }
@@ -228,11 +253,23 @@ class SongRepository extends Repository implements ScoutableRepository
     }
 
     /** @return Collection|array<array-key, Song> */
-    public function getRandom(int $limit, ?User $scopedUser = null): Collection
+    public function getRandom(int $limit, ?User $scopedUser = null, bool $ownedOnly = false): Collection
     {
-        return Song::query(type: PlayableType::SONG, user: $scopedUser ?? $this->auth->user())
-            ->withUserContext()
-            ->inRandomOrder()
+        $scopedUser ??= $this->auth->user();
+        $query = Song::query(type: PlayableType::SONG, user: $scopedUser)
+            ->withUserContext();
+
+        if ($ownedOnly && $scopedUser) {
+            $query->where(function (Builder $q) use ($scopedUser): void {
+                $q->where('uploaded_by_id', $scopedUser->id)
+                    ->orWhere(function (Builder $artistQ) use ($scopedUser): void {
+                        $artistQ->whereNotNull('artist_user_id')
+                            ->where('artist_user_id', $scopedUser->id);
+                    });
+            });
+        }
+
+        return $query->inRandomOrder()
             ->limit($limit)
             ->get();
     }

@@ -1,6 +1,6 @@
 <template>
   <nav
-    :class="{ collapsed: !expanded, 'tmp-showing': tmpShowing, showing: mobileShowing }"
+    :class="{ 'collapsed': !expanded, 'tmp-showing': tmpShowing, 'showing': mobileShowing }"
     class="group left-0 top-0 flex flex-col fixed h-full w-full md:relative md:w-k-sidebar-width z-[999] md:z-10"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
@@ -14,18 +14,14 @@
     </section>
 
     <section class="home-search-block p-6 flex gap-2">
-      <HomeButton v-show="!searchFocused" />
-      <SearchForm class="flex-1" @focus-change="onSearchFocusChange" />
+      <HomeButton />
+      <SearchForm class="flex-1" />
     </section>
 
     <section v-koel-overflow-fade class="pt-2 pb-10 overflow-y-auto space-y-8">
       <SidebarYourMusicSection />
       <SidebarPlaylistsSection />
-      <SidebarManageSection v-if="showManageOptions" />
-    </section>
-
-    <section v-if="canUpgradeToPlus" class="p-6 flex-1 flex flex-col-reverse">
-      <BtnUpgradeToPlus />
+      <SidebarManageSection />
     </section>
 
     <SidebarToggleButton
@@ -38,14 +34,11 @@
 
 <script lang="ts" setup>
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { eventBus } from '@/utils/eventBus'
-import { useKoelPlus } from '@/composables/useKoelPlus'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 import { useRouter } from '@/composables/useRouter'
-import { usePolicies } from '@/composables/usePolicies'
 
-import BtnUpgradeToPlus from '@/components/koel-plus/BtnUpgradeToPlus.vue'
 import HomeButton from '@/components/layout/main-wrapper/sidebar/HomeButton.vue'
 import SearchForm from '@/components/ui/SearchForm.vue'
 import SideSheetButton from '@/components/layout/main-wrapper/side-sheet/SideSheetButton.vue'
@@ -55,14 +48,9 @@ import SidebarToggleButton from '@/components/layout/main-wrapper/sidebar/Sideba
 import SidebarYourMusicSection from './SidebarYourLibrarySection.vue'
 
 const { onRouteChanged } = useRouter()
-const { currentUserCan } = usePolicies()
-const { isPlus } = useKoelPlus()
 const { get: lsGet, set: lsSet } = useLocalStorage()
 
 const mobileShowing = ref(false)
-const searchFocused = ref(false)
-
-const onSearchFocusChange = (focused: boolean) => (searchFocused.value = focused)
 const expanded = ref(!lsGet('sidebar-collapsed', false))
 
 watch(expanded, value => lsSet('sidebar-collapsed', !value))
@@ -96,12 +84,6 @@ const onMouseLeave = (e: MouseEvent) => {
   tmpShowing.value = false
 }
 
-const showManageOptions = computed(
-  () => currentUserCan.manageSettings() || currentUserCan.manageUsers() || currentUserCan.uploadSongs(),
-)
-
-const canUpgradeToPlus = computed(() => !isPlus.value && currentUserCan.manageSettings())
-
 onRouteChanged(_ => (mobileShowing.value = false))
 
 const collapseSidebar = () => (mobileShowing.value = false)
@@ -117,10 +99,12 @@ eventBus.on('TOGGLE_SIDEBAR', () => (mobileShowing.value = !mobileShowing.value)
 @import '@/../css/partials/mixins.pcss';
 
 nav {
+  @apply bg-k-fg-5;
   -ms-overflow-style: -ms-autohiding-scrollbar;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
 
   &.collapsed {
-    @apply w-4 transition-[width] duration-200;
+    @apply w-[24px] transition-[width] duration-200;
 
     > *:not(.btn-toggle) {
       @apply hidden;
@@ -143,7 +127,7 @@ nav {
     @mixin themed-background {
     }
 
-    transform: translateX(-100vw);
+    transform: translateX(-100%);
     transition: transform 0.2s ease-in-out;
 
     &.showing {

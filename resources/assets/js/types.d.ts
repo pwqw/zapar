@@ -6,15 +6,29 @@ declare module '*.svg'
 declare type Closure<T = unknown | any> = (...args: Array<unknown | any>) => T
 
 declare module 'sketch-js' {
-  function create(config: Record<string, any>): any
+  function create (config: Record<string, any>): any
 }
 
 declare module 'youtube-player' {
   import type { YouTubePlayer } from 'youtube-player/dist/types'
 
-  function createYouTubePlayer(name: string, options: Record<string, any>): YouTubePlayer
+  function createYouTubePlayer (name: string, options: Record<string, any>): YouTubePlayer
 
   export default createYouTubePlayer
+}
+
+interface Plyr {
+  media: HTMLMediaElement
+
+  restart: () => void
+
+  play: () => void
+
+  pause: () => void
+
+  seek: (position: number) => void
+
+  setVolume: (volume: number) => void
 }
 
 declare module 'ismobilejs' {
@@ -24,20 +38,17 @@ declare module 'ismobilejs' {
 }
 
 declare module 'nouislider' {
-  function create(
-    el: HTMLElement,
-    config: {
-      connect: boolean[]
-      start: number
-      range: {
-        min: number
-        max: number
-      }
-      orientation: 'horizontal' | 'vertical'
-      direction: 'ltr' | 'rtl'
-      step?: number
-    },
-  ): void
+  function create (el: HTMLElement, config: {
+    connect: boolean[]
+    start: number
+    range: {
+      min: number
+      max: number
+    }
+    orientation: 'horizontal' | 'vertical'
+    direction: 'ltr' | 'rtl'
+    step?: number
+  }): void
 }
 
 interface Constructable<T> {
@@ -48,7 +59,7 @@ type MaybeArray<T> = T | T[]
 
 interface CompositeToken {
   'audio-token': string
-  token: string
+  'token': string
 }
 
 type SSOProvider = 'Google' | 'Reverse Proxy'
@@ -263,35 +274,14 @@ interface SmartPlaylistRuleGroup {
 }
 
 interface SmartPlaylistModel {
-  name:
-    | 'title'
-    | 'length'
-    | 'created_at'
-    | 'updated_at'
-    | 'album.name'
-    | 'artist.name'
-    | 'interactions.play_count'
-    | 'interactions.last_played_at'
-    | 'genre'
-    | 'year'
+  name: 'title' | 'length' | 'created_at' | 'updated_at' | 'album.name' | 'artist.name' | 'interactions.play_count' | 'interactions.last_played_at' | 'genre' | 'year'
   type: 'text' | 'number' | 'date'
   label: string
   unit?: 'seconds' | 'days'
 }
 
 interface SmartPlaylistOperator {
-  operator:
-    | 'is'
-    | 'isNot'
-    | 'contains'
-    | 'notContain'
-    | 'isBetween'
-    | 'isGreaterThan'
-    | 'isLessThan'
-    | 'beginsWith'
-    | 'endsWith'
-    | 'inLast'
-    | 'notInLast'
+  operator: 'is' | 'isNot' | 'contains' | 'notContain' | 'isBetween' | 'isGreaterThan' | 'isLessThan' | 'beginsWith' | 'endsWith' | 'inLast' | 'notInLast'
   label: string
   type?: SmartPlaylistModel['type'] // to override
   unit?: SmartPlaylistModel['unit'] // to override
@@ -419,9 +409,7 @@ interface UserPreferences extends Record<string, any> {
   visualizer?: Visualizer['id'] | null
   active_extra_panel_tab: SideSheetTab | null
   make_uploads_public: boolean
-  detect_duplicate_uploads: boolean
   include_public_media: boolean
-  crossfade_duration: number
   lastfm_session_key?: string
 }
 
@@ -503,7 +491,6 @@ interface EqualizerPreset {
 declare type PlaybackState = 'Stopped' | 'Playing' | 'Paused'
 declare type ScreenName =
   | '404'
-  | 'AI'
   | 'Album'
   | 'Albums'
   | 'Artist'
@@ -518,7 +505,6 @@ declare type ScreenName =
   | 'Home'
   | 'Invitation.Accept'
   | 'MediaBrowser'
-  | 'OfflineSongs'
   | 'Password.Reset'
   | 'Playlist'
   | 'Playlist.Collaborate'
@@ -532,6 +518,7 @@ declare type ScreenName =
   | 'Search.Playables'
   | 'Settings'
   | 'Songs'
+  | 'MySongs'
   | 'Upload'
   | 'Users'
   | 'Visualizer'
@@ -551,8 +538,7 @@ interface PlayableListControlsConfig {
   filter: boolean
 }
 
-type ThemeableProperty =
-  | '--color-fg'
+type ThemeableProperty = '--color-fg'
   | '--color-bg'
   | '--color-highlight'
   | '--bg-image'
@@ -587,31 +573,13 @@ interface PlayableListConfig {
 
 interface PlayableListContext {
   entity?: Playlist | Album | Artist | Genre
-  type?: Extract<
-    ScreenName,
-    | 'Home'
-    | 'Songs'
-    | 'Album'
-    | 'Artist'
-    | 'Playlist'
-    | 'Favorites'
-    | 'RecentlyPlayed'
-    | 'Queue'
-    | 'Genre'
-    | 'Search.Playables'
-    | 'OfflineSongs'
-  >
+  type?: Extract<ScreenName, 'Home' | 'Songs' | 'MySongs' | 'Album' | 'Artist' | 'Playlist' | 'Favorites' | 'RecentlyPlayed' | 'Queue' | 'Genre' | 'Search.Playables'>
 }
 
 type PlayableListSortField =
-  | keyof Pick<
-      Song,
-      'track' | 'disc' | 'title' | 'album_name' | 'length' | 'artist_name' | 'genre' | 'year' | 'created_at'
-    >
+  keyof Pick<Song, 'track' | 'disc' | 'title' | 'album_name' | 'length' | 'artist_name' | 'genre' | 'year' | 'created_at'>
   | keyof Pick<Episode, 'podcast_author' | 'podcast_title'>
   | 'position'
-  | 'collaboration.user.name'
-  | 'collaboration.added_at'
 
 type AlbumListSortField = keyof Pick<Album, 'name' | 'year' | 'artist_name' | 'created_at'>
 type ArtistListSortField = keyof Pick<Artist, 'name' | 'created_at'>
@@ -619,7 +587,7 @@ type GenreListSortField = keyof Pick<Genre, 'name' | 'song_count'>
 type PodcastListSortField = keyof Pick<Podcast, 'title' | 'last_played_at' | 'subscribed_at' | 'author'>
 type RadioStationListSortField = keyof Pick<RadioStation, 'name' | 'created_at'>
 type SortField =
-  | PodcastListSortField
+  PodcastListSortField
   | AlbumListSortField
   | ArtistListSortField
   | RadioStationListSortField
@@ -633,13 +601,7 @@ interface BasicListSorterDropDownItem<T extends SortField> {
 type SortOrder = 'asc' | 'desc'
 type Placement = 'before' | 'after'
 
-interface PaginateParams<S extends string = string> {
-  sort: MaybeArray<S>
-  order: SortOrder
-  page: number
-}
-
-type MethodOf<T> = { [K in keyof T]: T[K] extends Closure ? K : never }[keyof T]
+type MethodOf<T> = { [K in keyof T]: T[K] extends Closure ? K : never; }[keyof T]
 
 interface PaginatorResource<T> {
   data: T[]
@@ -681,7 +643,7 @@ interface Visualizer {
 }
 
 type PlayableListColumnName =
-  | 'title'
+  'title'
   | 'album'
   | 'artist'
   | 'track'
@@ -690,8 +652,6 @@ type PlayableListColumnName =
   | 'play_count'
   | 'year'
   | 'genre'
-  | 'playlist_collaborator'
-  | 'playlist_added_at'
 
 interface Folder {
   type: 'folders'
@@ -739,47 +699,4 @@ interface EmbedOptions {
 interface LrcLine {
   time: number
   text: string
-}
-
-interface AiChatMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  error: boolean
-}
-
-interface AiResponse {
-  message: string
-  action:
-    | 'play_songs'
-    | 'suggest_songs'
-    | 'create_smart_playlist'
-    | 'add_radio_station'
-    | 'play_radio_station'
-    | 'add_to_favorites'
-    | 'remove_from_favorites'
-    | 'add_to_playlist'
-    | 'remove_from_playlist'
-    | 'show_lyrics'
-    | 'update_lyrics'
-    | 'update_album'
-    | 'update_artist'
-    | null
-  conversation_id: string | null
-  data: {
-    type?: 'playable' | 'album' | 'artist' | 'radio-station' | 'podcast'
-    songs?: Song[]
-    queue?: boolean
-    albums?: Album[]
-    artists?: Artist[]
-    stations?: RadioStation[]
-    podcasts?: Podcast[]
-    playlist?: Playlist
-    station?: RadioStation
-    song?: Song
-    album?: Album
-    artist?: Artist
-    lyrics?: string
-    list?: string
-  }
 }

@@ -149,13 +149,21 @@ export const queueStore = {
     return this.all.find(({ playback_state }) => playback_state !== 'Stopped')
   },
 
-  async fetchRandom (limit = 500) {
-    this.all = await http.get<Song[]>(`queue/fetch?order=rand&limit=${limit}`)
+  async fetchRandom (limit = 500, owned = false) {
+    const params = new URLSearchParams({ order: 'rand', limit: String(limit) })
+    if (owned) {
+      params.set('owned', '1')
+    }
+    this.all = await http.get<Song[]>(`queue/fetch?${params.toString()}`)
     return this.all
   },
 
-  async fetchInOrder (sortField: PlayableListSortField, order: SortOrder, limit = 500) {
-    this.all = await http.get<Song[]>(`queue/fetch?order=${order}&sort=${sortField}&limit=${limit}`)
+  async fetchInOrder (sortField: PlayableListSortField, order: SortOrder, limit = 500, owned = false) {
+    const params = new URLSearchParams({ order, sort: String(sortField), limit: String(limit) })
+    if (owned) {
+      params.set('owned', '1')
+    }
+    this.all = await http.get<Song[]>(`queue/fetch?${params.toString()}`)
     return this.all
   },
 
