@@ -8,13 +8,15 @@ describe('sidebarManageSection.vue', () => {
 
   it('shows all menu items if current user is an admin', () => {
     h.actingAsAdmin().render(Component)
+    screen.getByText('My Songs')
     screen.getByText('Settings')
     screen.getByText('Users')
     screen.getByText('Upload')
   })
 
-  it('shows nothing if current user is not an admin', () => {
+  it('shows My Songs for all users', () => {
     h.actingAsUser().render(Component)
+    screen.getByText('My Songs')
     expect(screen.queryByText('Settings')).toBeNull()
     expect(screen.queryByText('Upload')).toBeNull()
     expect(screen.queryByText('Users')).toBeNull()

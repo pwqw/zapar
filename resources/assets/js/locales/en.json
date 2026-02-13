@@ -11,6 +11,7 @@
     "favorites": "Favorites",
     "recentlyPlayed": "Recently Played",
     "manage": "Manage",
+    "mySongs": "My Songs",
     "settings": "Settings",
     "upload": "Upload",
     "users": "Users"
@@ -434,6 +435,7 @@
     "expand": "Expand",
     "currentQueue": "Current Queue",
     "allSongs": "All Songs",
+    "mySongs": "My Songs",
     "profileAndPreferences": "Profile & Preferences",
     "profile": "Profile",
     "preferences": "Preferences",

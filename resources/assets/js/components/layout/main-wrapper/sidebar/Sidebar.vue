@@ -21,7 +21,7 @@
     <section v-koel-overflow-fade class="pt-2 pb-10 overflow-y-auto space-y-8">
       <SidebarYourMusicSection />
       <SidebarPlaylistsSection />
-      <SidebarManageSection v-if="showManageOptions" />
+      <SidebarManageSection />
     </section>
 
     <SidebarToggleButton
@@ -34,11 +34,10 @@
 
 <script lang="ts" setup>
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { eventBus } from '@/utils/eventBus'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 import { useRouter } from '@/composables/useRouter'
-import { usePolicies } from '@/composables/usePolicies'
 
 import HomeButton from '@/components/layout/main-wrapper/sidebar/HomeButton.vue'
 import SearchForm from '@/components/ui/SearchForm.vue'
@@ -49,7 +48,6 @@ import SidebarToggleButton from '@/components/layout/main-wrapper/sidebar/Sideba
 import SidebarYourMusicSection from './SidebarYourLibrarySection.vue'
 
 const { onRouteChanged } = useRouter()
-const { currentUserCan } = usePolicies()
 const { get: lsGet, set: lsSet } = useLocalStorage()
 
 const mobileShowing = ref(false)
@@ -85,12 +83,6 @@ const onMouseLeave = (e: MouseEvent) => {
 
   tmpShowing.value = false
 }
-
-const showManageOptions = computed(() =>
-  currentUserCan.manageSettings()
-  || currentUserCan.manageUsers()
-  || currentUserCan.uploadSongs(),
-)
 
 onRouteChanged(_ => (mobileShowing.value = false))
 

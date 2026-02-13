@@ -35,7 +35,8 @@ class SongController extends Controller
             $this->songRepository->paginate(
                 sortColumns: $request->sort ? explode(',', $request->sort) : ['songs.title'],
                 sortDirection: $request->order ?: 'asc',
-                scopedUser: $this->user
+                scopedUser: $this->user,
+                ownedOnly: $request->owned
             )
         );
     }

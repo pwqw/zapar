@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
  * @property-read string|null $sort
  * @property-read string $order
  * @property-read int $limit
+ * @property-read bool $owned
  */
 class FetchSongsForQueueRequest extends Request
 {
@@ -22,6 +23,14 @@ class FetchSongsForQueueRequest extends Request
                 'required_unless:order,rand',
                 Rule::in(array_keys(SongBuilder::SORT_COLUMNS_NORMALIZE_MAP)),
             ],
+            'owned' => ['sometimes', 'boolean'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'owned' => filter_var($this->owned ?? false, FILTER_VALIDATE_BOOLEAN),
+        ]);
     }
 }

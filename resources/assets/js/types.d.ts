@@ -518,6 +518,7 @@ declare type ScreenName =
   | 'Search.Playables'
   | 'Settings'
   | 'Songs'
+  | 'MySongs'
   | 'Upload'
   | 'Users'
   | 'Visualizer'
@@ -572,7 +573,7 @@ interface PlayableListConfig {
 
 interface PlayableListContext {
   entity?: Playlist | Album | Artist | Genre
-  type?: Extract<ScreenName, 'Home' | 'Songs' | 'Album' | 'Artist' | 'Playlist' | 'Favorites' | 'RecentlyPlayed' | 'Queue' | 'Genre' | 'Search.Playables'>
+  type?: Extract<ScreenName, 'Home' | 'Songs' | 'MySongs' | 'Album' | 'Artist' | 'Playlist' | 'Favorites' | 'RecentlyPlayed' | 'Queue' | 'Genre' | 'Search.Playables'>
 }
 
 type PlayableListSortField =

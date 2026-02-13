@@ -47,6 +47,7 @@ export interface SongListPaginateParams extends Record<string, any> {
   sort: MaybeArray<PlayableListSortField>
   order: SortOrder
   page: number
+  owned?: boolean
 }
 
 export interface GenreSongListPaginateParams extends Record<string, any> {
@@ -308,7 +309,11 @@ export const playableStore = {
   },
 
   async paginateSongs (params: SongListPaginateParams) {
-    const resource = await http.get<PaginatorResource<Playable>>(`songs?${new URLSearchParams(params).toString()}`)
+    const searchParams = new URLSearchParams(params)
+    if (params.owned) {
+      searchParams.set('owned', '1')
+    }
+    const resource = await http.get<PaginatorResource<Playable>>(`songs?${searchParams.toString()}`)
     this.state.playables = unionBy(this.state.playables, this.syncWithVault(resource.data), 'id')
 
     return resource.links.next ? ++resource.meta.current_page : null

@@ -5,6 +5,12 @@
     </template>
 
     <ul class="menu">
+      <SidebarItem :href="url('my-songs')" :active="isCurrentScreen('MySongs')">
+        <template #icon>
+          <Icon :icon="faMusic" fixed-width />
+        </template>
+        {{ $t('sidebar.mySongs') }}
+      </SidebarItem>
       <SidebarItem v-if="canManageSettings" :href="url('settings')" :active="isCurrentScreen('Settings')">
         <template #icon>
           <Icon :icon="faTools" fixed-width />
@@ -29,7 +35,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { faTools, faUpload, faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faMusic, faTools, faUpload, faUsers } from '@fortawesome/free-solid-svg-icons'
 import { useRouter } from '@/composables/useRouter'
 import { usePolicies } from '@/composables/usePolicies'
 

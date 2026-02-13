@@ -17,6 +17,7 @@
       <HomeScreen v-if="screenLoaded('Home')" v-show="screen === 'Home'" />
       <QueueScreen v-if="screenLoaded('Queue')" v-show="screen === 'Queue'" />
       <AllSongsScreen v-if="screenLoaded('Songs')" v-show="screen === 'Songs'" />
+      <MySongsScreen v-if="screenLoaded('MySongs')" v-show="screen === 'MySongs'" />
       <AlbumListScreen v-if="screenLoaded('Albums')" v-show="screen === 'Albums'" />
       <ArtistListScreen v-if="screenLoaded('Artists')" v-show="screen === 'Artists'" />
       <PlaylistScreen v-if="screenLoaded('Playlist')" v-show="screen === 'Playlist'" />
@@ -64,6 +65,7 @@ const ArtOverlay = defineAsyncComponent(() => import('@/components/ui/AlbumArtOv
 const AlbumListScreen = defineAsyncComponent(() => import('@/components/screens/AlbumListScreen.vue'))
 const AlbumScreen = defineAsyncComponent(() => import('@/components/screens/AlbumScreen.vue'))
 const AllSongsScreen = defineAsyncComponent(() => import('@/components/screens/AllSongsScreen.vue'))
+const MySongsScreen = defineAsyncComponent(() => import('@/components/screens/MySongsScreen.vue'))
 const ArtistListScreen = defineAsyncComponent(() => import('@/components/screens/ArtistListScreen.vue'))
 const ArtistScreen = defineAsyncComponent(() => import('@/components/screens/ArtistScreen.vue'))
 const EpisodeScreen = defineAsyncComponent(() => import('@/components/screens/EpisodeScreen.vue'))

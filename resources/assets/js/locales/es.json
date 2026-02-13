@@ -11,6 +11,7 @@
     "favorites": "Favoritos",
     "recentlyPlayed": "Reproducidas Recientemente",
     "manage": "Administrar",
+    "mySongs": "Mis canciones",
     "settings": "Configuración",
     "upload": "Subir",
     "users": "Usuarios"
@@ -442,6 +443,7 @@
     "expand": "Expandir",
     "currentQueue": "Cola Actual",
     "allSongs": "Todas las Canciones",
+    "mySongs": "Mis canciones",
     "profileAndPreferences": "Perfil y Preferencias",
     "profile": "Perfil",
     "preferences": "Preferencias",
