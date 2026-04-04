@@ -10,10 +10,15 @@ use Illuminate\Database\Eloquent\Collection;
 class FolderRepository extends Repository
 {
     /** @return Collection<Folder>|array<array-key, Folder> */
-    private static function getOnlyBrowsable(Collection|Folder $folders, ?User $user = null): Collection
+    private function getOnlyBrowsable(Collection|Folder $folders, ?User $user = null): Collection
     {
-        return Collection::wrap($folders)
-            ->filter(static fn (Folder $folder) => $folder->browsableBy($user ?? auth()->user())); // @phpstan-ignore-line
+        $user ??= $this->auth->user();
+
+        if (!$user) {
+            return new Collection();
+        }
+
+        return Collection::wrap($folders)->filter(static fn (Folder $folder): bool => $folder->browsableBy($user)); // @phpstan-ignore argument.type
     }
 
     private static function pathToHash(?string $path = null): string
@@ -25,13 +30,10 @@ class FolderRepository extends Repository
     public function getSubfolders(?Folder $folder = null, ?User $scopedUser = null): Collection
     {
         if ($folder) {
-            return $folder->subfolders;
+            return $this->getOnlyBrowsable($folder->subfolders, $scopedUser);
         }
 
-        return self::getOnlyBrowsable(
-            Folder::query()->whereNull('parent_id')->get(),
-            $scopedUser
-        );
+        return $this->getOnlyBrowsable(Folder::query()->whereNull('parent_id')->get(), $scopedUser);
     }
 
     public function findByPath(?string $path = null): ?Folder
@@ -44,9 +46,6 @@ class FolderRepository extends Repository
     {
         $hashes = array_map(self::pathToHash(...), $paths);
 
-        return self::getOnlyBrowsable(
-            Folder::query()->whereIn('hash', $hashes)->get(),
-            $scopedUser
-        );
+        return $this->getOnlyBrowsable(Folder::query()->whereIn('hash', $hashes)->get(), $scopedUser);
     }
 }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { playbackService } from '@/services/QueuePlaybackService'
@@ -11,9 +11,11 @@ describe('genreContextMenu.vue', () => {
   const h = createHarness()
 
   const renderComponent = async (genre?: Genre) => {
-    genre = genre || h.factory('genre', {
-      name: 'Classical',
-    })
+    genre =
+      genre ||
+      h.factory('genre', {
+        name: 'Classical',
+      })
 
     const rendered = h.render(Component, {
       props: {

@@ -1,13 +1,17 @@
 <template>
   <form @submit.prevent="confirmThenSave">
     <SettingGroup>
-      <template #title>{{ t('settings.mediaPath') }}</template>
+      <template #title>Media Path</template>
       <p v-if="storageDriver !== 'local'">
-        {{ t('settings.noLocalStorage') }}
+        Since you’re not using the local storage, there’s no need to set a media path.
       </p>
       <FormRow v-else>
         <template #help>
-          <span id="mediaPathHelp" v-html="t('settings.mediaPathDescription')" />
+          <span id="mediaPathHelp">
+            The <em>absolute</em> path to the server directory containing your media. Koel will scan this directory for
+            songs and extract any available information.<br />
+            Scanning may take a while, especially if you have a lot of songs, so be patient.
+          </span>
         </template>
 
         <TextInput
@@ -15,12 +19,12 @@
           aria-describedby="mediaPathHelp"
           class="md:w-2/3"
           name="media_path"
-          :placeholder="t('settings.mediaPathPlaceholder')"
+          placeholder="/path/to/your/music"
         />
       </FormRow>
 
       <template #footer>
-        <Btn data-testid="submit" type="submit">{{ t('settings.saveAndScan') }}</Btn>
+        <Btn data-testid="submit" type="submit">Save &amp; Scan</Btn>
       </template>
     </SettingGroup>
   </form>
@@ -28,7 +32,6 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { commonStore } from '@/stores/commonStore'
 import { settingStore } from '@/stores/settingStore'
 import { useRouter } from '@/composables/useRouter'
@@ -41,8 +44,6 @@ import Btn from '@/components/ui/form/Btn.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
 import SettingGroup from '@/components/screens/settings/SettingGroup.vue'
-
-const { t } = useI18n()
 
 const { toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
@@ -67,11 +68,11 @@ const shouldWarn = computed(() => {
 })
 
 const save = async () => {
-  showOverlay({ message: t('settings.scanning') })
+  showOverlay({ message: 'Scanning…' })
 
   try {
-    await settingStore.updateMediaPath(mediaPath.value)
-    toastSuccess(t('settings.saved'))
+    await settingStore.updateMediaPath(mediaPath.value!)
+    toastSuccess('Settings saved.')
     // Make sure we're back to home first.
     go(url('home'), true)
   } catch (error: unknown) {
@@ -83,7 +84,11 @@ const save = async () => {
 
 const confirmThenSave = async () => {
   if (shouldWarn.value) {
-    await showConfirmDialog(t('settings.changedMediaPath'), t('settings.confirm')) && await save()
+    ;(await showConfirmDialog(
+      'Changing the media path will essentially remove all existing local data – songs, artists, \
+      albums, favorites, etc. Sure you want to proceed?',
+      'Confirm',
+    )) && (await save())
   } else {
     await save()
   }

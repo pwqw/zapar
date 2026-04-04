@@ -19,9 +19,18 @@ class ArtistRepository extends Repository implements ScoutableRepository
      */
     public function getOne($id, ?User $user = null): Artist
     {
+        return Artist::query()->withUserContext(user: $user ?? $this->auth->user())->findOrFail($id);
+    }
+
+    /** @return Collection|array<array-key, Artist> */
+    public function getRecentlyAdded(int $count = 6, ?User $user = null): Collection
+    {
         return Artist::query()
+            ->onlyStandard()
             ->withUserContext(user: $user ?? $this->auth->user())
-            ->findOrFail($id);
+            ->latest()
+            ->limit($count)
+            ->get();
     }
 
     /** @return Collection|array<array-key, Artist> */
@@ -64,7 +73,10 @@ class ArtistRepository extends Repository implements ScoutableRepository
     public function search(string $keywords, int $limit, ?User $user = null): Collection
     {
         return $this->getMany(
-            ids: Artist::search($keywords)->get()->take($limit)->modelKeys(),
+            ids: Artist::search($keywords)
+                ->take($limit)
+                ->get()
+                ->modelKeys(),
             preserveOrder: true,
             user: $user,
         );

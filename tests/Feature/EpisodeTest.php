@@ -7,18 +7,13 @@ use App\Models\Song;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-use function Tests\create_admin;
-
 class EpisodeTest extends TestCase
 {
     #[Test]
     public function fetchEpisode(): void
     {
-        /** @var Song $episode */
-        $episode = Song::factory()->asEpisode()->create();
+        $episode = Song::factory()->asEpisode()->createOne();
 
-        // Use admin to access any episode (ADMIN can access any podcast)
-        $this->getAs("api/songs/{$episode->id}", create_admin())
-            ->assertJsonStructure(SongResource::JSON_STRUCTURE);
+        $this->getAs("api/songs/{$episode->id}")->assertJsonStructure(SongResource::JSON_STRUCTURE);
     }
 }

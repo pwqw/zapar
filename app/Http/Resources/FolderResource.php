@@ -7,15 +7,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class FolderResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'path',
         'name',
     ];
 
-    public function __construct(private readonly Folder $folder)
-    {
+    public function __construct(
+        private readonly Folder $folder,
+    ) {
         parent::__construct($this->folder);
     }
 

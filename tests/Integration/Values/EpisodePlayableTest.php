@@ -17,11 +17,11 @@ class EpisodePlayableTest extends TestCase
         Http::fake([
             'https://example.com/episode.mp3' => Http::response('foo'),
         ]);
-
-        /** @var Song $episode */
-        $episode = Song::factory()->asEpisode()->create([
-            'path' => 'https://example.com/episode.mp3',
-        ]);
+        $episode = Song::factory()
+            ->asEpisode()
+            ->createOne([
+                'path' => 'https://example.com/episode.mp3',
+            ]);
 
         $playable = EpisodePlayable::getForEpisode($episode);
 

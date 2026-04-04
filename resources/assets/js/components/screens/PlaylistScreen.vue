@@ -1,11 +1,7 @@
 <template>
-  <ScreenBase v-if="playlistId">
+  <ScreenBase v-if="playlistId" :background-image="playlist?.cover || thumbnails[0]">
     <template #header>
-      <ScreenHeader
-        v-if="playlist"
-        :disabled="loading"
-        :layout="allPlayables.length ? headerLayout : 'collapsed'"
-      >
+      <ScreenHeader v-if="playlist" :disabled="loading" :layout="allPlayables.length ? headerLayout : 'collapsed'">
         {{ playlist.name }}
         <p v-if="playlist.description" class="text-base text-k-fg-70 font-light">
           {{ playlist.description }}
@@ -91,7 +87,9 @@ import { useErrorHandler } from '@/composables/useErrorHandler'
 import { usePlaylistContentManagement } from '@/composables/usePlaylistContentManagement'
 import { usePlayableList } from '@/composables/usePlayableList'
 import { usePlayableListControls } from '@/composables/usePlayableListControls'
+import { useLocalStorage } from '@/composables/useLocalStorage'
 import { useContextMenu } from '@/composables/useContextMenu'
+import { useModal } from '@/composables/useModal'
 
 import ScreenHeader from '@/components/ui/ScreenHeader.vue'
 import ScreenEmptyState from '@/components/ui/ScreenEmptyState.vue'
@@ -103,6 +101,10 @@ import PlayableListSkeleton from '@/components/playable/playable-list/PlayableLi
 import Btn from '@/components/ui/form/Btn.vue'
 
 const ContextMenu = defineAsyncComponent(() => import('@/components/playlist/PlaylistContextMenu.vue'))
+const EditPlaylistForm = defineAsyncComponent(() => import('@/components/playlist/EditPlaylistForm.vue'))
+const EditSmartPlaylistForm = defineAsyncComponent(
+  () => import('@/components/playlist/smart-playlist/EditSmartPlaylistForm.vue'),
+)
 
 // Since this component is responsible for all playlists, we keep track of the state for each,
 // so that filter and sort settings are preserved when switching between them.
@@ -116,20 +118,22 @@ interface PlaylistScreenState {
 const { t } = useI18n()
 const { triggerNotFound, getRouteParam, onScreenActivated, go, url } = useRouter()
 const { openContextMenu } = useContextMenu()
+const { openModal } = useModal()
+const { get: lsGet, set: lsSet } = useLocalStorage()
 
 const states = new Map<Playlist['id'], PlaylistScreenState>()
 
-const blankState = (): PlaylistScreenState => {
+const blankState = (id?: Playlist['id']): PlaylistScreenState => {
   return {
     filterKeywords: '',
-    sortField: null,
-    sortOrder: 'asc',
+    sortField: id ? (lsGet<PlayableListSortField>(`playlist-${id}-sort-field`) ?? null) : null,
+    sortOrder: id ? lsGet<SortOrder>(`playlist-${id}-sort-order`, 'asc')! : 'asc',
   }
 }
 
 const getState = (id: Playlist['id']) => {
   if (!states.has(id)) {
-    states.set(id, blankState())
+    states.set(id, blankState(id))
   }
 
   return states.get(id)!
@@ -182,6 +186,11 @@ const sort = (field: MaybeArray<PlayableListSortField> | null, order: SortOrder)
   currentState.sortField = field
   currentState.sortOrder = order
 
+  if (playlistId.value) {
+    lsSet(`playlist-${playlistId.value}-sort-field`, field)
+    lsSet(`playlist-${playlistId.value}-sort-order`, order)
+  }
+
   // We always call the base sort function, which will handle the actual sorting logic.
   // For the 'position' field, which actually doesn't use the base sort function, we call it anyway
   // to properly keep track of sortField and sortOrder in useSongList, ensuring the UI reflects these correctly.
@@ -193,7 +202,12 @@ const sort = (field: MaybeArray<PlayableListSortField> | null, order: SortOrder)
   }
 }
 
-const editPlaylist = () => eventBus.emit('MODAL_SHOW_EDIT_PLAYLIST_FORM', playlist.value!)
+const editPlaylist = () => {
+  const p = playlist.value!
+  p.is_smart
+    ? openModal<'EDIT_SMART_PLAYLIST_FORM'>(EditSmartPlaylistForm, { playlist: p })
+    : openModal<'EDIT_PLAYLIST_FORM'>(EditPlaylistForm, { playlist: p })
+}
 
 const removeSelected = async () => await removeFromPlaylist(playlist.value!, selectedPlayables.value)
 
@@ -252,7 +266,7 @@ watch(playlistId, async id => {
   listConfig.collaborative = playlist.value.is_collaborative
   listConfig.hasCustomOrderSort = !playlist.value.is_smart
 
-  currentState.sortField ??= (playlist.value?.is_smart ? 'title' : 'position')
+  currentState.sortField ??= playlist.value?.is_smart ? 'title' : 'position'
   currentState.sortOrder ??= 'asc'
 
   sort(currentState.sortField, currentState.sortOrder)
@@ -260,13 +274,14 @@ watch(playlistId, async id => {
 
 onScreenActivated('Playlist', () => (playlistId.value = getRouteParam('id')!))
 
-const requestContextMenu = (event: MouseEvent) => openContextMenu<'PLAYLIST'>(ContextMenu, event, {
-  playlist: playlist.value!,
-})
+const requestContextMenu = (event: MouseEvent) =>
+  openContextMenu<'PLAYLIST'>(ContextMenu, event, {
+    playlist: playlist.value!,
+  })
 
 eventBus
-  .on('PLAYLIST_UPDATED', async ({ id }) => id === playlistId.value && await fetchDetails())
-  .on('PLAYLIST_COLLABORATOR_REMOVED', async ({ id }) => id === playlistId.value && await fetchDetails())
+  .on('PLAYLIST_UPDATED', async ({ id }) => id === playlistId.value && (await fetchDetails()))
+  .on('PLAYLIST_COLLABORATOR_REMOVED', async ({ id }) => id === playlistId.value && (await fetchDetails()))
   .on('PLAYLIST_CONTENT_REMOVED', async ({ id }, removed) => {
     if (id === playlistId.value) {
       allPlayables.value = differenceBy(allPlayables.value, removed, 'id')

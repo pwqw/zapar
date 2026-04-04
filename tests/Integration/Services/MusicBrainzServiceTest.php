@@ -2,7 +2,6 @@
 
 namespace Tests\Integration\Services;
 
-use App\Models\Album;
 use App\Models\Artist;
 use App\Pipelines\Encyclopedia\GetAlbumTracksUsingMbid;
 use App\Pipelines\Encyclopedia\GetAlbumWikidataIdUsingReleaseGroupMbid;
@@ -37,9 +36,7 @@ class MusicBrainzServiceTest extends TestCase
 
     private function mockPipelinePipe(string $class, mixed $input, mixed $output): void
     {
-        $expectation = $this->mock($class)
-            ->expects('__invoke')
-            ->with($input, Mockery::on(static fn ($next) => is_callable($next)));
+        $expectation = $this->mock($class)->expects('__invoke')->with($input, Mockery::on(is_callable(...)));
 
         if ($output instanceof Throwable) {
             $expectation->andThrow($output);
@@ -58,22 +55,23 @@ class MusicBrainzServiceTest extends TestCase
         $this->mockPipelinePipe(
             GetWikipediaPageSummaryUsingPageTitle::class,
             'Skid Row (American band)',
-            File::json(test_path('fixtures/wikipedia/artist-page-summary.json'))
+            File::json(test_path('fixtures/wikipedia/artist-page-summary.json')),
         );
-
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create(['name' => 'Skid Row']);
+        $artist = Artist::factory()->createOne(['name' => 'Skid Row']);
 
         $info = $this->service->getArtistInformation($artist);
 
-        self::assertSame([
-            'url' => 'https://en.wikipedia.org/wiki/Skid_Row_(American_band)',
-            'image' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/2023_Sweden_Rock_-_3330_%2853049443466%29.jpg/330px-2023_Sweden_Rock_-_3330_%2853049443466%29.jpg', // @phpcs-ignore
-            'bio' => [
-                'summary' => 'Skid Row is an American rock band formed in 1986…',
-                'full' => '<p><b>Skid Row</b> is an American rock band formed in 1986…</p>',
+        self::assertSame(
+            [
+                'url' => 'https://en.wikipedia.org/wiki/Skid_Row_(American_band)',
+                'image' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/2023_Sweden_Rock_-_3330_%2853049443466%29.jpg/330px-2023_Sweden_Rock_-_3330_%2853049443466%29.jpg',
+                'bio' => [
+                    'summary' => 'Skid Row is an American rock band formed in 1986…',
+                    'full' => '<p><b>Skid Row</b> is an American rock band formed in 1986…</p>',
+                ],
             ],
-        ], $info->toArray());
+            $info->toArray(),
+        );
     }
 
     #[Test]
@@ -86,9 +84,7 @@ class MusicBrainzServiceTest extends TestCase
             'sample-mbid',
             new Exception('Something went wrong'),
         );
-
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create(['name' => 'Skid Row']);
+        $artist = Artist::factory()->createOne(['name' => 'Skid Row']);
 
         self::assertNull($this->service->getArtistInformation($artist));
     }
@@ -120,22 +116,21 @@ class MusicBrainzServiceTest extends TestCase
         $this->mockPipelinePipe(
             GetWikipediaPageSummaryUsingPageTitle::class,
             'Slave to the Grind',
-            File::json(test_path('fixtures/wikipedia/album-page-summary.json'))
+            File::json(test_path('fixtures/wikipedia/album-page-summary.json')),
         );
 
         $user = create_user();
-
-        /** @var Album $album */
-        $album = Artist::factory() // @phpstan-ignore-line
+        $album = Artist::factory()
             ->for($user)
-            ->create(['name' => 'Skid Row'])
-            ->albums()
+            ->createOne(['name' => 'Skid Row'])
+            ->albums() // @phpstan-ignore-line
             ->create([
                 'name' => 'Slave to the Grind',
                 'user_id' => $user->id,
             ]);
 
         self::assertInstanceOf(AlbumInformation::class, $this->service->getAlbumInformation($album));
+
         // eh, good enough
     }
 
@@ -154,12 +149,10 @@ class MusicBrainzServiceTest extends TestCase
         $this->mockPipelinePipe(GetAlbumTracksUsingMbid::class, 'sample-album-mbid', new Exception('Oopsie'));
 
         $user = create_user();
-
-        /** @var Album $album */
-        $album = Artist::factory() // @phpstan-ignore-line
+        $album = Artist::factory()
             ->for($user)
-            ->create(['name' => 'Skid Row'])
-            ->albums()
+            ->createOne(['name' => 'Skid Row'])
+            ->albums() // @phpstan-ignore-line
             ->create([
                 'name' => 'Slave to the Grind',
                 'user_id' => $user->id,

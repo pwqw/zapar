@@ -3,17 +3,17 @@
     <template #header>
       <ScreenHeader v-if="genre" :layout="headerLayout">
         <template v-if="genre.name">
-          <span class="font-thin">{{ t('screens.genreLabel') }}</span>
+          <span class="font-thin">Genre:</span>
           {{ genre.name }}
         </template>
-        <span v-else class="font-thin italic">{{ t('emptyStates.noGenre') }}</span>
+        <span v-else class="font-thin italic">No Genre</span>
 
         <template #thumbnail>
           <ThumbnailStack :thumbnails />
         </template>
 
         <template v-if="genre" #meta>
-          <span>{{ songCountText }}</span>
+          <span>{{ pluralize(genre.song_count, 'song') }}</span>
           <span>{{ duration }}</span>
         </template>
 
@@ -21,7 +21,7 @@
           <SongListControls :config @play-all="playAll" @play-selected="playSelected">
             <Btn gray @click="requestContextMenu">
               <Icon :icon="faEllipsis" fixed-width />
-              <span class="sr-only">{{ t('misc.moreActions') }}</span>
+              <span class="sr-only">More Actions</span>
             </Btn>
           </SongListControls>
         </template>
@@ -45,7 +45,7 @@
         <GuitarIcon :size="96" />
       </template>
 
-      {{ t('emptyStates.noSongsInGenre') }}
+      No songs in this genre.
     </ScreenEmptyState>
   </ScreenBase>
 </template>
@@ -54,8 +54,7 @@
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons'
 import { computed, onMounted, ref, watch } from 'vue'
 import { GuitarIcon } from 'lucide-vue-next'
-import { useI18n } from 'vue-i18n'
-import { secondsToHumanReadable } from '@/utils/formatters'
+import { pluralize, secondsToHumanReadable } from '@/utils/formatters'
 import { eventBus } from '@/utils/eventBus'
 import { defineAsyncComponent } from '@/utils/helpers'
 import { genreStore } from '@/stores/genreStore'
@@ -65,6 +64,7 @@ import { useRouter } from '@/composables/useRouter'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 import { usePlayableList } from '@/composables/usePlayableList'
 import { usePlayableListControls } from '@/composables/usePlayableListControls'
+import { useLocalStorage } from '@/composables/useLocalStorage'
 import { useContextMenu } from '@/composables/useContextMenu'
 
 import ScreenHeader from '@/components/ui/ScreenHeader.vue'
@@ -87,15 +87,16 @@ const {
   onPressEnter,
   playSelected,
   onSwipe,
+  sort: composableSort,
 } = usePlayableList(songs, { type: 'Genre' }, { sortable: true, filterable: false })
 
-const { t } = useI18n()
 const { PlayableListControls: SongListControls, config } = usePlayableListControls('Genre')
 const { getRouteParam, isCurrentScreen, go, onRouteChanged, url } = useRouter()
 const { openContextMenu } = useContextMenu()
+const { get: lsGet, set: lsSet } = useLocalStorage()
 
-let sortField: MaybeArray<PlayableListSortField> = 'title'
-let sortOrder: SortOrder = 'asc'
+let sortField: MaybeArray<PlayableListSortField> = lsGet<PlayableListSortField>('genre-sort-field', 'title')!
+let sortOrder: SortOrder = lsGet<SortOrder>('genre-sort-order', 'asc')!
 
 const id = ref<Genre['id'] | null>(null)
 const genre = ref<Genre | null>(null)
@@ -104,15 +105,7 @@ const page = ref<number | null>(1)
 
 const moreSongsAvailable = computed(() => page.value !== null)
 const showSkeletons = computed(() => loading.value && songs.value.length === 0)
-const duration = computed(() => genre.value ? secondsToHumanReadable(genre.value.length, { hr: t('misc.hr'), min: t('misc.min'), sec: t('misc.sec') }) : '')
-const songCountText = computed(() => {
-  if (!genre.value) {
-    return ''
-  }
-  const count = genre.value.song_count ?? 0
-  const songText = count === 1 ? t('messages.songSingular') : t('messages.songPlural')
-  return `${count.toLocaleString()} ${songText}`
-})
+const duration = computed(() => (genre.value ? secondsToHumanReadable(genre.value.length) : ''))
 
 const fetch = async () => {
   if (!moreSongsAvailable.value || loading.value) {
@@ -122,9 +115,9 @@ const fetch = async () => {
   loading.value = true
 
   try {
-    let fetched: { songs: Song[], nextPage: number | null }
+    let fetched: { songs: Song[]; nextPage: number | null }
 
-    [genre.value, fetched] = await Promise.all([
+    ;[genre.value, fetched] = await Promise.all([
       genreStore.fetchOne(id.value!),
       playableStore.paginateSongsByGenre(id.value!, {
         sort: sortField,
@@ -156,6 +149,9 @@ const fetchWithSort = async (field: MaybeArray<PlayableListSortField>, order: So
   sortField = field
   sortOrder = order
 
+  lsSet('genre-sort-field', field)
+  lsSet('genre-sort-order', order)
+
   await fetch()
 }
 
@@ -181,18 +177,21 @@ const playAll = async (shuffle = false) => {
   }
 }
 
-const requestContextMenu = (event: MouseEvent) => openContextMenu<'GENRE'>(ContextMenu, event, {
-  genre: genre.value!,
-})
+const requestContextMenu = (event: MouseEvent) =>
+  openContextMenu<'GENRE'>(ContextMenu, event, {
+    genre: genre.value!,
+  })
 
 onMounted(() => {
+  composableSort(sortField, sortOrder)
+
   if (isCurrentScreen('Genre')) {
     id.value = getIdFromRoute()
   }
 })
 
-watch(id, async () => id.value && await refresh())
+watch(id, async () => id.value && (await refresh()))
 
 // We can't really tell how/if the genres have been updated, so we just refresh the list
-eventBus.on('SONGS_UPDATED', async () => genre.value && await refresh())
+eventBus.on('SONGS_UPDATED', async () => genre.value && (await refresh()))
 </script>

@@ -2,36 +2,36 @@
   <form data-testid="update-profile-form" @submit.prevent="handleSubmit">
     <AlertBox v-if="currentUser.sso_provider">
       <template v-if="currentUser.sso_provider === 'Reverse Proxy'">
-        {{ $t('users.reverseProxyAuth') }}
+        You’re authenticated by a reverse proxy.
       </template>
       <template v-else>
-        {{ $t('users.ssoAuth', { provider: currentUser.sso_provider }) }}
+        You’re logged in via single sign-on provided by <strong>{{ currentUser.sso_provider }}</strong
+        >.
       </template>
-      {{ $t('users.ssoNote') }}
+      You can still update your name and avatar here.
     </AlertBox>
 
     <div class="flex flex-col gap-3 md:flex-row md:gap-8 w-full md:w-[640px]">
       <div class="flex-1 space-y-5">
         <FormRow v-if="!currentUser.sso_provider">
-          <template #label>{{ $t('preferences.currentPassword') }}</template>
-          <TextInput
+          <template #label>Current Password</template>
+          <PasswordField
             v-model="data.current_password"
             v-koel-focus
             data-testid="currentPassword"
             name="current_password"
-            :placeholder="$t('preferences.currentPasswordRequired')"
+            placeholder="Required to update your profile"
             required
-            type="password"
           />
         </FormRow>
 
         <FormRow>
-          <template #label>{{ $t('preferences.name') }}</template>
+          <template #label>Name</template>
           <TextInput v-model="data.name" data-testid="name" name="name" />
         </FormRow>
 
         <FormRow>
-          <template #label>{{ $t('preferences.emailAddress') }}</template>
+          <template #label>Email Address</template>
           <TextInput
             id="inputProfileEmail"
             v-model="data.email"
@@ -44,15 +44,15 @@
         </FormRow>
 
         <FormRow v-if="!currentUser.sso_provider">
-          <template #label>{{ $t('preferences.newPassword') }}</template>
+          <template #label>New Password</template>
           <PasswordField
             v-model="data.new_password"
             autocomplete="new-password"
             data-testid="newPassword"
             minlength="10"
-            :placeholder="$t('preferences.leaveEmpty')"
+            placeholder="Leave empty to keep current password"
           />
-          <template #help>{{ $t('preferences.passwordRequirements') }}</template>
+          <template #help>Min. 10 characters. Should be a mix of characters, numbers, and symbols.</template>
         </FormRow>
       </div>
 
@@ -62,17 +62,14 @@
     </div>
 
     <footer class="mt-8">
-      <Btn class="btn-submit" type="submit">{{ $t('auth.save') }}</Btn>
-      <span v-if="isDemo" class="text-[.95rem] opacity-70 ml-2">
-        {{ $t('preferences.demoNotice') }}
-      </span>
+      <Btn class="btn-submit" type="submit">Save</Btn>
+      <span v-if="isDemo" class="text-[.95rem] opacity-70 ml-2"> Changes will not be saved in the demo version. </span>
     </footer>
   </form>
 </template>
 
 <script lang="ts" setup>
 import { pick } from 'lodash'
-import { useI18n } from 'vue-i18n'
 import type { UpdateCurrentProfileData } from '@/services/authService'
 import { authService } from '@/services/authService'
 import { useAuthorization } from '@/composables/useAuthorization'
@@ -85,8 +82,6 @@ import EditableProfileAvatar from '@/components/profile-preferences/EditableProf
 import AlertBox from '@/components/ui/AlertBox.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
-
-const { t } = useI18n()
 
 const { toastSuccess } = useMessageToaster()
 const { currentUser } = useAuthorization()
@@ -117,7 +112,7 @@ const { data, handleSubmit } = useForm<UpdateCurrentProfileData>({
   onSuccess: () => {
     data.current_password = ''
     data.new_password = ''
-    toastSuccess(t('preferences.profileUpdated'))
+    toastSuccess('Profile updated.')
   },
 })
 

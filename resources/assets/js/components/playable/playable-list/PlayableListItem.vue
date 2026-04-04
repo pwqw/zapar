@@ -1,9 +1,6 @@
 <template>
   <div>
-    <h4
-      v-if="isSong(playable) && showDisc && playable.disc"
-      class="title text-k-fg !flex gap-2 p-2 uppercase pl-5"
-    >
+    <h4 v-if="isSong(playable) && showDisc && playable.disc" class="title text-k-fg !flex gap-2 p-2 uppercase pl-5">
       Disc {{ playable.disc }}
     </h4>
 
@@ -24,20 +21,38 @@
       <span class="thumbnail leading-none">
         <PlayableThumbnail :playable @clicked="play" />
       </span>
-      <span class="title-artist flex flex-col gap-2 overflow-hidden">
+      <span class="title-artist flex flex-col gap-1 overflow-hidden">
         <span class="title text-k-fg !flex gap-2 items-center">
           <ExternalMark v-if="external" />
-          <PrivateBadge v-if="isSong(playable) && !playable.is_public" label="Privado" />
+          <Icon
+            v-if="cachingOffline"
+            :icon="faSpinner"
+            class="!opacity-50"
+            spin
+            title="Caching for offline playback"
+            aria-label="Caching for offline playback"
+          />
+          <Icon
+            v-else-if="cachingFailed"
+            :icon="faExclamationTriangle"
+            class="text-k-danger !opacity-75"
+            :title="`Error: ${cachingErrorMessage}`"
+          />
+          <OfflineMark v-else-if="cachedOffline" />
           <span class="flex-1">{{ playable.title }}</span>
         </span>
-        <span class="artist">{{ artist }}</span>
+        <span class="artist text-[0.9rem] text-k-fg-50">{{ artist }}</span>
       </span>
       <span v-if="shouldShowColumn('album')" class="album">{{ album }}</span>
       <template v-if="config.collaborative && isSong(playable) && playable.collaboration">
-        <span class="collaborator">
+        <span v-if="shouldShowColumn('playlist_collaborator')" class="collaborator">
           <UserAvatar :user="collaborator" width="24" />
         </span>
-        <span :title="String(playable.collaboration.added_at)" class="added-at">
+        <span
+          v-if="shouldShowColumn('playlist_added_at')"
+          :title="String(playable.collaboration.added_at)"
+          class="added-at"
+        >
           {{ playable.collaboration.fmt_added_at }}
         </span>
       </template>
@@ -45,7 +60,9 @@
         <span v-if="shouldShowColumn('genre')" class="genre">{{ playable.genre || '—' }}</span>
         <span v-if="shouldShowColumn('year')" class="year">{{ playable.year || '—' }}</span>
       </template>
-      <span v-if="shouldShowColumn('duration')" class="time font-mono">{{ fmtLength }}</span>
+      <span v-if="shouldShowColumn('duration')" class="time text-[0.9rem] text-k-fg-50 tabular-nums">
+        {{ fmtLength }}
+      </span>
       <span class="extra">
         <FavoriteButton :favorite="playable.favorite" @toggle="toggleFavorite" />
       </span>
@@ -54,32 +71,28 @@
 </template>
 
 <script lang="ts" setup>
-import { faPodcast } from '@fortawesome/free-solid-svg-icons'
+import { faExclamationTriangle, faPodcast, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { computed, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { getPlayableProp, requireInjection } from '@/utils/helpers'
 import { isSong } from '@/utils/typeGuards'
 import { secondsToHis } from '@/utils/formatters'
 import { usePlayableListColumnVisibility } from '@/composables/usePlayableListColumnVisibility'
-import { PlayableListConfigKey } from '@/symbols'
+import { useOfflinePlayback } from '@/composables/useOfflinePlayback'
+import { PlayableListConfigKey } from '@/config/symbols'
 import { playableStore } from '@/stores/playableStore'
-import { albumStore } from '@/stores/albumStore'
-import { artistStore } from '@/stores/artistStore'
 
 import SoundBars from '@/components/ui/SoundBars.vue'
 import PlayableThumbnail from '@/components/playable/PlayableThumbnail.vue'
 import UserAvatar from '@/components/user/UserAvatar.vue'
 import ExternalMark from '@/components/ui/ExternalMark.vue'
+import OfflineMark from '@/components/ui/OfflineMark.vue'
 import FavoriteButton from '@/components/ui/FavoriteButton.vue'
-import PrivateBadge from '@/components/ui/PrivateBadge.vue'
 
-const props = withDefaults(defineProps<{ item: PlayableRow, showDisc?: boolean }>(), {
+const props = withDefaults(defineProps<{ item: PlayableRow; showDisc?: boolean }>(), {
   showDisc: false,
 })
 
 const emit = defineEmits<{ (e: 'play', playable: Playable): void }>()
-
-const { t } = useI18n()
 
 const [config] = requireInjection<[Partial<PlayableListConfig>]>(PlayableListConfigKey, [{}])
 
@@ -90,26 +103,17 @@ const { item } = toRefs(props)
 const playable = computed<Playable>(() => item.value.playable)
 const playing = computed(() => ['Playing', 'Paused'].includes(playable.value.playback_state!))
 const external = computed(() => isSong(playable.value) && playable.value.is_external)
+const { isCached, isCaching, hasCachingError, getCachingError } = useOfflinePlayback()
+const cachedOffline = computed(() => isSong(playable.value) && isCached(playable.value))
+const cachingOffline = computed(() => isSong(playable.value) && isCaching(playable.value))
+const cachingFailed = computed(() => isSong(playable.value) && hasCachingError(playable.value))
+const cachingErrorMessage = computed(() => getCachingError(playable.value))
 
 const fmtLength = secondsToHis(playable.value.length)
-const artist = computed(() => {
-  const artistName = getPlayableProp(playable.value, 'artist_name', 'podcast_author')
-  if (isSong(playable.value) && artistStore.isUnknown(artistName)) {
-    return t('screens.unknownArtist')
-  }
-  return artistName
-})
-const album = computed(() => {
-  const albumName = getPlayableProp(playable.value, 'album_name', 'podcast_title')
-  if (isSong(playable.value) && albumStore.isUnknown(albumName)) {
-    return t('screens.unknownAlbum')
-  }
-  return albumName
-})
+const artist = computed(() => getPlayableProp(playable.value, 'artist_name', 'podcast_author'))
+const album = computed(() => getPlayableProp(playable.value, 'album_name', 'podcast_title'))
 
-const collaborator = computed<Pick<User, 'name' | 'avatar'>>(
-  () => (playable.value as Song).collaboration!.user,
-)
+const collaborator = computed<Pick<User, 'name' | 'avatar'>>(() => (playable.value as Song).collaboration!.user)
 
 const play = () => emit('play', playable.value)
 
@@ -136,7 +140,7 @@ article {
 
   .title-artist {
     span {
-      @apply overflow-hidden whitespace-nowrap text-ellipsis block;
+      @apply truncate block;
     }
   }
 

@@ -11,6 +11,7 @@ import { userStore } from '@/stores/userStore'
 
 const initialState = {
   allows_download: false,
+  download_limit: 0,
   cdn_url: '',
   current_user: null! as CurrentUser,
   current_version: '',
@@ -32,6 +33,7 @@ const initialState = {
   uses_spotify: false,
   uses_ticketmaster: false,
   uses_media_browser: false,
+  uses_ai: false,
   users: [] as User[],
   uses_you_tube: false,
   storage_driver: 'local',
@@ -54,7 +56,7 @@ type CommonStoreState = typeof initialState
 export const commonStore = {
   state: reactive<CommonStoreState>(initialState),
 
-  async init () {
+  async init() {
     Object.assign(this.state, await http.get<CommonStoreState>('data'))
 
     // Always disable YouTube integration on mobile.

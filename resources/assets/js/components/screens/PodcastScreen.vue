@@ -1,5 +1,5 @@
 <template>
-  <ScreenBase>
+  <ScreenBase :background-image="podcast?.image">
     <template #header>
       <ScreenHeaderSkeleton v-if="loading && !podcast" />
       <ScreenHeader v-if="podcast" :layout="headerLayout">
@@ -8,7 +8,7 @@
         <template #thumbnail>
           <article class="relative aspect-square block rounded-md overflow-hidden" data-testid="podcast-thumbnail">
             <div class="pointer-events-none">
-              <img :src="podcast.image" alt="Podcast thumbnail">
+              <img :src="podcast.image" alt="Podcast thumbnail" />
             </div>
           </article>
         </template>
@@ -70,7 +70,7 @@
         :items="displayedEpisodes"
         @scroll="onListScroll"
       >
-        <EpisodeItem :key="item.id" :podcast="podcast" :episode="item" />
+        <EpisodeItem :key="item.id" :podcast :episode="item" />
       </VirtualScroller>
     </div>
   </ScreenBase>
@@ -90,7 +90,7 @@ import { queueStore } from '@/stores/queueStore'
 import { isEpisode } from '@/utils/typeGuards'
 import { useFuzzySearch } from '@/composables/useFuzzySearch'
 import { playback } from '@/services/playbackManager'
-import { FilterKeywordsKey } from '@/symbols'
+import { FilterKeywordsKey } from '@/config/symbols'
 import { eventBus } from '@/utils/eventBus'
 import { useContextMenu } from '@/composables/useContextMenu'
 import { defineAsyncComponent } from '@/utils/helpers'
@@ -132,7 +132,7 @@ const { search } = useFuzzySearch<Episode>(episodes, ['title', 'episode_descript
 const { openContextMenu } = useContextMenu()
 
 const fetchDetails = async (id: Podcast['id']) => {
-  [podcast.value, episodes.value] = await Promise.all([
+  ;[podcast.value, episodes.value] = await Promise.all([
     podcastStore.resolve(id),
     episodeStore.fetchEpisodesInPodcast(id),
   ])
@@ -172,9 +172,10 @@ const maybeExpandDescription = () => {
   descriptionEl.value.classList.toggle('line-clamp-3')
 }
 
-const requestContextMenu = (event: MouseEvent) => openContextMenu<'PODCAST'>(ContextMenu, event, {
-  podcast: podcast.value!,
-})
+const requestContextMenu = (event: MouseEvent) =>
+  openContextMenu<'PODCAST'>(ContextMenu, event, {
+    podcast: podcast.value!,
+  })
 
 const descriptionTooltip = computed(() => {
   if (!description.overflown) {
@@ -200,9 +201,7 @@ const inProgress = computed(() => Boolean(podcast.value?.state?.current_episode)
 
 const currentPlayingItemIsPartOfPodcast = computed(() => {
   const currentPlayable = queueStore.current
-  return currentPlayable
-    && isEpisode(currentPlayable)
-    && currentPlayable.podcast_id === podcast.value?.id
+  return currentPlayable && isEpisode(currentPlayable) && currentPlayable.podcast_id === podcast.value?.id
 })
 
 const podcastPlaying = computed(() => {

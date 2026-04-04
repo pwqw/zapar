@@ -18,31 +18,25 @@ class PodcastRepository extends Repository implements ScoutableRepository
     /** @return Collection<Podcast>|array<array-key, Podcast> */
     public function getAllSubscribedByUser(bool $favoritesOnly, ?User $user = null): Collection
     {
+        $user ??= $this->auth->user();
+
         return Podcast::query()
-            ->with('subscribers')
-            ->setScopedUser($user ?? $this->auth->user())
+            ->with(['subscribers' => static fn ($query) => $query->where('users.id', $user->id)])
+            ->setScopedUser($user)
             ->withFavoriteStatus(favoritesOnly: $favoritesOnly)
             ->subscribed()
             ->get();
     }
 
     /** @return Collection<Podcast>|array<array-key, Podcast> */
-    public function getAllAccessibleByUser(bool $favoritesOnly, ?User $user = null): Collection
-    {
-        return Podcast::query()
-            ->setScopedUser($user ?? $this->auth->user())
-            ->withFavoriteStatus(favoritesOnly: $favoritesOnly)
-            ->accessible()
-            ->get();
-    }
-
-    /** @return Collection<Podcast>|array<array-key, Podcast> */
     public function getMany(array $ids, bool $preserveOrder = false, ?User $user = null): Collection
     {
+        $user ??= $this->auth->user();
+
         $podcasts = Podcast::query()
-            ->with('subscribers')
-            ->setScopedUser($user ?? $this->auth->user())
-            ->accessible()
+            ->with(['subscribers' => static fn ($query) => $query->where('users.id', $user->id)])
+            ->setScopedUser($user)
+            ->subscribed()
             ->whereIn('podcasts.id', $ids)
             ->distinct()
             ->get();
@@ -54,7 +48,10 @@ class PodcastRepository extends Repository implements ScoutableRepository
     public function search(string $keywords, int $limit, ?User $user = null): Collection
     {
         return $this->getMany(
-            ids: Podcast::search($keywords)->get()->take($limit)->modelKeys(),
+            ids: Podcast::search($keywords)
+                ->take($limit)
+                ->get()
+                ->modelKeys(),
             preserveOrder: true,
             user: $user,
         );

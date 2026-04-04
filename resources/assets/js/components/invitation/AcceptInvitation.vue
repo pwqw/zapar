@@ -7,51 +7,34 @@
       @submit.prevent="submit"
     >
       <header class="mb-4">
-        {{ t('content.invitation.welcomeInvitation') }}
+        Welcome to Koel! To accept the invitation, fill in the form below and click that button.
       </header>
 
       <FormRow>
-        <template #label>{{ t('content.invitation.yourEmail') }}</template>
+        <template #label>Your email</template>
         <TextInput v-model="userProspect.email" disabled />
       </FormRow>
 
       <FormRow>
-        <template #label>{{ t('content.invitation.yourName') }}</template>
-        <TextInput
-          v-model="name"
-          v-koel-focus
-          data-testid="name"
-          :placeholder="t('form.placeholders.erne')"
-          required
-        />
+        <template #label>Your name</template>
+        <TextInput v-model="name" v-koel-focus data-testid="name" placeholder="Erm… Bruce Dickinson?" required />
       </FormRow>
 
       <FormRow>
-        <template #label>{{ t('content.invitation.password') }}</template>
+        <template #label>Password</template>
         <PasswordField v-model="password" data-testid="password" required />
-        <template #help>{{ t('content.invitation.passwordMinRequirements') }}</template>
+        <template #help>Min. 10 characters. Should be a mix of characters, numbers, and symbols.</template>
       </FormRow>
 
       <FormRow>
-        <LegalCheckboxes
-          v-model:terms-accepted="termsAccepted"
-          v-model:privacy-accepted="privacyAccepted"
-          v-model:age-verified="ageVerified"
-        />
-      </FormRow>
-
-      <FormRow>
-        <Btn :disabled="loading || !allConsentsAccepted" data-testid="submit" type="submit">
-          {{ t('content.invitation.acceptLogin') }}
-        </Btn>
+        <Btn :disabled="loading" data-testid="submit" type="submit">Accept &amp; Log In</Btn>
       </FormRow>
     </form>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { onMounted, ref } from 'vue'
 import { invitationService } from '@/services/invitationService'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 import { useRouter } from '@/composables/useRouter'
@@ -60,9 +43,6 @@ import Btn from '@/components/ui/form/Btn.vue'
 import PasswordField from '@/components/ui/form/PasswordField.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
-import LegalCheckboxes from '@/components/ui/form/LegalCheckboxes.vue'
-
-const { t } = useI18n()
 
 const { getRouteParam } = useRouter()
 const { handleHttpError } = useErrorHandler('dialog')
@@ -72,26 +52,12 @@ const password = ref('')
 const userProspect = ref<User>()
 const loading = ref(false)
 
-const termsAccepted = ref(false)
-const privacyAccepted = ref(false)
-const ageVerified = ref(false)
-
-const allConsentsAccepted = computed(() => termsAccepted.value && privacyAccepted.value && ageVerified.value)
-
 const token = String(getRouteParam('token')!)
 
 const submit = async () => {
-  if (!allConsentsAccepted.value) {
-    return
-  }
-
   try {
     loading.value = true
-    await invitationService.accept(token, name.value, password.value, {
-      terms_accepted: termsAccepted.value,
-      privacy_accepted: privacyAccepted.value,
-      age_verified: ageVerified.value,
-    })
+    await invitationService.accept(token, name.value, password.value)
     window.location.href = '/'
   } catch (error: unknown) {
     handleHttpError(error)

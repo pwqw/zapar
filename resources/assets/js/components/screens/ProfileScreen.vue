@@ -1,7 +1,7 @@
 <template>
   <ScreenBase>
     <template #header>
-      <ScreenHeader>{{ t('screens.profileAndPreferences') }}</ScreenHeader>
+      <ScreenHeader>Profile &amp; Preferences</ScreenHeader>
     </template>
 
     <Tabs class="-mx-6">
@@ -11,34 +11,33 @@
           aria-controls="profilePaneProfile"
           @click="currentTab = 'profile'"
         >
-          {{ t('screens.profile') }}
+          Profile
         </TabButton>
         <TabButton
           :selected="currentTab === 'preferences'"
           aria-controls="profilePanePreferences"
           @click="currentTab = 'preferences'"
         >
-          {{ t('screens.preferences') }}
+          Preferences
         </TabButton>
-        <TabButton
-          :selected="currentTab === 'themes'"
-          aria-controls="profilePaneThemes"
-          @click="currentTab = 'themes'"
-        >
-          {{ t('screens.themes') }}
+        <TabButton :selected="currentTab === 'themes'" aria-controls="profilePaneThemes" @click="currentTab = 'themes'">
+          Themes
         </TabButton>
         <TabButton
           :selected="currentTab === 'integrations'"
           aria-controls="profilePaneIntegrations"
           @click="currentTab = 'integrations'"
         >
-          {{ t('screens.integrations') }}
+          Integrations
         </TabButton>
         <TabButton
-          :selected="currentTab === 'qr'"
-          aria-controls="profilePaneQr"
-          @click="currentTab = 'qr'"
+          :selected="currentTab === 'offline'"
+          aria-controls="profilePaneOffline"
+          @click="currentTab = 'offline'"
         >
+          Offline
+        </TabButton>
+        <TabButton :selected="currentTab === 'qr'" aria-controls="profilePaneQr" @click="currentTab = 'qr'">
           <QrCodeIcon :size="16" />
         </TabButton>
       </TabList>
@@ -68,6 +67,10 @@
           <Integrations />
         </TabPanel>
 
+        <TabPanel v-if="currentTab === 'offline'" id="profilePaneOffline" aria-labelledby="profilePaneOffline">
+          <OfflineStorage />
+        </TabPanel>
+
         <TabPanel v-if="currentTab === 'qr'" id="profilePaneQr" aria-labelledby="profilePaneQr">
           <QRLogin />
         </TabPanel>
@@ -79,7 +82,6 @@
 <script lang="ts" setup>
 import { QrCodeIcon } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 import { defineAsyncComponent } from '@/utils/helpers'
 
@@ -91,16 +93,18 @@ import TabPanelContainer from '@/components/ui/tabs/TabPanelContainer.vue'
 import TabPanel from '@/components/ui/tabs/TabPanel.vue'
 import Tabs from '@/components/ui/tabs/Tabs.vue'
 
-const { t } = useI18n()
 const ProfileForm = defineAsyncComponent(() => import('@/components/profile-preferences/ProfileForm.vue'))
 const PreferencesForm = defineAsyncComponent(() => import('@/components/profile-preferences/PreferencesForm.vue'))
 const ThemeList = defineAsyncComponent(() => import('@/components/profile-preferences/theme/ThemePreferences.vue'))
 const Integrations = defineAsyncComponent(() => import('@/components/profile-preferences/Integrations.vue'))
+const OfflineStorage = defineAsyncComponent(() => import('@/components/profile-preferences/OfflineStorage.vue'))
 const QRLogin = defineAsyncComponent(() => import('@/components/profile-preferences/QRLogin.vue'))
 
 const { get, set } = useLocalStorage()
 
-const currentTab = ref(get<'profile' | 'preferences' | 'themes' | 'integrations' | 'qr'>('profileScreenTab', 'profile'))
+const currentTab = ref(
+  get<'profile' | 'preferences' | 'themes' | 'integrations' | 'offline' | 'qr'>('profileScreenTab', 'profile'),
+)
 
 watch(currentTab, tab => set('profileScreenTab', tab))
 </script>

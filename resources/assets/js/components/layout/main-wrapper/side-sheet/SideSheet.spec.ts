@@ -1,19 +1,31 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { screen, waitFor } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
+import { assertOpenModal } from '@/__tests__/assertions'
 import { albumStore } from '@/stores/albumStore'
 import { artistStore } from '@/stores/artistStore'
 import { commonStore } from '@/stores/commonStore'
 import { preferenceStore } from '@/stores/preferenceStore'
-import { CurrentStreamableKey } from '@/symbols'
+import { CurrentStreamableKey } from '@/config/symbols'
 import { eventBus } from '@/utils/eventBus'
+import AboutKoelModal from '@/components/meta/AboutKoelModal.vue'
+
+const openModalMock = vi.fn()
+
+vi.mock('@/composables/useModal', () => ({
+  useModal: () => ({
+    openModal: openModalMock,
+  }),
+}))
+
 import Component from './SideSheet.vue'
 
 describe('sideSheet.vue', () => {
   const h = createHarness({
     beforeEach: () => {
+      openModalMock.mockClear()
       // disable getting and saving the preferences
       h.mock(preferenceStore, 'update')
     },
@@ -29,7 +41,6 @@ describe('sideSheet.vue', () => {
     const rendered = h.render(Component, {
       global: {
         stubs: {
-          ProfileAvatar: h.stub('profile-avatar'),
           LyricsPane: h.stub('lyrics'),
           AlbumInfo: h.stub('album-info'),
           ArtistInfo: h.stub('artist-info'),
@@ -48,7 +59,14 @@ describe('sideSheet.vue', () => {
     }
   }
 
-  it('renders without a current playable', () => expect(renderComponent().rendered.html()).toMatchSnapshot())
+  const openProfileMenu = async () => {
+    await h.user.click(screen.getByTestId('profile-dropdown-trigger'))
+  }
+
+  it('renders without a current playable', () => {
+    renderComponent()
+    screen.getByTestId('profile-dropdown-trigger')
+  })
 
   it('gets active tab from the preference', async () => {
     preferenceStore.active_extra_panel_tab = 'Lyrics'
@@ -106,13 +124,13 @@ describe('sideSheet.vue', () => {
     })
   })
 
-  it('shows About Koel model', async () => {
-    const emitMock = h.mock(eventBus, 'emit')
+  it('shows About Koel modal', async () => {
     renderComponent()
+    await openProfileMenu()
 
-    await h.user.click(screen.getByRole('button', { name: 'About Koel' }))
+    await h.user.click(screen.getByTestId('about-btn'))
 
-    expect(emitMock).toHaveBeenCalledWith('MODAL_SHOW_ABOUT_KOEL')
+    await assertOpenModal(openModalMock, AboutKoelModal)
   })
 
   it('notifies new version', async () => {
@@ -120,14 +138,17 @@ describe('sideSheet.vue', () => {
     commonStore.state.latest_version = 'v1.0.1'
     h.actingAsAdmin()
     renderComponent()
-    screen.getByRole('button', { name: 'New version available!' })
+    await openProfileMenu()
+
+    screen.getByText('New version available!')
   })
 
   it('logs out', async () => {
     const emitMock = h.mock(eventBus, 'emit')
     renderComponent()
+    await openProfileMenu()
 
-    await h.user.click(screen.getByRole('button', { name: 'Log out' }))
+    await h.user.click(screen.getByTestId('logout-btn'))
 
     expect(emitMock).toHaveBeenCalledWith('LOG_OUT')
   })

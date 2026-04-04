@@ -7,15 +7,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PlaylistCollaboratorResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'name',
         'avatar',
     ];
 
-    public function __construct(private readonly PlaylistCollaborator $collaborator)
-    {
+    public function __construct(
+        private readonly PlaylistCollaborator $collaborator,
+    ) {
         parent::__construct($collaborator);
     }
 

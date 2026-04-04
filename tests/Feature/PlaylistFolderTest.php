@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Http\Resources\PlaylistFolderResource;
 use App\Models\PlaylistFolder;
+use App\Services\PlaylistFolderService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -11,64 +13,155 @@ use function Tests\create_user;
 
 class PlaylistFolderTest extends TestCase
 {
-    #[Test]
-    public function collaboratorPuttingPlaylistIntoTheirFolder(): void
+    private PlaylistFolderService $folderService;
+
+    public function setUp(): void
     {
-        $collaborator = create_user();
+        parent::setUp();
 
-        $playlist = create_playlist();
-        $playlist->addCollaborator($collaborator);
-
-        /** @var PlaylistFolder $ownerFolder */
-        $ownerFolder = PlaylistFolder::factory()->for($playlist->owner)->create();
-        $ownerFolder->playlists()->attach($playlist);
-        self::assertTrue($playlist->refresh()->getFolder($playlist->owner)?->is($ownerFolder));
-
-        /** @var PlaylistFolder $collaboratorFolder */
-        $collaboratorFolder = PlaylistFolder::factory()->for($collaborator)->create();
-        self::assertNull($playlist->getFolder($collaborator));
-
-        $this->postAs(
-            "api/playlist-folders/{$collaboratorFolder->id}/playlists",
-            ['playlists' => [$playlist->id]],
-            $collaborator
-        )
-            ->assertSuccessful();
-
-        self::assertTrue($playlist->fresh()->getFolder($collaborator)?->is($collaboratorFolder));
-
-        // Verify the playlist is in the owner's folder too
-        self::assertTrue($playlist->fresh()->getFolder($playlist->owner)?->is($ownerFolder));
+        $this->folderService = app(PlaylistFolderService::class);
     }
 
     #[Test]
-    public function collaboratorMovingPlaylistToRootLevel(): void
+    public function listing(): void
     {
-        $collaborator = create_user();
-        $playlist = create_playlist();
-        $playlist->addCollaborator($collaborator);
-        self::assertNull($playlist->getFolder($playlist->owner));
+        $user = create_user();
+        PlaylistFolder::factory()
+            ->for($user)
+            ->count(2)
+            ->create();
 
-        /** @var PlaylistFolder $ownerFolder */
-        $ownerFolder = PlaylistFolder::factory()->for($playlist->owner)->create();
-        $ownerFolder->playlists()->attach($playlist);
-        self::assertTrue($playlist->refresh()->getFolder($playlist->owner)?->is($ownerFolder));
+        $this
+            ->getAs('api/playlist-folders', $user)
+            ->assertJsonStructure([0 => PlaylistFolderResource::JSON_STRUCTURE])
+            ->assertJsonCount(2);
+    }
 
-        /** @var PlaylistFolder $collaboratorFolder */
-        $collaboratorFolder = PlaylistFolder::factory()->for($collaborator)->create();
+    #[Test]
+    public function create(): void
+    {
+        $user = create_user();
 
-        $collaboratorFolder->playlists()->attach($playlist);
-        self::assertTrue($playlist->refresh()->getFolder($collaborator)?->is($collaboratorFolder));
+        $this->postAs(
+            'api/playlist-folders',
+            ['name' => 'Classical'],
+            $user,
+        )->assertJsonStructure(PlaylistFolderResource::JSON_STRUCTURE);
+
+        $this->assertDatabaseHas(PlaylistFolder::class, ['name' => 'Classical', 'user_id' => $user->id]);
+    }
+
+    #[Test]
+    public function update(): void
+    {
+        $folder = PlaylistFolder::factory()->createOne(['name' => 'Metal']);
+
+        $this->patchAs(
+            "api/playlist-folders/{$folder->id}",
+            ['name' => 'Classical'],
+            $folder->user,
+        )->assertJsonStructure(PlaylistFolderResource::JSON_STRUCTURE);
+
+        self::assertSame('Classical', $folder->fresh()->name);
+    }
+
+    #[Test]
+    public function unauthorizedUpdate(): void
+    {
+        $folder = PlaylistFolder::factory()->createOne(['name' => 'Metal']);
+
+        $this->patchAs("api/playlist-folders/{$folder->id}", ['name' => 'Classical'])->assertForbidden();
+
+        self::assertSame('Metal', $folder->fresh()->name);
+    }
+
+    #[Test]
+    public function destroy(): void
+    {
+        $folder = PlaylistFolder::factory()->createOne();
 
         $this->deleteAs(
-            "api/playlist-folders/{$collaboratorFolder->id}/playlists",
-            ['playlists' => [$playlist->id]],
-            $collaborator
-        )
-            ->assertSuccessful();
+            "api/playlist-folders/{$folder->id}",
+            ['name' => 'Classical'],
+            $folder->user,
+        )->assertNoContent();
 
-        self::assertNull($playlist->fresh()->getFolder($collaborator));
-        // Verify the playlist is still in the owner's folder
-        self::assertTrue($playlist->getFolder($playlist->owner)?->is($ownerFolder));
+        $this->assertModelMissing($folder);
+    }
+
+    #[Test]
+    public function nonAuthorizedDelete(): void
+    {
+        $folder = PlaylistFolder::factory()->createOne();
+
+        $this->deleteAs("api/playlist-folders/{$folder->id}", ['name' => 'Classical'])->assertForbidden();
+
+        $this->assertModelExists($folder);
+    }
+
+    #[Test]
+    public function movePlaylistToFolder(): void
+    {
+        $playlist = create_playlist();
+        $folder = PlaylistFolder::factory()->for($playlist->owner)->createOne();
+
+        self::assertNull($this->folderService->getFolderForPlaylist($playlist));
+
+        $this->postAs(
+            "api/playlist-folders/{$folder->id}/playlists",
+            ['playlists' => [$playlist->id]],
+            $folder->user,
+        )->assertSuccessful();
+
+        self::assertTrue($this->folderService->getFolderForPlaylist($playlist->fresh())?->is($folder));
+    }
+
+    #[Test]
+    public function unauthorizedMovingPlaylistToFolderIsNotAllowed(): void
+    {
+        $playlist = create_playlist();
+        $folder = PlaylistFolder::factory()->for($playlist->owner)->createOne();
+
+        self::assertNull($this->folderService->getFolderForPlaylist($playlist));
+
+        $this->postAs("api/playlist-folders/{$folder->id}/playlists", ['playlists' => [
+            $playlist->id,
+        ]])->assertUnprocessable();
+
+        self::assertNull($this->folderService->getFolderForPlaylist($playlist->fresh()));
+    }
+
+    #[Test]
+    public function movePlaylistToRootLevel(): void
+    {
+        $playlist = create_playlist();
+        $folder = PlaylistFolder::factory()->for($playlist->owner)->createOne();
+
+        $folder->playlists()->attach($playlist);
+        self::assertTrue($this->folderService->getFolderForPlaylist($playlist->refresh())?->is($folder));
+
+        $this->deleteAs(
+            "api/playlist-folders/{$folder->id}/playlists",
+            ['playlists' => [$playlist->id]],
+            $folder->user,
+        )->assertSuccessful();
+
+        self::assertNull($this->folderService->getFolderForPlaylist($playlist->fresh()));
+    }
+
+    #[Test]
+    public function unauthorizedMovingPlaylistToRootLevelIsNotAllowed(): void
+    {
+        $playlist = create_playlist();
+        $folder = PlaylistFolder::factory()->for($playlist->owner)->createOne();
+
+        $folder->playlists()->attach($playlist);
+        self::assertTrue($this->folderService->getFolderForPlaylist($playlist->refresh())?->is($folder));
+
+        $this->deleteAs("api/playlist-folders/{$folder->id}/playlists", ['playlists' => [
+            $playlist->id,
+        ]])->assertUnprocessable();
+
+        self::assertTrue($this->folderService->getFolderForPlaylist($playlist->refresh())->is($folder));
     }
 }

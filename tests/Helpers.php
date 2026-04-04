@@ -9,17 +9,17 @@ use Illuminate\Support\Facades\File;
 
 function create_user(array $attributes = []): User
 {
-    return User::factory()->create($attributes);
+    return User::factory()->createOne($attributes);
 }
 
 function create_admin(array $attributes = []): User
 {
-    return User::factory()->admin()->create($attributes);
+    return User::factory()->admin()->createOne($attributes);
 }
 
 function create_manager(array $attributes = []): User
 {
-    return User::factory()->manager()->create($attributes);
+    return User::factory()->manager()->createOne($attributes);
 }
 
 function create_moderator(array $attributes = []): User
@@ -34,7 +34,7 @@ function create_artist(array $attributes = []): User
 
 function create_user_prospect(array $attributes = []): User
 {
-    return User::factory()->prospect()->create($attributes);
+    return User::factory()->prospect()->createOne($attributes);
 }
 
 function test_path(string $path = ''): string
@@ -49,9 +49,7 @@ function read_as_data_url(string $path): string
 
 function create_playlist(array $attributes = [], bool $smart = false): Playlist
 {
-    return $smart
-        ? Playlist::factory()->smart()->create($attributes)
-        : Playlist::factory()->create($attributes);
+    return $smart ? Playlist::factory()->smart()->createOne($attributes) : Playlist::factory()->createOne($attributes);
 }
 
 /**
@@ -76,5 +74,5 @@ function create_playlists(int $count, array $attributes = [], ?User $owner = nul
  */
 function minimal_base64_encoded_image(): string
 {
-    return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII'; // @phpcs:ignore
+    return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII';
 }

@@ -17,12 +17,12 @@
     <MainWrapper />
     <AppFooter />
     <SupportKoel />
+    <AiAssistantScreen v-if="commonStore.state.uses_ai" v-show="isCurrentScreen('AI')" />
     <DropZone v-show="showDropZone" @close="showDropZone = false" />
   </main>
 
   <LoginForm v-if="layout === 'login'" @loggedin="triggerAppInitialization" />
   <Embed v-if="layout === 'embed'" />
-  <GoogleDocLayout v-if="layout === 'google-doc'" />
 
   <AcceptInvitation v-if="layout === 'invitation'" />
   <ResetPasswordForm v-if="layout === 'reset-password'" />
@@ -35,12 +35,20 @@
 <script lang="ts" setup>
 import { defineAsyncComponent } from '@/utils/helpers'
 import { computed, onMounted, provide, ref, shallowRef, watch } from 'vue'
-import { useOnline } from '@vueuse/core'
+import { useNetworkStatus } from '@/composables/useNetworkStatus'
 import { queueStore } from '@/stores/queueStore'
 import { authService } from '@/services/authService'
 import { radioStationStore } from '@/stores/radioStationStore'
-import { ContextMenuKey, CurrentStreamableKey, DialogBoxKey, MessageToasterKey, OverlayKey } from '@/symbols'
+import {
+  ContextMenuKey,
+  CurrentStreamableKey,
+  DialogBoxKey,
+  MessageToasterKey,
+  ModalKey,
+  OverlayKey,
+} from '@/config/symbols'
 import { useRouter } from '@/composables/useRouter'
+import { commonStore } from '@/stores/commonStore'
 import type { Route } from '@/router'
 
 import DialogBox from '@/components/ui/DialogBox.vue'
@@ -61,11 +69,11 @@ const HotkeyListener = defineAsyncComponent(() => import('@/components/utils/Hot
 const LoginForm = defineAsyncComponent(() => import('@/components/auth/LoginForm.vue'))
 const MainWrapper = defineAsyncComponent(() => import('@/components/layout/main-wrapper/index.vue'))
 const SupportKoel = defineAsyncComponent(() => import('@/components/meta/SupportKoel.vue'))
+const AiAssistantScreen = defineAsyncComponent(() => import('@/components/ai/AiAssistantScreen.vue'))
 const DropZone = defineAsyncComponent(() => import('@/components/ui/upload/DropZone.vue'))
 const AcceptInvitation = defineAsyncComponent(() => import('@/components/invitation/AcceptInvitation.vue'))
 const ResetPasswordForm = defineAsyncComponent(() => import('@/components/auth/ResetPasswordForm.vue'))
 const Embed = defineAsyncComponent(() => import('@/components/embed/widget/EmbedWidget.vue'))
-const GoogleDocLayout = defineAsyncComponent(() => import('@/components/google-doc/GoogleDocLayout.vue'))
 
 const overlay = ref<InstanceType<typeof Overlay>>()
 const dialog = ref<InstanceType<typeof DialogBox>>()
@@ -74,7 +82,7 @@ const currentStreamable = ref<Streamable>()
 const showDropZone = ref(false)
 
 const { isCurrentScreen, resolveRoute, triggerNotFound, onRouteChanged } = useRouter()
-const online = useOnline()
+const { online } = useNetworkStatus()
 
 const authenticated = ref(false)
 const initialized = ref(false)
@@ -94,10 +102,6 @@ const onInitSuccess = async () => {
 const layout = computed(() => {
   if (currentRoute.value?.meta?.layout) {
     return currentRoute.value.meta.layout
-  }
-
-  if (currentRoute.value?.meta?.public) {
-    return 'default'
   }
 
   return authenticated.value ? 'default' : 'login'
@@ -126,31 +130,25 @@ onMounted(() => {
   }
 })
 
-onRouteChanged(route => {
-  currentRoute.value = route
-})
-
 const onDragOver = (e: DragEvent) => {
   showDropZone.value = Boolean(e.dataTransfer?.types.includes('Files')) && !isCurrentScreen('Upload')
 }
 
-watch(() => queueStore.current, song => {
-  // Only update currentStreamable if radio is not playing
-  // This prevents queue from overwriting radio when switching from song to radio
-  if (!radioStationStore.current || radioStationStore.current.playback_state === 'Stopped') {
-    currentStreamable.value = song
-  }
-})
+watch(
+  () => queueStore.current,
+  song => (currentStreamable.value = song),
+)
 
-watch(() => radioStationStore.current, station => {
-  // When radio is playing, it takes priority over queue
-  if (station && station.playback_state !== 'Stopped') {
-    currentStreamable.value = station
-  } else if (!station && queueStore.current) {
-    // If radio stops and there's a queue item, switch back to queue
-    currentStreamable.value = queueStore.current
-  }
-})
+watch(
+  () => radioStationStore.current,
+  station => {
+    if (station) {
+      currentStreamable.value = station
+    }
+  },
+)
+
+onRouteChanged(route => (currentRoute.value = route))
 
 const onDragEnd = () => (showDropZone.value = false)
 
@@ -169,16 +167,26 @@ provide(DialogBoxKey, dialog)
 provide(MessageToasterKey, toaster)
 provide(CurrentStreamableKey, currentStreamable)
 
-provide(ContextMenuKey, shallowRef({
-  component: null,
-  position: { top: 0, left: 0 },
-}))
+provide(
+  ContextMenuKey,
+  shallowRef({
+    component: null,
+    position: { top: 0, left: 0 },
+  }),
+)
+
+provide(
+  ModalKey,
+  shallowRef({
+    component: null,
+  }),
+)
 </script>
 
 <style lang="postcss">
 #dragGhost {
-  @apply inline-block py-2 pl-8 pr-3 rounded-md text-base fixed top-0 left-0 z-[-1] bg-k-bg
-  text-k-fg no-hover:hidden;
+  @apply hidden py-2 pl-8 pr-3 rounded-md text-base fixed bg-k-bg border border-k-fg-10
+  text-k-fg pointer-events-none z-50 whitespace-nowrap;
 }
 
 #copyArea {

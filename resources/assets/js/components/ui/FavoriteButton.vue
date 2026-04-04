@@ -2,7 +2,7 @@
   <button
     v-koel-tooltip
     :title
-    class="transition-[color] duration-200 ease-in-out hover:text-k-fg"
+    class="relative transition-[color] duration-200 ease-in-out hover:text-k-fg"
     @click.prevent.stop="emit('toggle')"
   >
     <Icon :class="favorite && 'text-k-highlight'" :icon="favorite ? faStar : faEmptyStar" size="sm" />
@@ -18,5 +18,12 @@ import { computed } from 'vue'
 const props = defineProps<{ favorite: boolean }>()
 const emit = defineEmits<{ (e: 'toggle'): void }>()
 
-const title = computed(() => props.favorite ? 'Undo Favorite' : 'Favorite')
+const title = computed(() => (props.favorite ? 'Undo Favorite' : 'Favorite'))
 </script>
+
+<style lang="postcss" scoped>
+button::after {
+  content: '';
+  @apply absolute -inset-3;
+}
+</style>

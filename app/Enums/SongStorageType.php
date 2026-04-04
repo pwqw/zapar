@@ -2,6 +2,7 @@
 
 namespace App\Enums;
 
+
 enum SongStorageType: string
 {
     case S3 = 's3';

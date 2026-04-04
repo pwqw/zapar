@@ -29,10 +29,12 @@ class DeletePodcastIfNoSubscribersTest extends TestCase
     #[Test]
     public function handlePodcastWithNoSubscribers(): void
     {
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create();
+        $podcast = Podcast::factory()->createOne();
 
-        $this->podcastService->expects('deletePodcast')->once()->with($podcast);
+        $this->podcastService
+            ->expects('deletePodcast')
+            ->once()
+            ->with($podcast);
 
         $this->listener->handle(new UserUnsubscribedFromPodcast(create_user(), $podcast));
     }
@@ -40,8 +42,7 @@ class DeletePodcastIfNoSubscribersTest extends TestCase
     #[Test]
     public function handlePodcastWithSubscribers(): void
     {
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create();
+        $podcast = Podcast::factory()->createOne();
         $podcast->subscribers()->attach(create_user());
 
         $this->podcastService->expects('deletePodcast')->never();

@@ -1,10 +1,9 @@
 <template>
   <article
     :class="{ me: isCurrentUser }"
-    class="apply p-4 flex items-center rounded-md bg-k-fg-5 border border-k-fg-10
-    gap-3 transition-[border-color] duration-200 ease-in-out hover:border-k-fg-20"
+    class="apply p-4 flex items-center rounded-md bg-k-fg-5 border border-k-fg-10 gap-3 transition-[border-color] duration-200 ease-in-out hover:border-k-fg-20"
   >
-    <UserAvatar :user="user" width="48" />
+    <UserAvatar :user width="48" />
 
     <main class="flex flex-col justify-between relative flex-1 gap-1">
       <h3 class="font-medium flex gap-2 items-center text-k-fg">
@@ -36,7 +35,7 @@
           height="14"
           title="Google SSO"
           width="14"
-        >
+        />
       </h3>
 
       <p>{{ user.email }}</p>
@@ -80,7 +79,8 @@ const hasAdminPrivileges = computed(() => user.value.role === 'admin' || user.va
 const isManager = computed(() => user.value.role === 'manager')
 const isArtist = computed(() => user.value.role === 'artist')
 
-const requestContextMenu = (event: MouseEvent) => openContextMenu<'USER'>(UserContextMenu, event, {
-  user: user.value,
-})
+const requestContextMenu = (event: MouseEvent) =>
+  openContextMenu<'USER'>(UserContextMenu, event, {
+    user: user.value,
+  })
 </script>

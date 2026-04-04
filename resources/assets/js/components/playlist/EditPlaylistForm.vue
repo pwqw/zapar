@@ -1,48 +1,36 @@
 <template>
   <form @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>{{ t('playlists.edit') }}</h1>
+      <h1>Edit Playlist</h1>
     </header>
 
     <main>
       <div class="grid grid-cols-2 gap-4">
         <FormRow>
-          <template #label>{{ t('playlists.name') }}</template>
-          <TextInput
-            v-model="data.name"
-            v-koel-focus
-            name="name"
-            :placeholder="t('playlists.playlistName')"
-            required
-          />
+          <template #label>Name *</template>
+          <TextInput v-model="data.name" v-koel-focus name="name" placeholder="Playlist name" required />
         </FormRow>
         <FormRow>
-          <template #label>{{ t('playlists.folder.name') }}</template>
-          <SelectBox v-model="data.folder_id">
-            <option :value="null" />
-            <option v-for="folder in folders" :key="folder.id" :value="folder.id">{{ folder.name }}</option>
-          </SelectBox>
+          <template #label>Folder</template>
+          <FolderSelect v-model:folder-id="data.folder_id" v-model:folder-name="data.folder_name" />
         </FormRow>
         <FormRow class="col-span-2">
-          <template #label>{{ t('playlists.description') }}</template>
+          <template #label>Description</template>
           <TextArea v-model="data.description" class="h-28" name="description" />
         </FormRow>
-        <ArtworkField v-model="data.cover">{{ t('playlists.pickCover') }}</ArtworkField>
+        <ArtworkField v-model="data.cover">Pick a cover (optional)</ArtworkField>
       </div>
     </main>
 
     <footer>
-      <Btn type="submit">{{ t('auth.save') }}</Btn>
-      <Btn white @click.prevent="maybeClose">{{ t('auth.cancel') }}</Btn>
+      <Btn type="submit">Save</Btn>
+      <Btn white @click.prevent="maybeClose">Cancel</Btn>
     </footer>
   </form>
 </template>
 
 <script lang="ts" setup>
-import { toRef } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { cloneDeep, pick } from 'lodash'
-import { playlistFolderStore } from '@/stores/playlistFolderStore'
 import type { UpdatePlaylistData } from '@/stores/playlistStore'
 import { playlistStore } from '@/stores/playlistStore'
 import { useDialogBox } from '@/composables/useDialogBox'
@@ -52,7 +40,7 @@ import { useForm } from '@/composables/useForm'
 import Btn from '@/components/ui/form/Btn.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
-import SelectBox from '@/components/ui/form/SelectBox.vue'
+import FolderSelect from '@/components/ui/form/FolderSelect.vue'
 import TextArea from '@/components/ui/form/TextArea.vue'
 import ArtworkField from '@/components/ui/form/ArtworkField.vue'
 
@@ -61,16 +49,13 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 
 const { playlist } = props
 
-const { t } = useI18n()
 const { toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
 
 const close = () => emit('close')
 
-const folders = toRef(playlistFolderStore.state, 'folders')
-
 const { data, isPristine, handleSubmit } = useForm<UpdatePlaylistData>({
-  initialValues: { ...pick(playlist, 'name', 'folder_id', 'description', 'cover') },
+  initialValues: { ...pick(playlist, 'name', 'folder_id', 'description', 'cover'), folder_name: null },
   onSubmit: async data => {
     const formData = cloneDeep(data)
 
@@ -81,13 +66,13 @@ const { data, isPristine, handleSubmit } = useForm<UpdatePlaylistData>({
     await playlistStore.update(playlist, formData)
   },
   onSuccess: () => {
-    toastSuccess(t('playlists.updated'))
+    toastSuccess('Playlist updated.')
     close()
   },
 })
 
 const maybeClose = async () => {
-  if (isPristine() || await showConfirmDialog(t('playlists.discardChanges'))) {
+  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
     close()
   }
 }

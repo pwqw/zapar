@@ -8,19 +8,14 @@ use App\Models\Artist;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-use function Tests\create_user;
-
 class ArtistAlbumTest extends TestCase
 {
     #[Test]
     public function index(): void
     {
-        $user = create_user();
-        /** @var Artist $artist */
-        $artist = Artist::factory()->for($user)->create();
-        Album::factory(5)->for($artist)->create(['user_id' => $user->id]);
+        $artist = Artist::factory()->createOne();
+        Album::factory()->for($artist)->createMany(5);
 
-        $this->getAs("api/artists/{$artist->id}/albums", $user)
-            ->assertJsonStructure([0 => AlbumResource::JSON_STRUCTURE]);
+        $this->getAs("api/artists/{$artist->id}/albums")->assertJsonStructure([0 => AlbumResource::JSON_STRUCTURE]);
     }
 }

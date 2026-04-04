@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import factory from '@/__tests__/factory'
 import { http } from '@/services/http'
@@ -92,12 +92,14 @@ describe('artistStore', () => {
       },
     })
 
-    expect(await artistStore.paginate({
-      favorites_only: false,
-      page: 1,
-      sort: 'name',
-      order: 'asc',
-    })).toEqual(2)
+    expect(
+      await artistStore.paginate({
+        favorites_only: false,
+        page: 1,
+        sort: 'name',
+        order: 'asc',
+      }),
+    ).toEqual(2)
 
     expect(artistStore.state.artists).toEqual(artists)
     expect(artistStore.vault.size).toBe(3)
@@ -107,10 +109,12 @@ describe('artistStore', () => {
     const artist = h.factory('artist', { favorite: false })
     artistStore.syncWithVault(artist)
 
-    const postMock = h.mock(http, 'post').mockResolvedValueOnce(h.factory('favorite', {
-      favoriteable_type: 'artist',
-      favoriteable_id: artist.id,
-    }))
+    const postMock = h.mock(http, 'post').mockResolvedValueOnce(
+      h.factory('favorite', {
+        favoriteable_type: 'artist',
+        favoriteable_id: artist.id,
+      }),
+    )
 
     await artistStore.toggleFavorite(artist)
 

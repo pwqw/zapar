@@ -1,25 +1,44 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
+import { assertOpenModal } from '@/__tests__/assertions'
 import factory from '@/__tests__/factory'
-import { eventBus } from '@/utils/eventBus'
 import { downloadService } from '@/services/downloadService'
 import { playbackService } from '@/services/QueuePlaybackService'
 import { commonStore } from '@/stores/commonStore'
 import { playableStore } from '@/stores/playableStore'
 import { acl } from '@/services/acl'
+import EditAlbumForm from '@/components/album/EditAlbumForm.vue'
+import CreateEmbedForm from '@/components/embed/CreateEmbedForm.vue'
+
+const openModalMock = vi.fn()
+
+vi.mock('@/composables/useModal', () => ({
+  useModal: () => ({
+    openModal: openModalMock,
+  }),
+}))
+
 import Component from './AlbumContextMenu.vue'
 
 describe('albumContextMenu.vue', () => {
-  const h = createHarness()
+  const h = createHarness({
+    beforeEach: () => openModalMock.mockClear(),
+  })
 
   const renderComponent = async (album?: Album) => {
     h.mock(acl, 'checkResourcePermission').mockReturnValue(true)
 
-    album = album || h.factory('album', {
-      name: 'IV',
-      favorite: false,
-    })
+    if (!vi.isMockFunction(playableStore.fetchSongsForAlbum)) {
+      h.mock(playableStore, 'fetchSongsForAlbum').mockResolvedValue([])
+    }
+
+    album =
+      album ||
+      h.factory('album', {
+        name: 'IV',
+        favorite: false,
+      })
 
     const rendered = h.actingAsAdmin().render(Component, {
       props: {
@@ -43,7 +62,7 @@ describe('albumContextMenu.vue', () => {
     const playMock = h.mock(playbackService, 'queueAndPlay')
 
     const { album } = await renderComponent()
-    await h.user.click(screen.getByText(/play all/i))
+    await h.user.click(screen.getByText('Play All'))
     await h.tick()
 
     expect(fetchMock).toHaveBeenCalledWith(album)
@@ -58,7 +77,7 @@ describe('albumContextMenu.vue', () => {
     const playMock = h.mock(playbackService, 'queueAndPlay')
 
     const { album } = await renderComponent()
-    await h.user.click(screen.getByText(/shuffle all/i))
+    await h.user.click(screen.getByText('Shuffle All'))
     await h.tick()
 
     expect(fetchMock).toHaveBeenCalledWith(album)
@@ -69,7 +88,7 @@ describe('albumContextMenu.vue', () => {
     const downloadMock = h.mock(downloadService, 'fromAlbum')
     const { album } = await renderComponent()
 
-    await h.user.click(screen.getByText(/download/i))
+    await h.user.click(screen.getByText('Download'))
 
     expect(downloadMock).toHaveBeenCalledWith(album)
   })
@@ -78,7 +97,7 @@ describe('albumContextMenu.vue', () => {
     commonStore.state.allows_download = false
     await renderComponent()
 
-    expect(screen.queryByText(/download/i)).toBeNull()
+    expect(screen.queryByText('Download')).toBeNull()
   })
 
   it('does not have an option to download or go to Unknown Album and Artist', async () => {
@@ -95,17 +114,15 @@ describe('albumContextMenu.vue', () => {
     // for the "Edit…" menu item to show up
     await h.tick(2)
 
-    const emitMock = h.mock(eventBus, 'emit')
-    await h.user.click(screen.getByText(/edit/i))
+    await h.user.click(screen.getByText('Edit…'))
 
-    expect(emitMock).toHaveBeenCalledWith('MODAL_SHOW_EDIT_ALBUM_FORM', album)
+    await assertOpenModal(openModalMock, EditAlbumForm, { album })
   })
 
   it('requests the embed form', async () => {
     const { album } = await renderComponent()
-    const emitMock = h.mock(eventBus, 'emit')
-    await h.user.click(screen.getByText(/embed/i))
+    await h.user.click(screen.getByText('Embed…'))
 
-    expect(emitMock).toHaveBeenCalledWith('MODAL_SHOW_CREATE_EMBED_FORM', album)
+    await assertOpenModal(openModalMock, CreateEmbedForm, { embeddable: album })
   })
 })

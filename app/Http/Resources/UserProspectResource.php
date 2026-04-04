@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserProspectResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'name',
@@ -17,8 +17,9 @@ class UserProspectResource extends JsonResource
         'is_prospect',
     ];
 
-    public function __construct(private readonly User $user)
-    {
+    public function __construct(
+        private readonly User $user,
+    ) {
         parent::__construct($user);
     }
 

@@ -1,16 +1,30 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
-import { eventBus } from '@/utils/eventBus'
+import { assertOpenModal } from '@/__tests__/assertions'
+import EditSongForm from '@/components/playable/EditSongForm.vue'
+
+const openModalMock = vi.fn()
+
+vi.mock('@/composables/useModal', () => ({
+  useModal: () => ({
+    openModal: openModalMock,
+  }),
+}))
+
 import Component from './LyricsPane.vue'
 
 describe('lyricsPane.vue', () => {
-  const h = createHarness()
+  const h = createHarness({
+    beforeEach: () => openModalMock.mockClear(),
+  })
 
   const renderComponent = (song?: Song) => {
-    song = song || h.factory('song', {
-      lyrics: 'Foo bar baz qux',
-    })
+    song =
+      song ||
+      h.factory('song', {
+        lyrics: 'Foo bar baz qux',
+      })
 
     const rendered = h.render(Component, {
       props: {
@@ -33,9 +47,11 @@ describe('lyricsPane.vue', () => {
   it('renders', () => expect(renderComponent().html()).toMatchSnapshot())
 
   it('renders plain text lyrics when lyrics are not synced', () => {
-    renderComponent(h.factory('song', {
-      lyrics: 'Plain lyrics\nLine 2\nLine 3',
-    }))
+    renderComponent(
+      h.factory('song', {
+        lyrics: 'Plain lyrics\nLine 2\nLine 3',
+      }),
+    )
 
     screen.getByTestId('plain-text-lyrics')
     expect(screen.queryByTestId('lrc-lyrics-pane')).toBeNull()
@@ -55,13 +71,12 @@ describe('lyricsPane.vue', () => {
   it('provides a button to add lyrics if current user is admin', async () => {
     const song = h.factory('song', { lyrics: null })
 
-    const mock = h.mock(eventBus, 'emit')
     h.actingAsAdmin()
     renderComponent(song)
 
     await h.user.click(screen.getByRole('button', { name: 'Click here' }))
 
-    expect(mock).toHaveBeenCalledWith('MODAL_SHOW_EDIT_SONG_FORM', song, 'lyrics')
+    await assertOpenModal(openModalMock, EditSongForm, { songs: [song], initialTab: 'lyrics' })
   })
 
   it('does not have a button to add lyrics if current user is not an admin', async () => {

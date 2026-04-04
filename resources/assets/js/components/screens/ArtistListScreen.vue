@@ -2,12 +2,12 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed" :disabled="loading">
-        {{ t('screens.artists') }}
+        Artists
         <template #controls>
           <div class="flex gap-2">
             <Btn
               v-koel-tooltip
-              :title="preferences.artists_favorites_only ? t('misc.showAll') : t('misc.showFavoritesOnly')"
+              :title="preferences.artists_favorites_only ? 'Show all' : 'Show favorites only'"
               class="border border-k-fg-10"
               transparent
               @click.prevent="toggleFavoritesOnly"
@@ -34,22 +34,31 @@
       <template #icon>
         <Icon :icon="faMicrophoneSlash" />
       </template>
-      {{ t('emptyStates.artistsNotFound') }}
-      <span v-if="currentUserCan.manageSettings()" class="secondary block">
-        {{ t('screens.home.setupLibrary') }}
-      </span>
+      No artists found.
+      <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
     </ScreenEmptyState>
 
-    <div v-else ref="gridContainer" v-koel-overflow-fade class="-m-6 overflow-auto">
+    <ScreenEmptyState v-else-if="noFavoriteArtists">
+      <template #icon>
+        <Icon :icon="faMicrophoneSlash" />
+      </template>
+      No favorite artists.
+    </ScreenEmptyState>
+
+    <div v-else ref="gridContainer" v-koel-overflow-fade class="-m-6 flex-1 overflow-auto">
       <GridListView :view-mode="preferences.artists_view_mode" data-testid="artist-list">
         <template v-if="showSkeletons">
           <ArtistCardSkeleton v-for="i in 10" :key="i" :layout="itemLayout" />
         </template>
         <template v-else>
-          <ArtistCard v-for="artist in artists" :key="artist.id" :artist="artist" :layout="itemLayout" />
+          <ArtistCard v-for="artist in displayedArtists" :key="artist.id" :artist :layout="itemLayout" />
+          <template v-if="loading">
+            <ArtistCardSkeleton v-for="i in 4" :key="`loading-${i}`" :layout="itemLayout" />
+          </template>
           <ToTopButton />
         </template>
       </GridListView>
+      <div v-if="moreArtistsAvailable && !loading" ref="sentinel" class="h-px" />
     </div>
   </ScreenBase>
 </template>
@@ -58,7 +67,6 @@
 import { faMicrophoneSlash, faStar } from '@fortawesome/free-solid-svg-icons'
 import { faStar as faEmptyStar } from '@fortawesome/free-regular-svg-icons'
 import { computed, nextTick, onMounted, ref, toRef } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { artistStore } from '@/stores/artistStore'
 import { commonStore } from '@/stores/commonStore'
 import { preferenceStore as preferences } from '@/stores/preferenceStore'
@@ -76,8 +84,6 @@ import GridListView from '@/components/ui/GridListView.vue'
 import ArtistListSorter from '@/components/artist/ArtistListSorter.vue'
 import Btn from '@/components/ui/form/Btn.vue'
 
-const { t } = useI18n()
-
 const { currentUserCan } = usePolicies()
 
 const gridContainer = ref<HTMLDivElement>()
@@ -89,10 +95,19 @@ const page = ref<number | null>(1)
 
 const libraryEmpty = computed(() => commonStore.state.song_length === 0)
 
-const itemLayout = computed<CardLayout>(
-  () => preferences.artists_view_mode === 'thumbnails' ? 'full' : 'compact',
+const itemLayout = computed<CardLayout>(() => (preferences.artists_view_mode === 'thumbnails' ? 'full' : 'compact'))
+
+const displayedArtists = computed(() =>
+  preferences.artists_favorites_only ? artists.value.filter(a => a.favorite) : artists.value,
 )
 
+const noFavoriteArtists = computed(
+  () =>
+    !loading.value &&
+    preferences.artists_favorites_only &&
+    displayedArtists.value.length === 0 &&
+    !moreArtistsAvailable.value,
+)
 const moreArtistsAvailable = computed(() => page.value !== null)
 const showSkeletons = computed(() => loading.value && artists.value.length === 0)
 
@@ -103,20 +118,21 @@ const fetchArtists = async () => {
 
   loading.value = true
 
-  page.value = await artistStore.paginate({
-    favorites_only: preferences.artists_favorites_only,
-    page: page!.value || 1,
-    sort: preferences.artists_sort_field,
-    order: preferences.artists_sort_order,
-  })
-
-  loading.value = false
+  try {
+    page.value = await artistStore.paginate({
+      favorites_only: preferences.artists_favorites_only,
+      page: page!.value || 1,
+      sort: preferences.artists_sort_field,
+      order: preferences.artists_sort_order,
+    })
+  } catch (error: unknown) {
+    useErrorHandler().handleHttpError(error)
+  } finally {
+    loading.value = false
+  }
 }
 
-const {
-  ToTopButton,
-  makeScrollable,
-} = useInfiniteScroll(gridContainer, async () => await fetchArtists())
+const { ToTopButton, sentinel } = useInfiniteScroll(gridContainer, () => fetchArtists())
 
 const resetState = async () => {
   page.value = 1
@@ -142,15 +158,9 @@ const toggleFavoritesOnly = async () => {
   await fetchArtists()
 }
 
-onMounted(async () => {
-  if (libraryEmpty.value) {
-    return
-  }
-
-  try {
-    await makeScrollable()
-  } catch (error: unknown) {
-    useErrorHandler().handleHttpError(error)
+onMounted(() => {
+  if (!libraryEmpty.value) {
+    fetchArtists()
   }
 })
 </script>

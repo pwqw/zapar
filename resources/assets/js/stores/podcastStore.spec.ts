@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { http } from '@/services/http'
 import { podcastStore } from '@/stores/podcastStore'
@@ -98,10 +98,12 @@ describe('podcastStore', () => {
     const podcast = h.factory('podcast', { favorite: false })
     podcastStore.state.podcasts.push(podcast)
 
-    const postMock = h.mock(http, 'post').mockResolvedValueOnce(h.factory('favorite', {
-      favoriteable_type: 'podcast',
-      favoriteable_id: podcast.id,
-    }))
+    const postMock = h.mock(http, 'post').mockResolvedValueOnce(
+      h.factory('favorite', {
+        favoriteable_type: 'podcast',
+        favoriteable_id: podcast.id,
+      }),
+    )
 
     await podcastStore.toggleFavorite(podcast)
 

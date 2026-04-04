@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\Acl\Role;
 use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Genre;
@@ -10,18 +11,18 @@ use App\Models\Podcast;
 use App\Models\RadioStation;
 use App\Models\Song;
 use App\Models\User;
-use App\Rules\ValidRadioStationUrl;
 use App\Services\Contracts\Encyclopedia;
 use App\Services\Geolocation\Contracts\GeolocationService;
 use App\Services\Geolocation\IPinfoService;
 use App\Services\LastfmService;
+use App\Services\License\Contracts\LicenseServiceInterface;
+use App\Services\LicenseService;
 use App\Services\MusicBrainzService;
 use App\Services\NullEncyclopedia;
 use App\Services\Scanners\Contracts\ScannerCacheStrategy as ScannerCacheStrategyContract;
 use App\Services\Scanners\ScannerCacheStrategy;
 use App\Services\Scanners\ScannerNoCacheStrategy;
 use App\Services\SpotifyService;
-use App\Services\TicketmasterService;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -47,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
         // disable wrapping JSON resource in a `data` key
         JsonResource::withoutWrapping();
 
-        self::grantAllPermissionsToElevatedRoles();
+        self::grantAllPermissionsToSuperAdminRole();
 
         $this->app->bind(SpotifySession::class, static function () {
             return SpotifyService::enabled()
@@ -71,12 +72,12 @@ class AppServiceProvider extends ServiceProvider
             return app(NullEncyclopedia::class);
         });
 
+        $this->app->bind(LicenseServiceInterface::class, LicenseService::class);
+
         $this->app->bind(ScannerCacheStrategyContract::class, static function () {
             // Use a no-cache strategy for unit tests to ensure consistent results
             return app()->runningUnitTests() ? app(ScannerNoCacheStrategy::class) : app(ScannerCacheStrategy::class);
         });
-
-        $this->app->singleton(ValidRadioStationUrl::class, static fn () => new ValidRadioStationUrl());
 
         Route::bind('genre', static function (string $value): ?Genre {
             if ($value === Genre::NO_GENRE_PUBLIC_ID) {
@@ -95,10 +96,6 @@ class AppServiceProvider extends ServiceProvider
             'playlist' => Playlist::class,
         ]);
 
-        $this->app->when(TicketmasterService::class)
-            ->needs('$defaultCountryCode')
-            ->give(config('koel.services.ticketmaster.default_country_code'));
-
         $this->app->bind(GeolocationService::class, static function (): GeolocationService {
             return app(IPinfoService::class);
         });
@@ -114,17 +111,12 @@ class AppServiceProvider extends ServiceProvider
     private static function enableOnDeleteCascadeForSqliteConnections(DatabaseManager $db): void
     {
         if ($db->connection() instanceof SQLiteConnection) {
-            try {
-                $db->statement($db->raw('PRAGMA foreign_keys = ON')->getValue($db->getQueryGrammar()));
-            } catch (\Exception) {
-                // Database connection may not be available during test initialization
-                // This is safe to ignore as the pragma will be set when the database is actually used
-            }
+            $db->statement($db->raw('PRAGMA foreign_keys = ON')->getValue($db->getQueryGrammar()));
         }
     }
 
-    private static function grantAllPermissionsToElevatedRoles(): void
+    private static function grantAllPermissionsToSuperAdminRole(): void
     {
-        Gate::after(static fn (User $user) => $user->hasElevatedRole());
+        Gate::after(static fn (User $user) => $user->hasRole(Role::ADMIN));
     }
 }

@@ -19,33 +19,12 @@ const REDIRECT_KEY = 'redirect'
 const { get: lsGet, set: lsSet, remove: lsRemove } = useLocalStorage(false) // authentication local storage data aren't namespaced
 
 export const authService = {
-  async login (email: string, password: string) {
+  async login(email: string, password: string) {
     this.setTokensUsingCompositeToken(await http.post<CompositeToken>('me', { email, password }))
     this.maybeRedirect()
   },
 
-  async loginAnonymously (params: { terms_accepted: boolean, privacy_accepted: boolean, age_verified: boolean, locale?: string }) {
-    const hasValidConsent
-      = params
-        && params.terms_accepted === true
-        && params.privacy_accepted === true
-        && params.age_verified === true
-
-    if (!hasValidConsent) {
-      throw new Error('Consent required to continue anonymously.')
-    }
-
-    const body = {
-      terms_accepted: params.terms_accepted,
-      privacy_accepted: params.privacy_accepted,
-      age_verified: params.age_verified,
-      ...(params.locale ? { locale: params.locale } : {}),
-    }
-
-    return await http.post<CompositeToken>('me/anonymous', body)
-  },
-
-  async logout () {
+  async logout() {
     await http.delete('me')
     this.destroy()
   },
@@ -53,18 +32,18 @@ export const authService = {
   getProfile: async () => await http.get<User>('me'),
 
   updateProfile: async (data: UpdateCurrentProfileData) => {
-    merge(userStore.current, (await http.put<User>('me', data)))
+    merge(userStore.current, await http.put<User>('me', data))
   },
 
   getApiToken: () => lsGet<string>(API_TOKEN_STORAGE_KEY),
 
-  hasApiToken () {
+  hasApiToken() {
     return Boolean(this.getApiToken())
   },
 
   setApiToken: (token: string) => lsSet(API_TOKEN_STORAGE_KEY, token),
 
-  setTokensUsingCompositeToken (compositeToken: CompositeToken) {
+  setTokensUsingCompositeToken(compositeToken: CompositeToken) {
     this.setApiToken(compositeToken.token)
     this.setAudioToken(compositeToken['audio-token'])
   },
@@ -93,13 +72,9 @@ export const authService = {
 
   hasRedirect: () => Boolean(lsGet(REDIRECT_KEY)),
 
-  maybeRedirect: () => use(lsGet<string | null>(REDIRECT_KEY), url => {
-    lsRemove(REDIRECT_KEY)
-    location.assign(url)
-  }),
-
-  isAnonymous: (user?: User): boolean => {
-    const checkUser = user || userStore.current
-    return checkUser?.email?.endsWith('@sin.email') ?? false
-  },
+  maybeRedirect: () =>
+    use(lsGet<string | null>(REDIRECT_KEY), url => {
+      lsRemove(REDIRECT_KEY)
+      location.assign(url)
+    }),
 }

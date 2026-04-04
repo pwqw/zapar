@@ -1,7 +1,7 @@
 <template>
   <div class="add-to w-full max-w-[256px] min-w-[200px] p-3 space-y-3" data-testid="add-to-menu" tabindex="0">
     <section class="existing-playlists">
-      <p class="mb-2 text-[0.9rem]">{{ t('misc.addItemTo', { count: pluralize(playables, 'item').split(' ')[0], item: pluralize(playables, 'item').split(' ')[1] }) }}</p>
+      <p class="mb-2 text-[0.9rem]">Add {{ pluralize(playables, 'item') }} to</p>
 
       <ul v-koel-overflow-fade class="relative max-h-48 overflow-y-scroll space-y-1.5">
         <template v-if="config.queue">
@@ -13,14 +13,12 @@
               tabindex="0"
               @click="queueAfterCurrent"
             >
-              {{ t('misc.afterCurrent') }}
+              After Current
             </li>
-            <li class="bottom-queue" data-testid="queue-bottom" tabindex="0" @click="queueToBottom">
-              {{ t('misc.bottomOfQueue') }}
-            </li>
-            <li class="top-queue" data-testid="queue-top" tabindex="0" @click="queueToTop">{{ t('misc.topOfQueue') }}</li>
+            <li class="bottom-queue" data-testid="queue-bottom" tabindex="0" @click="queueToBottom">Bottom of Queue</li>
+            <li class="top-queue" data-testid="queue-top" tabindex="0" @click="queueToTop">Top of Queue</li>
           </template>
-          <li v-else data-testid="queue" tabindex="0" @click="queueToBottom">{{ t('screens.currentQueue') }}</li>
+          <li v-else data-testid="queue" tabindex="0" @click="queueToBottom">Queue</li>
         </template>
 
         <li
@@ -30,7 +28,7 @@
           tabindex="0"
           @click="addToFavorites"
         >
-          {{ t('sidebar.favorites') }}
+          Favorites
         </li>
 
         <li
@@ -46,19 +44,14 @@
       </ul>
     </section>
 
-    <Btn
-      class="!w-full !border !border-solid !border-white/20"
-      transparent
-      @click.prevent="addToNewPlaylist"
-    >
-      {{ t('misc.newPlaylistEllipsis') }}
+    <Btn class="!w-full !border !border-solid !border-white/20" transparent @click.prevent="addToNewPlaylist">
+      New Playlist…
     </Btn>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, toRef, toRefs, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { pluralize } from '@/utils/formatters'
 import { playlistStore } from '@/stores/playlistStore'
 import { queueStore } from '@/stores/queueStore'
@@ -66,34 +59,28 @@ import { usePlayableMenuMethods } from '@/composables/usePlayableMenuMethods'
 
 import Btn from '@/components/ui/form/Btn.vue'
 
-const props = defineProps<{ playables: Playable[], config: AddToMenuConfig }>()
+const props = defineProps<{ playables: Playable[]; config: AddToMenuConfig }>()
 const emit = defineEmits<{ (e: 'closing'): void }>()
-const { t } = useI18n()
+
 const { playables, config } = toRefs(props)
 
 const queue = toRef(queueStore.state, 'playables')
-const currentPlayable = queueStore.current
+const currentPlayable = computed(() => queueStore.current)
 
 const allPlaylists = toRef(playlistStore.state, 'playlists')
 const playlists = computed(() => allPlaylists.value.filter(({ is_smart }) => !is_smart))
 
 const close = () => emit('closing')
 
-const {
-  queueAfterCurrent,
-  queueToBottom,
-  queueToTop,
-  addToFavorites,
-  addToExistingPlaylist,
-  addToNewPlaylist,
-} = usePlayableMenuMethods(playables, close)
+const { queueAfterCurrent, queueToBottom, queueToTop, addToFavorites, addToExistingPlaylist, addToNewPlaylist } =
+  usePlayableMenuMethods(playables, close)
 
 watch(playables, () => playables.value.length || close())
 </script>
 
 <style lang="postcss" scoped>
 li {
-  @apply h-9 leading-9 py-0 px-3 whitespace-nowrap overflow-hidden text-ellipsis rounded bg-k-fg-5 cursor-pointer
+  @apply h-9 leading-9 py-0 px-3 truncate rounded bg-k-fg-5 cursor-pointer
   hover:bg-k-highlight hover:text-k-highlight-fg;
 }
 </style>

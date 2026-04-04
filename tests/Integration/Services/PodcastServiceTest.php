@@ -64,8 +64,7 @@ class PodcastServiceTest extends TestCase
     #[Test]
     public function subscribeUserToPodcast(): void
     {
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create([
+        $podcast = Podcast::factory()->createOne([
             'url' => 'https://example.com/feed.xml',
             'title' => 'My Cool Podcast',
         ]);
@@ -85,14 +84,12 @@ class PodcastServiceTest extends TestCase
     public function resubscribeUserToPodcastThrows(): void
     {
         self::expectException(UserAlreadySubscribedToPodcastException::class);
-
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create([
+        $podcast = Podcast::factory()->createOne([
             'url' => 'https://example.com/feed.xml',
         ]);
 
         $user = create_user();
-        $user->subscribeToPodcast($podcast);
+        $this->service->subscribeUserToPodcast($user, $podcast);
 
         $this->service->addPodcast('https://example.com/feed.xml', $user);
     }
@@ -105,9 +102,7 @@ class PodcastServiceTest extends TestCase
         Http::fake([
             'https://example.com/feed.xml' => Http::response(headers: ['Last-Modified' => now()->toRfc1123String()]),
         ]);
-
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create([
+        $podcast = Podcast::factory()->createOne([
             'url' => 'https://example.com/feed.xml',
             'title' => 'Shall be changed very sad',
             'last_synced_at' => now()->subDays(3),
@@ -116,7 +111,7 @@ class PodcastServiceTest extends TestCase
         self::assertCount(0, $podcast->episodes);
 
         $user = create_user();
-        $user->subscribeToPodcast($podcast);
+        $this->service->subscribeUserToPodcast($user, $podcast);
 
         $this->service->addPodcast('https://example.com/feed.xml', $user);
 
@@ -128,29 +123,26 @@ class PodcastServiceTest extends TestCase
     public function unsubscribeUserFromPodcast(): void
     {
         Event::fake(UserUnsubscribedFromPodcast::class);
-
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create();
+        $podcast = Podcast::factory()->createOne();
         $user = create_user();
-        $user->subscribeToPodcast($podcast);
+        $this->service->subscribeUserToPodcast($user, $podcast);
 
         $this->service->unsubscribeUserFromPodcast($user, $podcast);
 
         self::assertFalse($user->subscribedToPodcast($podcast));
 
-        Event::assertDispatched(
-            UserUnsubscribedFromPodcast::class,
-            static function (UserUnsubscribedFromPodcast $event) use ($user, $podcast) {
-                return $event->user->is($user) && $event->podcast->is($podcast);
-            },
-        );
+        Event::assertDispatched(UserUnsubscribedFromPodcast::class, static function (UserUnsubscribedFromPodcast $event) use (
+            $user,
+            $podcast,
+        ) {
+            return $event->user->is($user) && $event->podcast->is($podcast);
+        });
     }
 
     #[Test]
     public function podcastNotObsoleteIfSyncedRecently(): void
     {
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create([
+        $podcast = Podcast::factory()->createOne([
             'last_synced_at' => now()->subHours(6),
         ]);
 
@@ -163,9 +155,22 @@ class PodcastServiceTest extends TestCase
         Http::fake([
             'https://example.com/feed.xml' => Http::response(headers: ['Last-Modified' => now()->toRfc1123String()]),
         ]);
+        $podcast = Podcast::factory()->createOne([
+            'url' => 'https://example.com/feed.xml',
+            'last_synced_at' => now()->subDays(1),
+        ]);
 
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create([
+        self::assertTrue($this->service->isPodcastObsolete($podcast));
+    }
+
+    #[Test]
+    public function podcastObsoleteIfNoLastModifiedHeader(): void
+    {
+        Http::fake([
+            'https://example.com/feed.xml' => Http::response(),
+        ]);
+
+        $podcast = Podcast::factory()->createOne([
             'url' => 'https://example.com/feed.xml',
             'last_synced_at' => now()->subDays(1),
         ]);
@@ -176,10 +181,9 @@ class PodcastServiceTest extends TestCase
     #[Test]
     public function updateEpisodeProgress(): void
     {
-        /** @var Song $episode */
-        $episode = Song::factory()->asEpisode()->create();
+        $episode = Song::factory()->asEpisode()->createOne();
         $user = create_user();
-        $user->subscribeToPodcast($episode->podcast);
+        $this->service->subscribeUserToPodcast($user, $episode->podcast);
 
         $this->service->updateEpisodeProgress($user, $episode->refresh(), 123);
 
@@ -200,10 +204,10 @@ class PodcastServiceTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        self::assertSame(
+        self::assertSame('https://example.com/episode.mp3', $this->service->getStreamableUrl(
             'https://example.com/episode.mp3',
-            $this->service->getStreamableUrl('https://example.com/episode.mp3', $client)
-        );
+            $client,
+        ));
     }
 
     #[Test]
@@ -229,17 +233,16 @@ class PodcastServiceTest extends TestCase
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
 
-        self::assertSame(
-            'https://assets.example.com/episode.mp3',
-            $this->service->getStreamableUrl('https://example.com/episode.mp3', $client)
-        );
+        self::assertSame('https://assets.example.com/episode.mp3', $this->service->getStreamableUrl(
+            'https://example.com/episode.mp3',
+            $client,
+        ));
     }
 
     #[Test]
     public function deletePodcast(): void
     {
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create();
+        $podcast = Podcast::factory()->createOne();
         $this->service->deletePodcast($podcast);
         self::assertModelMissing($podcast);
     }

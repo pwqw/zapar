@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import Component from './ScreenEmptyState.vue'
 
@@ -6,11 +6,15 @@ describe('screenEmptyState.vue', () => {
   const h = createHarness()
 
   it('renders', () => {
-    expect(h.render(Component, {
-      slots: {
-        icon: '<i class="my-icon"/>',
-        default: 'Nothing here',
-      },
-    }).html()).toMatchSnapshot()
+    expect(
+      h
+        .render(Component, {
+          slots: {
+            icon: '<i class="my-icon"/>',
+            default: 'Nothing here',
+          },
+        })
+        .html(),
+    ).toMatchSnapshot()
   })
 })

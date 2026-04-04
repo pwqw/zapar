@@ -1,6 +1,6 @@
 <template>
   <article>
-    <h3 class="text-2xl mb-3">{{ t('form.labels.trackListing') }}</h3>
+    <h3 class="text-2xl mb-3">Track Listing</h3>
 
     <ul>
       <li
@@ -9,7 +9,7 @@
         class="flex p-2 before:w-7 before:text-k-fg-50"
         data-testid="album-track-item"
       >
-        <TrackListItem :album="album" :track="track" />
+        <TrackListItem :album :track />
       </li>
     </ul>
   </article>
@@ -17,16 +17,12 @@
 
 <script lang="ts" setup>
 import { onMounted, provide, ref, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { playableStore } from '@/stores/playableStore'
-import { PlayablesKey } from '@/symbols'
+import { PlayablesKey } from '@/config/symbols'
 
 import TrackListItem from '@/components/album/AlbumTrackListItem.vue'
 
-const props = defineProps<{ album: Album, tracks: AlbumTrack[] }>()
-
-const { t } = useI18n()
-
+const props = defineProps<{ album: Album; tracks: AlbumTrack[] }>()
 const { album, tracks } = toRefs(props)
 
 const songs = ref<Song[]>([])
@@ -34,7 +30,7 @@ const songs = ref<Song[]>([])
 // @ts-ignore
 provide(PlayablesKey, songs)
 
-onMounted(async () => songs.value = await playableStore.fetchSongsForAlbum(album.value))
+onMounted(async () => (songs.value = await playableStore.fetchSongsForAlbum(album.value)))
 </script>
 
 <style lang="postcss" scoped>

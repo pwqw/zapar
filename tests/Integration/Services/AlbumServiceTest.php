@@ -31,13 +31,15 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function updateAlbum(): void
     {
-        /** @var Album $album */
-        $album = Album::factory()->create([
+        $album = Album::factory()->createOne([
             'name' => 'Old Album Name',
             'year' => 2020,
         ]);
 
-        $songs = Song::factory()->for($album)->count(2)->create();
+        $songs = Song::factory()
+            ->for($album)
+            ->count(2)
+            ->create();
 
         $data = AlbumUpdateData::make(name: 'New Album Name', year: 2023);
 
@@ -54,22 +56,23 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function updateAlbumWithCover(): void
     {
-        /** @var Album $album */
-        $album = Album::factory()->create([
+        $album = Album::factory()->createOne([
             'name' => 'Old Album Name',
             'year' => 2020,
         ]);
 
-        $songs = Song::factory()->for($album)->count(2)->create();
+        $songs = Song::factory()
+            ->for($album)
+            ->count(2)
+            ->create();
 
-        $data = AlbumUpdateData::make(
-            name: 'New Album Name',
-            year: 2023,
-            cover: minimal_base64_encoded_image(),
-        );
+        $data = AlbumUpdateData::make(name: 'New Album Name', year: 2023, cover: minimal_base64_encoded_image());
 
         $ulid = Ulid::freeze();
-        $this->imageStorage->expects('storeImage')->with(minimal_base64_encoded_image())->andReturn("$ulid.webp");
+        $this->imageStorage
+            ->expects('storeImage')
+            ->with(minimal_base64_encoded_image())
+            ->andReturn("$ulid.webp");
 
         $updatedAlbum = $this->service->updateAlbum($album, $data);
 
@@ -85,14 +88,9 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function updateAlbumRemovingCover(): void
     {
-        /** @var Album $album */
-        $album = Album::factory()->create();
+        $album = Album::factory()->createOne();
 
-        $data = AlbumUpdateData::make(
-            name: 'New Album Name',
-            year: 2023,
-            cover: '',
-        );
+        $data = AlbumUpdateData::make(name: 'New Album Name', year: 2023, cover: '');
 
         $updatedAlbum = $this->service->updateAlbum($album, $data);
 
@@ -104,11 +102,8 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function rejectUpdatingIfArtistAlreadyHasAnAlbumWithTheSameName(): void
     {
-        /** @var Album $existingAlbum */
-        $existingAlbum = Album::factory()->create(['name' => 'Existing Album Name']);
-
-        /** @var Album $album */
-        $album = Album::factory()->for($existingAlbum->artist)->create(['name' => 'Old Album Name']);
+        $existingAlbum = Album::factory()->createOne(['name' => 'Existing Album Name']);
+        $album = Album::factory()->for($existingAlbum->artist)->createOne(['name' => 'Old Album Name']);
         $data = AlbumUpdateData::make(name: 'Existing Album Name', year: 2023);
 
         $this->expectException(AlbumNameConflictException::class);
@@ -119,8 +114,7 @@ class AlbumServiceTest extends TestCase
     #[Test]
     public function storeAlbumCover(): void
     {
-        /** @var Album $album */
-        $album = Album::factory()->create();
+        $album = Album::factory()->createOne();
 
         $this->imageStorage
             ->expects('storeImage')

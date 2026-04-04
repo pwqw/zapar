@@ -9,14 +9,14 @@ use App\Values\Album\AlbumInformation;
 use App\Values\Artist\ArtistInformation;
 use Illuminate\Support\Facades\Cache;
 
+// @mago-ignore lint:cyclomatic-complexity
 class EncyclopediaService
 {
     public function __construct(
         private readonly Encyclopedia $encyclopedia,
         private readonly ImageStorage $imageStorage,
         private readonly SpotifyService $spotifyService,
-    ) {
-    }
+    ) {}
 
     public function getAlbumInformation(Album $album): ?AlbumInformation
     {
@@ -24,27 +24,13 @@ class EncyclopediaService
             return null;
         }
 
-        return Cache::remember(
-            cache_key('album information', $album->name, $album->artist->name),
-            now()->addWeek(),
-            function () use ($album): AlbumInformation {
-                $info = $this->encyclopedia->getAlbumInformation($album) ?: AlbumInformation::make();
-
-                if ($album->cover || (!SpotifyService::enabled() && !$info->cover)) {
-                    // If the album already has a cover, or there's no resource to download a cover from,
-                    // just return the info.
-                    return $info;
-                }
-
-                // If the album cover is not set, try to download it either from Spotify (prioritized, due to
-                // the high quality) or from the encyclopedia. We will also set the downloaded image right
-                // away into the info object so that the caller/client can use it immediately.
-                $info->cover = rescue(function () use ($album, $info): ?string {
-                    return $this->fetchAndStoreAlbumCover($album, $info) ?? $info->cover;
-                });
-
-                return $info;
-            }
+        return rescue(
+            fn () => Cache::remember(
+                cache_key('album information', $album->name, $album->artist->name),
+                now()->addWeek(),
+                fn () => $this->fetchAlbumInformation($album),
+            ),
+            fn () => $this->fetchAlbumInformation($album),
         );
     }
 
@@ -54,38 +40,55 @@ class EncyclopediaService
             return null;
         }
 
-        return Cache::remember(
-            cache_key('artist information', $artist->name),
-            now()->addWeek(),
-            function () use ($artist): ArtistInformation {
-                $info = $this->encyclopedia->getArtistInformation($artist) ?: ArtistInformation::make();
-
-                if ($artist->image || (!SpotifyService::enabled() && !$info->image)) {
-                    // If the artist already has an image, return the stored image URL so the client
-                    // does not overwrite it with the encyclopedia's image. Otherwise return the info as-is.
-                    if ($artist->image) {
-                        $info->image = image_storage_url($artist->image);
-                    }
-                    return $info;
-                }
-
-                // If the artist image is not set, try to download it either from Spotify (prioritized, due to
-                // the high quality) or from the encyclopedia. We will also set the downloaded image right
-                // away into the info object so that the caller/client can use it immediately.
-                $info->image = rescue(function () use ($artist, $info): ?string {
-                    return $this->fetchAndStoreArtistImage($artist, $info) ?? $info->image;
-                });
-
-                return $info;
-            }
+        return rescue(
+            fn () => Cache::remember(
+                cache_key('artist information', $artist->name),
+                now()->addWeek(),
+                fn () => $this->fetchArtistInformation($artist),
+            ),
+            fn () => $this->fetchArtistInformation($artist),
         );
+    }
+
+    private function fetchAlbumInformation(Album $album): AlbumInformation
+    {
+        $info = $this->encyclopedia->getAlbumInformation($album) ?: AlbumInformation::make();
+
+        if ($album->cover || !SpotifyService::enabled() && !$info->cover) {
+            return $info;
+        }
+
+        $info->cover = rescue(
+            function () use ($album, $info): ?string {
+                return $this->fetchAndStoreAlbumCover($album, $info) ?? $info->cover;
+            },
+            static fn () => $info->cover,
+        );
+
+        return $info;
+    }
+
+    private function fetchArtistInformation(Artist $artist): ArtistInformation
+    {
+        $info = $this->encyclopedia->getArtistInformation($artist) ?: ArtistInformation::make();
+
+        if ($artist->image || !SpotifyService::enabled() && !$info->image) {
+            return $info;
+        }
+
+        $info->image = rescue(
+            function () use ($artist, $info): ?string {
+                return $this->fetchAndStoreArtistImage($artist, $info) ?? $info->image;
+            },
+            static fn () => $info->image,
+        );
+
+        return $info;
     }
 
     private function fetchAndStoreAlbumCover(Album $album, AlbumInformation $info): ?string
     {
-        $coverUrl = SpotifyService::enabled()
-            ? $this->spotifyService->tryGetAlbumCover($album)
-            : $info->cover;
+        $coverUrl = SpotifyService::enabled() ? $this->spotifyService->tryGetAlbumCover($album) : $info->cover;
 
         if (!$coverUrl) {
             return null;
@@ -100,9 +103,7 @@ class EncyclopediaService
 
     private function fetchAndStoreArtistImage(Artist $artist, ArtistInformation $info): ?string
     {
-        $imgUrl = SpotifyService::enabled()
-            ? $this->spotifyService->tryGetArtistImage($artist)
-            : $info->image;
+        $imgUrl = SpotifyService::enabled() ? $this->spotifyService->tryGetArtistImage($artist) : $info->image;
 
         if (!$imgUrl) {
             return null;
@@ -113,19 +114,5 @@ class EncyclopediaService
         $artist->save();
 
         return image_storage_url($fileName);
-    }
-
-    public function clearArtistStoredData(Artist $artist): void
-    {
-        Cache::forget(cache_key('artist information', $artist->name));
-        $artist->image = '';
-        $artist->save();
-    }
-
-    public function clearAlbumStoredData(Album $album): void
-    {
-        Cache::forget(cache_key('album information', $album->name, $album->artist->name));
-        $album->cover = '';
-        $album->save();
     }
 }

@@ -1,11 +1,11 @@
 <template>
   <footer class="h-[18vh] w-screen flex justify-around items-center border-t border-solid border-t-k-fg-10 py-4">
     <button
-      class="text-[5vmin] has-[.yep]:text-k-love"
+      class="text-[5vmin] has-[.yep]:text-k-highlight"
       data-testid="btn-toggle-favorite"
       @click.prevent="toggleFavorite"
     >
-      <Icon :class="streamable.favorite && 'yep'" :icon="streamable.favorite ? faHeart : faEmptyHeart" />
+      <Icon :class="streamable.favorite && 'yep'" :icon="streamable.favorite ? faStar : faEmptyStar" />
     </button>
 
     <button
@@ -18,8 +18,7 @@
     </button>
 
     <button
-      class="text-[7vmin] w-[16vmin] aspect-square border border-solid border-k-fg rounded-full flex
-      items-center justify-center has-[.paused]:pl-[4px]"
+      class="text-[7vmin] w-[16vmin] aspect-square border border-solid border-k-fg rounded-full flex items-center justify-center has-[.paused]:pl-[4px]"
       data-testid="btn-toggle-playback"
       @click.prevent="togglePlayback"
     >
@@ -40,8 +39,8 @@
 </template>
 
 <script lang="ts" setup>
-import { faHeart, faPause, faPlay, faStepBackward, faStepForward } from '@fortawesome/free-solid-svg-icons'
-import { faHeart as faEmptyHeart } from '@fortawesome/free-regular-svg-icons'
+import { faPause, faPlay, faStar, faStepBackward, faStepForward } from '@fortawesome/free-solid-svg-icons'
+import { faStar as faEmptyStar } from '@fortawesome/free-regular-svg-icons'
 import { computed, toRefs } from 'vue'
 import { socketService } from '@/services/socketService'
 import { isRadioStation } from '@/utils/typeGuards'

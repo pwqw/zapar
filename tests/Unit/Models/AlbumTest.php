@@ -13,11 +13,11 @@ class AlbumTest extends TestCase
     #[Test]
     public function existingAlbumCanBeRetrievedUsingArtistAndName(): void
     {
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create();
-
-        /** @var Album $album */
-        $album = Album::factory()->for($artist)->for($artist->user)->create();
+        $artist = Artist::factory()->createOne();
+        $album = Album::factory()
+            ->for($artist)
+            ->for($artist->user)
+            ->createOne();
 
         self::assertTrue(Album::getOrCreate($artist, $album->name)->is($album));
     }
@@ -25,11 +25,15 @@ class AlbumTest extends TestCase
     #[Test]
     public function newAlbumIsAutomaticallyCreatedWithUserAndArtistAndName(): void
     {
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create();
+        $artist = Artist::factory()->createOne();
         $name = 'Foo';
 
-        self::assertNull(Album::query()->whereBelongsTo($artist)->where('name', $name)->first());
+        self::assertNull(
+            Album::query()
+                ->whereBelongsTo($artist)
+                ->where('name', $name)
+                ->first(),
+        );
 
         $album = Album::getOrCreate($artist, $name);
         self::assertSame('Foo', $album->name);
@@ -60,8 +64,7 @@ class AlbumTest extends TestCase
     #[Test]
     public function newAlbumWithEmptyOrWhitespaceNameKeepsEmptyName(string $name): void
     {
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create();
+        $artist = Artist::factory()->createOne();
 
         $album = Album::getOrCreate($artist, $name);
 

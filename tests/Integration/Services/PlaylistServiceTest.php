@@ -7,10 +7,12 @@ use App\Models\PlaylistFolder;
 use App\Models\Podcast;
 use App\Models\Song;
 use App\Services\PlaylistService;
+use App\Services\PodcastService;
 use App\Values\Playlist\PlaylistCreateData;
 use App\Values\Playlist\PlaylistUpdateData;
 use App\Values\SmartPlaylist\SmartPlaylistRuleGroupCollection;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\PlusTestCase;
 use Tests\TestCase;
 
 use function Tests\create_playlist;
@@ -33,11 +35,7 @@ class PlaylistServiceTest extends TestCase
     {
         $user = create_user();
 
-        $data = PlaylistCreateData::make(
-            name: 'foo',
-            description: 'bar',
-            cover: minimal_base64_encoded_image(),
-        );
+        $data = PlaylistCreateData::make(name: 'foo', description: 'bar', cover: minimal_base64_encoded_image());
 
         $playlist = $this->service->createPlaylist($data, $user);
 
@@ -51,7 +49,7 @@ class PlaylistServiceTest extends TestCase
     #[Test]
     public function createPlaylistWithSongs(): void
     {
-        $songs = Song::factory(2)->create();
+        $songs = Song::factory()->createMany(2);
         $user = create_user();
 
         $data = PlaylistCreateData::make(
@@ -75,10 +73,7 @@ class PlaylistServiceTest extends TestCase
     {
         $user = create_user();
 
-        $data = PlaylistCreateData::make(
-            name: 'foo',
-            description: 'bar',
-        );
+        $data = PlaylistCreateData::make(name: 'foo', description: 'bar');
 
         $playlist = $this->service->createPlaylist($data, $user);
 
@@ -108,11 +103,7 @@ class PlaylistServiceTest extends TestCase
 
         $user = create_user();
 
-        $data = PlaylistCreateData::make(
-            name: 'foo',
-            description: 'bar',
-            ruleGroups: $rules,
-        );
+        $data = PlaylistCreateData::make(name: 'foo', description: 'bar', ruleGroups: $rules);
 
         $playlist = $this->service->createPlaylist($data, $user);
 
@@ -125,21 +116,15 @@ class PlaylistServiceTest extends TestCase
     #[Test]
     public function createPlaylistInFolder(): void
     {
-        /** @var PlaylistFolder $folder */
-        $folder = PlaylistFolder::factory()->create();
+        $folder = PlaylistFolder::factory()->createOne();
 
-        $data = PlaylistCreateData::make(
-            name: 'foo',
-            description: 'bar',
-            folderId: $folder->id,
-        );
+        $data = PlaylistCreateData::make(name: 'foo', description: 'bar', folderId: $folder->id);
 
         $playlist = $this->service->createPlaylist($data, $folder->user);
 
         self::assertSame('foo', $playlist->name);
         self::assertSame('bar', $playlist->description);
         self::assertTrue($folder->ownedBy($playlist->owner));
-        self::assertTrue($playlist->inFolder($folder));
     }
 
     #[Test]
@@ -147,10 +132,7 @@ class PlaylistServiceTest extends TestCase
     {
         $playlist = create_playlist(['name' => 'foo']);
 
-        $this->service->updatePlaylist($playlist, PlaylistUpdateData::make(
-            name: 'bar',
-            description: 'baz',
-        ));
+        $this->service->updatePlaylist($playlist, PlaylistUpdateData::make(name: 'bar', description: 'baz'));
 
         self::assertSame('bar', $playlist->name);
         self::assertSame('baz', $playlist->description);
@@ -207,8 +189,8 @@ class PlaylistServiceTest extends TestCase
     public function addSongsToPlaylist(): void
     {
         $playlist = create_playlist();
-        $playlist->addPlayables(Song::factory(2)->create());
-        $songs = Song::factory(2)->create();
+        $playlist->addPlayables(Song::factory()->createMany(2));
+        $songs = Song::factory()->createMany(2);
 
         $addedSongs = $this->service->addPlayablesToPlaylist($playlist, $songs, $playlist->owner);
         $playlist->refresh();
@@ -222,12 +204,18 @@ class PlaylistServiceTest extends TestCase
     #[Test]
     public function addEpisodesToPlaylist(): void
     {
-        $playlist = create_playlist();
-        $playlist->addPlayables(Song::factory(2)->create());
+        /** @var PodcastService $podcastService */
+        $podcastService = app(PodcastService::class);
 
-        /** @var Podcast $podcast */
-        $podcast = Podcast::factory()->create(['added_by' => $playlist->owner->id]);
-        $episodes = Song::factory(2)->asEpisode()->for($podcast)->create();
+        $playlist = create_playlist();
+        $playlist->addPlayables(Song::factory()->createMany(2));
+        $podcast = Podcast::factory()->createOne();
+        $episodes = Song::factory()
+            ->asEpisode()
+            ->for($podcast)
+            ->createMany(2);
+
+        $podcastService->subscribeUserToPodcast($playlist->owner, $podcast);
 
         $addedEpisodes = $this->service->addPlayablesToPlaylist($playlist, $episodes, $playlist->owner);
         $playlist->refresh();
@@ -241,30 +229,32 @@ class PlaylistServiceTest extends TestCase
     public function addMixOfSongsAndEpisodesToPlaylist(): void
     {
         $playlist = create_playlist();
-        $playlist->addPlayables(Song::factory(2)->create());
+        $playlist->addPlayables(Song::factory()->createMany(2));
+        $playables = Song::factory()
+            ->asEpisode()
+            ->createMany(2)
+            ->merge(Song::factory()->createMany(2));
 
-        $podcast = Podcast::factory()->create(['added_by' => $playlist->owner->id]);
-        $playables = Song::factory(2)->asEpisode()->for($podcast)->create()
-            ->merge(Song::factory(2)->create());
-
-        $addedPlayables = $this->service->addPlayablesToPlaylist($playlist, $playables, $playlist->owner);
+        $addedEpisodes = $this->service->addPlayablesToPlaylist($playlist, $playables, $playlist->owner);
         $playlist->refresh();
 
-        self::assertCount(4, $addedPlayables);
+        self::assertCount(4, $addedEpisodes);
         self::assertCount(6, $playlist->playables);
-        self::assertEqualsCanonicalizing($addedPlayables->modelKeys(), $playables->modelKeys());
+        self::assertEqualsCanonicalizing($addedEpisodes->modelKeys(), $playables->modelKeys());
     }
 
     #[Test]
     public function privateSongsAreMadePublicWhenAddedToCollaborativePlaylist(): void
     {
+        PlusTestCase::enablePlusLicense();
+
         $playlist = create_playlist();
         $user = create_user();
         $playlist->collaborators()->attach($user);
         $playlist->refresh();
-        self::assertTrue($playlist->is_collaborative);
+        self::assertTrue($this->service->isPlaylistCollaborative($playlist));
 
-        $songs = Song::factory(2)->create(['is_public' => false]);
+        $songs = Song::factory()->state(['is_public' => false])->createMany(2);
 
         $this->service->addPlayablesToPlaylist($playlist, $songs, $user);
 
@@ -275,7 +265,7 @@ class PlaylistServiceTest extends TestCase
     public function makePlaylistSongsPublic(): void
     {
         $playlist = create_playlist();
-        $playlist->addPlayables(Song::factory(2)->create(['is_public' => false]));
+        $playlist->addPlayables(Song::factory()->state(['is_public' => false])->createMany(2));
 
         $this->service->makePlaylistContentPublic($playlist);
 
@@ -286,7 +276,7 @@ class PlaylistServiceTest extends TestCase
     public function moveSongsInPlaylist(): void
     {
         $playlist = create_playlist();
-        $songs = Song::factory(4)->create();
+        $songs = Song::factory()->createMany(4);
         $ids = $songs->modelKeys();
         $playlist->addPlayables($songs);
 

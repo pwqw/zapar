@@ -1,15 +1,16 @@
 <?php
 
-namespace Tests\Feature\KoelPlus;
+namespace Tests\Feature;
 
+use App\Exceptions\MediaPathNotSetException;
+use App\Exceptions\SongUploadFailedException;
 use App\Models\Setting;
-use App\Models\Song;
+use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-use function Tests\create_artist;
+use function Tests\create_admin;
 use function Tests\test_path;
 
 class UploadTest extends TestCase
@@ -20,32 +21,39 @@ class UploadTest extends TestCase
     {
         parent::setUp();
 
-        Setting::set('media_path', public_path('sandbox/media'));
-        $sourcePath = test_path('songs/full.mp3');
-        if (!is_file($sourcePath)) {
-            $sourcePath = test_path('songs/blank.mp3');
-        }
-        if (!is_file($sourcePath)) {
-            self::markTestSkipped('Requires tests/songs/full.mp3 or tests/songs/blank.mp3');
-        }
-        $tempPath = artifact_path('tmp/upload-test-' . uniqid() . '.mp3');
-        File::ensureDirectoryExists(dirname($tempPath));
-        File::copy($sourcePath, $tempPath);
-        $this->file = new UploadedFile($tempPath, 'song.mp3', 'audio/mpeg', \UPLOAD_ERR_OK, true);
+        $this->file = UploadedFile::fromFile(test_path('songs/full.mp3'), 'song.mp3'); //@phpstan-ignore-line
     }
 
     #[Test]
-    public function upload(): void
+    public function unauthorizedPost(): void
     {
-        $user = create_artist();
+        Setting::set('media_path', '');
 
-        $this->postAs('api/upload', ['file' => $this->file], $user)->assertSuccessful();
-        self::assertDirectoryExists(public_path("sandbox/media/__KOEL_UPLOADS_\${$user->id}__"));
-        self::assertFileExists(public_path("sandbox/media/__KOEL_UPLOADS_\${$user->id}__/song.mp3"));
+        $this->postAs('/api/upload', ['file' => $this->file])->assertForbidden();
+    }
 
-        /** @var Song $song */
-        $song = Song::query()->latest()->first();
-        self::assertSame($song->owner_id, $user->id);
-        self::assertFalse($song->is_public);
+    /** @return array<mixed> */
+    public function provideUploadExceptions(): array
+    {
+        return [
+            [MediaPathNotSetException::class,  Response::HTTP_FORBIDDEN],
+            [SongUploadFailedException::class, Response::HTTP_BAD_REQUEST],
+        ];
+    }
+
+    #[Test]
+    public function uploadFailsIfMediaPathIsNotSet(): void
+    {
+        Setting::set('media_path', '');
+
+        $this->postAs('/api/upload', ['file' => $this->file], create_admin())->assertForbidden();
+    }
+
+    #[Test]
+    public function uploadSuccessful(): void
+    {
+        Setting::set('media_path', public_path('sandbox/media'));
+
+        $this->postAs('/api/upload', ['file' => $this->file], create_admin())->assertJsonStructure(['song', 'album']);
     }
 }

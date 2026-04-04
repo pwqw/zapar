@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { screen } from '@testing-library/vue'
 import EmbedWidgetTrackItem from './EmbedWidgetTrackItem.vue'
@@ -28,24 +28,28 @@ describe('playableEmbedItem.vue', async () => {
   }
 
   it('renders a song', () => {
-    const { html } = renderComponent(h.factory('song', {
-      title: 'Bohemian Rhapsody',
-      length: 280,
-      artist_name: 'Queen',
-      album_name: 'A Night at the Opera',
-      track: 9,
-    }))
+    const { html } = renderComponent(
+      h.factory('song', {
+        title: 'Bohemian Rhapsody',
+        length: 280,
+        artist_name: 'Queen',
+        album_name: 'A Night at the Opera',
+        track: 9,
+      }),
+    )
 
     expect(html()).toMatchSnapshot()
   })
 
   it('renders a podcast episode', () => {
-    const { html } = renderComponent(h.factory('episode', {
-      title: 'How to tell people to shut up about Queen',
-      length: 280,
-      podcast_title: 'The Everyday Guide',
-      podcast_author: 'The Everyday Guy',
-    }))
+    const { html } = renderComponent(
+      h.factory('episode', {
+        title: 'How to tell people to shut up about Queen',
+        length: 280,
+        podcast_title: 'The Everyday Guide',
+        podcast_author: 'The Everyday Guy',
+      }),
+    )
 
     expect(html()).toMatchSnapshot()
   })

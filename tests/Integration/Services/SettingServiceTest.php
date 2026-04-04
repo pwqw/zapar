@@ -27,11 +27,7 @@ class SettingServiceTest extends TestCase
         self::assertNull($branding->logo);
         self::assertNull($branding->cover);
 
-        Setting::set('branding', Branding::make(
-            name: 'Test Branding',
-            logo: 'test-logo.png',
-            cover: 'test-cover.png',
-        ));
+        Setting::set('branding', Branding::make(name: 'Test Branding', logo: 'test-logo.png', cover: 'test-cover.png'));
 
         $branding = $this->service->getBranding();
         self::assertSame('Test Branding', $branding->name);

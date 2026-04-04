@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Facades\License;
 use App\Models\Song;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -11,7 +12,7 @@ use Illuminate\Support\Str;
 
 class SongResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'title',
@@ -22,7 +23,6 @@ class SongResource extends JsonResource
         'artist_name',
         'album_artist_id',
         'album_artist_name',
-        'song_cover',
         'album_cover',
         'length',
         'liked',
@@ -35,7 +35,7 @@ class SongResource extends JsonResource
         'created_at',
     ];
 
-    public const PAGINATION_JSON_STRUCTURE = [
+    public const array PAGINATION_JSON_STRUCTURE = [
         'data' => [
             0 => self::JSON_STRUCTURE,
         ],
@@ -56,8 +56,9 @@ class SongResource extends JsonResource
 
     private ?User $user = null;
 
-    public function __construct(protected Song $song)
-    {
+    public function __construct(
+        protected Song $song,
+    ) {
         parent::__construct($song);
     }
 
@@ -76,6 +77,8 @@ class SongResource extends JsonResource
     /** @inheritDoc */
     public function toArray(Request $request): array
     {
+        // @mago-ignore lint:prefer-first-class-callable
+        $isPlus = once(static fn () => License::isPlus());
         $user = $this->user ?? once(static fn () => auth()->user());
         $embedding = $request->routeIs('embeds.payload');
 
@@ -90,7 +93,6 @@ class SongResource extends JsonResource
             'artist_name' => $this->song->artist?->name,
             'album_artist_id' => $this->unless($embedding, $this->song->album_artist?->id),
             'album_artist_name' => $this->unless($embedding, $this->song->album_artist?->name),
-            'song_cover' => image_storage_url($this->song->cover),
             'album_cover' => image_storage_url($this->song->album?->cover),
             'length' => $this->song->length,
             'liked' => $this->unless($embedding, $this->song->favorite), // backwards compatibility
@@ -102,14 +104,15 @@ class SongResource extends JsonResource
             'year' => $this->unless($embedding, $this->song->year),
             'is_public' => $this->unless($embedding, $this->song->is_public),
             'created_at' => $this->unless($embedding, $this->song->created_at),
-            'embed_stream_url' => $this->when(
-                $embedding,
-                fn () => URL::temporarySignedRoute('embeds.stream', now()->addDay(), [
+            'embed_stream_url' => $this->when($embedding, fn () => URL::temporarySignedRoute(
+                'embeds.stream',
+                now()->addDay(),
+                [
                     'song' => $this->song->id,
                     'embed' => $request->route('embed')->id, // @phpstan-ignore-line
                     'options' => $request->route('options'),
-                ]),
-            ),
+                ],
+            )),
         ];
 
         if ($this->song->isEpisode()) {
@@ -124,13 +127,7 @@ class SongResource extends JsonResource
         } else {
             $data += [
                 'owner_id' => $this->unless($embedding, $this->song->owner->public_id),
-                'artist_user_id' => $this->unless($embedding, fn () => $this->song->relationLoaded('artistUser')
-                ? $this->song->artistUser?->public_id
-                : ($this->song->artist_user_id ? User::whereKey($this->song->artist_user_id)->value('public_id') : null)),
-                'is_external' => $this->unless(
-                    $embedding,
-                    fn () => !$this->song->ownedBy($user),
-                ),
+                'is_external' => $this->unless($embedding, fn () => $isPlus && !$this->song->ownedBy($user)),
             ];
         }
 

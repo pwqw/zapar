@@ -2,8 +2,8 @@
   <button
     v-koel-tooltip
     :class="{ active: mode !== 'NO_REPEAT' }"
-    :title="t('ui.tooltips.changeRepeatModeCurrent', { mode: readableMode })"
-    class="text-k-fg-30"
+    :title="`Change repeat mode (current: ${readableMode})`"
+    class="relative text-k-fg-30"
     data-testid="repeat-mode-switch"
     type="button"
     @click.prevent="changeMode"
@@ -16,17 +16,16 @@
 <script lang="ts" setup>
 import { Repeat, Repeat1 } from 'lucide-vue-next'
 import { computed, toRef } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { preferenceStore } from '@/stores/preferenceStore'
 import { playback } from '@/services/playbackManager'
 
-const { t } = useI18n()
 const mode = toRef(preferenceStore.state, 'repeat_mode')
 
-const readableMode = computed(() => mode.value
-  .split('_')
-  .map(part => part[0].toUpperCase() + part.substring(1).toLowerCase())
-  .join(' '),
+const readableMode = computed(() =>
+  mode.value
+    .split('_')
+    .map(part => part[0].toUpperCase() + part.substring(1).toLowerCase())
+    .join(' '),
 )
 
 const changeMode = () => playback().rotateRepeatMode()
@@ -35,5 +34,10 @@ const changeMode = () => playback().rotateRepeatMode()
 <style lang="postcss" scoped>
 .active {
   @apply text-k-fg-70;
+}
+
+button::after {
+  content: '';
+  @apply absolute -inset-3;
 }
 </style>

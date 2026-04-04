@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class RadioStationResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'name',
         'id',
@@ -19,8 +19,9 @@ class RadioStationResource extends JsonResource
         'created_at',
     ];
 
-    public function __construct(private readonly RadioStation $station)
-    {
+    public function __construct(
+        private readonly RadioStation $station,
+    ) {
         parent::__construct($station);
     }
 

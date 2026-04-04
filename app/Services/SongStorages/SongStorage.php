@@ -3,6 +3,7 @@
 namespace App\Services\SongStorages;
 
 use App\Enums\SongStorageType;
+use App\Exceptions\KoelPlusRequiredException;
 use App\Models\User;
 use App\Values\UploadReference;
 
@@ -20,6 +21,9 @@ abstract class SongStorage
 
     public function assertSupported(): void
     {
-        // No license gate — all storage types supported
+        throw_unless(
+            $this->getStorageType()->supported(),
+            new KoelPlusRequiredException('The storage driver is only supported in Koel Plus.'),
+        );
     }
 }

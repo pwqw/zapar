@@ -1,18 +1,11 @@
-import { describe, it } from 'vitest'
+import { describe, it } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { commonStore } from '@/stores/commonStore'
 import { eventBus } from '@/utils/eventBus'
 import Component from './Sidebar.vue'
 
-const standardItems = [
-  'All Songs',
-  'Albums',
-  'Artists',
-  'Genres',
-  'Favorites',
-  'Recently Played',
-]
+const standardItems = ['All Songs', 'Albums', 'Artists', 'Genres', 'Favorites', 'Recently Played']
 
 const adminItems = [...standardItems, 'Users', 'Upload', 'Settings']
 

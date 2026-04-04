@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { playbackService } from '@/services/QueuePlaybackService'
@@ -10,7 +10,7 @@ import Component from './MediaBrowserContextMenu.vue'
 
 describe('mediaBrowserContextMenu.vue', () => {
   const h = createHarness({
-    beforeEach: () => queueStore.state.playables = [],
+    beforeEach: () => (queueStore.state.playables = []),
   })
 
   const renderComponent = (items: Array<Song | Folder>) => {
@@ -43,10 +43,12 @@ describe('mediaBrowserContextMenu.vue', () => {
 
     // we don't care about the actual references here, as this functionality should have been tested in the
     // mediaBrowser spec
-    const extractReferencesMock = h.mock(mediaBrowser, 'extractMediaReferences').mockReturnValue([{
-      id: 'foo',
-      type: 'song',
-    }])
+    const extractReferencesMock = h.mock(mediaBrowser, 'extractMediaReferences').mockReturnValue([
+      {
+        id: 'foo',
+        type: 'song',
+      },
+    ])
 
     const items = [...h.factory('song', 2), h.factory('folder')]
 
@@ -56,10 +58,12 @@ describe('mediaBrowserContextMenu.vue', () => {
 
     await h.user.click(screen.getByText('Play'))
 
-    expect(resolveMock).toHaveBeenCalledWith([{
-      id: 'foo',
-      type: 'song',
-    }])
+    expect(resolveMock).toHaveBeenCalledWith([
+      {
+        id: 'foo',
+        type: 'song',
+      },
+    ])
 
     expect(playMock).toHaveBeenCalledWith(resolvedSongs)
     expect(goMock).toHaveBeenCalledWith('/#/queue')
@@ -75,10 +79,12 @@ describe('mediaBrowserContextMenu.vue', () => {
 
     // we don't care about the actual references here, as this functionality should have been tested in the
     // mediaBrowser spec
-    const extractReferencesMock = h.mock(mediaBrowser, 'extractMediaReferences').mockReturnValue([{
-      id: 'foo',
-      type: 'song',
-    }])
+    const extractReferencesMock = h.mock(mediaBrowser, 'extractMediaReferences').mockReturnValue([
+      {
+        id: 'foo',
+        type: 'song',
+      },
+    ])
 
     const items = [...h.factory('song', 2), h.factory('folder')]
 
@@ -88,10 +94,15 @@ describe('mediaBrowserContextMenu.vue', () => {
 
     await h.user.click(screen.getByText('Shuffle'))
 
-    expect(resolveMock).toHaveBeenCalledWith([{
-      id: 'foo',
-      type: 'song',
-    }], true)
+    expect(resolveMock).toHaveBeenCalledWith(
+      [
+        {
+          id: 'foo',
+          type: 'song',
+        },
+      ],
+      true,
+    )
 
     expect(playMock).toHaveBeenCalledWith(resolvedSongs, true)
     expect(goMock).toHaveBeenCalledWith('/#/queue')
@@ -104,10 +115,12 @@ describe('mediaBrowserContextMenu.vue', () => {
 
     // we don't care about the actual references here, as this functionality should have been tested in the
     // mediaBrowser spec
-    const extractReferencesMock = h.mock(mediaBrowser, 'extractMediaReferences').mockReturnValue([{
-      id: 'foo',
-      type: 'song',
-    }])
+    const extractReferencesMock = h.mock(mediaBrowser, 'extractMediaReferences').mockReturnValue([
+      {
+        id: 'foo',
+        type: 'song',
+      },
+    ])
 
     const items = [...h.factory('song', 2), h.factory('folder')]
 
@@ -117,10 +130,12 @@ describe('mediaBrowserContextMenu.vue', () => {
 
     await h.user.click(screen.getByText('Add to Queue'))
 
-    expect(resolveMock).toHaveBeenCalledWith([{
-      id: 'foo',
-      type: 'song',
-    }])
+    expect(resolveMock).toHaveBeenCalledWith([
+      {
+        id: 'foo',
+        type: 'song',
+      },
+    ])
 
     expect(queueMock).toHaveBeenCalledWith(resolvedSongs)
   })

@@ -3,8 +3,9 @@
 namespace App\Http\Requests\API\Radio;
 
 use App\Http\Requests\API\Request;
+use App\Rules\HasAudioContentType;
+use App\Rules\SafeUrl;
 use App\Rules\ValidImageData;
-use App\Rules\ValidRadioStationUrl;
 use App\Values\Radio\RadioStationUpdateData;
 use Illuminate\Validation\Rule;
 
@@ -24,10 +25,13 @@ class RadioStationUpdateRequest extends Request
             'url' => [
                 'required',
                 'url',
-                Rule::unique('radio_stations')->where(function ($query) {
-                    return $query->where('user_id', $this->user()->id);
-                })->ignore($this->route('station')->id), // @phpstan-ignore-line
-                app(ValidRadioStationUrl::class),
+                Rule::unique('radio_stations')
+                    ->where(function ($query) {
+                        return $query->where('user_id', $this->user()->id);
+                    })
+                    ->ignore($this->route('station')->id), // @phpstan-ignore-line
+                new SafeUrl(),
+                new HasAudioContentType(),
             ],
             'name' => ['required', 'string', 'max:191'],
             'logo' => ['nullable', 'sometimes', new ValidImageData()],
@@ -43,7 +47,7 @@ class RadioStationUpdateRequest extends Request
             url: $this->url,
             description: $this->string('description'),
             logo: $this->has('logo') ? $this->string('logo') : null,
-            isPublic: $this->boolean('is_public')
+            isPublic: $this->boolean('is_public'),
         );
     }
 }

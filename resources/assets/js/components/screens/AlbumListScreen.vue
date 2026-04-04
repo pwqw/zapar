@@ -2,12 +2,12 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed" :disabled="loading">
-        {{ t('screens.albums') }}
+        Albums
         <template #controls>
           <div class="flex gap-2">
             <Btn
               v-koel-tooltip
-              :title="preferences.albums_favorites_only ? t('misc.showAll') : t('misc.showFavoritesOnly')"
+              :title="preferences.albums_favorites_only ? 'Show all' : 'Show favorites only'"
               class="border border-k-fg-10"
               transparent
               @click.prevent="toggleFavoritesOnly"
@@ -34,28 +34,37 @@
       <template #icon>
         <Icon :icon="faCompactDisc" />
       </template>
-      {{ t('emptyStates.albumsNotFound') }}
-      <span v-if="currentUserCan.manageSettings()" class="secondary block">
-        {{ t('screens.home.setupLibrary') }}
-      </span>
+      No albums found.
+      <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
     </ScreenEmptyState>
 
-    <div v-else ref="gridContainer" v-koel-overflow-fade class="-m-6 overflow-auto">
+    <ScreenEmptyState v-else-if="noFavoriteAlbums">
+      <template #icon>
+        <Icon :icon="faCompactDisc" />
+      </template>
+      No favorite albums.
+    </ScreenEmptyState>
+
+    <div v-else ref="gridContainer" v-koel-overflow-fade class="-m-6 flex-1 overflow-auto">
       <GridListView ref="grid" :view-mode="preferences.albums_view_mode" data-testid="album-grid">
         <template v-if="showSkeletons">
           <AlbumCardSkeleton v-for="i in 10" :key="i" :layout="itemLayout" />
         </template>
         <template v-else>
           <AlbumCard
-            v-for="album in albums"
+            v-for="album in displayedAlbums"
             :key="album.id"
             :album
             :layout="itemLayout"
             :show-release-year="preferences.albums_sort_field === 'year'"
           />
+          <template v-if="loading">
+            <AlbumCardSkeleton v-for="i in 4" :key="`loading-${i}`" :layout="itemLayout" />
+          </template>
           <ToTopButton />
         </template>
       </GridListView>
+      <div v-if="moreAlbumsAvailable && !loading" ref="sentinel" class="h-px" />
     </div>
   </ScreenBase>
 </template>
@@ -64,7 +73,6 @@
 import { faStar as faEmptyStar } from '@fortawesome/free-regular-svg-icons'
 import { faCompactDisc, faStar } from '@fortawesome/free-solid-svg-icons'
 import { computed, nextTick, onMounted, ref, toRef } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { albumStore } from '@/stores/albumStore'
 import { commonStore } from '@/stores/commonStore'
 import { preferenceStore as preferences } from '@/stores/preferenceStore'
@@ -82,8 +90,6 @@ import GridListView from '@/components/ui/GridListView.vue'
 import AlbumListSorter from '@/components/album/AlbumListSorter.vue'
 import Btn from '@/components/ui/form/Btn.vue'
 
-const { t } = useI18n()
-
 const { currentUserCan } = usePolicies()
 
 const gridContainer = ref<HTMLDivElement>()
@@ -95,10 +101,19 @@ const page = ref<number | null>(1)
 
 const libraryEmpty = computed(() => commonStore.state.song_length === 0)
 
-const itemLayout = computed<CardLayout>(
-  () => preferences.albums_view_mode === 'thumbnails' ? 'full' : 'compact',
+const itemLayout = computed<CardLayout>(() => (preferences.albums_view_mode === 'thumbnails' ? 'full' : 'compact'))
+
+const displayedAlbums = computed(() =>
+  preferences.albums_favorites_only ? albums.value.filter(a => a.favorite) : albums.value,
 )
 
+const noFavoriteAlbums = computed(
+  () =>
+    !loading.value &&
+    preferences.albums_favorites_only &&
+    displayedAlbums.value.length === 0 &&
+    !moreAlbumsAvailable.value,
+)
 const moreAlbumsAvailable = computed(() => page.value !== null)
 const showSkeletons = computed(() => loading.value && albums.value.length === 0)
 
@@ -109,17 +124,21 @@ const fetchAlbums = async () => {
 
   loading.value = true
 
-  page.value = await albumStore.paginate({
-    favorites_only: preferences.albums_favorites_only,
-    page: page!.value || 1,
-    sort: preferences.albums_sort_field,
-    order: preferences.albums_sort_order,
-  })
-
-  loading.value = false
+  try {
+    page.value = await albumStore.paginate({
+      favorites_only: preferences.albums_favorites_only,
+      page: page!.value || 1,
+      sort: preferences.albums_sort_field,
+      order: preferences.albums_sort_order,
+    })
+  } catch (error: unknown) {
+    useErrorHandler().handleHttpError(error)
+  } finally {
+    loading.value = false
+  }
 }
 
-const { ToTopButton, makeScrollable } = useInfiniteScroll(gridContainer, async () => await fetchAlbums())
+const { ToTopButton, sentinel } = useInfiniteScroll(gridContainer, () => fetchAlbums())
 
 const resetState = async () => {
   page.value = 1
@@ -145,15 +164,9 @@ const toggleFavoritesOnly = async () => {
   await fetchAlbums()
 }
 
-onMounted(async () => {
-  if (libraryEmpty.value) {
-    return
-  }
-
-  try {
-    await makeScrollable()
-  } catch (error: unknown) {
-    useErrorHandler().handleHttpError(error)
+onMounted(() => {
+  if (!libraryEmpty.value) {
+    fetchAlbums()
   }
 })
 </script>

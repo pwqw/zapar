@@ -1,24 +1,22 @@
 <template>
-  <div
-    v-if="shown"
-    class="bg-k-bg text-[0.9rem] px-6 py-4 flex z-10 space-x-3"
-    data-testid="support-bar"
-  >
-    <p class="flex-1" v-html="t('content.support.description')" />
-    <button type="button" @click.prevent="close">{{ t('content.support.hide') }}</button>
+  <div v-if="shown" class="bg-k-bg text-[0.9rem] px-6 py-4 flex z-10 space-x-3" data-testid="support-bar">
+    <p class="flex-1">
+      Loving Koel? Please consider supporting its development via
+      <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">GitHub Sponsors</a>
+      and/or
+      <a href="https://opencollective.com/koel" rel="noopener" target="_blank">OpenCollective</a>.
+    </p>
+    <button type="button" @click.prevent="close">Hide</button>
     <span class="block after:content-['•'] after:block" />
-    <button type="button" @click.prevent="stopBugging">{{ t('content.support.dontBugAgain') }}</button>
+    <button type="button" @click.prevent="stopBugging">Don't bug me again</button>
   </div>
 </template>
 
 <script lang="ts" setup>
 import isMobile from 'ismobilejs'
 import { ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { preferenceStore } from '@/stores/preferenceStore'
 import { useKoelPlus } from '@/composables/useKoelPlus'
-
-const { t } = useI18n()
 
 const delayUntilShow = 30 * 60 * 1000 // 30 minutes
 
@@ -26,28 +24,32 @@ const shown = ref(false)
 
 const { isPlus } = useKoelPlus()
 const setUpShowBarTimeout = () => setTimeout(() => (shown.value = true), delayUntilShow)
-const close = () => shown.value = false
+const close = () => (shown.value = false)
 
 const stopBugging = () => {
   preferenceStore.set('support_bar_no_bugging', true)
   close()
 }
 
-watch(preferenceStore.initialized, initialized => {
-  if (!initialized) {
-    return
-  }
+watch(
+  preferenceStore.initialized,
+  initialized => {
+    if (!initialized) {
+      return
+    }
 
-  if (preferenceStore.state.support_bar_no_bugging || isMobile.any) {
-    return
-  }
+    if (preferenceStore.state.support_bar_no_bugging || isMobile.any) {
+      return
+    }
 
-  if (isPlus.value) {
-    return
-  }
+    if (isPlus.value) {
+      return
+    }
 
-  setUpShowBarTimeout()
-}, { immediate: true })
+    setUpShowBarTimeout()
+  },
+  { immediate: true },
+)
 </script>
 
 <style lang="postcss" scoped>

@@ -1,6 +1,6 @@
 import { screen, waitFor } from '@testing-library/vue'
-import type { Mock } from 'vitest'
-import { describe, expect, it, vi } from 'vitest'
+import type { Mock } from 'vite-plus/test'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { albumStore } from '@/stores/albumStore'
 import { commonStore } from '@/stores/commonStore'
@@ -13,6 +13,8 @@ import { assertOpenContextMenu } from '@/__tests__/assertions'
 import AlbumContextMenu from '@/components/album/AlbumContextMenu.vue'
 import Component from './AlbumScreen.vue'
 
+vi.mock('@/composables/useContextMenu')
+
 describe('albumScreen.vue', () => {
   const h = createHarness({
     beforeEach: () => {
@@ -20,17 +22,16 @@ describe('albumScreen.vue', () => {
     },
   })
 
-  const renderComponent = async (
-    tab: 'songs' | 'other-albums' | 'information' = 'songs',
-    album?: Album,
-  ) => {
+  const renderComponent = async (tab: 'songs' | 'other-albums' | 'information' = 'songs', album?: Album) => {
     commonStore.state.uses_last_fm = true
 
-    album = album || h.factory('album', {
-      name: 'Led Zeppelin IV',
-      artist_id: 'bar',
-      artist_name: 'Led Zeppelin',
-    })
+    album =
+      album ||
+      h.factory('album', {
+        name: 'Led Zeppelin IV',
+        artist_id: 'bar',
+        artist_name: 'Led Zeppelin',
+      })
 
     const resolveAlbumMock = h.mock(albumStore, 'resolve').mockResolvedValue(album)
 
@@ -115,7 +116,6 @@ describe('albumScreen.vue', () => {
   })
 
   it('requests Actions menu', async () => {
-    vi.mock('@/composables/useContextMenu')
     const { openContextMenu } = useContextMenu()
     const { album } = await renderComponent()
 

@@ -4,10 +4,15 @@ namespace App\Models;
 
 use App\Casts\SmartPlaylistRulesCast;
 use App\Models\Concerns\MorphsToEmbeds;
+use App\Models\Concerns\Playlists\ManagesCollaborators;
+use App\Models\Concerns\Playlists\ManagesPlayables;
 use App\Models\Contracts\Embeddable;
 use App\Models\Song as Playable;
+use App\Observers\PlaylistObserver;
 use App\Values\SmartPlaylist\SmartPlaylistRuleGroupCollection;
 use Carbon\Carbon;
+use Database\Factories\PlaylistFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -15,7 +20,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Collection;
 use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
@@ -34,30 +38,38 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
  * @property EloquentCollection<array-key, User> $collaborators
  * @property ?string $cover The playlist cover's file name
  * @property-read EloquentCollection<array-key, PlaylistFolder> $folders
- * @property-read bool $is_collaborative
  * @property int $owner_id
+ *
+ * @method static PlaylistFactory factory(...$parameters)
  */
+#[ObservedBy(PlaylistObserver::class)]
 class Playlist extends Model implements AuditableContract, Embeddable
 {
     use Auditable;
     use HasFactory;
     use HasUuids;
+    use ManagesCollaborators;
+    use ManagesPlayables;
     use MorphsToEmbeds;
     use Searchable;
 
     protected $hidden = ['created_at', 'updated_at'];
     protected $guarded = [];
 
-    protected $casts = [
-        'rules' => SmartPlaylistRulesCast::class,
-    ];
+    protected function casts(): array
+    {
+        return [
+            'rules' => SmartPlaylistRulesCast::class,
+        ];
+    }
 
     protected $appends = ['is_smart'];
     protected $with = ['users', 'collaborators', 'folders'];
 
     public function playables(): BelongsToMany
     {
-        return $this->belongsToMany(Playable::class)
+        return $this
+            ->belongsToMany(Playable::class)
             ->withTimestamps()
             ->withPivot('position')
             ->orderByPivot('position');
@@ -65,16 +77,12 @@ class Playlist extends Model implements AuditableContract, Embeddable
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot('role', 'position')
-            ->withTimestamps();
+        return $this->belongsToMany(User::class)->withPivot('role', 'position')->withTimestamps();
     }
 
     protected function owner(): Attribute
     {
-        return Attribute::get(
-            fn (): User => $this->users->sole(static fn (User $user): bool => $user->pivot->role === 'owner')
-        )->shouldCache();
+        return Attribute::get(fn () => $this->users()->wherePivot('role', 'owner')->sole())->shouldCache();
     }
 
     public function collaborators(): BelongsToMany
@@ -106,78 +114,6 @@ class Playlist extends Model implements AuditableContract, Embeddable
     public function ownedBy(User $user): bool
     {
         return $this->owner->is($user);
-    }
-
-    public function inFolder(PlaylistFolder $folder): bool
-    {
-        return $this->folders->contains($folder);
-    }
-
-    public function getFolder(?User $contextUser = null): ?PlaylistFolder
-    {
-        return $this->folders->firstWhere(
-            fn (PlaylistFolder $folder) => $folder->user->is($contextUser ?? $this->owner)
-        );
-    }
-
-    public function getFolderId(?User $user = null): ?string
-    {
-        return $this->getFolder($user)?->id;
-    }
-
-    public function addCollaborator(User $user): void
-    {
-        if (!$this->hasCollaborator($user)) {
-            $this->users()->attach($user, ['role' => 'collaborator']);
-        }
-    }
-
-    public function hasCollaborator(User $collaborator): bool
-    {
-        return $this->collaborators->contains(static fn (User $user): bool => $collaborator->is($user));
-    }
-
-    /**
-     * @param Collection|array<array-key, Playable>|Playable|array<string> $playables
-     */
-    public function addPlayables(Collection|Playable|array $playables, ?User $collaborator = null): void
-    {
-        $collaborator ??= $this->owner;
-        $maxPosition = $this->playables()->getQuery()->max('position') ?? 0;
-
-        if (!is_array($playables)) {
-            $playables = Collection::wrap($playables)->pluck('id')->all();
-        }
-
-        $data = [];
-
-        foreach ($playables as $playable) {
-            $data[$playable] = [
-                'position' => ++$maxPosition,
-                'user_id' => $collaborator->id,
-            ];
-        }
-
-        $this->playables()->attach($data);
-    }
-
-    /**
-     * @param Collection<array-key, Playable>|Playable|array<string> $playables
-     */
-    public function removePlayables(Collection|Playable|array $playables): void
-    {
-        if (!is_array($playables)) {
-            $playables = Collection::wrap($playables)->pluck('id')->all();
-        }
-
-        $this->playables()->detach($playables);
-    }
-
-    protected function isCollaborative(): Attribute
-    {
-        return Attribute::get(
-            fn (): bool => !$this->is_smart && $this->collaborators->isNotEmpty()
-        )->shouldCache();
     }
 
     /** @inheritdoc */

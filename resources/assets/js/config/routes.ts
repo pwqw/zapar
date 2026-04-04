@@ -55,6 +55,11 @@ export const routes = [
     screen: 'RecentlyPlayed',
   },
   {
+    name: 'offline-songs',
+    path: '/offline-songs',
+    screen: 'OfflineSongs',
+  },
+  {
     name: 'search',
     path: '/search',
     screen: 'Search.Excerpt',
@@ -212,6 +217,11 @@ export const routes = [
     },
   },
   {
+    name: 'ai',
+    path: '/ai',
+    screen: 'AI',
+  },
+  {
     name: 'media-browser',
     path: '/browse/:path?',
     screen: 'MediaBrowser',
@@ -242,4 +252,4 @@ export const routes = [
   },
 ] as const satisfies Route[]
 
-export type RouteName = typeof routes[number]['name']
+export type RouteName = (typeof routes)[number]['name']

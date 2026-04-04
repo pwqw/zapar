@@ -43,21 +43,17 @@ class AclTest extends TestCase
 
         /** @var class-string<Model|Permissionable> $modelClass */
         $modelClass = $type->modelClass();
-        $subject = $modelClass::factory()->create(); // @phpstan-ignore-line
+        $subject = $modelClass::factory()->createOne(); // @phpstan-ignore-line
 
-        Gate::expects('forUser')
-            ->with($user)
-            ->andReturnSelf();
+        Gate::expects('forUser')->with($user)->andReturnSelf();
 
-        Gate::expects('allows')
-            ->with('edit', Mockery::on(static fn (Model $s) => $s->is($subject)))
-            ->andReturn(true);
+        Gate::expects('allows')->with('edit', Mockery::on(static fn (Model $s) => $s->is($subject)))->andReturn(true);
 
         self::assertTrue($this->acl->checkPermission(
             $type,
             $subject->{$modelClass::getPermissionableIdentifier()}, // @phpstan-ignore-line
             'edit',
-            $user
+            $user,
         ));
     }
 

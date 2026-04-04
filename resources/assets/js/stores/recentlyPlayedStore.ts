@@ -3,7 +3,7 @@ import { remove } from 'lodash'
 import { http } from '@/services/http'
 import { playableStore } from '@/stores/playableStore'
 
-const EXCERPT_COUNT = 7
+const EXCERPT_COUNT = 6
 
 export const recentlyPlayedStore = {
   excerptState: reactive({
@@ -14,17 +14,17 @@ export const recentlyPlayedStore = {
     playables: [] as Playable[],
   }),
 
-  async fetch () {
+  async fetch() {
     this.state.playables = playableStore.syncWithVault(await http.get<Playable[]>('songs/recently-played'))
     return this.state.playables
   },
 
-  async add (playable: Playable) {
+  async add(playable: Playable) {
     if (!this.state.playables.length) {
       await this.fetch()
     }
 
-    [this.state, this.excerptState].forEach(state => {
+    ;[this.state, this.excerptState].forEach(state => {
       // make sure there's no duplicate
       remove(state.playables, s => s.id === playable.id)
       state.playables.unshift(playable)

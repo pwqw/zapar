@@ -1,32 +1,29 @@
 import isMobile from 'ismobilejs'
-import type { EventType, RenderOptions } from '@testing-library/vue'
+import type { RenderOptions } from '@testing-library/vue'
 import { cleanup, createEvent, fireEvent, render } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
-import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import { afterEach, beforeEach, vi } from 'vitest'
+import type { UserEvent } from '@testing-library/user-event'
+import { afterEach, beforeEach, vi } from 'vite-plus/test'
 import { defineComponent, nextTick, shallowRef } from 'vue'
-import { createI18n } from 'vue-i18n'
 import factory from '@/__tests__/factory'
 import { DialogBoxStub, MessageToasterStub, OverlayStub } from '@/__tests__/stubs'
 import { commonStore } from '@/stores/commonStore'
 import { userStore } from '@/stores/userStore'
 import { http } from '@/services/http'
-import { ContextMenuKey, DialogBoxKey, MessageToasterKey, OverlayKey, RouterKey } from '@/symbols'
+import { ContextMenuKey, DialogBoxKey, MessageToasterKey, ModalKey, OverlayKey, RouterKey } from '@/config/symbols'
 import Router from '@/router'
 import { preferenceStore } from '@/stores/preferenceStore'
 import { noop } from '@/utils/helpers'
 import { deepMerge, setPropIfNotExists } from '@/__tests__/utils'
 import { eventBus } from '@/utils/eventBus'
 import { cache } from '@/services/cache'
-import en from '@/locales/en.json'
-import es from '@/locales/es.json'
 
 class TestHarness {
   public router: Router
   public user: UserEvent
   private backupMethods = new Map()
 
-  public constructor () {
+  public constructor() {
     this.router = new Router()
     this.user = userEvent.setup({ delay: null }) // @see https://github.com/testing-library/user-event/issues/833
 
@@ -35,7 +32,7 @@ class TestHarness {
     })
   }
 
-  public beforeEach (cb?: Closure) {
+  public beforeEach(cb?: Closure) {
     beforeEach(() => {
       this.mock(http, 'request').mockResolvedValue({}) // prevent actual HTTP requests from being made
 
@@ -50,7 +47,7 @@ class TestHarness {
     })
   }
 
-  public afterEach (cb?: Closure) {
+  public afterEach(cb?: Closure) {
     afterEach(() => {
       document.body.innerHTML = ''
       isMobile.any = false
@@ -63,7 +60,7 @@ class TestHarness {
     })
   }
 
-  private setDefaultBranding () {
+  private setDefaultBranding() {
     window.BRANDING = {
       name: 'Koel',
       logo: '',
@@ -71,19 +68,19 @@ class TestHarness {
     }
   }
 
-  public readonly auth = this.actingAsUser
+  public readonly auth = (user?: CurrentUser) => this.actingAsUser(user)
 
-  public actingAsUser (user?: CurrentUser) {
-    userStore.state.current = user || factory.states('current')('user') as CurrentUser
+  public actingAsUser(user?: CurrentUser) {
+    userStore.state.current = user || (factory.states('current')('user') as CurrentUser)
     preferenceStore.init(userStore.state.current.preferences)
     return this
   }
 
-  public actingAsAdmin () {
+  public actingAsAdmin() {
     return this.actingAsUser(factory.states('admin')('user') as CurrentUser)
   }
 
-  public mock<T, M extends MethodOf<Required<T>>> (obj: T, methodName: M, implementation?: any) {
+  public mock<T, M extends MethodOf<Required<T>>>(obj: T, methodName: M, implementation?: any) {
     // check if the method is already mocked, and if so, use it instead of creating a new mock
     for (const [key, _] of this.backupMethods.entries()) {
       if (key[0] !== obj || key[1] !== methodName) {
@@ -113,42 +110,37 @@ class TestHarness {
     return mock
   }
 
-  public restoreAllMocks () {
+  public restoreAllMocks() {
     this.backupMethods.forEach((fn, [obj, methodName]) => (obj[methodName] = fn))
     this.backupMethods.clear()
 
     return this
   }
 
-  public render (component: any, options: RenderOptions = {}) {
-    const i18n = createI18n({
-      legacy: false,
-      locale: 'en',
-      fallbackLocale: 'en',
-      messages: {
-        en,
-        es,
-      },
-    })
-
-    return render(component, deepMerge({
-      global: {
-        plugins: [i18n],
-        directives: {
-          'koel-focus': {},
-          'koel-tooltip': {},
-          'koel-hide-broken-icon': {},
-          'koel-overflow-fade': {},
-          'koel-new-tab': {},
+  public render(component: any, options: RenderOptions = {}) {
+    return render(
+      component,
+      deepMerge(
+        {
+          global: {
+            directives: {
+              'koel-focus': {},
+              'koel-tooltip': {},
+              'koel-hide-broken-icon': {},
+              'koel-overflow-fade': {},
+              'koel-new-tab': {},
+            },
+            components: {
+              Icon: this.stub('Icon'),
+            },
+          },
         },
-        components: {
-          Icon: this.stub('Icon'),
-        },
-      },
-    }, this.supplyRequiredProvides(options)))
+        this.supplyRequiredProvides(options),
+      ),
+    )
   }
 
-  public async withPlusEdition (cb: Closure) {
+  public async withPlusEdition(cb: Closure) {
     commonStore.state.koel_plus = {
       active: true,
       short_key: '****-XXXX',
@@ -170,7 +162,7 @@ class TestHarness {
     return this
   }
 
-  public async withCustomBranding (branding: Branding, cb: Closure) {
+  public async withCustomBranding(branding: Branding, cb: Closure) {
     // Custom branding implicitly requires Plus edition.
     return await this.withPlusEdition(async () => {
       window.BRANDING = branding
@@ -179,7 +171,7 @@ class TestHarness {
     })
   }
 
-  public async withDemoMode (cb: Closure) {
+  public async withDemoMode(cb: Closure) {
     window.IS_DEMO = true
     await cb()
     window.IS_DEMO = false
@@ -187,7 +179,7 @@ class TestHarness {
     return this
   }
 
-  public stub (testId = 'stub', asModelComponent = false, defaultValue?: any) {
+  public stub(testId = 'stub', asModelComponent = false, defaultValue?: any) {
     if (!asModelComponent) {
       return defineComponent({
         template: `<br data-testid="${testId}"/>`,
@@ -197,19 +189,19 @@ class TestHarness {
     return defineComponent({
       template: `<input data-testid="${testId}" @input="$emit('update:modelValue', $event.target.value)" />`,
       emits: ['update:modelValue'],
-      mounted () {
+      mounted() {
         defaultValue && this.$emit('update:modelValue', defaultValue)
       },
     })
   }
 
-  public async tick (count = 1) {
+  public async tick(count = 1) {
     for (let i = 0; i < count; ++i) {
       await nextTick()
     }
   }
 
-  public setReadOnlyProperty<T> (obj: T, prop: keyof T, value: any) {
+  public setReadOnlyProperty<T>(obj: T, prop: keyof T, value: any) {
     return Object.defineProperties(obj, {
       [prop]: {
         value,
@@ -219,16 +211,16 @@ class TestHarness {
     })
   }
 
-  public async type (element: HTMLElement, value: string) {
+  public async type(element: HTMLElement, value: string) {
     await this.user.clear(element)
     await this.user.type(element, value)
   }
 
-  public async trigger (element: HTMLElement, key: EventType | string, options: object = {}) {
+  public async trigger(element: HTMLElement, key: string, options: object = {}) {
     await fireEvent(element, createEvent[key](element, options))
   }
 
-  private supplyRequiredProvides (options: RenderOptions) {
+  private supplyRequiredProvides(options: RenderOptions) {
     options.global = options.global || {}
     options.global.provide = options.global.provide || {}
 
@@ -237,27 +229,39 @@ class TestHarness {
     setPropIfNotExists(options.global.provide, OverlayKey, OverlayStub)
     setPropIfNotExists(options.global.provide, RouterKey, this.router)
 
-    setPropIfNotExists(options.global.provide, ContextMenuKey, shallowRef({
-      component: null,
-      position: { top: 0, left: 0 },
-    }))
+    setPropIfNotExists(
+      options.global.provide,
+      ContextMenuKey,
+      shallowRef({
+        component: null,
+        position: { top: 0, left: 0 },
+      }),
+    )
+
+    setPropIfNotExists(
+      options.global.provide,
+      ModalKey,
+      shallowRef({
+        component: null,
+      }),
+    )
 
     return options
   }
 
-  public createAudioPlayer () {
-    if (document.querySelector('.plyr')) {
+  public createAudioPlayer() {
+    if (document.querySelector('#audio-player')) {
       return
     }
 
-    document.body.innerHTML = '<div class="plyr"><audio crossorigin="anonymous" controls/></div>'
+    document.body.innerHTML = '<audio id="audio-player" crossorigin="anonymous"/>'
 
     window.AudioContext = vi.fn().mockImplementation(() => ({
       createMediaElementSource: vi.fn(noop),
     }))
   }
 
-  public visit (hash: string) {
+  public visit(hash: string) {
     if (!hash.startsWith('/')) {
       hash = `/${hash}`
     }
@@ -269,7 +273,7 @@ class TestHarness {
   public readonly factory = factory
 }
 
-export function createHarness (overrides?: {
+export function createHarness(overrides?: {
   beforeEach?: () => void
   afterEach?: () => void
   authenticated?: boolean

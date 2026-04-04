@@ -30,8 +30,8 @@ class EmbedServiceTest extends TestCase
         return [
             ['playable', Song::class],
             ['playlist', Playlist::class],
-            ['album', Album::class],
-            ['artist', Artist::class],
+            ['album',    Album::class],
+            ['artist',   Artist::class],
         ];
     }
 
@@ -40,7 +40,7 @@ class EmbedServiceTest extends TestCase
     /** @param class-string<Song|Playlist|Album|Artist> $modelClass */
     public function resolveEmbedForEmbeddable(string $type, string $modelClass): void
     {
-        $embeddable = $modelClass::factory()->create();
+        $embeddable = $modelClass::factory()->createOne();
         $user = create_user();
 
         $embed = $this->service->resolveEmbedForEmbeddable($embeddable, $user);

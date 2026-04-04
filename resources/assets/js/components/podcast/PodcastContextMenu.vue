@@ -45,15 +45,17 @@ onMounted(async () => {
   canChangeVisibility.value = await currentUserCan.publishPodcast(podcast.value)
 })
 
-const play = () => trigger(async () => {
-  playback().queueAndPlay(await playableStore.fetchEpisodesInPodcast(podcast.value))
-  go(url('queue'))
-})
+const play = () =>
+  trigger(async () => {
+    playback().queueAndPlay(await playableStore.fetchEpisodesInPodcast(podcast.value))
+    go(url('queue'))
+  })
 
-const shuffle = () => trigger(async () => {
-  playback().queueAndPlay(await playableStore.fetchEpisodesInPodcast(podcast.value), true)
-  go(url('queue'))
-})
+const shuffle = () =>
+  trigger(async () => {
+    playback().queueAndPlay(await playableStore.fetchEpisodesInPodcast(podcast.value), true)
+    go(url('queue'))
+  })
 
 const deletePodcast = async () => {
   if (await showConfirmDialog(t('menu.podcast.deleteConfirm'))) {

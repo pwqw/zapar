@@ -1,40 +1,35 @@
 <template>
-  <div
-    class="collaboration-modal max-w-[640px]"
-    tabindex="0"
-    data-testid="playlist-collaboration"
-    @keydown.esc="close"
-  >
+  <div class="collaboration-modal max-w-[640px]" tabindex="0" data-testid="playlist-collaboration" @keydown.esc="close">
     <header>
-      <h1>{{ t('playlists.collaboration') }}</h1>
+      <h1>Playlist Collaboration</h1>
     </header>
 
     <main>
       <p>
-        {{ t('playlists.collaborativeDescription') }}<br>
-        {{ t('playlists.collaborativeWarning') }}
+        Collaborative playlists allow multiple users to contribute. <br />
+        Note: Songs added to a collaborative playlist are made accessible to all users, and you cannot mark a song as
+        private if it’s still part of a collaborative playlist.
       </p>
 
       <section class="space-y-5">
         <h2 class="flex text-xl mt-6 mb-1 items-center">
-          <span class="flex-1">{{ t('playlists.currentCollaborators') }}</span>
-          <InviteCollaborators v-if="canManageCollaborators" :playlist="playlist" />
+          <span class="flex-1">Current Collaborators</span>
+          <InviteCollaborators v-if="canManageCollaborators" :playlist />
         </h2>
         <div v-koel-overflow-fade class="collaborators-wrapper overflow-auto">
-          <CollaboratorList :playlist="playlist" />
+          <CollaboratorList :playlist />
         </div>
       </section>
     </main>
 
     <footer>
-      <Btn @click.prevent="close">{{ t('playlists.close') }}</Btn>
+      <Btn @click.prevent="close">Close</Btn>
     </footer>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useAuthorization } from '@/composables/useAuthorization'
 
 import Btn from '@/components/ui/form/Btn.vue'
@@ -46,7 +41,6 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 
 const { playlist } = props
 
-const { t } = useI18n()
 const { currentUser } = useAuthorization()
 
 const canManageCollaborators = computed(() => currentUser.value?.id === playlist.owner_id)

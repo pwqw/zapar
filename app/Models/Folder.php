@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Observers\FolderObserver;
+use Database\Factories\FolderFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -22,7 +25,10 @@ use Illuminate\Support\Arr;
  * @property-read ?int $uploader_id
  * @property ?string $parent_id
  * @property string $hash
+ *
+ * @method static FolderFactory factory(...$parameters)
  */
+#[ObservedBy(FolderObserver::class)]
 class Folder extends Model
 {
     use HasFactory;
@@ -62,7 +68,7 @@ class Folder extends Model
         // An uploads folder has a format of __KOEL_UPLOADS_$<id>__ and is a child of the root folder
         // (i.e., it has no parent).
         return Attribute::get(
-            fn () => !$this->parent_id && preg_match('/^__KOEL_UPLOADS_\$\d+__$/', $this->name) === 1
+            fn () => !$this->parent_id && preg_match('/^__KOEL_UPLOADS_\$\d+__$/', $this->name) === 1,
         );
     }
 

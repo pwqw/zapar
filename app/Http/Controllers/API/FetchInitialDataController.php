@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\Acl\Permission;
+use App\Facades\License;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PlaylistFolderResource;
 use App\Http\Resources\PlaylistResource;
@@ -18,6 +19,7 @@ use App\Repositories\ThemeRepository;
 use App\Services\ApplicationInformationService;
 use App\Services\ITunesService;
 use App\Services\LastfmService;
+use App\Services\License\Contracts\LicenseServiceInterface;
 use App\Services\MediaBrowser;
 use App\Services\MusicBrainzService;
 use App\Services\QueueService;
@@ -37,12 +39,13 @@ class FetchInitialDataController extends Controller
         ApplicationInformationService $applicationInformationService,
         QueueService $queueService,
         ThemeRepository $themeRepository,
-        Authenticatable $user
+        LicenseServiceInterface $licenseService,
+        Authenticatable $user,
     ) {
-        $theme = $themeRepository->findUserThemeById($user->preferences->theme, $user);
-
-        // Load managed artists for managers
-        $user->load('managedArtists');
+        $licenseStatus = $licenseService->getStatus();
+        $theme = $licenseStatus->isValid()
+            ? $themeRepository->findUserThemeById($user->preferences->theme, $user)
+            : null;
 
         return response()->json([
             'settings' => $user->hasPermissionTo(Permission::MANAGE_SETTINGS)
@@ -58,11 +61,13 @@ class FetchInitialDataController extends Controller
             'uses_i_tunes' => ITunesService::used(),
             'uses_ticketmaster' => TicketmasterService::used(),
             'allows_download' => config('koel.download.allow'),
+            'download_limit' => (int) config('koel.download.limit'),
             'uses_media_browser' => MediaBrowser::used(),
+            'uses_ai' => License::isPlus() && config('koel.ai.enabled'),
             'supports_batch_downloading' => extension_loaded('zip'),
             'media_path_set' => (bool) Setting::get('media_path'),
-            'supports_transcoding' => config('koel.streaming.ffmpeg_path')
-                && is_executable(config('koel.streaming.ffmpeg_path')),
+            'supports_transcoding' =>
+                config('koel.streaming.ffmpeg_path') && is_executable(config('koel.streaming.ffmpeg_path')),
             'cdn_url' => static_url(),
             'current_version' => koel_version(),
             'latest_version' => $user->hasPermissionTo(Permission::MANAGE_SETTINGS)
@@ -72,16 +77,15 @@ class FetchInitialDataController extends Controller
             'song_length' => $songRepository->getTotalSongLength(),
             'queue_state' => QueueStateResource::make($queueService->getQueueState($user)),
             'koel_plus' => [
-                'active' => true,
-                'short_key' => null,
-                'customer_name' => null,
-                'customer_email' => null,
-                'product_id' => null,
+                'active' => $licenseStatus->isValid(),
+                'short_key' => $licenseStatus->license?->short_key,
+                'customer_name' => $licenseStatus->license?->meta->customerName,
+                'customer_email' => $licenseStatus->license?->meta->customerEmail,
+                'product_id' => config('lemonsqueezy.product_id'),
             ],
             'storage_driver' => config('koel.storage_driver'),
             'dir_separator' => DIRECTORY_SEPARATOR,
             'current_theme' => $theme ? ThemeResource::make($theme) : null,
-            'allow_anonymous' => (bool) config('koel.misc.allow_anonymous'),
         ]);
     }
 }

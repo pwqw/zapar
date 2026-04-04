@@ -8,11 +8,11 @@
             v-koel-tooltip
             class="btn-play-all"
             highlight
-            :title="t('ui.tooltips.playAll')"
+            title="Play all. Press Alt/⌥ to change mode."
             @click.prevent="playAll"
           >
             <Icon :icon="faPlay" fixed-width />
-            {{ t('ui.buttons.all') }}
+            All
           </Btn>
 
           <Btn
@@ -20,11 +20,11 @@
             v-koel-tooltip
             class="btn-play-selected"
             highlight
-            :title="t('ui.tooltips.playSelected')"
+            title="Play selected. Press Alt/⌥ to change mode."
             @click.prevent="playSelected"
           >
             <Icon :icon="faPlay" fixed-width />
-            {{ t('ui.buttons.selected') }}
+            Selected
           </Btn>
         </template>
 
@@ -35,11 +35,11 @@
             class="btn-shuffle-all"
             data-testid="btn-shuffle-all"
             highlight
-            :title="t('ui.tooltips.shuffleAll')"
+            title="Shuffle all. Press Alt/⌥ to change mode."
             @click.prevent="shuffle"
           >
             <Icon :icon="faRandom" fixed-width />
-            {{ t('ui.buttons.all') }}
+            All
           </Btn>
 
           <Btn
@@ -48,28 +48,23 @@
             class="btn-shuffle-selected"
             data-testid="btn-shuffle-selected"
             highlight
-            :title="t('ui.tooltips.shuffleSelected')"
+            title="Shuffle selected. Press Alt/⌥ to change mode."
             @click.prevent="shuffleSelected"
           >
             <Icon :icon="faRandom" fixed-width />
-            {{ t('ui.buttons.selected') }}
+            Selected
           </Btn>
         </template>
 
-        <Btn
-          v-if="showAddToButton"
-          ref="addToButton"
-          success
-          @click.prevent.stop="toggleAddToMenu"
-        >
-          {{ showingAddToMenu ? t('auth.cancel') : t('ui.buttons.addTo') }}
+        <Btn v-if="showAddToButton" ref="addToButton" success @click.prevent.stop="toggleAddToMenu">
+          {{ showingAddToMenu ? 'Cancel' : 'Add To…' }}
         </Btn>
 
-        <Btn v-if="config.clearQueue" danger :title="t('ui.tooltips.clearQueue')" @click.prevent="clearQueue">{{ t('ui.buttons.clear') }}</Btn>
+        <Btn v-if="config.clearQueue" danger title="Clear current queue" @click.prevent="clearQueue">Clear</Btn>
       </BtnGroup>
 
       <BtnGroup v-if="config.refresh">
-        <Btn v-if="config.refresh" v-koel-tooltip success :title="t('ui.tooltips.refresh')" @click.prevent="refresh">
+        <Btn v-if="config.refresh" v-koel-tooltip success title="Refresh" @click.prevent="refresh">
           <Icon :icon="faRotateRight" fixed-width />
         </Btn>
       </BtnGroup>
@@ -93,9 +88,8 @@
 import { faPlay, faRandom, faRotateRight } from '@fortawesome/free-solid-svg-icons'
 import type { Ref } from 'vue'
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { OnClickOutside } from '@vueuse/components'
-import { FilteredPlayablesKey, PlayablesKey, SelectedPlayablesKey } from '@/symbols'
+import { FilteredPlayablesKey, PlayablesKey, SelectedPlayablesKey } from '@/config/symbols'
 import { requireInjection } from '@/utils/helpers'
 import { useFloatingUi } from '@/composables/useFloatingUi'
 
@@ -110,8 +104,6 @@ const emit = defineEmits<{
   (e: 'filter', keywords: string): void
   (e: 'clear-queue' | 'delete-playlist' | 'refresh'): void
 }>()
-
-const { t } = useI18n()
 
 const ListFilter = defineAsyncComponent(() => import('@/components/ui/ListFilter.vue'))
 
@@ -139,16 +131,20 @@ const registerKeyup = (event: KeyboardEvent) => event.key === 'Alt' && (altPress
 
 let usedFloatingUi: ReturnType<typeof useFloatingUi>
 
-watch(showAddToButton, async showingButton => {
-  await nextTick()
+watch(
+  showAddToButton,
+  async showingButton => {
+    await nextTick()
 
-  if (showingButton) {
-    usedFloatingUi = useFloatingUi(addToButton.value!.button!, addToMenu, { autoTrigger: false })
-    usedFloatingUi.setup()
-  } else {
-    usedFloatingUi?.teardown()
-  }
-}, { immediate: true })
+    if (showingButton) {
+      usedFloatingUi = useFloatingUi(addToButton.value!.button!, addToMenu, { autoTrigger: false })
+      usedFloatingUi.setup()
+    } else {
+      usedFloatingUi?.teardown()
+    }
+  },
+  { immediate: true },
+)
 
 const closeAddToMenu = () => {
   usedFloatingUi?.hide()

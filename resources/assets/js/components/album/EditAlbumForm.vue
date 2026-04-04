@@ -1,54 +1,35 @@
 <template>
   <form @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>{{ t('albums.edit') }}</h1>
+      <h1>Edit Album</h1>
     </header>
 
     <main class="space-y-5">
       <FormRow>
-        <template #label>{{ t('albums.name') }}</template>
-        <TextInput
-          v-model="data.name"
-          v-koel-focus
-          name="name"
-          :placeholder="t('albums.albumName')"
-          required
-          :title="t('albums.albumName')"
-        />
+        <template #label>Name</template>
+        <TextInput v-model="data.name" v-koel-focus name="name" placeholder="Album name" required title="Album name" />
       </FormRow>
       <div class="grid grid-cols-2 gap-2">
         <FormRow>
-          <template #label>{{ t('albums.artist') }}</template>
-          <TextInput
-            v-model="album.artist_name"
-            name="artist"
-            disabled
-            :title="t('albums.artistNotChangeable')"
-          />
+          <template #label>Artist</template>
+          <TextInput v-model="album.artist_name" name="artist" disabled title="Artist name cannot be changed" />
         </FormRow>
         <FormRow>
-          <template #label>{{ t('albums.releaseYear') }}</template>
-          <TextInput
-            v-model="data.year"
-            type="number"
-            name="year"
-            :title="t('albums.releaseYear')"
-            min="1000"
-          />
+          <template #label>Release year</template>
+          <TextInput v-model="data.year" type="number" name="year" title="Release year" min="1000" />
         </FormRow>
       </div>
-      <ArtworkField v-model="data.cover">{{ t('albums.pickCover') }}</ArtworkField>
+      <ArtworkField v-model="data.cover">Pick a cover (optional)</ArtworkField>
     </main>
 
     <footer>
-      <Btn type="submit">{{ t('auth.save') }}</Btn>
-      <Btn white @click.prevent="maybeClose">{{ t('auth.cancel') }}</Btn>
+      <Btn type="submit">Save</Btn>
+      <Btn white @click.prevent="maybeClose">Cancel</Btn>
     </footer>
   </form>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import { cloneDeep, pick } from 'lodash'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import { useDialogBox } from '@/composables/useDialogBox'
@@ -62,10 +43,7 @@ import TextInput from '@/components/ui/form/TextInput.vue'
 import ArtworkField from '@/components/ui/form/ArtworkField.vue'
 
 const props = defineProps<{ album: Album }>()
-
 const emit = defineEmits<{ (e: 'close'): void }>()
-
-const { t } = useI18n()
 
 const { album } = props
 
@@ -87,13 +65,13 @@ const { data, isPristine, handleSubmit } = useForm<AlbumUpdateData>({
     await albumStore.update(album, formData)
   },
   onSuccess: () => {
-    toastSuccess(t('albums.updated'))
+    toastSuccess('Album updated.')
     close()
   },
 })
 
 const maybeClose = async () => {
-  if (isPristine() || await showConfirmDialog(t('albums.discardChanges'))) {
+  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
     close()
   }
 }

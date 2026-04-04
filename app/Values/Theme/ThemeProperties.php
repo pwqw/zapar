@@ -4,17 +4,16 @@ namespace App\Values\Theme;
 
 use Illuminate\Contracts\Support\Arrayable;
 
-final class ThemeProperties implements Arrayable
+final readonly class ThemeProperties implements Arrayable
 {
     private function __construct(
-        public readonly string $fgColor,
-        public readonly string $bgColor,
-        public readonly string $bgImage,
-        public readonly string $highlightColor,
-        public readonly string $fontFamily,
-        public readonly float $fontSize,
-    ) {
-    }
+        public string $fgColor,
+        public string $bgColor,
+        public string $bgImage,
+        public string $highlightColor,
+        public string $fontFamily,
+        public float $fontSize,
+    ) {}
 
     public static function make(
         string $fgColor,
@@ -36,14 +35,7 @@ final class ThemeProperties implements Arrayable
 
     public static function empty(): self
     {
-        return new self(
-            fgColor: '',
-            bgColor: '',
-            bgImage: '',
-            highlightColor: '',
-            fontFamily: '',
-            fontSize: 13.0,
-        );
+        return new self(fgColor: '', bgColor: '', bgImage: '', highlightColor: '', fontFamily: '', fontSize: 13.0);
     }
 
     public static function unserialize(object $json): self

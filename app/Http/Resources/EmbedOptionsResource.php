@@ -8,15 +8,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class EmbedOptionsResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'theme',
         'layout',
         'preview',
     ];
 
-    public function __construct(private readonly EmbedOptions $options)
-    {
+    public function __construct(
+        private readonly EmbedOptions $options,
+    ) {
         parent::__construct($options);
     }
 

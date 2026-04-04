@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { preferenceStore } from '@/stores/preferenceStore'
 import type { ThemeData } from '@/stores/themeStore'
 import { themeStore } from '@/stores/themeStore'
 import { http } from '@/services/http'
 import { cache } from '@/services/cache'
-import builtInThemes from '@/themes'
+import builtInThemes from '@/config/themes'
 
 describe('themeStore', () => {
   const h = createHarness({

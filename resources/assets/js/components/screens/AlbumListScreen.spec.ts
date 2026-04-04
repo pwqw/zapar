@@ -1,5 +1,5 @@
 import { screen, waitFor } from '@testing-library/vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { albumStore } from '@/stores/albumStore'
 import { commonStore } from '@/stores/commonStore'
@@ -74,20 +74,74 @@ describe('albumListScreen.vue', () => {
 
     await h.user.click(screen.getByRole('button', { name: 'Show favorites only' }))
 
-    await waitFor(() => expect(paginateMock).toHaveBeenNthCalledWith(2, {
-      favorites_only: true,
-      page: 1,
-      order: 'asc',
-      sort: 'name',
-    }))
+    await waitFor(() =>
+      expect(paginateMock).toHaveBeenNthCalledWith(2, {
+        favorites_only: true,
+        page: 1,
+        order: 'asc',
+        sort: 'name',
+      }),
+    )
 
     await h.user.click(screen.getByRole('button', { name: 'Show all' }))
 
-    await waitFor(() => expect(paginateMock).toHaveBeenNthCalledWith(3, {
-      favorites_only: false,
-      page: 1,
-      order: 'asc',
-      sort: 'name',
-    }))
+    await waitFor(() =>
+      expect(paginateMock).toHaveBeenNthCalledWith(3, {
+        favorites_only: false,
+        page: 1,
+        order: 'asc',
+        sort: 'name',
+      }),
+    )
+  })
+
+  it('filters out unfavorited albums in favorites mode', async () => {
+    const albums = h.factory('album', 5, { favorite: true })
+    albumStore.state.albums = albums
+
+    h.mock(albumStore, 'paginate').mockResolvedValue(null)
+
+    h.render(Component, {
+      global: {
+        stubs: {
+          AlbumCard: h.stub('album-card'),
+        },
+      },
+    })
+
+    await h.tick(2)
+
+    preferences.albums_favorites_only = true
+    await h.tick()
+
+    expect(screen.getAllByTestId('album-card')).toHaveLength(5)
+
+    // Simulate unfavoriting an album (must mutate through reactive proxy)
+    albumStore.state.albums[0].favorite = false
+    await h.tick()
+
+    expect(screen.getAllByTestId('album-card')).toHaveLength(4)
+  })
+
+  it('shows empty state when no favorite albums', async () => {
+    albumStore.state.albums = []
+
+    h.mock(albumStore, 'paginate').mockResolvedValue(null)
+    preferences.albums_favorites_only = true
+
+    h.render(Component, {
+      global: {
+        stubs: {
+          AlbumCard: h.stub('album-card'),
+        },
+      },
+    })
+
+    await h.tick(2)
+
+    await waitFor(() => {
+      const emptyState = screen.getByTestId('screen-empty-state')
+      expect(emptyState.textContent).toContain('No favorite albums')
+    })
   })
 })

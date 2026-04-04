@@ -17,13 +17,14 @@ class FetchArtworkCommand extends Command
     /**
      * Time to sleep between requests in second to avoid hitting the possible rate limit.
      */
-    private const INTERVAL = 1;
+    private const int INTERVAL = 1;
 
     protected $signature = 'koel:fetch-artwork';
     protected $description = 'Attempt to fetch artist and album artworks from available sources.';
 
-    public function __construct(private readonly EncyclopediaService $encyclopedia)
-    {
+    public function __construct(
+        private readonly EncyclopediaService $encyclopedia,
+    ) {
         parent::__construct();
     }
 

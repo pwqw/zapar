@@ -1,21 +1,35 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
-import { eventBus } from '@/utils/eventBus'
+import { assertOpenModal } from '@/__tests__/assertions'
 import { playbackService } from '@/services/RadioPlaybackService'
 import { acl } from '@/services/acl'
 import { radioStationStore } from '@/stores/radioStationStore'
+import EditRadioStationForm from '@/components/radio/EditRadioStationForm.vue'
+
+const openModalMock = vi.fn()
+
+vi.mock('@/composables/useModal', () => ({
+  useModal: () => ({
+    openModal: openModalMock,
+  }),
+}))
+
 import Component from './RadioStationContextMenu.vue'
 
 describe('radioStationContextMenu.vue', () => {
-  const h = createHarness()
+  const h = createHarness({
+    beforeEach: () => openModalMock.mockClear(),
+  })
 
   const renderComponent = async (station?: RadioStation, manageable = true) => {
     h.mock(acl, 'checkResourcePermission').mockReturnValue(manageable)
 
-    station = station || h.factory('radio-station', {
-      favorite: false,
-    })
+    station =
+      station ||
+      h.factory('radio-station', {
+        favorite: false,
+      })
 
     const rendered = h.render(Component, {
       props: {
@@ -35,19 +49,19 @@ describe('radioStationContextMenu.vue', () => {
   it('renders with Edit/Delete items', async () => {
     await renderComponent()
 
-    screen.getByText(/Edit/i)
-    screen.getByText(/Delete/i)
-    screen.getByText(/Play/i)
-    screen.getByText(/Favorite/i)
+    screen.getByText('Edit…')
+    screen.getByText('Delete')
+    screen.getByText('Play')
+    screen.getByText('Favorite')
   })
 
   it('renders without Edit/Delete items', async () => {
     await renderComponent(undefined, false)
 
-    expect(screen.queryByText(/Edit/i)).toBeNull()
-    expect(screen.queryByText(/Delete/i)).toBeNull()
-    screen.getByText(/Play/i)
-    screen.getByText(/Favorite/i)
+    expect(screen.queryByText('Edit…')).toBeNull()
+    expect(screen.queryByText('Delete')).toBeNull()
+    screen.getByText('Play')
+    screen.getByText('Favorite')
   })
 
   it('plays', async () => {
@@ -56,7 +70,7 @@ describe('radioStationContextMenu.vue', () => {
     const playMock = h.mock(playbackService, 'play')
 
     const { station } = await renderComponent()
-    await h.user.click(screen.getByText(/Play/i))
+    await h.user.click(screen.getByText('Play'))
 
     expect(playMock).toHaveBeenCalledWith(station)
   })
@@ -67,7 +81,7 @@ describe('radioStationContextMenu.vue', () => {
     const stopMock = h.mock(playbackService, 'stop')
 
     await renderComponent(h.factory('radio-station', { playback_state: 'Playing' }))
-    await h.user.click(screen.getByText(/Stop/i))
+    await h.user.click(screen.getByText('Stop'))
 
     expect(stopMock).toHaveBeenCalled()
   })
@@ -76,7 +90,7 @@ describe('radioStationContextMenu.vue', () => {
     const toggleMock = h.mock(radioStationStore, 'toggleFavorite')
     const { station } = await renderComponent(h.factory('radio-station', { favorite: false }))
 
-    await h.user.click(screen.getByText(/Favorite/i))
+    await h.user.click(screen.getByText('Favorite'))
     expect(toggleMock).toHaveBeenCalledWith(station)
   })
 
@@ -84,24 +98,23 @@ describe('radioStationContextMenu.vue', () => {
     const toggleMock = h.mock(radioStationStore, 'toggleFavorite')
     const { station } = await renderComponent(h.factory('radio-station', { favorite: true }))
 
-    await h.user.click(screen.getByText(/Undo Favorite/i))
+    await h.user.click(screen.getByText('Undo Favorite'))
     expect(toggleMock).toHaveBeenCalledWith(station)
   })
 
   it('requests edit form', async () => {
     const { station } = await renderComponent()
 
-    const emitMock = h.mock(eventBus, 'emit')
-    await h.user.click(screen.getByText(/Edit/i))
+    await h.user.click(screen.getByText('Edit…'))
 
-    expect(emitMock).toHaveBeenCalledWith('MODAL_SHOW_EDIT_RADIO_STATION_FORM', station)
+    await assertOpenModal(openModalMock, EditRadioStationForm, { station })
   })
 
   it('deletes', async () => {
     const deleteMock = h.mock(radioStationStore, 'delete')
     const { station } = await renderComponent()
 
-    await h.user.click(screen.getByText(/Delete/i))
+    await h.user.click(screen.getByText('Delete'))
     expect(deleteMock).toHaveBeenCalledWith(station)
   })
 })

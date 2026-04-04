@@ -27,12 +27,15 @@ class RadioServiceTest extends TestCase
     {
         $user = create_user();
 
-        $station = $this->service->createRadioStation(RadioStationCreateData::make(
-            url: 'https://example.com/stream',
-            name: 'Test Radio',
-            description: 'A test radio station',
-            isPublic: true,
-        ), $user);
+        $station = $this->service->createRadioStation(
+            RadioStationCreateData::make(
+                url: 'https://example.com/stream',
+                name: 'Test Radio',
+                description: 'A test radio station',
+                isPublic: true,
+            ),
+            $user,
+        );
 
         self::assertSame('Test Radio', $station->name);
         self::assertSame('https://example.com/stream', $station->url);
@@ -45,8 +48,7 @@ class RadioServiceTest extends TestCase
     #[Test]
     public function updateRadioStation(): void
     {
-        /** @var RadioStation $station */
-        $station = RadioStation::factory()->create();
+        $station = RadioStation::factory()->createOne();
 
         $updatedStation = $this->service->updateRadioStation($station, RadioStationUpdateData::make(
             name: 'Updated Radio',

@@ -2,22 +2,22 @@
 
 namespace App\Http\Resources;
 
+use App\Facades\License;
 use App\Models\Artist;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ArtistResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'name',
         'image',
         'created_at',
-        'can_fetch_encyclopedia',
     ];
 
-    public const PAGINATION_JSON_STRUCTURE = [
+    public const array PAGINATION_JSON_STRUCTURE = [
         'data' => [
             '*' => self::JSON_STRUCTURE,
         ],
@@ -38,8 +38,9 @@ class ArtistResource extends JsonResource
 
     private ?User $user = null;
 
-    public function __construct(private readonly Artist $artist)
-    {
+    public function __construct(
+        private readonly Artist $artist,
+    ) {
         parent::__construct($artist);
     }
 
@@ -53,6 +54,8 @@ class ArtistResource extends JsonResource
     /** @inheritdoc */
     public function toArray($request): array
     {
+        // @mago-ignore lint:prefer-first-class-callable
+        $isPlus = once(static fn () => License::isPlus());
         $user = $this->user ?? once(static fn () => auth()->user());
         $embedding = $request->routeIs('embeds.payload');
 
@@ -62,15 +65,8 @@ class ArtistResource extends JsonResource
             'name' => $this->artist->name,
             'image' => image_storage_url($this->artist->image),
             'created_at' => $this->unless($embedding, $this->artist->created_at),
-            'is_external' => $this->unless(
-                $embedding,
-                fn () => $this->artist->user_id !== $user->id,
-            ),
+            'is_external' => $this->unless($embedding, fn () => $isPlus && $this->artist->user_id !== $user->id),
             'favorite' => $this->unless($embedding, $this->artist->favorite),
-            'can_fetch_encyclopedia' => $this->unless(
-                $embedding,
-                fn () => $user->can('fetchEncyclopedia', $this->artist),
-            ),
         ];
     }
 }

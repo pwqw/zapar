@@ -1,18 +1,18 @@
 <template>
   <form class="md:w-[420px] min-w-full" @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>{{ t('podcasts.new') }}</h1>
+      <h1>New Podcast</h1>
     </header>
 
     <main>
       <FormRow>
-        <template #label>{{ t('podcasts.feedUrl') }}</template>
+        <template #label>Podcast feed URL</template>
         <TextInput
           v-model="data.url"
           v-koel-focus
           :disabled="loading"
           name="url"
-          :placeholder="t('podcasts.feedUrlPlaceholder')"
+          placeholder="https://example.com/feed.xml"
           required
           type="url"
         />
@@ -20,14 +20,13 @@
     </main>
 
     <footer>
-      <Btn type="submit">{{ t('auth.save') }}</Btn>
-      <Btn :disabled="loading" white @click.prevent="maybeClose">{{ t('auth.cancel') }}</Btn>
+      <Btn type="submit">Save</Btn>
+      <Btn :disabled="loading" white @click.prevent="maybeClose">Cancel</Btn>
     </footer>
   </form>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import { useDialogBox } from '@/composables/useDialogBox'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import { useErrorHandler } from '@/composables/useErrorHandler'
@@ -40,10 +39,8 @@ import FormRow from '@/components/ui/form/FormRow.vue'
 
 const emit = defineEmits<{ (e: 'close'): void }>()
 
-const { t } = useI18n()
 const { toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
-const { handleHttpError } = useErrorHandler('dialog')
 
 const close = () => emit('close')
 
@@ -54,15 +51,16 @@ const { loading, handleSubmit, data, isPristine } = useForm<Pick<Podcast, 'url'>
   onSubmit: async ({ url }) => await podcastStore.store(url),
   onSuccess: (podcast: Podcast) => {
     close()
-    toastSuccess(t('podcasts.added', { title: podcast.title }))
+    toastSuccess(`Podcast "${podcast.title}" added.`)
   },
-  onError: error => handleHttpError(error, {
-    409: t('podcasts.alreadySubscribed'),
-  }),
+  onError: error =>
+    useErrorHandler('dialog').handleHttpError(error, {
+      409: 'You have already subscribed to this podcast.',
+    }),
 })
 
 const maybeClose = async () => {
-  if (isPristine() || await showConfirmDialog(t('podcasts.discardChanges'))) {
+  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
     close()
   }
 }

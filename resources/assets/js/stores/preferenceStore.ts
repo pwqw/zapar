@@ -39,6 +39,7 @@ export const defaultPreferences: UserPreferences = {
   make_uploads_public: false,
   include_public_media: true,
   continuous_playback: false,
+  crossfade_duration: 0,
 }
 
 const preferenceStore = {
@@ -47,7 +48,7 @@ const preferenceStore = {
 
   state: reactive<UserPreferences>(defaultPreferences),
 
-  init (preferences: UserPreferences = defaultPreferences) {
+  init(preferences: UserPreferences = defaultPreferences) {
     Object.assign(this.state, preferences)
     this.setupProxy()
 
@@ -57,7 +58,7 @@ const preferenceStore = {
   /**
    * Proxy the state properties, so that each can be directly accessed using the key.
    */
-  setupProxy () {
+  setupProxy() {
     Object.keys(this.state).forEach(key => {
       Object.defineProperty(this, key, {
         get: (): any => this.get(key),
@@ -67,7 +68,7 @@ const preferenceStore = {
     })
   },
 
-  set (key: keyof UserPreferences, value: any) {
+  set(key: keyof UserPreferences, value: any) {
     if (this.state[key] === value) {
       return
     }
@@ -81,11 +82,11 @@ const preferenceStore = {
     }
   },
 
-  get (key: keyof UserPreferences) {
+  get(key: keyof UserPreferences) {
     return this.state?.[key]
   },
 
-  async update (key: keyof UserPreferences, value: any) {
+  async update(key: keyof UserPreferences, value: any) {
     await http.silently.patch('me/preferences', { key, value })
 
     if (key === 'include_public_media') {
@@ -95,7 +96,7 @@ const preferenceStore = {
 
   // Calling preferenceStore.temporary.volume = 7 won't trigger saving.
   // This is useful in tests as it doesn't create stray HTTP requests.
-  get temporary () {
+  get temporary() {
     this._temporary = true
     return this as unknown as ExportedType
   },

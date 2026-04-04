@@ -1,10 +1,12 @@
 <template>
-  <ScreenBase>
+  <ScreenBase :background-image="episode?.episode_image">
     <template #header>
       <ScreenHeaderSkeleton v-if="loading && !episode" />
       <ScreenHeader v-if="episode">
-        <p class="text-base font-normal">{{ t('screens.episode') }}</p>
-        <h1 class="text-ellipsis overflow-hidden whitespace-nowrap" :title="episode.title">{{ episode.title }}</h1>
+        <p class="text-base font-normal">Episode</p>
+        <h1 class="overflow-hidden" :title="episode.title">
+          <MarqueeText hover-only :speed="70">{{ episode.title }}</MarqueeText>
+        </h1>
 
         <h2 class="text-2xl">
           <a
@@ -16,19 +18,20 @@
         </h2>
 
         <template #thumbnail>
-          <img :src="episode.episode_image" class="aspect-square object-cover" :alt="t('ui.altText.episodeThumbnail')">
+          <img :src="episode.episode_image" class="aspect-square object-cover" alt="Episode thumbnail" />
         </template>
 
         <template #controls>
           <div class="flex gap-2">
-            <Btn v-koel-tooltip="playing ? t('ui.buttons.pause') : t('ui.buttons.play')" highlight @click.prevent="playOrPause">
+            <Btn v-koel-tooltip="playing ? 'Pause' : 'Play'" highlight @click.prevent="playOrPause">
               <Icon v-if="playing" :icon="faPause" fixed-width />
               <Icon v-else :icon="faPlay" fixed-width />
             </Btn>
 
             <Btn
               v-if="episode.episode_link"
-              v-koel-tooltip="t('misc.srOnly.visitEpisodeWebpage')" :href="episode.episode_link"
+              v-koel-tooltip="'Visit episode webpage'"
+              :href="episode.episode_link"
               gray
               tag="a"
               target="_blank"
@@ -45,7 +48,7 @@
 
             <Btn gray @click="requestContextMenu">
               <Icon :icon="faEllipsis" fixed-width />
-              <span class="sr-only">{{ t('misc.moreActions') }}</span>
+              <span class="sr-only">More Actions</span>
             </Btn>
           </div>
         </template>
@@ -53,7 +56,7 @@
     </template>
 
     <div v-if="episode">
-      <h3 class="text-3xl font-semibold mb-4">{{ t('screens.description') }}</h3>
+      <h3 class="text-3xl font-semibold mb-4">Description</h3>
       <div v-koel-new-tab class="description" v-html="formattedDescription" />
     </div>
   </ScreenBase>
@@ -64,7 +67,6 @@ import { faEllipsis, faExternalLink, faPause, faPlay } from '@fortawesome/free-s
 import DOMPurify from 'dompurify'
 import { orderBy } from 'lodash'
 import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { playableStore as episodeStore } from '@/stores/playableStore'
 import { queueStore } from '@/stores/queueStore'
 import { podcastStore } from '@/stores/podcastStore'
@@ -76,6 +78,7 @@ import { useErrorHandler } from '@/composables/useErrorHandler'
 import { useContextMenu } from '@/composables/useContextMenu'
 
 import ScreenBase from '@/components/screens/ScreenBase.vue'
+import MarqueeText from '@/components/ui/MarqueeText.vue'
 import ScreenHeader from '@/components/ui/ScreenHeader.vue'
 import Btn from '@/components/ui/form/Btn.vue'
 import ScreenHeaderSkeleton from '@/components/ui/ScreenHeaderSkeleton.vue'
@@ -83,7 +86,6 @@ import ScreenHeaderSkeleton from '@/components/ui/ScreenHeaderSkeleton.vue'
 const FavoriteButton = defineAsyncComponent(() => import('@/components/ui/FavoriteButton.vue'))
 const ContextMenu = defineAsyncComponent(() => import('@/components/playable/PlayableContextMenu.vue'))
 
-const { t } = useI18n()
 const { onScreenActivated, getRouteParam, triggerNotFound, url } = useRouter()
 const { openContextMenu } = useContextMenu()
 
@@ -100,7 +102,7 @@ const formattedDescription = computed(() => {
 })
 
 const fetchDetails = async () => {
-  episode.value = await episodeStore.resolve(episodeId.value!) as Episode
+  episode.value = (await episodeStore.resolve(episodeId.value!)) as Episode
 }
 
 const playOrPause = async () => {
@@ -121,14 +123,16 @@ const playOrPause = async () => {
   // For that, we query the podcast to get the progress of the episode.
   const podcast = await podcastStore.resolve(episode.value!.podcast_id)
 
-  let startingPoint = Math.min(episode.value!.length, podcast.state?.progresses?.[episode.value!.id] || 0)
+  let startingPoint = Math.min(episode.value!.length, podcast.state.progresses[episode.value!.id] || 0)
 
   if (startingPoint >= episode.value!.length) {
     startingPoint = 0
   }
 
   if (preferences.continuous_playback) {
-    queueStore.replaceQueueWith(orderBy(await episodeStore.fetchEpisodesInPodcast(episode.value!.podcast_id), 'created_at'))
+    queueStore.replaceQueueWith(
+      orderBy(await episodeStore.fetchEpisodesInPodcast(episode.value!.podcast_id), 'created_at'),
+    )
   }
 
   await playback().play(episode.value!, startingPoint)
@@ -152,9 +156,10 @@ watch(episodeId, async id => {
   }
 })
 
-const requestContextMenu = (event: MouseEvent) => openContextMenu<'PLAYABLES'>(ContextMenu, event, {
-  playables: [episode.value!],
-})
+const requestContextMenu = (event: MouseEvent) =>
+  openContextMenu<'PLAYABLES'>(ContextMenu, event, {
+    playables: [episode.value!],
+  })
 
 const toggleFavorite = () => episodeStore.toggleFavorite(episode.value!)
 

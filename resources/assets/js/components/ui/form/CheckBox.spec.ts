@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import Component from './CheckBox.vue'
@@ -8,11 +8,16 @@ describe('checkBox.vue', () => {
 
   it('renders unchecked state', () => expect(h.render(Component).html()).toMatchSnapshot())
 
-  it('renders checked state', () => expect(h.render(Component, {
-    props: {
-      modelValue: true,
-    },
-  }).html()).toMatchSnapshot())
+  it('renders checked state', () =>
+    expect(
+      h
+        .render(Component, {
+          props: {
+            modelValue: true,
+          },
+        })
+        .html(),
+    ).toMatchSnapshot())
 
   it('emits the input event', async () => {
     const { emitted } = h.render(Component)

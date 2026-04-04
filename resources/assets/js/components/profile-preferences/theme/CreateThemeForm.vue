@@ -7,62 +7,62 @@
     @keydown.esc="maybeClose"
   >
     <header>
-      <h1>{{ $t('preferences.theme.create') }}</h1>
+      <h1>New Theme</h1>
     </header>
 
     <main>
       <div class="grid grid-cols-[max-content_1fr] gap-x-5 gap-y-5">
-        <label for="themeName">{{ $t('preferences.name') }}</label>
-        <TextInput id="themeName" v-model="data.name" v-koel-focus :placeholder="$t('preferences.theme.myTheme')" required :title="$t('preferences.name')" />
+        <label for="themeName">Name</label>
+        <TextInput id="themeName" v-model="data.name" v-koel-focus placeholder="My Fancy Theme" required title="Name" />
 
-        <label>{{ $t('preferences.theme.colors') }}</label>
+        <label>Colors</label>
         <div>
           <div class="inline-grid grid-cols-3 gap-4 items-center">
-            <ColorPicker v-model="data.fg_color" :title="$t('preferences.theme.foregroundColor')">
+            <ColorPicker v-model="data.fg_color" title="Foreground color">
               <Icon :icon="faFont" size="lg" />
             </ColorPicker>
 
-            <ColorPicker v-model="data.bg_color" :title="$t('preferences.theme.backgroundColor')">
+            <ColorPicker v-model="data.bg_color" title="Background color">
               <Icon :icon="faFillDrip" size="lg" />
             </ColorPicker>
 
-            <ColorPicker v-model="data.highlight_color" :title="$t('preferences.theme.highlightColor')">
+            <ColorPicker v-model="data.highlight_color" title="Highlight color">
               <Icon :icon="faHighlighter" size="lg" />
             </ColorPicker>
           </div>
         </div>
 
-        <label for="themeBgImage">{{ $t('preferences.theme.backgroundImage') }}</label>
+        <label for="themeBgImage">Background image</label>
         <div class="inline-flex flex-col gap-2">
           <span
             v-if="data.bg_image"
             class="w-36 aspect-video relative overflow-hidden rounded-md border border-k-fg-10"
           >
-            <img :src="data.bg_image" alt="Background image" class="inset-0 object-cover">
+            <img :src="data.bg_image" alt="Background image" class="inset-0 object-cover" />
             <button
               type="button"
               class="absolute inset-0 opacity-0 hover:opacity-100 bg-black/70 active:bg-black/85 active:text-[.9rem] transition-opacity"
               @click.prevent="data.bg_image = ''"
             >
-              {{ $t('preferences.theme.remove') }}
+              Remove
             </button>
           </span>
-          <FileInput :aria-label="$t('preferences.theme.backgroundImage')" accept="image/*" @change="onBackgroundImageChange" />
+          <FileInput aria-label="Background image" accept="image/*" @change="onBackgroundImageChange" />
         </div>
 
-        <label>{{ $t('preferences.theme.font') }}</label>
+        <label>Font</label>
         <div class="flex gap-2">
-          <SelectBox v-model="data.font_family" :aria-label="$t('preferences.theme.fontFamily')" @click="onFontSelectBoxClick">
-            <option value="">{{ $t('preferences.theme.default') }}</option>
+          <SelectBox v-model="data.font_family" aria-label="Font family" @click="onFontSelectBoxClick">
+            <option value="">Default</option>
             <option v-for="name in availableFonts" :key="name" :value="name">{{ name }}</option>
           </SelectBox>
           <TextInput
             v-model="data.font_size"
-            :aria-label="$t('preferences.theme.fontSize')"
+            aria-label="Font size"
             class="!w-20"
             min="1"
             step="0.5"
-            :title="$t('preferences.theme.fontSize')"
+            title="Font size"
             type="number"
           />
         </div>
@@ -70,13 +70,13 @@
     </main>
 
     <footer>
-      <Btn type="submit">{{ $t('preferences.theme.save') }}</Btn>
-      <Btn bordered transparent @click.prevent="previewing = true">{{ $t('preferences.theme.preview') }}</Btn>
-      <Btn transparent @click.prevent="maybeClose">{{ $t('auth.cancel') }}</Btn>
+      <Btn type="submit">Save</Btn>
+      <Btn bordered transparent @click.prevent="previewing = true">Preview</Btn>
+      <Btn transparent @click.prevent="maybeClose">Cancel</Btn>
     </footer>
 
     <Btn v-if="previewing" class="btn-exit-preview fixed right-4 top-3" @click.prevent="previewing = false">
-      {{ $t('preferences.theme.exitPreview') }}
+      Exit preview
     </Btn>
   </form>
 </template>
@@ -84,7 +84,6 @@
 <script setup lang="ts">
 import { faFillDrip, faFont, faHighlighter } from '@fortawesome/free-solid-svg-icons'
 import { computed, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { logger } from '@/utils/logger'
 import { useImageFileInput } from '@/composables/useImageFileInput'
 import { useForm } from '@/composables/useForm'
@@ -101,10 +100,7 @@ import ColorPicker from '@/components/ui/form/ColorPicker.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 
 const props = defineProps<{ toggleCssClass: (...classes: string[]) => void }>()
-
 const emit = defineEmits<{ (e: 'close'): void }>()
-
-const { t } = useI18n()
 
 const toggleCssClass = props.toggleCssClass
 
@@ -159,9 +155,7 @@ const tryLoadSystemFonts = async () => {
   }
 }
 
-const loadAvailableFonts = async () => shouldTryLoadSystemFonts.value
-  ? await tryLoadSystemFonts()
-  : loadCommonFonts()
+const loadAvailableFonts = async () => (shouldTryLoadSystemFonts.value ? await tryLoadSystemFonts() : loadCommonFonts())
 
 const onFontSelectBoxClick = async () => {
   if (availableFonts.value.length === 0) {
@@ -172,23 +166,43 @@ const onFontSelectBoxClick = async () => {
 const applyProperty = (property: string, value: string) => document.body.style.setProperty(property, value)
 
 watch(previewing, () => toggleCssClass('backdrop:bg-transparent', 'bg-transparent', 'cursor-not-allowed'))
-watch(() => data.fg_color, color => applyProperty('--color-fg', color))
-watch(() => data.bg_color, color => applyProperty('--color-bg', color))
-watch(() => data.highlight_color, color => applyProperty('--color-highlight', color))
+watch(
+  () => data.fg_color,
+  color => applyProperty('--color-fg', color),
+)
+watch(
+  () => data.bg_color,
+  color => applyProperty('--color-bg', color),
+)
+watch(
+  () => data.highlight_color,
+  color => applyProperty('--color-highlight', color),
+)
 
-watch(() => data.bg_image, imageUrl => applyProperty('--bg-image', imageUrl ? `url(${imageUrl})` : 'none'), {
-  immediate: true,
-})
+watch(
+  () => data.bg_image,
+  imageUrl => applyProperty('--bg-image', imageUrl ? `url(${imageUrl})` : 'none'),
+  {
+    immediate: true,
+  },
+)
 
-watch(() => data.font_family, font => applyProperty('--font-family', font), { immediate: true })
-watch(() => data.font_size, size => applyProperty('--font-size', `${size}px`))
+watch(
+  () => data.font_family,
+  font => applyProperty('--font-family', font),
+  { immediate: true },
+)
+watch(
+  () => data.font_size,
+  size => applyProperty('--font-size', `${size}px`),
+)
 
 const { onImageInputChange: onBackgroundImageChange } = useImageFileInput({
-  onImageDataUrl: dataUrl => data.bg_image = dataUrl,
+  onImageDataUrl: dataUrl => (data.bg_image = dataUrl),
 })
 
 const maybeClose = async () => {
-  if (isPristine() || await showConfirmDialog(t('playlists.discardChanges'))) {
+  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
     // restore the theme
     themeStore.setTheme()
     close()

@@ -2,11 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\License;
 use App\Values\License\LicenseInstance;
 use App\Values\License\LicenseMeta;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
+/** @extends Factory<License> */
 class LicenseFactory extends Factory
 {
     /** @inheritdoc */
@@ -15,15 +17,11 @@ class LicenseFactory extends Factory
         return [
             'key' => Str::uuid()->toString(),
             'hash' => Str::random(32),
-            'instance' => LicenseInstance::make(
-                id: Str::uuid()->toString(),
-                name: 'Koel Plus',
-                createdAt: now(),
-            ),
+            'instance' => LicenseInstance::make(id: Str::uuid()->toString(), name: 'Koel Plus', createdAt: now()),
             'meta' => LicenseMeta::make(
                 customerId: $this->faker->numberBetween(1, 1000),
                 customerName: $this->faker->name(),
-                customerEmail: $this->faker->email()
+                customerEmail: $this->faker->email(),
             ),
             'expires_at' => null,
         ];

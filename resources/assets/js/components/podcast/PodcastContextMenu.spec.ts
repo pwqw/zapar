@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { playbackService } from '@/services/QueuePlaybackService'
@@ -11,11 +11,13 @@ describe('podcastContextMenu.vue', () => {
   const h = createHarness()
 
   const renderComponent = async (podcast?: Podcast) => {
-    podcast = podcast || h.factory('podcast', {
-      title: 'A Brief History of Time',
-      author: 'Stephen Hawking',
-      favorite: false,
-    })
+    podcast =
+      podcast ||
+      h.factory('podcast', {
+        title: 'A Brief History of Time',
+        author: 'Stephen Hawking',
+        favorite: false,
+      })
 
     h.mock(acl, 'checkResourcePermission').mockResolvedValue(true)
 

@@ -39,7 +39,7 @@ class WatchRecordScannerTest extends TestCase
 
         $this->scanner->scan(
             new InotifyWatchRecord("CLOSE_WRITE,CLOSE $path"),
-            ScanConfiguration::make(owner: create_admin())
+            ScanConfiguration::make(owner: create_admin()),
         );
 
         $this->assertDatabaseHas(Song::class, ['path' => $path]);
@@ -48,12 +48,11 @@ class WatchRecordScannerTest extends TestCase
     #[Test]
     public function scanDeletedSongViaWatch(): void
     {
-        /** @var Song $song */
-        $song = Song::factory()->create();
+        $song = Song::factory()->createOne();
 
         $this->scanner->scan(
             new InotifyWatchRecord("DELETE $song->path"),
-            ScanConfiguration::make(owner: create_admin())
+            ScanConfiguration::make(owner: create_admin()),
         );
 
         $this->assertModelMissing($song);

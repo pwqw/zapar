@@ -1,9 +1,8 @@
 <template>
   <article
     :class="message.type"
-    class="group rounded-l-md cursor-pointer flex items-stretch opacity-90 transition-transform duration-300 origin-right
-    hover:opacity-100 hover:scale-110"
-    :title="t('ui.tooltips.clickToDismiss')"
+    class="group rounded-l-md cursor-pointer flex items-stretch opacity-90 transition-transform duration-300 origin-right hover:opacity-100 hover:scale-110"
+    title="Click to dismiss"
     @click="dismiss"
     @mouseenter="cancelAutoDismiss"
     @mouseleave="setAutoDismiss"
@@ -18,7 +17,6 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import {
   faCircleCheck,
   faCircleExclamation,
@@ -29,7 +27,7 @@ import {
 
 const props = defineProps<{ message: ToastMessage }>()
 const emit = defineEmits<{ (e: 'dismiss', message: ToastMessage): void }>()
-const { t } = useI18n()
+
 const { message } = toRefs(props)
 
 const typeIcon = computed(() => {

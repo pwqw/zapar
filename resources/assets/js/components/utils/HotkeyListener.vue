@@ -8,6 +8,7 @@ import { onKeyStroke as baseOnKeyStroke } from '@vueuse/core'
 import { eventBus } from '@/utils/eventBus'
 import { socketService } from '@/services/socketService'
 import { volumeManager } from '@/services/volumeManager'
+import { commonStore } from '@/stores/commonStore'
 import { queueStore } from '@/stores/queueStore'
 import { useRouter } from '@/composables/useRouter'
 import { playableStore } from '@/stores/playableStore'
@@ -24,9 +25,9 @@ const onKeyStroke = (key: KeyFilter, callback: (e: KeyboardEvent) => void) => {
     const el = e.target as HTMLElement
 
     if (
-      el.isContentEditable
-      || el.matches('input, select, textarea, button, [role="button"], [role="checkbox"]')
-      || el.closest('dialog')
+      el.isContentEditable ||
+      el.matches('input, select, textarea, button, [role="button"], [role="checkbox"]') ||
+      el.closest('dialog')
     ) {
       return
     }
@@ -49,6 +50,8 @@ onKeyStroke('ArrowLeft', () => playback('current')?.rewind(-10))
 onKeyStroke('ArrowUp', () => volumeManager.increase())
 onKeyStroke('ArrowDown', () => volumeManager.decrease())
 onKeyStroke('m', () => volumeManager.toggleMute())
+
+onKeyStroke('/', () => commonStore.state.uses_ai && go(isCurrentScreen('AI') ? -1 : url('ai')))
 
 onKeyStroke('l', () => {
   if (!queueStore.current) {

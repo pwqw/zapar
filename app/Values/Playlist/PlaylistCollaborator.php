@@ -5,11 +5,13 @@ namespace App\Values\Playlist;
 use App\Models\User;
 use Illuminate\Contracts\Support\Arrayable;
 
-final class PlaylistCollaborator implements Arrayable
+final readonly class PlaylistCollaborator implements Arrayable
 {
-    private function __construct(public string $publicId, public string $name, public string $avatar)
-    {
-    }
+    private function __construct(
+        public string $publicId,
+        public string $name,
+        public string $avatar,
+    ) {}
 
     public static function make(string $publicId, string $name, string $avatar): self
     {

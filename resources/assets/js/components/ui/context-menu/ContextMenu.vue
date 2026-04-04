@@ -15,10 +15,10 @@
 </template>
 
 <script lang="ts" setup>
-import { nextTick, ref, toRefs, watch } from 'vue'
+import { nextTick, onBeforeUnmount, ref, toRefs, watch } from 'vue'
 import { logger } from '@/utils/logger'
 import { requireInjection } from '@/utils/helpers'
-import { ContextMenuKey } from '@/symbols'
+import { ContextMenuKey } from '@/config/symbols'
 
 const props = defineProps<{ extraClass?: string }>()
 const { extraClass } = toRefs(props)
@@ -49,12 +49,27 @@ const preventOffScreen = async (element: HTMLElement, isSubmenu = false) => {
   }
 }
 
-const safeAreaHeight = ref('0px')
-const safeAreaWidth = ref('0px')
-const safeAreaClipPath = ref('0 0, 0 0, 0 0, 0 0')
-
 type MenuItem = HTMLElement & {
   eventsRegistered?: boolean
+  hideTimeout?: ReturnType<typeof setTimeout>
+}
+
+const HIDE_DELAY = 150
+
+const hideSubmenu = (item: MenuItem, submenu: HTMLElement) => {
+  submenu.style.display = 'none'
+  submenu.style.top = '0'
+  submenu.style.bottom = 'auto'
+}
+
+const scheduleHide = (item: MenuItem, submenu: HTMLElement) => {
+  clearTimeout(item.hideTimeout)
+  item.hideTimeout = setTimeout(() => hideSubmenu(item, submenu), HIDE_DELAY)
+}
+
+const cancelHide = (item: MenuItem) => {
+  clearTimeout(item.hideTimeout)
+  item.hideTimeout = undefined
 }
 
 const initSubmenus = () => {
@@ -66,6 +81,8 @@ const initSubmenus = () => {
     }
 
     item.addEventListener('mouseenter', async () => {
+      cancelHide(item)
+
       submenu.style.top = '0'
       submenu.style.left = '100%'
       submenu.style.bottom = 'auto'
@@ -76,22 +93,46 @@ const initSubmenus = () => {
       await preventOffScreen(submenu, true)
     })
 
-    item.addEventListener('mousemove', async (e: MouseEvent) => {
-      await nextTick()
-      const rect = submenu.getBoundingClientRect()
-      safeAreaHeight.value = `${rect.height}px`
-      safeAreaWidth.value = `${rect.x - e.clientX}px`
-      safeAreaClipPath.value = `polygon(100% 0, 0 ${e.clientY - rect.top}px, 100% 100%)`
+    item.addEventListener('mousemove', () => {
+      if (submenu.style.display === 'block') {
+        cancelHide(item)
+      }
     })
 
     item.addEventListener('mouseleave', () => {
-      submenu.style.top = '0'
-      submenu.style.bottom = 'auto'
-      submenu.style.display = 'none'
+      scheduleHide(item, submenu)
+    })
+
+    submenu.addEventListener('mouseenter', () => {
+      cancelHide(item)
+    })
+
+    submenu.addEventListener('mouseleave', () => {
+      scheduleHide(item, submenu)
     })
 
     item.eventsRegistered = true
   })
+}
+
+let observer: MutationObserver | undefined
+
+const startObservingSubmenus = () => {
+  stopObservingSubmenus()
+
+  if (!el.value) {
+    return
+  }
+
+  observer = new MutationObserver(() => initSubmenus())
+  observer.observe(el.value, { childList: true, subtree: true })
+
+  initSubmenus()
+}
+
+const stopObservingSubmenus = () => {
+  observer?.disconnect()
+  observer = undefined
 }
 
 const open = async (t = 0, l = 0) => {
@@ -103,23 +144,30 @@ const open = async (t = 0, l = 0) => {
 
   await nextTick()
 
-  // wrap the call to preventOffScreen() in a setTimeout() to better ensure the DOM is updated
-  setTimeout(async () => {
-    try {
-      await preventOffScreen(el.value!)
-      initSubmenus()
-    } catch (error: unknown) {
-      logger.error(error)
-      // in a non-browser environment (e.g., unit testing), these two functions are broken due to calls to
-      // getBoundingClientRect() and querySelectorAll()
-    }
-  }, 100)
+  try {
+    await preventOffScreen(el.value!)
+  } catch (error: unknown) {
+    logger.error(error)
+  }
+
+  startObservingSubmenus()
 }
 
-const close = () => el.value?.close()
+const close = () => {
+  stopObservingSubmenus()
+  el.value?.close()
+}
 
-// Close the context menu when clicking outside it.
 const onMouseDown = (e: MouseEvent) => e.target === el.value && close()
+
+onBeforeUnmount(() => {
+  stopObservingSubmenus()
+  el.value?.querySelectorAll<HTMLElement>('.has-sub').forEach((item: MenuItem) => {
+    clearTimeout(item.hideTimeout)
+    item.hideTimeout = undefined
+    item.eventsRegistered = false
+  })
+})
 
 watch(options, newOptions => {
   if (newOptions.component) {
@@ -129,17 +177,3 @@ watch(options, newOptions => {
   }
 })
 </script>
-
-<style lang="postcss" scoped>
-nav {
-  :deep(.has-sub) {
-    @apply after:absolute after:right-0 after:top-0 after:z-[2] after:opacity-0;
-  }
-
-  :deep(.has-sub)::after {
-    width: v-bind(safeAreaWidth);
-    height: v-bind(safeAreaHeight);
-    clip-path: v-bind(safeAreaClipPath);
-  }
-}
-</style>

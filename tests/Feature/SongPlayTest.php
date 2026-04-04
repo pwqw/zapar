@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Song;
 use App\Services\Streamer\Adapters\LocalStreamerAdapter;
+use App\Services\Streamer\Adapters\TranscodingStreamerAdapter;
 use App\Services\TokenManager;
 use App\Values\CompositeToken;
 use PHPUnit\Framework\Attributes\Test;
@@ -14,54 +15,68 @@ use function Tests\test_path;
 
 class SongPlayTest extends TestCase
 {
-    #[Test]
-    public function playPublicUnownedSong(): void
+    public function setUp(): void
     {
-        /** @var CompositeToken $token */
-        $token = app(TokenManager::class)->createCompositeToken(create_user());
+        parent::setUp();
 
-        /** @var Song $song */
-        $song = Song::factory()->public()->create([
-            'path' => test_path('songs/blank.mp3'),
-        ]);
+        // Start output buffering to prevent binary data from being sent to the console during tests
+        ob_start();
+    }
 
-        $this->mock(LocalStreamerAdapter::class)
-            ->expects('stream');
+    protected function tearDown(): void
+    {
+        ob_end_clean();
 
-        $this->get("play/{$song->id}?t=$token->audioToken")
-            ->assertOk();
+        parent::tearDown();
     }
 
     #[Test]
-    public function playPrivateOwnedSong(): void
+    public function play(): void
     {
-        /** @var Song $song */
-        $song = Song::factory()->private()->create([
+        $user = create_user();
+
+        /** @var CompositeToken $token */
+        $token = app(TokenManager::class)->createCompositeToken($user);
+        $song = Song::factory()->createOne([
             'path' => test_path('songs/blank.mp3'),
         ]);
 
-        /** @var CompositeToken $token */
-        $token = app(TokenManager::class)->createCompositeToken($song->owner);
+        $this->mock(LocalStreamerAdapter::class)->expects('stream');
 
-        $this->mock(LocalStreamerAdapter::class)
-            ->expects('stream');
-
-        $this->get("play/{$song->id}?t=$token->audioToken")
-            ->assertOk();
+        $this->get("play/{$song->id}?t=$token->audioToken")->assertOk();
     }
 
     #[Test]
-    public function cannotPlayPrivateUnownedSong(): void
+    public function transcoding(): void
     {
-        /** @var Song $song */
-        $song = Song::factory()->private()->create([
-            'path' => test_path('songs/blank.mp3'),
-        ]);
+        config(['koel.streaming.transcode_flac' => true]);
+        $user = create_user();
 
         /** @var CompositeToken $token */
-        $token = app(TokenManager::class)->createCompositeToken(create_user());
+        $token = app(TokenManager::class)->createCompositeToken($user);
+        $song = Song::factory()->createOne([
+            'path' => '/tmp/blank.flac',
+            'mime_type' => 'audio/flac',
+        ]);
 
-        $this->get("play/{$song->id}?t=$token->audioToken")
-            ->assertForbidden();
+        $this->mock(TranscodingStreamerAdapter::class)->expects('stream');
+
+        $this->get("play/{$song->id}?t=$token->audioToken")->assertOk();
+
+        config(['koel.streaming.transcode_flac' => false]);
+    }
+
+    #[Test]
+    public function forceTranscoding(): void
+    {
+        $user = create_user();
+
+        /** @var CompositeToken $token */
+        $token = app(TokenManager::class)->createCompositeToken($user);
+        $song = Song::factory()->createOne(['path' => '/var/songs/blank.mp3']);
+
+        $this->mock(TranscodingStreamerAdapter::class)->expects('stream');
+
+        $this->get("play/{$song->id}/1?t=$token->audioToken")->assertOk();
     }
 }

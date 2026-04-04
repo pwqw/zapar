@@ -4,14 +4,18 @@ namespace App\Models;
 
 use App\Builders\ArtistBuilder;
 use App\Facades\Util;
+use App\Models\Concerns\Artists\HasArtistAttributes;
 use App\Models\Concerns\MorphsToEmbeds;
 use App\Models\Concerns\MorphsToFavorites;
 use App\Models\Concerns\SupportsDeleteWhereValueNotIn;
 use App\Models\Contracts\Embeddable;
 use App\Models\Contracts\Favoriteable;
 use App\Models\Contracts\Permissionable;
+use App\Observers\ArtistObserver;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Database\Factories\ArtistFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,14 +33,19 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
  * @property Collection<array-key, Song> $songs
  * @property User $user
  * @property bool $is_unknown If the artist is Unknown Artist
- * @property bool $is_various If the artist is Various Artist
+ * @property bool $is_various If the artist is Various Artists
  * @property int $user_id The ID of the user that owns this artist
  * @property string $id
  * @property string $name
+ *
+ * @method static ArtistFactory factory(...$parameters)
  */
+#[ObservedBy(ArtistObserver::class)]
+#[UseEloquentBuilder(ArtistBuilder::class)]
 class Artist extends Model implements AuditableContract, Embeddable, Favoriteable, Permissionable
 {
     use Auditable;
+    use HasArtistAttributes;
     use HasFactory;
     use HasUlids;
     use MorphsToEmbeds;
@@ -44,8 +53,8 @@ class Artist extends Model implements AuditableContract, Embeddable, Favoriteabl
     use Searchable;
     use SupportsDeleteWhereValueNotIn;
 
-    public const UNKNOWN_NAME = 'Unknown Artist';
-    public const VARIOUS_NAME = 'Various Artists';
+    public const string UNKNOWN_NAME = 'Unknown Artist';
+    public const string VARIOUS_NAME = 'Various Artists';
 
     protected $guarded = ['id'];
     protected $hidden = ['created_at', 'updated_at'];
@@ -54,11 +63,6 @@ class Artist extends Model implements AuditableContract, Embeddable, Favoriteabl
     {
         /** @var ArtistBuilder */
         return parent::query()->addSelect('artists.*');
-    }
-
-    public function newEloquentBuilder($query): ArtistBuilder
-    {
-        return new ArtistBuilder($query);
     }
 
     public function albums(): HasMany
@@ -81,16 +85,6 @@ class Artist extends Model implements AuditableContract, Embeddable, Favoriteabl
         return $this->user_id === $user->id;
     }
 
-    protected function isUnknown(): Attribute
-    {
-        return Attribute::get(fn (): bool => $this->name === self::UNKNOWN_NAME);
-    }
-
-    protected function isVarious(): Attribute
-    {
-        return Attribute::get(fn (): bool => $this->name === self::VARIOUS_NAME);
-    }
-
     /**
      * Get an Artist object from their name, optionally belonging to a specific user.
      * If such is not found, a new artist will be created.
@@ -109,21 +103,15 @@ class Artist extends Model implements AuditableContract, Embeddable, Favoriteabl
         // Artists are user-specific, so we create or return the artist for the given user.
         $where = ['name' => $name, 'user_id' => $user->id];
 
-        return static::query()->where($where)->firstOr(static function () use ($user, $name): Artist {
-            return static::query()->create([
-                'user_id' => $user->id,
-                'name' => $name,
-            ]);
-        });
-    }
-
-    /**
-     * Sometimes the tags extracted from getID3 are HTML entity encoded.
-     * This makes sure they are always sane.
-     */
-    protected function name(): Attribute
-    {
-        return Attribute::get(static fn (string $value): string => html_entity_decode($value) ?: self::UNKNOWN_NAME);
+        return static::query()
+            ->where($where)
+            ->firstOr(static function () use ($user, $name): Artist {
+                return static::query()
+                    ->create([
+                        'user_id' => $user->id,
+                        'name' => $name,
+                    ]);
+            });
     }
 
     /** @return array<mixed> */

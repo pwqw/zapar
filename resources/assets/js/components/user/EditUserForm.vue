@@ -1,57 +1,50 @@
 <template>
   <form data-testid="edit-user-form" @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>{{ t('users.edit') }}</h1>
+      <h1>Edit User</h1>
     </header>
 
     <main class="space-y-5">
       <AlertBox v-if="user.sso_provider" type="info">
-        {{ t('users.ssoLogin', { provider: user.sso_provider }) }}<br>
+        This user logs in via SSO by {{ user.sso_provider }}.<br />
       </AlertBox>
 
       <FormRow>
-        <template #label>{{ t('users.name') }}</template>
+        <template #label>Name</template>
         <TextInput v-model="data.name" v-koel-focus name="name" required />
       </FormRow>
       <FormRow>
-        <template #label>{{ t('users.email') }}</template>
+        <template #label>Email</template>
         <TextInput
           v-model="data.email"
           :readonly="user.sso_provider"
           name="email"
           required
-          :title="t('users.email')"
+          title="Email"
           type="email"
         />
       </FormRow>
       <FormRow v-if="!user.sso_provider">
-        <template #label>{{ t('users.password') }}</template>
-        <TextInput
+        <template #label>Password</template>
+        <PasswordField
           v-model="data.password"
           autocomplete="new-password"
           name="password"
-          :placeholder="t('preferences.leaveEmpty')"
-          type="password"
+          placeholder="Leave blank for no changes"
         />
-        <template #help>{{ t('users.passwordRequirements') }}</template>
+        <template #help>Min. 10 characters. Should be a mix of characters, numbers, and symbols.</template>
       </FormRow>
       <RolePicker v-model="data.role" />
-      <FormRow v-if="canEditVerified">
-        <template #label>{{ t('users.verified') }}</template>
-        <CheckBox v-model="data.verified" name="verified" :disabled="!canEditVerified" />
-      </FormRow>
     </main>
 
     <footer>
-      <Btn class="btn-update" type="submit">{{ t('users.update') }}</Btn>
-      <Btn class="btn-cancel" white @click.prevent="maybeClose">{{ t('auth.cancel') }}</Btn>
+      <Btn class="btn-update" type="submit">Update</Btn>
+      <Btn class="btn-cancel" white @click.prevent="maybeClose">Cancel</Btn>
     </footer>
   </form>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { pick } from 'lodash'
 import type { UpdateUserData } from '@/stores/userStore'
 import { userStore } from '@/stores/userStore'
@@ -63,14 +56,13 @@ import Btn from '@/components/ui/form/Btn.vue'
 import AlertBox from '@/components/ui/AlertBox.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
-import CheckBox from '@/components/ui/form/CheckBox.vue'
 import RolePicker from '@/components/user/RolePicker.vue'
+import PasswordField from '@/components/ui/form/PasswordField.vue'
 
 const props = defineProps<{ user: User }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const { user } = props
-const { t } = useI18n()
 
 const { toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
@@ -79,7 +71,7 @@ const close = () => emit('close')
 
 const { data, isPristine, handleSubmit } = useForm<UpdateUserData>({
   initialValues: {
-    ...pick(user, 'name', 'email', 'role', 'verified'),
+    ...pick(user, 'name', 'email', 'role'),
     password: '',
   },
   onSubmit: async data => {
@@ -92,40 +84,14 @@ const { data, isPristine, handleSubmit } = useForm<UpdateUserData>({
     await userStore.update(user, formattedData)
   },
   onSuccess: () => {
-    toastSuccess(t('users.updated'))
+    toastSuccess('User profile updated.')
     close()
   },
 })
 
 const maybeClose = async () => {
-  if (isPristine() || await showConfirmDialog(t('playlists.discardChanges'))) {
+  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
     close()
   }
 }
-
-const canEditVerified = computed(() => {
-  const currentUser = userStore.current
-  const userRole = currentUser.role
-
-  // Admin can always edit verified
-  if (userRole === 'admin') {
-    return true
-  }
-
-  // Moderator can edit verified for users in their org
-  // (We assume same org since API enforces this)
-  if (userRole === 'moderator') {
-    return true
-  }
-
-  // Verified manager can edit verified for their managed artists
-  if (userRole === 'manager' && currentUser.verified) {
-    // Check if current user manages this user
-    // This would require additional data structure support
-    // For now, we'll enable it and let the backend enforce authorization
-    return user.role === 'artist'
-  }
-
-  return false
-})
 </script>

@@ -30,13 +30,14 @@ class YouTubeServiceTest extends TestCase
     #[Test]
     public function searchVideosRelatedToSong(): void
     {
-        /** @var Song $song */
-        $song = Song::factory()->for(Artist::factory()->create(['name' => 'Slipknot']))->create(['title' => 'Snuff']);
+        $song = Song::factory()->for(Artist::factory()->createOne(['name' => 'Slipknot']))->createOne([
+            'title' => 'Snuff',
+        ]);
 
         Saloon::fake([
-            SearchVideosRequest::class => MockResponse::make(
-                body: File::get(test_path('fixtures/youtube/search.json')),
-            ),
+            SearchVideosRequest::class => MockResponse::make(body: File::get(test_path(
+                'fixtures/youtube/search.json',
+            ))),
         ]);
 
         $response = $this->service->searchVideosRelatedToSong($song, 'my-token');
@@ -45,13 +46,16 @@ class YouTubeServiceTest extends TestCase
         self::assertNotNull(Cache::get('43d0e04621642165c5a3052b884945b9'));
 
         Saloon::assertSent(static function (SearchVideosRequest $request): bool {
-            self::assertSame([
-                'part' => 'snippet',
-                'type' => 'video',
-                'maxResults' => 10,
-                'pageToken' => 'my-token',
-                'q' => 'Snuff Slipknot',
-            ], $request->query()->all());
+            self::assertSame(
+                [
+                    'part' => 'snippet',
+                    'type' => 'video',
+                    'maxResults' => 10,
+                    'pageToken' => 'my-token',
+                    'q' => 'Snuff Slipknot',
+                ],
+                $request->query()->all(),
+            );
 
             return true;
         });

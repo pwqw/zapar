@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import llmstxt from 'vitepress-plugin-llms'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -15,6 +16,9 @@ export default defineConfig({
     ['link', { rel: 'icon', href: '/favicon.png', type: 'image/x-png' }],
   ],
   cleanUrls: true,
+  vite: {
+    plugins: [llmstxt()],
+  },
   markdown: {
     linkify: false,
     image: {
@@ -65,6 +69,7 @@ export default defineConfig({
           { text: 'Artist, Album, & Playlist Arts', link: '/usage/artist-album-playlist-arts' },
           { text: 'Podcasts', link: '/usage/podcasts' },
           { text: 'Radio', link: '/usage/radio' },
+          { text: 'Offline Playback', link: '/usage/offline-playback' },
           { text: 'User Management', link: '/usage/user-management' },
           { text: 'Profile & Preferences', link: '/usage/profile-preferences' },
           { text: 'Remote Controller', link: '/usage/remote-controller' },
@@ -83,6 +88,7 @@ export default defineConfig({
           { text: 'Media Browser', link: '/plus/media-browser' },
           { text: 'White Labeling', link: '/plus/white-labeling' },
           { text: 'Custom Themes', link: '/plus/custom-themes' },
+          { text: 'AI Assistant', link: '/plus/ai-assistant' },
           { text: 'Ticketmaster', link: '/plus/ticketmaster' },
         ],
       },
@@ -97,6 +103,10 @@ export default defineConfig({
       {
         text: 'CLI Commands',
         link: '/cli-commands',
+      },
+      {
+        text: 'Environment Variables',
+        link: '/environment-variables',
       },
       {
         text: 'Local Development',

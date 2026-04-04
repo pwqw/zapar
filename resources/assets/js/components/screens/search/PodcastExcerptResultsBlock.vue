@@ -10,7 +10,7 @@
     <template v-else>
       <ul v-if="podcasts.length" class="results">
         <li v-for="podcast in podcasts" :key="podcast.id">
-          <PodcastCard :podcast="podcast" layout="compact" />
+          <PodcastCard :podcast layout="compact" />
         </li>
       </ul>
       <p v-else>{{ t('screens.noneFound') }}</p>
@@ -26,7 +26,7 @@ import ExcerptResultBlock from '@/components/screens/search/ExcerptResultBlock.v
 import PodcastCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'
 import PodcastCard from '@/components/podcast/PodcastCard.vue'
 
-const props = withDefaults(defineProps<{ podcasts?: Podcast[], searching?: boolean }>(), {
+const props = withDefaults(defineProps<{ podcasts?: Podcast[]; searching?: boolean }>(), {
   podcasts: () => [],
   searching: false,
 })

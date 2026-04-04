@@ -1,7 +1,5 @@
 <template>
-  <span
-    class="flex w-[64px] border border-solid border-k-fg-20 rounded-md overflow-hidden"
-  >
+  <span class="flex w-[64px] border border-solid border-k-fg-20 rounded-md overflow-hidden">
     <label
       v-koel-tooltip
       :class="{ active: value === 'thumbnails' }"
@@ -9,7 +7,7 @@
       data-testid="view-mode-thumbnails"
       :title="t('ui.tooltips.viewThumbnails')"
     >
-      <input v-model="value" class="hidden" name="view-mode" type="radio" value="thumbnails">
+      <input v-model="value" class="hidden" name="view-mode" type="radio" value="thumbnails" />
       <LayoutGridIcon :size="16" />
       <span class="hidden">{{ t('ui.tooltips.viewThumbnails') }}</span>
     </label>
@@ -21,7 +19,7 @@
       data-testid="view-mode-list"
       :title="t('ui.tooltips.viewList')"
     >
-      <input v-model="value" class="hidden" name="view-mode" type="radio" value="list">
+      <input v-model="value" class="hidden" name="view-mode" type="radio" value="list" />
       <LayoutListIcon :size="16" />
       <span class="hidden">{{ t('ui.tooltips.viewList') }}</span>
     </label>

@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { commonStore } from '@/stores/commonStore'
 import { overviewStore } from '@/stores/overviewStore'
@@ -44,13 +44,16 @@ describe('homeScreen.vue', () => {
     expect(screen.queryByTestId('screen-empty-state')).toBeNull()
   })
 
-  it.each<[keyof Events]>([['SONGS_UPDATED'], ['SONGS_DELETED'], ['SONG_UPLOADED']])
-  ('refreshes the overviews on %s event', async eventName => { // eslint-disable-line no-unexpected-multiline
-    const fetchOverviewMock = h.mock(overviewStore, 'fetch')
-    await renderComponent()
+  it.each<[keyof Events]>([['SONGS_UPDATED'], ['SONGS_DELETED'], ['SONG_UPLOADED']])(
+    'refreshes the overviews on %s event',
+    async eventName => {
+      // eslint-disable-line no-unexpected-multiline
+      const fetchOverviewMock = h.mock(overviewStore, 'fetch')
+      await renderComponent()
 
-    eventBus.emit(eventName)
+      eventBus.emit(eventName)
 
-    expect(fetchOverviewMock).toHaveBeenCalled()
-  })
+      expect(fetchOverviewMock).toHaveBeenCalled()
+    },
+  )
 })

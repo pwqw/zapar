@@ -19,19 +19,24 @@ class PlaylistCollaborationTest extends TestCase
     {
         $playlist = create_playlist();
 
-        $this->postAs("api/playlists/{$playlist->id}/collaborators/invite", [], $playlist->owner)
-            ->assertJsonStructure(PlaylistCollaborationTokenResource::JSON_STRUCTURE);
+        $this->postAs(
+            "api/playlists/{$playlist->id}/collaborators/invite",
+            [],
+            $playlist->owner,
+        )->assertJsonStructure(PlaylistCollaborationTokenResource::JSON_STRUCTURE);
     }
 
     #[Test]
     public function acceptPlaylistCollaborationViaToken(): void
     {
-        /** @var PlaylistCollaborationToken $token */
-        $token = PlaylistCollaborationToken::factory()->create();
+        $token = PlaylistCollaborationToken::factory()->createOne();
         $user = create_user();
 
-        $this->postAs('api/playlists/collaborators/accept', ['token' => $token->token], $user)
-            ->assertJsonStructure(PlaylistResource::JSON_STRUCTURE);
+        $this->postAs(
+            'api/playlists/collaborators/accept',
+            ['token' => $token->token],
+            $user,
+        )->assertJsonStructure(PlaylistResource::JSON_STRUCTURE);
 
         self::assertTrue($token->playlist->hasCollaborator($user));
     }
@@ -69,7 +74,7 @@ class PlaylistCollaborationTest extends TestCase
     public function collaboratorsCanAccessSharedPlaylistInFolder(): void
     {
         $playlist = create_playlist();
-        $playlist->folders()->attach(PlaylistFolder::factory()->create());
+        $playlist->folders()->attach(PlaylistFolder::factory()->createOne());
         $collaborator = create_user();
 
         $playlist->addCollaborator($collaborator);

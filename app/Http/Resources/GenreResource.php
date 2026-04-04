@@ -7,14 +7,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class GenreResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'name',
     ];
 
-    public function __construct(private readonly GenreSummary $summary)
-    {
+    public function __construct(
+        private readonly GenreSummary $summary,
+    ) {
         parent::__construct($summary);
     }
 

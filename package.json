@@ -20,36 +20,35 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "@laravel/echo-vue": "^2.1.6",
-    "axios": "^1.10.0",
     "butterchurn": "^2.6.7",
     "butterchurn-presets": "^2.4.7",
     "color": "^5.0.2",
     "compare-versions": "^3.6.0",
-    "dompurify": "^3.2.6",
+    "dompurify": "^3.3.2",
     "events": "^3.3.0",
     "fuse.js": "^7.1.0",
+    "idb": "^8.0.3",
     "ismobilejs": "^0.4.1",
-    "js-md5": "^0.8.3",
+    "ky": "^1.14.3",
     "local-storage": "^2.0.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
+    "lodash-es": "^4.18.1",
     "lucide-vue-next": "^0.452.0",
+    "marked": "^17.0.4",
+    "md5": "^2.3.0",
     "nouislider": "^14.7.0",
     "nprogress": "^0.2.0",
-    "plyr": "1.5.20",
     "qrcode": "^1.5.4",
     "select": "^1.1.2",
     "sketch-js": "^1.1.3",
-    "slugify": "^1.6.6",
     "style-observer": "^0.1.2",
     "three": "^0.146.0",
     "tiny-typed-emitter": "^2.1.0",
-    "vue": "^3.5.17",
+    "vue": "^3.5.29",
     "vue-advanced-cropper": "^2.8.9",
-    "vue-i18n": "^11.2.8",
-    "youtube-player": "^3.1.2"
+    "youtube-player": "^5.6.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.16.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@faker-js/faker": "^9.8.0",
@@ -58,60 +57,61 @@
     "@testing-library/vue": "^6.6.1",
     "@types/local-storage": "^1.4.0",
     "@types/lodash": "^4.17.19",
+    "@types/lodash-es": "^4.17.12",
+    "@types/md5": "^2.3.6",
     "@types/nprogress": "^0.2.3",
     "@types/pusher-js": "^4.2.2",
     "@types/three": "^0.144.0",
     "@types/youtube-player": "^5.5.11",
-    "@vitejs/plugin-vue": "^5.2.4",
+    "@vitejs/plugin-vue": "^6.0.4",
     "@vueuse/components": "^13.4.0",
     "@vueuse/core": "^13.4.0",
     "@vueuse/integrations": "^13.4.0",
     "autoprefixer": "^10.4.21",
-    "cypress": "^9.7.0",
-    "eslint": "^9.30.0",
-    "eslint-plugin-format": "^0.1.3",
     "factoria": "^4.0.1",
-    "husky": "^9.1.7",
+    "fake-indexeddb": "^6.2.5",
     "jest-serializer-vue": "^2.0.2",
     "jsdom": "^26.1.0",
     "laravel-echo": "^2.1.6",
-    "laravel-vite-plugin": "^1.3.0",
-    "lint-staged": "^10.5.4",
-    "postcss": "^8.5.6",
+    "laravel-vite-plugin": "^2.1.0",
+    "postcss": "^8.5.8",
     "postcss-mixins": "^10.0.1",
     "postcss-nested": "^6.2.0",
     "pusher-js": "^4.4.0",
     "rollup-plugin-visualizer": "^6.0.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
-    "vite": "^5.4.19",
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.11",
+    "vite-plus": "^0.1.11",
     "vitepress": "^1.6.3",
-    "vitest": "^3.2.4"
+    "vitepress-plugin-llms": "^1.11.0",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.11",
+    "vue-tsc": "^3.2.5"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "lint": "eslint ./resources/assets",
-    "lint:fix": "eslint ./resources/assets --fix",
-    "test": "vitest",
-    "test:unit": "vitest",
-    "test:e2e": "kill-port 8080 && start-test dev http-get://localhost:8080/api/ping 'cypress open'",
-    "test:e2e:ci": "kill-port 8080 && start-test 'php artisan serve --port=8080 --quiet' http-get://localhost:8080/api/ping 'cypress run --browser chromium'",
-    "build": "vite build",
+    "check": "vp check resources/assets",
+    "check:fix": "vp check --fix resources/assets",
+    "test": "vp test",
+    "test:unit": "vp test",
+    "build:sw": "vp build --config vite.config.sw.js",
+    "build": "vp build && pnpm run build:sw",
     "dev": "node -e \"console.warn('Command \\\"pnpm dev\\\" has been removed. Use \\\"composer dev\\\" instead.')\"",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "prepare": "husky"
+    "prepare": "vp config"
   },
-  "lint-staged": {
-    "**/*.php": [
-      "composer cs"
-    ],
-    "resources/assets/**/*.{js,ts,css,pcss,vue}": [
-      "eslint --fix"
-    ],
-    "cypress/**/*.ts": [
-      "eslint --fix"
-    ]
+  "type": "module",
+  "pnpm": {
+    "overrides": {
+      "form-data@<2.5.4": ">=2.5.4",
+      "@rolldown/pluginutils": "1.0.0-rc.9",
+      "vite": "npm:@voidzero-dev/vite-plus-core@^0.1.11",
+      "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.11"
+    }
   },
-  "type": "module"
+  "packageManager": "pnpm@10.32.1"
 }

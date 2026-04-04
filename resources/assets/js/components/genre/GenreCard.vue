@@ -1,42 +1,42 @@
 <template>
   <li
-    :key="genre.name"
-    class="rounded-lg overflow-hidden relative min-h-auto md:min-h-40 border border-px transition-transform active:transition-none active:scale-100"
+    class="min-h-auto md:min-h-40"
     draggable="true"
     tabindex="0"
     @dragstart="onDragStart"
     @contextmenu.prevent="onContextMenu"
   >
-    <a
-      :href="url('genres.show', { id: genre.id })"
-      :title="genre.name || t('emptyStates.noGenre')"
-      class="flex flex-col justify-end h-full p-4"
+    <WithGradientBorder
+      :color
+      border-color="color-mix(in srgb, var(--color-fg), transparent 97%)"
+      border-width="1px"
+      class="rounded-lg overflow-hidden relative h-full transition-transform active:transition-none active:scale-100"
     >
-      <span
-        class="text-2xl overflow-hidden whitespace-nowrap text-ellipsis font-normal text-k-fg-90"
-        :class="genre.name || 'italic'"
+      <a
+        :href="url('genres.show', { id: genre.id })"
+        :title="genre.name || 'No Genre'"
+        class="flex flex-col justify-end h-full p-4 bg-k-fg-3"
       >
-        {{ genre.name || t('emptyStates.noGenre') }}
-      </span>
-      <span class="text-k-fg-70 text-lg">{{ pluralize(genre.song_count, 'song') }}</span>
-    </a>
-    <span
-      class="absolute -z-10 pointer-events-none inset-0 bg-gradient-to-t from-k-fg-10  via-k-fg-5 to-transparent"
-    />
+        <span class="text-2xl truncate font-normal text-k-fg-90" :class="genre.name || 'italic'">
+          {{ genre.name || 'No Genre' }}
+        </span>
+        <span class="text-k-fg-70 text-lg">{{ pluralize(genre.song_count, 'song') }}</span>
+      </a>
+    </WithGradientBorder>
   </li>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { pluralize, textToHsl } from '@/utils/formatters'
 import { useRouter } from '@/composables/useRouter'
 import { useDraggable } from '@/composables/useDragAndDrop'
 import { useContextMenu } from '@/composables/useContextMenu'
 import { defineAsyncComponent } from '@/utils/helpers'
 
+import WithGradientBorder from '@/components/ui/WithGradientBorder.vue'
+
 const props = defineProps<{ genre: Genre }>()
-const { t } = useI18n()
 
 const ContextMenu = defineAsyncComponent(() => import('@/components/genre/GenreContextMenu.vue'))
 
@@ -46,15 +46,10 @@ const { openContextMenu } = useContextMenu()
 
 const color = computed(() => textToHsl(props.genre.id))
 
-const onContextMenu = (event: MouseEvent) => openContextMenu<'GENRE'>(ContextMenu, event, {
-  genre: props.genre,
-})
+const onContextMenu = (event: MouseEvent) =>
+  openContextMenu<'GENRE'>(ContextMenu, event, {
+    genre: props.genre,
+  })
 
 const onDragStart = (event: DragEvent) => startDragging(event, props.genre)
 </script>
-
-<style scoped lang="postcss">
-li {
-  border-color: v-bind(color);
-}
-</style>

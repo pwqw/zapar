@@ -1,77 +1,148 @@
 <?php
 
-namespace Tests\Feature\KoelPlus;
+namespace Tests\Feature;
 
-use App\Models\Album;
-use App\Models\Artist;
+use App\Events\MultipleSongsLiked;
+use App\Events\MultipleSongsUnliked;
+use App\Events\SongFavoriteToggled;
+use App\Http\Resources\FavoriteResource;
+use App\Models\Favorite;
 use App\Models\Song;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
+
+use function Tests\create_user;
 
 class FavoriteTest extends TestCase
 {
     #[Test]
-    public function toggleIsProhibitedIfSongIsNotAccessible(): void
+    public function favorite(): void
     {
-        /** @var Song $song */
-        $song = Song::factory()->private()->create();
+        Event::fake(SongFavoriteToggled::class);
+        $song = Song::factory()->createOne();
+        $user = create_user();
 
-        $this->postAs('api/favorites/toggle', [
-            'type' => 'playable',
-            'id' => $song->id,
-        ])
-            ->assertForbidden();
+        $this->postAs(
+            'api/favorites/toggle',
+            [
+                'type' => 'playable',
+                'id' => $song->id,
+            ],
+            $user,
+        )->assertJsonStructure(FavoriteResource::JSON_STRUCTURE);
+
+        $this->assertDatabaseHas(Favorite::class, [
+            'favoriteable_type' => 'playable',
+            'favoriteable_id' => $song->id,
+            'user_id' => $user->id,
+        ]);
+
+        Event::assertDispatched(SongFavoriteToggled::class);
     }
 
     #[Test]
-    public function toggleIsProhibitedIfAlbumIsNotAccessible(): void
+    public function undoFavorite(): void
     {
-        /** @var Album $album */
-        $album = Album::factory()->create();
+        Event::fake(SongFavoriteToggled::class);
+        $favorite = Favorite::factory()->createOne();
 
-        $this->postAs('api/favorites/toggle', [
-            'type' => 'album',
-            'id' => $album->id,
-        ])
-            ->assertForbidden();
+        $this->postAs(
+            'api/favorites/toggle',
+            [
+                'type' => 'playable',
+                'id' => $favorite->favoriteable_id,
+            ],
+            $favorite->user,
+        )->assertNoContent();
+
+        $this->assertDatabaseMissing(Favorite::class, [
+            'id' => $favorite->id,
+        ]);
+
+        Event::assertDispatched(SongFavoriteToggled::class);
     }
 
     #[Test]
-    public function toggleIsProhibitedIfArtistIsNotAccessible(): void
+    public function batchFavorite(): void
     {
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create();
+        Event::fake(MultipleSongsLiked::class);
 
-        $this->postAs('api/favorites/toggle', [
-            'type' => 'artist',
-            'id' => $artist->id,
-        ])
-            ->assertForbidden();
+        /** @var Collection<Song> $songs */
+        $songs = Song::factory()->createMany(2);
+        $user = create_user();
+
+        $this->postAs(
+            'api/favorites',
+            [
+                'type' => 'playable',
+                'ids' => $songs->pluck('id')->toArray(),
+            ],
+            $user,
+        )->assertNoContent();
+
+        foreach ($songs as $song) {
+            $this->assertDatabaseHas(Favorite::class, [
+                'favoriteable_type' => 'playable',
+                'favoriteable_id' => $song->id,
+                'user_id' => $user->id,
+            ]);
+        }
+
+        Event::assertDispatched(MultipleSongsLiked::class);
     }
 
     #[Test]
-    public function batchFavoriteIsProhibitedIfAnySongIsNotAccessible(): void
+    public function batchUndoFavorite(): void
     {
-        $songs = Song::factory()->count(2)->create();
-        $songs->first()->update(['is_public' => false]);
+        Event::fake(MultipleSongsUnliked::class);
 
-        $this->postAs('api/favorites', [
-            'type' => 'playable',
-            'ids' => $songs->pluck('id')->toArray(),
-        ])
-            ->assertForbidden();
+        $user = create_user();
+
+        /** @var Collection<Favorite> $favorites */
+        $favorites = Favorite::factory()
+            ->for($user)
+            ->count(2)
+            ->create();
+
+        $this->deleteAs(
+            'api/favorites',
+            [
+                'type' => 'playable',
+                'ids' => $favorites->pluck('favoriteable_id')->toArray(),
+            ],
+            $user,
+        )->assertNoContent();
+
+        foreach ($favorites as $favorite) {
+            $this->assertDatabaseMissing(Favorite::class, [
+                'id' => $favorite->id,
+            ]);
+        }
+
+        Event::assertDispatched(MultipleSongsUnliked::class);
     }
 
     #[Test]
-    public function batchUndoFavoriteIsProhibitedIfAnySongIsNotAccessible(): void
+    public function fetchFavoritesInPositionOrder(): void
     {
-        $songs = Song::factory()->count(2)->create();
-        $songs->first()->update(['is_public' => false]);
+        $user = create_user();
+        $songs = Song::factory()->createMany(3);
 
-        $this->deleteAs('api/favorites', [
-            'type' => 'playable',
-            'ids' => $songs->pluck('id')->toArray(),
-        ])
-            ->assertForbidden();
+        // Create favorites in reverse position order to verify sorting
+        foreach ($songs as $index => $song) {
+            Favorite::factory()->for($user)->createOne([
+                'favoriteable_id' => $song->id,
+                'favoriteable_type' => 'playable',
+                'position' => count($songs) - 1 - $index,
+            ]);
+        }
+
+        $response = $this->getAs('api/songs/favorites', $user)->assertSuccessful();
+        $returnedIds = collect($response->json())->pluck('id')->toArray();
+
+        // Songs should be returned in position order (reversed from creation order)
+        self::assertSame([$songs[2]->id, $songs[1]->id, $songs[0]->id], $returnedIds);
     }
 }

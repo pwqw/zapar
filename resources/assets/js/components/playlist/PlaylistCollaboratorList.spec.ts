@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { playlistCollaborationService } from '@/services/playlistCollaborationService'
 import Component from './PlaylistCollaboratorList.vue'
@@ -28,9 +28,9 @@ describe('playlistCollaboratorList.vue', () => {
       is_collaborative: true,
     })
 
-    const fetchMock = h.mock(playlistCollaborationService, 'fetchCollaborators').mockResolvedValue(
-      h.factory('playlist-collaborator', 5),
-    )
+    const fetchMock = h
+      .mock(playlistCollaborationService, 'fetchCollaborators')
+      .mockResolvedValue(h.factory('playlist-collaborator', 5))
 
     h.actingAsUser()
     const { html } = await renderComponent(playlist)

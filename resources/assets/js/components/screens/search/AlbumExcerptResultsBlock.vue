@@ -10,7 +10,7 @@
     <template v-else>
       <ul v-if="albums.length" class="results">
         <li v-for="album in albums" :key="album.id">
-          <AlbumCard :album="album" layout="compact" />
+          <AlbumCard :album layout="compact" />
         </li>
       </ul>
       <p v-else>{{ t('screens.noneFound') }}</p>
@@ -26,7 +26,7 @@ import ExcerptResultBlock from '@/components/screens/search/ExcerptResultBlock.v
 import AlbumCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'
 import AlbumCard from '@/components/album/AlbumCard.vue'
 
-const props = withDefaults(defineProps<{ albums?: Album[], searching?: boolean }>(), {
+const props = withDefaults(defineProps<{ albums?: Album[]; searching?: boolean }>(), {
   albums: () => [],
   searching: false,
 })

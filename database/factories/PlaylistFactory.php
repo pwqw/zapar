@@ -11,6 +11,7 @@ use App\Values\SmartPlaylist\SmartPlaylistRuleGroupCollection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
+/** @extends Factory<Playlist> */
 class PlaylistFactory extends Factory
 {
     /** @inheritdoc */
@@ -26,7 +27,8 @@ class PlaylistFactory extends Factory
 
     public function smart(): static
     {
-        return $this->state(fn () => [ // @phpcs:ignore
+        // @mago-ignore lint:prefer-static-closure
+        return $this->state(fn () => [
             'rules' => SmartPlaylistRuleGroupCollection::create([
                 SmartPlaylistRuleGroup::make([
                     'id' => Str::uuid()->toString(),

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { Cache } from './cache'
 
@@ -6,7 +6,7 @@ describe('cache', () => {
   let cache!: Cache
 
   createHarness({
-    beforeEach: () => cache = new Cache(),
+    beforeEach: () => (cache = new Cache()),
     afterEach: () => vi.useRealTimers(),
   })
 
@@ -30,7 +30,7 @@ describe('cache', () => {
     expect(cache.get('foo')).toBeUndefined()
   })
 
-  it('checks an entry\'s presence', () => {
+  it("checks an entry's presence", () => {
     cache.set('foo', 'bar')
     expect(cache.hit('foo')).toBe(true)
     expect(cache.has('foo')).toBe(true)

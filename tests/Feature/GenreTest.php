@@ -14,15 +14,13 @@ class GenreTest extends TestCase
     #[Test]
     public function getAllGenres(): void
     {
-        /** @var Genre $rock */
         $rock = Genre::factory()->has(Song::factory()->count(2))->create(['name' => 'Rock']);
-
-        /** @var Genre $pop */
         $pop = Genre::factory()->has(Song::factory()->count(1))->create(['name' => 'Pop']);
 
-        Song::factory()->count(2)->create();
+        Song::factory()->createMany(2);
 
-        $this->getAs('api/genres')
+        $this
+            ->getAs('api/genres')
             ->assertJsonCount(3)
             ->assertJsonStructure([0 => GenreResource::JSON_STRUCTURE])
             ->assertJsonFragment(['name' => $rock->name, 'song_count' => 2])
@@ -33,10 +31,10 @@ class GenreTest extends TestCase
     #[Test]
     public function getOneGenre(): void
     {
-        /** @var Genre $rock */
         $rock = Genre::factory()->has(Song::factory()->count(2))->create(['name' => 'Rock']);
 
-        $this->getAs('api/genres/' . $rock->public_id)
+        $this
+            ->getAs('api/genres/' . $rock->public_id)
             ->assertJsonStructure(GenreResource::JSON_STRUCTURE)
             ->assertJsonFragment(['name' => 'Rock', 'song_count' => 2]);
     }
@@ -50,20 +48,18 @@ class GenreTest extends TestCase
     #[Test]
     public function paginateSongsInGenre(): void
     {
-        /** @var Genre $rock */
         $rock = Genre::factory()->has(Song::factory()->count(2))->create(['name' => 'Rock']);
 
-        $this->getAs("api/genres/$rock->public_id/songs")
-            ->assertJsonStructure(SongResource::PAGINATION_JSON_STRUCTURE);
+        $this->getAs("api/genres/$rock->public_id/songs")->assertJsonStructure(SongResource::PAGINATION_JSON_STRUCTURE);
     }
 
     #[Test]
     public function getSongsInGenre(): void
     {
-        /** @var Genre $rock */
         $rock = Genre::factory()->has(Song::factory()->count(2))->create(['name' => 'Rock']);
 
-        $this->getAs("api/genres/$rock->public_id/songs/queue?limit=500&random=false")
+        $this
+            ->getAs("api/genres/$rock->public_id/songs/queue?limit=500&random=false")
             ->assertJsonCount(2)
             ->assertJsonStructure([0 => SongResource::JSON_STRUCTURE]);
     }
@@ -71,10 +67,10 @@ class GenreTest extends TestCase
     #[Test]
     public function getRandomSongsInGenre(): void
     {
-        /** @var Genre $rock */
         $rock = Genre::factory()->has(Song::factory()->count(2))->create(['name' => 'Rock']);
 
-        $this->getAs("api/genres/$rock->public_id/songs/queue?limit=500&random=true")
+        $this
+            ->getAs("api/genres/$rock->public_id/songs/queue?limit=500&random=true")
             ->assertJsonCount(2)
             ->assertJsonStructure([0 => SongResource::JSON_STRUCTURE]);
     }

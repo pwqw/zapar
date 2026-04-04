@@ -1,6 +1,5 @@
 import { screen, waitFor } from '@testing-library/vue'
-import type { Mock } from 'vitest'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { authService } from '@/services/authService'
 import { logger } from '@/utils/logger'
@@ -11,7 +10,7 @@ describe('loginForm.vue', () => {
     authenticated: false,
   })
 
-  const submitForm = async (loginMock: Mock) => {
+  const submitForm = async (loginMock: ReturnType<typeof h.mock>) => {
     const rendered = h.render(Component)
 
     // First, click on "Internal account" to show the form

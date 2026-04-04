@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import isMobile from 'ismobilejs'
 import { createHarness } from '@/__tests__/TestHarness'
 import { authService } from '@/services/authService'
@@ -42,10 +42,9 @@ describe('playableStore', () => {
 
   it('gets formatted length', () => {
     expect(playableStore.getFormattedLength(h.factory('song', { length: 123 }))).toBe('2 min 3 sec')
-    expect(playableStore.getFormattedLength([
-      h.factory('song', { length: 122 }),
-      h.factory('song', { length: 123 }),
-    ])).toBe('4 min 5 sec')
+    expect(
+      playableStore.getFormattedLength([h.factory('song', { length: 122 }), h.factory('song', { length: 123 })]),
+    ).toBe('4 min 5 sec')
   })
 
   it('gets songs by album', () => {
@@ -69,21 +68,24 @@ describe('playableStore', () => {
     expect(getMock).toHaveBeenCalledOnce()
   })
 
-  it('matches a song', () => {
+  it('matches a song by title', () => {
     const song = h.factory('song', { title: 'An amazing song' })
     const songs = [song, ...h.factory('song', 3)]
 
     expect(playableStore.matchSongsByTitle('An amazing song', songs)).toEqual(song)
     expect(playableStore.matchSongsByTitle('An Amazing Song', songs)).toEqual(song)
+    expect(playableStore.matchSongsByTitle('Nonexistent song', songs)).toBeNull()
   })
 
   it('registers a play', async () => {
     const song = h.factory('song', { play_count: 42 })
 
-    const postMock = h.mock(http, 'post').mockResolvedValueOnce(h.factory('interaction', {
-      song_id: song.id,
-      play_count: 50,
-    }))
+    const postMock = h.mock(http, 'post').mockResolvedValueOnce(
+      h.factory('interaction', {
+        song_id: song.id,
+        play_count: 50,
+      }),
+    )
 
     await playableStore.registerPlay(song)
     expect(postMock).toHaveBeenCalledWith('interaction/play', { song: song.id })
@@ -182,9 +184,11 @@ describe('playableStore', () => {
   it('watches play count tracking', async () => {
     const refreshMock = h.mock(overviewStore, 'refreshPlayStats')
 
-    const song = reactive(h.factory('song', {
-      play_count: 98,
-    }))
+    const song = reactive(
+      h.factory('song', {
+        play_count: 98,
+      }),
+    )
 
     playableStore.watchPlayCount(song)
     song.play_count = 100
@@ -278,11 +282,13 @@ describe('playableStore', () => {
 
     const syncMock = h.mock(playableStore, 'syncWithVault', reactive(songs))
 
-    expect(await playableStore.paginateSongs({
-      page: 2,
-      sort: 'title',
-      order: 'desc',
-    })).toBe(3)
+    expect(
+      await playableStore.paginateSongs({
+        page: 2,
+        sort: 'title',
+        order: 'desc',
+      }),
+    ).toBe(3)
 
     expect(getMock).toHaveBeenCalledWith('songs?page=2&sort=title&order=desc')
     expect(syncMock).toHaveBeenCalledWith(songs)
@@ -305,11 +311,13 @@ describe('playableStore', () => {
 
     const syncMock = h.mock(playableStore, 'syncWithVault', reactiveSongs)
 
-    expect(await playableStore.paginateSongsByGenre('foo', {
-      page: 2,
-      sort: 'title',
-      order: 'desc',
-    })).toEqual({
+    expect(
+      await playableStore.paginateSongsByGenre('foo', {
+        page: 2,
+        sort: 'title',
+        order: 'desc',
+      }),
+    ).toEqual({
       songs: reactiveSongs,
       nextPage: 3,
     })
@@ -359,10 +367,12 @@ describe('playableStore', () => {
 
     const song = h.factory('song', { favorite: false })
 
-    const postMock = h.mock(http, 'post').mockResolvedValue(h.factory('favorite', {
-      favoriteable_type: 'playable',
-      favoriteable_id: song.id,
-    }))
+    const postMock = h.mock(http, 'post').mockResolvedValue(
+      h.factory('favorite', {
+        favoriteable_type: 'playable',
+        favoriteable_id: song.id,
+      }),
+    )
 
     await playableStore.toggleFavorite(song)
 
@@ -430,11 +440,10 @@ describe('playableStore', () => {
 
     playableStore.syncAlbumProperties(album)
 
-    playableStore.byIds<Song>(songs.map(song => song.id))
-      .forEach(song => {
-        expect(song.album_name).toBe('New Album Name')
-        expect(song.album_cover).toBe('https://test/new-album-cover.jpg')
-      })
+    playableStore.byIds<Song>(songs.map(song => song.id)).forEach(song => {
+      expect(song.album_name).toBe('New Album Name')
+      expect(song.album_cover).toBe('https://test/new-album-cover.jpg')
+    })
   })
 
   it('syncs artist properties', () => {

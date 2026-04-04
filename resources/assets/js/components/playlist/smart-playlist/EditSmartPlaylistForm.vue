@@ -1,7 +1,7 @@
 <template>
   <form class="md:w-[560px]" @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>{{ t('smartPlaylists.edit') }}</h1>
+      <h1>Edit Smart Playlist</h1>
     </header>
 
     <main class="space-y-5">
@@ -13,7 +13,7 @@
             aria-controls="createSmartPlaylistDetails"
             @click="activateTab('details')"
           >
-            {{ t('smartPlaylists.details') }}
+            Details
           </TabButton>
           <TabButton
             id="createSmartPlaylistTabRules"
@@ -21,7 +21,7 @@
             aria-controls="createSmartPlaylistRules"
             @click="activateTab('rules')"
           >
-            {{ t('smartPlaylists.rules') }}
+            Rules
           </TabButton>
         </TabList>
 
@@ -34,26 +34,18 @@
           >
             <div class="grid grid-cols-2 gap-4">
               <FormRow>
-                <template #label>{{ t('smartPlaylists.name') }}</template>
-                <TextInput
-                  v-model="data.name"
-                  v-koel-focus name="name"
-                  :placeholder="t('screens.playlistNamePlaceholder')"
-                  required
-                />
+                <template #label>Name *</template>
+                <TextInput v-model="data.name" v-koel-focus name="name" placeholder="Playlist name" required />
               </FormRow>
               <FormRow>
-                <template #label>{{ t('smartPlaylists.folder') }}</template>
-                <SelectBox v-model="data.folder_id">
-                  <option :value="null" />
-                  <option v-for="folder in folders" :key="folder.id" :value="folder.id">{{ folder.name }}</option>
-                </SelectBox>
+                <template #label>Folder</template>
+                <FolderSelect v-model:folder-id="data.folder_id" v-model:folder-name="data.folder_name" />
               </FormRow>
               <FormRow class="col-span-2">
-                <template #label>{{ t('smartPlaylists.description') }}</template>
+                <template #label>Description</template>
                 <TextArea v-model="data.description" class="h-28" name="description" />
               </FormRow>
-              <ArtworkField v-model="data.cover">{{ t('smartPlaylists.pickCover') }}</ArtworkField>
+              <ArtworkField v-model="data.cover">Pick a cover (optional)</ArtworkField>
             </div>
           </TabPanel>
 
@@ -65,15 +57,15 @@
           >
             <div v-koel-overflow-fade class="group-container space-y-5 overflow-auto max-h-[480px]">
               <RuleGroup
-                v-for="(group, index) in mutablePlaylist.rules"
+                v-for="(group, index) in collectedRuleGroups"
                 :key="group.id"
                 :group="group"
                 :is-first-group="index === 0"
                 @input="onGroupChanged"
               />
-              <Btn class="btn-add-group" small success :title="t('ui.tooltips.addNewGroup')" uppercase @click.prevent="addGroup">
+              <Btn class="btn-add-group" small success title="Add a new group" uppercase @click.prevent="addGroup">
                 <Icon :icon="faPlus" />
-                {{ t('smartPlaylists.group') }}
+                Group
               </Btn>
             </div>
           </TabPanel>
@@ -82,18 +74,15 @@
     </main>
 
     <footer>
-      <Btn type="submit">{{ t('auth.save') }}</Btn>
-      <Btn class="btn-cancel" white @click.prevent="maybeClose">{{ t('auth.cancel') }}</Btn>
+      <Btn type="submit">Save</Btn>
+      <Btn class="btn-cancel" white @click.prevent="maybeClose">Cancel</Btn>
     </footer>
   </form>
 </template>
 
 <script lang="ts" setup>
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { reactive, toRef } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { cloneDeep, isEqual, pick } from 'lodash'
-import { playlistFolderStore } from '@/stores/playlistFolderStore'
 import type { UpdatePlaylistData } from '@/stores/playlistStore'
 import { playlistStore } from '@/stores/playlistStore'
 import { eventBus } from '@/utils/eventBus'
@@ -104,7 +93,7 @@ import { useForm } from '@/composables/useForm'
 
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
-import SelectBox from '@/components/ui/form/SelectBox.vue'
+import FolderSelect from '@/components/ui/form/FolderSelect.vue'
 import TextArea from '@/components/ui/form/TextArea.vue'
 import TabButton from '@/components/ui/tabs/TabButton.vue'
 import Tabs from '@/components/ui/tabs/Tabs.vue'
@@ -115,29 +104,19 @@ import ArtworkField from '@/components/ui/form/ArtworkField.vue'
 
 const props = defineProps<{ playlist: Playlist }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
-const { t } = useI18n()
+
 const { playlist } = props
 
 const { toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
 
-const folders = toRef(playlistFolderStore.state, 'folders')
-const mutablePlaylist = reactive(cloneDeep(playlist))
-
-const {
-  Btn,
-  RuleGroup,
-  activateTab,
-  isTabActive,
-  collectedRuleGroups,
-  addGroup,
-  onGroupChanged,
-} = useSmartPlaylistForm(cloneDeep(playlist.rules))
+const { Btn, RuleGroup, activateTab, isTabActive, collectedRuleGroups, addGroup, onGroupChanged } =
+  useSmartPlaylistForm(cloneDeep(playlist.rules))
 
 const close = () => emit('close')
 
 const { data, isPristine, handleSubmit } = useForm<UpdatePlaylistData>({
-  initialValues: pick(playlist, 'name', 'folder_id', 'description', 'cover'),
+  initialValues: { ...pick(playlist, 'name', 'folder_id', 'description', 'cover'), folder_name: null },
   isPristine: (original, current) => isEqual(original, current) && isEqual(collectedRuleGroups.value, playlist.rules),
   onSubmit: async data => {
     const formData = {
@@ -159,7 +138,7 @@ const { data, isPristine, handleSubmit } = useForm<UpdatePlaylistData>({
 })
 
 const maybeClose = async () => {
-  if (isPristine() || await showConfirmDialog('Discard all changes?')) {
+  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
     close()
   }
 }

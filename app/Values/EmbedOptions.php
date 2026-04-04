@@ -2,6 +2,7 @@
 
 namespace App\Values;
 
+use App\Facades\License;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -9,8 +10,16 @@ use Throwable;
 
 class EmbedOptions implements Arrayable
 {
-    private function __construct(public string $theme, public string $layout, public bool $preview)
-    {
+    private function __construct(
+        public string $theme,
+        public string $layout,
+        public bool $preview,
+    ) {
+        // Preview mode and theme are only customizable in Koel Plus
+        if (License::isCommunity()) {
+            $this->theme = 'classic';
+            $this->preview = false;
+        }
     }
 
     public static function make(string $theme = 'classic', string $layout = 'full', bool $preview = false): self
@@ -45,9 +54,11 @@ class EmbedOptions implements Arrayable
 
         // Remove the default values from the array to keep the payload minimal
         foreach (self::make()->toArray() as $key => $value) {
-            if ($array[$key] === $value) {
-                unset($array[$key]);
+            if ($array[$key] !== $value) {
+                continue;
             }
+
+            unset($array[$key]);
         }
 
         return encrypt($array);

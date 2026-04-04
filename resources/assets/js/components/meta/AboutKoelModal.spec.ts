@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { screen, waitFor } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { commonStore } from '@/stores/commonStore'
@@ -29,11 +29,14 @@ describe('aboutKoelModal.vue', () => {
     commonStore.state.current_version = 'v0.0.0'
     commonStore.state.latest_version = 'v0.0.0'
 
-    await h.withCustomBranding({
-      name: 'Little Bird',
-      logo: 'http://localhost/storage/logo.svg',
-      cover: 'http://localhost/storage/cover.jpg',
-    }, () => expect(renderComponent().html()).toMatchSnapshot())
+    await h.withCustomBranding(
+      {
+        name: 'Little Bird',
+        logo: 'http://localhost/storage/logo.svg',
+        cover: 'http://localhost/storage/cover.jpg',
+      },
+      () => expect(renderComponent().html()).toMatchSnapshot(),
+    )
   })
 
   it('shows new version', () => {
@@ -43,14 +46,15 @@ describe('aboutKoelModal.vue', () => {
     renderComponent().getByTestId('new-version-about')
   })
 
-  it('shows demo notation', async () => h.withDemoMode(async () => {
-    const getMock = h.mock(http, 'get').mockResolvedValue([])
+  it('shows demo notation', async () =>
+    h.withDemoMode(async () => {
+      const getMock = h.mock(http, 'get').mockResolvedValue([])
 
-    renderComponent()
+      renderComponent()
 
-    await waitFor(() => {
-      screen.getByTestId('demo-credits')
-      expect(getMock).toHaveBeenCalledWith('demo/credits')
-    })
-  }))
+      await waitFor(() => {
+        screen.getByTestId('demo-credits')
+        expect(getMock).toHaveBeenCalledWith('demo/credits')
+      })
+    }))
 })

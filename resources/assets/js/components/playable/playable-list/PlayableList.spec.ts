@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { arrayify } from '@/utils/helpers'
 import {
@@ -9,7 +9,7 @@ import {
   PlayableListSortFieldKey,
   PlayableListSortOrderKey,
   SelectedPlayablesKey,
-} from '@/symbols'
+} from '@/config/symbols'
 import Component from './PlayableList.vue'
 
 describe('playableList.vue', () => {
@@ -45,7 +45,10 @@ describe('playableList.vue', () => {
           [<symbol>SelectedPlayablesKey]: [ref(selectedPlayables), (value: Playable[]) => (selectedPlayables = value)],
           [<symbol>PlayableListConfigKey]: [config],
           [<symbol>PlayableListContextKey]: [context],
-          [<symbol>PlayableListSortFieldKey]: [sortFieldRef, (value: PlayableListSortField) => (sortFieldRef.value = value)],
+          [<symbol>PlayableListSortFieldKey]: [
+            sortFieldRef,
+            (value: PlayableListSortField) => (sortFieldRef.value = value),
+          ],
           [<symbol>PlayableListSortOrderKey]: [sortOrderRef, (value: SortOrder) => (sortOrderRef.value = value)],
         },
       },

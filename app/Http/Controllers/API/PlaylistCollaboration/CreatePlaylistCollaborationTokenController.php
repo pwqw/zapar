@@ -13,7 +13,7 @@ class CreatePlaylistCollaborationTokenController extends Controller
     public function __invoke(
         Playlist $playlist,
         PlaylistCollaborationService $collaborationService,
-        Authenticatable $user
+        Authenticatable $user,
     ) {
         $this->authorize('invite-collaborators', $playlist);
 

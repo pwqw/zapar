@@ -8,7 +8,7 @@ use Webmozart\Assert\Assert;
 
 class SongFileResource extends SongResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'title',
@@ -32,8 +32,9 @@ class SongFileResource extends SongResource
         'created_at',
     ];
 
-    public function __construct(protected Song $song)
-    {
+    public function __construct(
+        protected Song $song,
+    ) {
         Assert::true($song->storage === SongStorageType::LOCAL);
 
         parent::__construct($song);

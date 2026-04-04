@@ -30,8 +30,7 @@ class CloudTranscodingStrategyTest extends TestCase
     #[Test]
     public function getTranscodeLocation(): void
     {
-        /** @var Song $song */
-        $song = Song::factory()->create([
+        $song = Song::factory()->createOne([
             'path' => 's3://bucket/key.flac',
             'storage' => SongStorageType::S3,
         ]);
@@ -71,28 +70,28 @@ class CloudTranscodingStrategyTest extends TestCase
     #[Test]
     public function getFromDatabaseRecord(): void
     {
-        /** @var Song $song */
-        $song = Song::factory()->create([
+        $song = Song::factory()->createOne([
             'path' => 's3://bucket/key.flac',
             'storage' => SongStorageType::S3,
         ]);
 
-        Transcode::factory()->for($song)->create([
+        Transcode::factory()->for($song)->createOne([
             'location' => 'transcodes/128/some-ulid.m4a',
             'bit_rate' => 128,
         ]);
 
         $storage = $this->mock(S3CompatibleStorage::class);
 
-        $storage->expects('getPresignedUrl')
+        $storage
+            ->expects('getPresignedUrl')
             ->with('transcodes/128/some-ulid.m4a')
             ->andReturn('https://s3.song.presigned.url/transcodes/128/some-ulid.m4a');
 
         $this->transcoder->expects('transcode')->never();
 
-        self::assertSame(
-            'https://s3.song.presigned.url/transcodes/128/some-ulid.m4a',
-            $this->strategy->getTranscodeLocation($song, 128)
-        );
+        self::assertSame('https://s3.song.presigned.url/transcodes/128/some-ulid.m4a', $this->strategy->getTranscodeLocation(
+            $song,
+            128,
+        ));
     }
 }

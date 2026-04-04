@@ -18,7 +18,7 @@ class Streamer
     public function __construct(
         private readonly Song $song,
         private ?StreamerAdapter $adapter = null,
-        private readonly ?RequestedStreamingConfig $config = null
+        private readonly ?RequestedStreamingConfig $config = null,
     ) {
         $this->adapter ??= $this->resolveAdapter();
     }
@@ -44,6 +44,7 @@ class Streamer
     public function stream(): mixed
     {
         // Turn off error reporting to make sure our stream isn't interfered with.
+        // @mago-ignore lint:no-error-control-operator
         @error_reporting(0);
 
         return $this->adapter->stream($this->song, $this->config);
@@ -68,8 +69,7 @@ class Streamer
         }
 
         if (
-            in_array($song->mime_type, ['audio/flac', 'audio/x-flac'], true)
-            && config('koel.streaming.transcode_flac')
+            in_array($song->mime_type, ['audio/flac', 'audio/x-flac'], true) && config('koel.streaming.transcode_flac')
         ) {
             return true;
         }

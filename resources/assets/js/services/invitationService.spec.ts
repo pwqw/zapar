@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import factory from '@/__tests__/factory'
 import { authService } from '@/services/authService'
@@ -12,7 +12,7 @@ describe('invitationService', () => {
   it('accepts an invitation', async () => {
     const postMock = h.mock(http, 'post').mockResolvedValue({
       'audio-token': 'my-audio-token',
-      'token': 'my-token',
+      token: 'my-token',
     })
 
     const setAudioTokenMock = h.mock(authService, 'setAudioToken')

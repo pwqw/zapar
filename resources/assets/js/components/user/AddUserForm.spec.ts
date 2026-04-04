@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { fireEvent, screen, waitFor } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { MessageToasterStub } from '@/__tests__/stubs'
@@ -19,10 +19,12 @@ describe('addUserForm.vue', () => {
   }
 
   it('creates a new user', async () => {
-    const storeMock = h.mock(userStore, 'store').mockResolvedValue(h.factory('user', {
-      name: 'John Doe',
-      email: 'john@doe.com',
-    }))
+    const storeMock = h.mock(userStore, 'store').mockResolvedValue(
+      h.factory('user', {
+        name: 'John Doe',
+        email: 'john@doe.com',
+      }),
+    )
 
     const toasterMock = h.mock(MessageToasterStub.value, 'success')
 

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/** @extends Factory<User> */
 class UserFactory extends Factory
 {
     /** @inheritdoc */
@@ -49,7 +50,8 @@ class UserFactory extends Factory
 
     public function prospect(): self
     {
-        return $this->state(fn () => [ // @phpcs:ignore
+        // @mago-ignore lint:prefer-static-closure
+        return $this->state(fn () => [
             'invitation_token' => Str::random(),
             'invited_at' => now(),
             'invited_by_id' => User::factory()->admin(),

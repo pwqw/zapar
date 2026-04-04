@@ -1,7 +1,7 @@
 <template>
   <SideSheetButton
     v-koel-tooltip.left
-    :title="shouldNotifyNewVersion ? t('meta.newVersionAvailable') : t('meta.about', { app: appName })"
+    :title="shouldNotifyNewVersion ? 'New version available!' : `About ${appName}`"
     @click.prevent="openAboutKoelModal"
   >
     <Icon :icon="faInfoCircle" />
@@ -15,17 +15,18 @@
 
 <script lang="ts" setup>
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
-import { useI18n } from 'vue-i18n'
-import { eventBus } from '@/utils/eventBus'
+import { defineAsyncComponent } from '@/utils/helpers'
 import { useNewVersionNotification } from '@/composables/useNewVersionNotification'
 import { useBranding } from '@/composables/useBranding'
+import { useModal } from '@/composables/useModal'
 
 import SideSheetButton from '@/components/layout/main-wrapper/side-sheet/SideSheetButton.vue'
 
-const { t } = useI18n()
+const AboutKoelModal = defineAsyncComponent(() => import('@/components/meta/AboutKoelModal.vue'))
+const { openModal } = useModal()
 
 const { shouldNotifyNewVersion } = useNewVersionNotification()
 const { name: appName } = useBranding()
 
-const openAboutKoelModal = () => eventBus.emit('MODAL_SHOW_ABOUT_KOEL')
+const openAboutKoelModal = () => openModal<'ABOUT_KOEL'>(AboutKoelModal)
 </script>

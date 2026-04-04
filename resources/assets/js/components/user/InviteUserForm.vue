@@ -1,12 +1,12 @@
 <template>
   <form novalidate @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>{{ t('users.invite') }}</h1>
+      <h1>Invite Users</h1>
     </header>
 
     <main class="space-y-5">
       <FormRow>
-        <template #label>{{ t('users.emails') }}</template>
+        <template #label>Emails</template>
         <TextArea
           ref="emailsEl"
           v-model="data.raw_emails"
@@ -14,23 +14,22 @@
           class="!min-h-[8rem]"
           name="emails"
           required
-          :title="t('users.emails')"
+          title="Emails"
         />
-        <template #help>{{ t('users.inviteInstruction') }}</template>
+        <template #help>To invite multiple users, input one email per line.</template>
       </FormRow>
       <RolePicker v-model="data.role" />
     </main>
 
     <footer>
-      <Btn class="btn-add" type="submit">{{ t('users.inviteButton') }}</Btn>
-      <Btn class="btn-cancel" white @click.prevent="maybeClose">{{ t('auth.cancel') }}</Btn>
+      <Btn class="btn-add" type="submit">Invite</Btn>
+      <Btn class="btn-cancel" white @click.prevent="maybeClose">Cancel</Btn>
     </footer>
   </form>
 </template>
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { invitationService } from '@/services/invitationService'
 import { useDialogBox } from '@/composables/useDialogBox'
 import { useMessageToaster } from '@/composables/useMessageToaster'
@@ -43,7 +42,6 @@ import RolePicker from '@/components/user/RolePicker.vue'
 
 const emit = defineEmits<{ (e: 'close'): void }>()
 
-const { t } = useI18n()
 const { toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
 
@@ -66,7 +64,7 @@ const collectValidEmails = () => {
 
 const close = () => emit('close')
 
-const { data, isPristine, handleSubmit } = useForm<{ raw_emails: string, role: Role }>({
+const { data, isPristine, handleSubmit } = useForm<{ raw_emails: string; role: Role }>({
   initialValues: {
     raw_emails: '',
     role: 'user',
@@ -75,13 +73,13 @@ const { data, isPristine, handleSubmit } = useForm<{ raw_emails: string, role: R
     const validEmails = collectValidEmails()
 
     if (validEmails.length !== emailEntries.length) {
-      emailsEl.value!.el?.setCustomValidity(t('users.invalidEmails'))
+      emailsEl.value!.el?.setCustomValidity('One or some of the emails you entered are invalid.')
       emailsEl.value!.el?.reportValidity()
       return false
     }
 
     if (validEmails.length === 0) {
-      emailsEl.value!.el?.setCustomValidity(t('users.noEmails'))
+      emailsEl.value!.el?.setCustomValidity('Please enter at least one email address.')
       emailsEl.value!.el?.reportValidity()
       return false
     }
@@ -90,18 +88,25 @@ const { data, isPristine, handleSubmit } = useForm<{ raw_emails: string, role: R
   },
   onSubmit: async ({ role }) => invitationService.invite(collectValidEmails(), role),
   onSuccess: () => {
-    toastSuccess(t('users.invitationSent'))
+    toastSuccess('Invitation(s) sent.')
     close()
   },
 })
 
-watch(() => data.raw_emails, val => {
-  emailEntries = val.trim().split('\n').map(email => email.trim()).filter(Boolean)
-  emailEntries = [...new Set(emailEntries)]
-})
+watch(
+  () => data.raw_emails,
+  val => {
+    emailEntries = val
+      .trim()
+      .split('\n')
+      .map(email => email.trim())
+      .filter(Boolean)
+    emailEntries = [...new Set(emailEntries)]
+  },
+)
 
 const maybeClose = async () => {
-  if (isPristine() || await showConfirmDialog(t('playlists.discardChanges'))) {
+  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
     close()
   }
 }

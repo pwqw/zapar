@@ -1,5 +1,5 @@
 import { screen, waitFor } from '@testing-library/vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import Router from '@/router'
 import { commonStore } from '@/stores/commonStore'
@@ -34,11 +34,13 @@ describe('allSongsScreen.vue', () => {
       },
     })
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith({
-      sort: 'title',
-      order: 'asc',
-      page: 1,
-    }))
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith({
+        sort: 'title',
+        order: 'asc',
+        page: 1,
+      }),
+    )
 
     return [rendered, fetchMock] as const
   }

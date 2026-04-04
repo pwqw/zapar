@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { screen } from '@testing-library/vue'
 import Component from './LrcLyricsLine.vue'
@@ -6,7 +6,7 @@ import Component from './LrcLyricsLine.vue'
 describe('lrcLyricsLine.vue', () => {
   const h = createHarness()
 
-  const renderComponent = (line: { time: number, text: string }, isActive = false) => {
+  const renderComponent = (line: { time: number; text: string }, isActive = false) => {
     return h.render(Component, {
       props: {
         line,

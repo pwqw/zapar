@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { preferenceStore } from '@/stores/preferenceStore'
@@ -47,7 +47,7 @@ describe('supportKoel.vue', () => {
 
   it('hides and does not bug again', async () => {
     await renderComponent()
-    await h.user.click(screen.getByRole('button', { name: 'Don\'t bug me again' }))
+    await h.user.click(screen.getByRole('button', { name: "Don't bug me again" }))
 
     expect(screen.queryByTestId('support-bar')).toBeNull()
     expect(preferenceStore.state.support_bar_no_bugging).toBe(true)

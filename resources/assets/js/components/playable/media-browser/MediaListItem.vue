@@ -12,27 +12,22 @@
           <FileMusicIcon class="hidden sm:block" :size="16" />
 
           <!-- on a mobile device, show a Play button for a better UX -->
-          <button
-            v-if="item.playback_state !== 'Playing'"
-            class="sm:hidden py-px"
-            :title="t('ui.buttons.play')"
-            @click.prevent.stop="emit('play-song')"
-          >
+          <button class="sm:hidden py-px" title="Play" @click.prevent.stop="emit('play-song')">
             <PlayCircleIcon :size="16" />
           </button>
         </template>
       </template>
       <Icon v-else :icon="faFolder" class="text-k-fg" fixed-width />
-      <span class="flex-1 overflow-hidden text-ellipsis whitespace-nowrap user-select-none">{{ label }}</span>
+      <span class="flex-1 truncate user-select-none">{{ label }}</span>
 
       <!-- on a mobile device, show an Open button for a beter UX -->
       <button
         v-if="item.type === 'folders'"
         class="sm:hidden border border-k-fg-10 rounded px-1.5 py-px"
-        :title="t('ui.buttons.open')"
+        title="Open"
         @click.prevent.stop="emit('open-folder')"
       >
-        {{ t('ui.buttons.open') }}
+        Open
       </button>
     </div>
   </article>
@@ -42,28 +37,22 @@
 import { FileMusicIcon, PlayCircleIcon } from 'lucide-vue-next'
 import { faFolder } from '@fortawesome/free-solid-svg-icons'
 import { computed, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { isSong } from '@/utils/typeGuards'
 import { playback } from '@/services/playbackManager'
 
 import SoundBars from '@/components/ui/SoundBars.vue'
 
 const props = defineProps<{ item: Song | Folder }>()
-
 const emit = defineEmits<{
   (e: 'play-song'): void
   (e: 'open-folder'): void
 }>()
 
-const { t } = useI18n()
-
 const { item } = toRefs(props)
 
-const playing = computed(
-  () => isSong(item.value) && ['Playing', 'Paused'].includes(item.value.playback_state!),
-)
+const playing = computed(() => isSong(item.value) && ['Playing', 'Paused'].includes(item.value.playback_state!))
 
-const label = computed(() => isSong(item.value) ? item.value.basename : item.value.name)
+const label = computed(() => (isSong(item.value) ? item.value.basename : item.value.name))
 
 const pausePlayback = () => playback().pause()
 </script>

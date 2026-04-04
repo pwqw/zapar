@@ -1,3 +1,7 @@
+---
+description: Requirements, installation methods (pre-compiled, source, Docker), configuration, upgrading, and downgrading Koel.
+---
+
 # Getting Started
 
 ## Requirements
@@ -12,7 +16,7 @@ The requirements for each part are as follows:
   extensions
 * One of the databases supported by Laravel. Koel has been tested with MySQL, MariaDB, PostgreSQL, and SQLite.
 * If you're [building Koel from source](#building-from-source), make sure to have [Composer](https://getcomposer.org/),
-  Git, and Node.js >= 18 with [pnpm](https://pnpm.io/).
+  Git, Node.js >= 20 with [pnpm](https://pnpm.io/), and [Vite+](https://viteplus.dev/) (`pnpm install` will set it up locally).
 
 ### Client
 
@@ -76,6 +80,7 @@ Koel’s configuration is stored in the `.env` file at the root of the project, 
 process
 by copying the `.env.example` file and filling it with sensible values.
 You can always modify the values to suit your environment.
+For a full list of Koel-specific configuration options, refer to [Environment Variables](/environment-variables).
 
 ### Configure a Mailer
 

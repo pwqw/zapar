@@ -2,7 +2,7 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed" :disabled="loading">
-        {{ t('screens.genres') }}
+        Genres
 
         <template #controls>
           <div class="flex gap-2">
@@ -22,10 +22,8 @@
       <template #icon>
         <GuitarIcon :size="96" />
       </template>
-      {{ t('screens.noGenresFound') }}
-      <span v-if="currentUserCan.manageSettings()" class="secondary block">
-        {{ t('screens.home.setupLibrary') }}
-      </span>
+      No genres found.
+      <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
     </ScreenEmptyState>
 
     <template v-else>
@@ -43,13 +41,12 @@
 <script lang="ts" setup>
 import { GuitarIcon } from 'lucide-vue-next'
 import { computed, onMounted, provide, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { commonStore } from '@/stores/commonStore'
 import { genreStore } from '@/stores/genreStore'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 import { preferenceStore as preferences } from '@/stores/preferenceStore'
 import { useFuzzySearch } from '@/composables/useFuzzySearch'
-import { FilterKeywordsKey } from '@/symbols'
+import { FilterKeywordsKey } from '@/config/symbols'
 import { orderBy } from 'lodash'
 import { usePolicies } from '@/composables/usePolicies'
 
@@ -61,7 +58,6 @@ import GenreCard from '@/components/genre/GenreCard.vue'
 import ListFilter from '@/components/ui/ListFilter.vue'
 import GenreListSorter from '@/components/genre/GenreListSorter.vue'
 
-const { t } = useI18n()
 const { currentUserCan } = usePolicies()
 const { handleHttpError } = useErrorHandler()
 
@@ -78,11 +74,7 @@ const displayedGenres = computed(() => {
 
   if (preferences.genres_sort_field === 'name') {
     // if sorted by name, ensure 'No Genre' is always on top
-    return orderBy(
-      all,
-      [genre => genre.name ? 1 : 0, 'name'],
-      ['asc', preferences.genres_sort_order],
-    )
+    return orderBy(all, [genre => (genre.name ? 1 : 0), 'name'], ['asc', preferences.genres_sort_order])
   }
 
   return orderBy(all, preferences.genres_sort_field, preferences.genres_sort_order)

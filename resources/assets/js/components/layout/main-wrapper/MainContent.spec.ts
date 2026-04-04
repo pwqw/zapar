@@ -1,10 +1,10 @@
 import { ref } from 'vue'
 import { screen, waitFor } from '@testing-library/vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { albumStore } from '@/stores/albumStore'
 import { preferenceStore } from '@/stores/preferenceStore'
-import { CurrentStreamableKey } from '@/symbols'
+import { CurrentStreamableKey } from '@/config/symbols'
 import AlbumArtOverlay from '@/components/ui/AlbumArtOverlay.vue'
 import Component from './MainContent.vue'
 

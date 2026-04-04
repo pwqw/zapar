@@ -2,9 +2,12 @@
 
 namespace Tests;
 
+use App\Facades\License;
 use App\Helpers\Ulid;
 use App\Helpers\Uuid;
 use App\Models\Album;
+use App\Observers\AlbumObserver;
+use App\Services\License\CommunityLicenseService;
 use App\Services\MediaBrowser;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -28,36 +31,22 @@ abstract class TestCase extends BaseTestCase
      */
     private Filesystem $fileSystem;
 
-    protected function disableRateLimitInTests(): bool
-    {
-        return true;
-    }
-
     public function setUp(): void
     {
-        // Forzar SQLite en memoria antes de boot para que LazilyRefreshDatabase migre sobre esta conexión
-        putenv('DB_CONNECTION=sqlite');
-        $_ENV['DB_CONNECTION'] = 'sqlite';
-
         parent::setUp();
 
-        $driver = config('database.connections.' . config('database.default') . '.driver');
-        if ($driver !== 'sqlite') {
-            throw new \RuntimeException(
-                'Los tests deben usar SQLite driver, pero se detectó: ' . $driver . '.'
-            );
-        }
-
-        // Disable rate limiting in tests (override disableRateLimitInTests() to keep it in specific tests)
-        if ($this->disableRateLimitInTests()) {
-            $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
-        }
-
+        License::swap($this->app->make(CommunityLicenseService::class));
         $this->fileSystem = File::getFacadeRoot();
 
-        // During the Album's `saved` event, we attempt to generate a thumbnail by dispatching a job.
-        // Disable this to avoid noise and side effects.
-        Album::getEventDispatcher()?->forget('eloquent.saved: ' . Album::class);
+        // Replace the AlbumObserver with a partial that skips the `saved` event (which dispatches
+        // thumbnail generation jobs). All other observer methods are preserved.
+        // Tests that verify the `saved` behavior can re-bind the real observer.
+        $this->app->instance(AlbumObserver::class, new class extends AlbumObserver {
+            public function saved(Album $album): void
+            {
+                // no-op: prevent thumbnail job dispatch noise in tests
+            }
+        });
 
         self::createSandbox();
     }

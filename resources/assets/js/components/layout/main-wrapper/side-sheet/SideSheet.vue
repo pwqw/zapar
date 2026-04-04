@@ -1,13 +1,10 @@
 <template>
   <aside
     :class="{ 'showing-pane': activeTab }"
-    class="fixed md:relative top-0 w-screen md:w-auto flex flex-col md:flex-row-reverse z-[2]"
+    class="fixed sm:relative top-0 w-screen md:w-auto flex flex-col md:flex-row-reverse z-[2]"
   >
     <header
-      class="controls flex md:flex-col justify-between items-center w-full md:w-[64px] md:py-6 tw:px-0
-      bg-black/5 md:border-l border-solid md:border-l-k-fg-5 md:border-b-0 md:shadow-none
-      z-[2] flex-row border-b border-b-k-fg-5 border-l-0 shadow-xl
-      py-0 px-6 h-k-header-height"
+      class="controls flex md:flex-col justify-between items-center md:w-[64px] md:py-6 tw:px-0 bg-black/5 md:border-l border-solid md:border-l-k-fg-5 md:border-b-0 md:shadow-none z-[2] w-screen flex-row border-b border-b-k-fg-5 border-l-0 shadow-xl py-0 px-6 h-k-header-height"
     >
       <div class="btn-group">
         <SideSheetButton class="md:hidden" @click.prevent="expandSidebar">
@@ -17,13 +14,12 @@
       </div>
 
       <div class="btn-group">
-        <AboutKoelButton />
-        <LogoutButton />
-        <ProfileAvatar @click="onProfileLinkClick" />
+        <AiButton v-if="usesAi" />
+        <ProfileDropdown />
       </div>
     </header>
 
-    <main v-if="songPlaying" v-show="activeTab" class="panes relative overflow-auto bg-k-fg-5">
+    <main v-if="songPlaying" v-show="activeTab" class="panes relative overflow-auto" v-koel-overflow-fade>
       <SideSheetPanelLazyWrapper
         id="extraPanelLyrics"
         :active="activeTab === 'Lyrics'"
@@ -41,7 +37,7 @@
         data-testid="side-sheet-artist"
         aria-labelledby="extraTabArtist"
       >
-        <ArtistInfo v-if="artist && !loadingArtist" :artist="artist" class="px-6 py-8" mode="aside" :can-fetch-encyclopedia="artist?.can_fetch_encyclopedia ?? false" />
+        <ArtistInfo v-if="artist && !loadingArtist" :artist class="px-6 py-8" mode="aside" />
         <SideSheetArtistAlbumInfoSkeleton v-else class="px-6 py-8" />
       </SideSheetPanelLazyWrapper>
 
@@ -52,7 +48,7 @@
         data-testid="side-sheet-album"
         aria-labelledby="extraTabAlbum"
       >
-        <AlbumInfo v-if="album && !loadingAlbum" :album="album" class="px-6 py-8" mode="aside" :can-fetch-encyclopedia="album?.can_fetch_encyclopedia ?? false" />
+        <AlbumInfo v-if="album && !loadingAlbum" :album class="px-6 py-8" mode="aside" />
         <SideSheetArtistAlbumInfoSkeleton v-else class="px-6 py-8" />
       </SideSheetPanelLazyWrapper>
 
@@ -76,19 +72,18 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { albumStore } from '@/stores/albumStore'
 import { artistStore } from '@/stores/artistStore'
 import { preferenceStore } from '@/stores/preferenceStore'
+import { commonStore } from '@/stores/commonStore'
 import { useThirdPartyServices } from '@/composables/useThirdPartyServices'
 import { eventBus } from '@/utils/eventBus'
 import { isSong } from '@/utils/typeGuards'
 import { defineAsyncComponent, requireInjection } from '@/utils/helpers'
-import { CurrentStreamableKey } from '@/symbols'
+import { CurrentStreamableKey } from '@/config/symbols'
 
-import ProfileAvatar from '@/components/ui/ProfileAvatar.vue'
-import AboutKoelButton from '@/components/layout/main-wrapper/side-sheet/AboutKoelButton.vue'
-import LogoutButton from '@/components/layout/main-wrapper/side-sheet/LogoutButton.vue'
+import AiButton from '@/components/layout/main-wrapper/side-sheet/AiButton.vue'
+import ProfileDropdown from '@/components/layout/main-wrapper/side-sheet/ProfileDropdown.vue'
 import SideSheetButton from '@/components/layout/main-wrapper/side-sheet/SideSheetButton.vue'
 import SideSheetPanelLazyWrapper from '@/components/layout/main-wrapper/side-sheet/SideSheetPanelLazyWrapper.vue'
-import SideSheetArtistAlbumInfoSkeleton
-  from '@/components/layout/main-wrapper/side-sheet/SideSheetArtistAlbumInfoSkeleton.vue'
+import SideSheetArtistAlbumInfoSkeleton from '@/components/layout/main-wrapper/side-sheet/SideSheetArtistAlbumInfoSkeleton.vue'
 import SideSheetTabHeader from './SideSheetTabHeader.vue'
 
 const LyricsPane = defineAsyncComponent(() => import('@/components/ui/lyrics/LyricsPane.vue'))
@@ -97,6 +92,7 @@ const AlbumInfo = defineAsyncComponent(() => import('@/components/album/AlbumInf
 const YouTubeVideoList = defineAsyncComponent(() => import('@/components/ui/youtube/YouTubeVideoList.vue'))
 
 const { useYouTube } = useThirdPartyServices()
+const usesAi = commonStore.state.uses_ai
 
 const streamable = requireInjection(CurrentStreamableKey, ref(undefined))
 const activeTab = ref<SideSheetTab | null>(null)
@@ -143,14 +139,18 @@ const resolveArtistOrAlbum = (activeTab: SideSheetTab | null = null, song: Song)
   }
 }
 
-watch(streamable, song => {
-  if (!song || !isSong(song)) {
-    return
-  }
+watch(
+  streamable,
+  song => {
+    if (!song || !isSong(song)) {
+      return
+    }
 
-  streamable.value = song
-  resolveArtistOrAlbum(activeTab.value, song)
-}, { immediate: true })
+    streamable.value = song
+    resolveArtistOrAlbum(activeTab.value, song)
+  },
+  { immediate: true },
+)
 
 watch(activeTab, tab => {
   if (!tab) {
@@ -168,7 +168,6 @@ watch(activeTab, tab => {
   }
 })
 
-const onProfileLinkClick = () => isMobile.any && (activeTab.value = null)
 const expandSidebar = () => eventBus.emit('TOGGLE_SIDEBAR')
 
 onMounted(() => {
@@ -187,7 +186,7 @@ onMounted(() => {
 
 @layer utilities {
   .btn-group {
-    @apply flex md:flex-col justify-between items-center gap-1 md:gap-3;
+    @apply flex md:flex-col justify-between items-center gap-2;
   }
 }
 
@@ -204,8 +203,6 @@ aside {
 
 .panes {
   @apply no-hover:overflow-y-auto w-k-side-sheet-width;
-
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
 
   @media screen and (max-width: 768px) {
     width: 100%;

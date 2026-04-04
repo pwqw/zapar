@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import type { UpdateCurrentProfileData } from '@/services/authService'
 import { authService } from '@/services/authService'
@@ -13,7 +13,7 @@ describe('authService', () => {
     beforeEach: () => {
       Object.defineProperty(window, 'location', {
         value: {
-          ...window.location,
+          ...window.location, // eslint-disable-line typescript-eslint/no-misused-spread -- intentional shallow copy for test
         },
         writable: true,
       })
@@ -32,7 +32,10 @@ describe('authService', () => {
     expect(authService.getApiToken()).toBe('foo')
   })
 
-  it.each([['foo', true], [null, false]])('checks if the token exists', (token, exists) => {
+  it.each([
+    ['foo', true],
+    [null, false],
+  ])('checks if the token exists', (token, exists) => {
     lsSet('api-token', token)
     expect(authService.hasApiToken()).toBe(exists)
   })
@@ -51,7 +54,7 @@ describe('authService', () => {
   it('logs in', async () => {
     const postMock = h.mock(http, 'post').mockResolvedValue({
       'audio-token': 'foo',
-      'token': 'bar',
+      token: 'bar',
     })
 
     await authService.login('john@doe.com', 'curry-wurst')
@@ -65,7 +68,7 @@ describe('authService', () => {
 
     h.mock(http, 'post').mockResolvedValue({
       'audio-token': 'foo',
-      'token': 'bar',
+      token: 'bar',
     })
 
     await authService.login('john@doe.com', 'curry-wurst')
@@ -91,7 +94,7 @@ describe('authService', () => {
     userStore.state.current = h.factory('user', {
       name: 'John Doe',
       email: 'john@doe.com',
-    })
+    }) as CurrentUser
 
     const updated = h.factory('user', {
       name: 'Jane Doe',

@@ -3,19 +3,17 @@
 namespace Tests\Integration\Services\Streamer;
 
 use App\Enums\SongStorageType;
+use App\Exceptions\KoelPlusRequiredException;
 use App\Models\Song;
 use App\Services\Streamer\Adapters\LocalStreamerAdapter;
 use App\Services\Streamer\Adapters\PhpStreamerAdapter;
 use App\Services\Streamer\Adapters\PodcastStreamerAdapter;
-use App\Services\Streamer\Adapters\DropboxStreamerAdapter;
 use App\Services\Streamer\Adapters\S3CompatibleStreamerAdapter;
-use App\Services\Streamer\Adapters\SftpStreamerAdapter;
 use App\Services\Streamer\Adapters\TranscodingStreamerAdapter;
 use App\Services\Streamer\Adapters\XAccelRedirectStreamerAdapter;
 use App\Services\Streamer\Adapters\XSendFileStreamerAdapter;
 use App\Services\Streamer\Streamer;
 use App\Values\RequestedStreamingConfig;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -28,41 +26,31 @@ class StreamerTest extends TestCase
     #[Test]
     public function resolveAdapters(): void
     {
-        Cache::put('dropbox_access_token', 'test-access-token', now()->addHour());
+        // prevent real HTTP calls from being made, e.g., from DropboxStorage
+        Http::fake();
 
-        Http::fake([
-            'https://api.dropboxapi.com/oauth2/token' => Http::response([
-                'access_token' => 'test-access-token',
-                'expires_in' => 3600,
-            ]),
-        ]);
+        collect(SongStorageType::cases())->each(function (SongStorageType $type): void {
+            $song = Song::factory()->make(['storage' => $type]);
 
-        collect(SongStorageType::cases())
-            ->filter(static fn (SongStorageType $type): bool => $type->supported())
-            ->each(function (SongStorageType $type): void {
-                /** @var Song $song */
-                $song = Song::factory()->make(['storage' => $type]);
+            switch ($type) {
+                case SongStorageType::S3:
+                case SongStorageType::DROPBOX:
+                    $this->expectException(KoelPlusRequiredException::class);
+                    new Streamer($song);
+                    break;
 
-                match ($type) {
-                    SongStorageType::S3, SongStorageType::S3_LAMBDA => self::assertInstanceOf(
-                        S3CompatibleStreamerAdapter::class,
-                        (new Streamer($song))->getAdapter()
-                    ),
-                    SongStorageType::SFTP => self::assertInstanceOf(
-                        SftpStreamerAdapter::class,
-                        (new Streamer($song))->getAdapter()
-                    ),
-                    SongStorageType::DROPBOX => self::assertInstanceOf(
-                        DropboxStreamerAdapter::class,
-                        (new Streamer($song))->getAdapter()
-                    ),
-                    SongStorageType::LOCAL => self::assertInstanceOf(
-                        LocalStreamerAdapter::class,
-                        (new Streamer($song))->getAdapter()
-                    ),
-                    default => self::fail("Storage type not covered by tests: $type->value"),
-                };
-            });
+                case SongStorageType::S3_LAMBDA:
+                    self::assertInstanceOf(S3CompatibleStreamerAdapter::class, (new Streamer($song))->getAdapter());
+                    break;
+
+                case SongStorageType::LOCAL:
+                    self::assertInstanceOf(LocalStreamerAdapter::class, (new Streamer($song))->getAdapter());
+                    break;
+
+                default:
+                    self::fail("Storage type not covered by tests: $type->value");
+            }
+        });
     }
 
     #[Test]
@@ -70,9 +58,7 @@ class StreamerTest extends TestCase
     {
         $backup = config('koel.streaming.transcode_flac');
         config(['koel.streaming.transcode_flac' => false]);
-
-        /** @var Song $song */
-        $song = Song::factory()->create([
+        $song = Song::factory()->createOne([
             'storage' => SongStorageType::LOCAL,
             'path' => '/tmp/test.flac',
             'mime_type' => 'audio/flac',
@@ -88,8 +74,7 @@ class StreamerTest extends TestCase
     #[Test]
     public function useTranscodingAdapterToPlayFlacIfConfiguredSo(): void
     {
-        /** @var Song $song */
-        $song = Song::factory()->create(['storage' => SongStorageType::LOCAL]);
+        $song = Song::factory()->createOne(['storage' => SongStorageType::LOCAL]);
 
         $streamer = new Streamer($song, null, RequestedStreamingConfig::make(transcode: true));
 
@@ -101,9 +86,7 @@ class StreamerTest extends TestCase
     {
         $backupConfig = config('koel.streaming.transcode_required_mime_types');
         config(['koel.streaming.transcode_required_mime_types' => ['audio/aif']]);
-
-        /** @var Song $song */
-        $song = Song::factory()->create([
+        $song = Song::factory()->createOne([
             'storage' => SongStorageType::LOCAL,
             'path' => '/tmp/test.aiff',
             'mime_type' => 'audio/aif',
@@ -131,8 +114,6 @@ class StreamerTest extends TestCase
     public function resolveLocalAdapter(?string $config, string $expectedClass): void
     {
         config(['koel.streaming.method' => $config]);
-
-        /** @var Song $song */
         $song = Song::factory()->make(['path' => test_path('songs/blank.mp3')]);
 
         self::assertInstanceOf($expectedClass, (new Streamer($song))->getAdapter());
@@ -143,8 +124,7 @@ class StreamerTest extends TestCase
     #[Test]
     public function resolvePodcastAdapter(): void
     {
-        /** @var Song $song */
-        $song = Song::factory()->asEpisode()->create();
+        $song = Song::factory()->asEpisode()->createOne();
         $streamer = new Streamer($song);
 
         self::assertInstanceOf(PodcastStreamerAdapter::class, $streamer->getAdapter());

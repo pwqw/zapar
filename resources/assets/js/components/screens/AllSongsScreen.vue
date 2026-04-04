@@ -15,12 +15,7 @@
 
         <template #controls>
           <div class="controls w-full flex justify-between items-center gap-4">
-            <SongListControls
-              v-if="totalSongCount"
-              :config
-              @play-all="playAll"
-              @play-selected="playSelected"
-            />
+            <SongListControls v-if="totalSongCount" :config @play-all="playAll" @play-selected="playSelected" />
           </div>
         </template>
       </ScreenHeader>
@@ -59,6 +54,7 @@ import { useRouter } from '@/composables/useRouter'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 import { usePlayableList } from '@/composables/usePlayableList'
 import { usePlayableListControls } from '@/composables/usePlayableListControls'
+import { useLocalStorage } from '@/composables/useLocalStorage'
 import { playback } from '@/services/playbackManager'
 
 import ScreenHeader from '@/components/ui/ScreenHeader.vue'
@@ -85,14 +81,16 @@ const {
   onPressEnter,
   playSelected,
   onSwipe,
+  sort: composableSort,
 } = usePlayableList(toRef(playableStore.state, 'playables'), { type: 'Songs' }, { filterable: false, sortable: true })
 
 const { PlayableListControls: SongListControls, config } = usePlayableListControls('Songs')
 const { go, url } = useRouter()
+const { get: lsGet, set: lsSet } = useLocalStorage()
 
 const loading = ref(false)
-let sortField: MaybeArray<PlayableListSortField> = 'title' // @todo get from query string
-let sortOrder: SortOrder = 'asc'
+let sortField: MaybeArray<PlayableListSortField> = lsGet<PlayableListSortField>('all-songs-sort-field', 'title')!
+let sortOrder: SortOrder = lsGet<SortOrder>('all-songs-sort-order', 'asc')!
 
 const page = ref<number | null>(1)
 const moreSongsAvailable = computed(() => page.value !== null)
@@ -122,7 +120,7 @@ const playAll = async (shuffle: boolean) => {
   if (shuffle) {
     await queueStore.fetchRandom()
   } else {
-    await queueStore.fetchInOrder(sortField, sortOrder)
+    await queueStore.fetchInOrder(Array.isArray(sortField) ? sortField[0] : sortField, sortOrder)
   }
 
   go(url('queue'))
@@ -135,10 +133,16 @@ const sort = async (field: MaybeArray<PlayableListSortField>, order: SortOrder) 
   sortField = field
   sortOrder = order
 
+  lsSet('all-songs-sort-field', field)
+  lsSet('all-songs-sort-order', order)
+
   await fetchSongs()
 }
 
-onMounted(async () => await fetchSongs())
+onMounted(async () => {
+  composableSort(sortField, sortOrder)
+  await fetchSongs()
+})
 </script>
 
 <style lang="postcss" scoped>

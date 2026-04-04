@@ -2,14 +2,14 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader :layout="playables.length === 0 ? 'collapsed' : headerLayout">
-        {{ t('screens.currentQueue') }}
+        Current Queue
 
         <template #thumbnail>
           <ThumbnailStack :thumbnails />
         </template>
 
         <template v-if="playables.length" #meta>
-          <span>{{ itemCountText }}</span>
+          <span>{{ pluralize(playables, 'item') }}</span>
           <span>{{ duration }}</span>
         </template>
 
@@ -42,10 +42,10 @@
         <Icon :icon="faCoffee" />
       </template>
 
-      {{ t('screens.noSongsQueued') }}
+      No songs queued.
       <span v-if="libraryNotEmpty" class="block secondary">
-        {{ t('screens.howAboutPlayingRandom') }}
-        <a class="start" @click.prevent="shuffleSome">{{ t('screens.playingSomeRandomSongs') }}</a>?
+        How about
+        <a class="start" @click.prevent="shuffleSome">playing some random songs</a>?
       </span>
     </ScreenEmptyState>
   </ScreenBase>
@@ -53,8 +53,8 @@
 
 <script lang="ts" setup>
 import { faCoffee } from '@fortawesome/free-solid-svg-icons'
-import { computed, ref, toRef } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed, nextTick, ref, toRef } from 'vue'
+import { pluralize } from '@/utils/formatters'
 import { commonStore } from '@/stores/commonStore'
 import { queueStore } from '@/stores/queueStore'
 import { playableStore } from '@/stores/playableStore'
@@ -70,7 +70,6 @@ import ScreenEmptyState from '@/components/ui/ScreenEmptyState.vue'
 import ScreenBase from '@/components/screens/ScreenBase.vue'
 import PlayableListSkeleton from '@/components/playable/playable-list/PlayableListSkeleton.vue'
 
-const { t } = useI18n()
 const { go, onScreenActivated, url } = useRouter()
 
 const {
@@ -91,11 +90,6 @@ const { PlayableListControls, config } = usePlayableListControls('Queue')
 
 const loading = ref(false)
 const libraryNotEmpty = computed(() => commonStore.state.song_count > 0)
-const itemCountText = computed(() => {
-  const count = playables.value.length
-  const itemText = count === 1 ? t('messages.genericItemSingular') : t('messages.genericItemPlural')
-  return `${count.toLocaleString()} ${itemText}`
-})
 
 const playAll = async (shuffle = true) => {
   playback().queueAndPlay(playables.value, shuffle)
@@ -134,11 +128,8 @@ const removeSelected = async () => {
 
 const onPressEnter = () => selectedPlayables.value.length && playback().play(selectedPlayables.value[0])
 
-const onReorder = (target: Playable, placement: Placement) => queueStore.move(
-  selectedPlayables.value,
-  target,
-  placement,
-)
+const onReorder = (target: Playable, placement: Placement) =>
+  queueStore.move(selectedPlayables.value, target, placement)
 
 onScreenActivated('Queue', async () => {
   if (!cache.get('song-to-queue')) {
@@ -164,5 +155,21 @@ onScreenActivated('Queue', async () => {
 
   queueStore.clearSilently()
   queueStore.queue(playable!)
+})
+
+onScreenActivated('Queue', async () => {
+  if (!cache.hit('scroll-to-current-in-queue')) {
+    return
+  }
+
+  cache.remove('scroll-to-current-in-queue')
+  const current = queueStore.current
+
+  if (!current) {
+    return
+  }
+
+  await nextTick()
+  playableList.value?.scrollToPlayable(current)
 })
 </script>

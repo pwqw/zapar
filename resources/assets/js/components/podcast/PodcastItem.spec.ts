@@ -1,5 +1,5 @@
 import { fireEvent, screen } from '@testing-library/vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { podcastStore } from '@/stores/podcastStore'
 import Component from './PodcastItem.vue'
@@ -8,11 +8,13 @@ describe('podcastItem.vue', () => {
   const h = createHarness()
 
   const renderComponent = (podcast?: Podcast) => {
-    podcast = podcast || h.factory('podcast', {
-      title: 'A Brief History of Time',
-      author: 'Stephen Hawking',
-      favorite: false,
-    })
+    podcast =
+      podcast ||
+      h.factory('podcast', {
+        title: 'A Brief History of Time',
+        author: 'Stephen Hawking',
+        favorite: false,
+      })
 
     const rendered = h.render(Component, {
       props: {

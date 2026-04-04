@@ -52,9 +52,7 @@ class PlaylistCollaborationServiceTest extends TestCase
     public function acceptUsingToken(): void
     {
         Event::fake(NewPlaylistCollaboratorJoined::class);
-
-        /** @var PlaylistCollaborationToken $token */
-        $token = PlaylistCollaborationToken::factory()->create();
+        $token = PlaylistCollaborationToken::factory()->createOne();
         $user = create_user();
         self::assertFalse($token->playlist->collaborators->contains($user));
 
@@ -69,9 +67,7 @@ class PlaylistCollaborationServiceTest extends TestCase
     {
         $this->expectException(PlaylistCollaborationTokenExpiredException::class);
         Event::fake(NewPlaylistCollaboratorJoined::class);
-
-        /** @var PlaylistCollaborationToken $token */
-        $token = PlaylistCollaborationToken::factory()->create();
+        $token = PlaylistCollaborationToken::factory()->createOne();
         $user = create_user();
 
         $this->travel(8)->days();
@@ -105,7 +101,7 @@ class PlaylistCollaborationServiceTest extends TestCase
 
         self::assertEqualsCanonicalizing(
             [$playlist->owner->public_id, $user->public_id],
-            Arr::pluck($collaborators->toArray(), 'id')
+            Arr::pluck($collaborators->toArray(), 'id'),
         );
     }
 

@@ -1,34 +1,33 @@
 <template>
   <form
     id="searchForm"
-    class="relative text-k-fg-70 flex items-stretch border border-k-fg-10 overflow-hidden gap-2 py-0 rounded-md
-    bg-k-bg-50 focus-within:border-k-highlight
-    transition-[border,_background-color] duration-200 ease-in-out"
+    class="relative text-k-fg-70 flex items-stretch border border-k-fg-10 overflow-hidden py-0 rounded-md bg-k-bg-50 focus-within:border-k-highlight transition-[border,_background-color] duration-200 ease-in-out"
     role="search"
     @submit.prevent="onSubmit"
   >
-    <span class="hidden md:flex absolute h-full text-k-fg-70 px-4 items-center pointer-events-none">
-      <Icon :icon="faSearch" />
-    </span>
-
     <TextInput
       ref="input"
       v-model="q"
       :class="{ dirty: q }"
-      :placeholder="placeholder"
+      :placeholder
       autocorrect="false"
-      class="flex-1 rounded-none border-0 bg-transparent focus-visible:outline-0 md:pl-11"
+      class="flex-1 rounded-none border-0 bg-transparent focus-visible:outline-none px-4"
       name="q"
       required
       spellcheck="false"
-      type="search"
-      @focus="maybeGoToSearchScreen"
+      type="text"
+      @focus="onFocus"
+      @blur="onBlur"
       @input="onInput"
     />
 
     <button class="block md:hidden py-0 px-4 bg-k-fg-5 rounded-none" :title="t('ui.tooltips.search')" type="submit">
       <Icon :icon="faSearch" />
     </button>
+
+    <span class="hidden md:flex items-center px-3 text-k-fg-30 pointer-events-none">
+      <Icon :icon="faSearch" />
+    </span>
   </form>
 </template>
 
@@ -47,6 +46,8 @@ const { t } = useI18n()
 
 const placeholder = isMobile.any ? t('ui.tooltips.search') : t('ui.tooltips.pressFToSearch')
 
+const emit = defineEmits<{ (e: 'focus-change', focused: boolean): void }>()
+
 const { go, url } = useRouter()
 
 const input = ref<InstanceType<typeof TextInput>>()
@@ -64,6 +65,15 @@ if (!window.RUNNING_UNIT_TESTS) {
 const onSubmit = () => {
   eventBus.emit('TOGGLE_SIDEBAR')
   go(url('search'))
+}
+
+const onFocus = () => {
+  emit('focus-change', true)
+  maybeGoToSearchScreen()
+}
+
+const onBlur = () => {
+  emit('focus-change', false)
 }
 
 const maybeGoToSearchScreen = () => isMobile.any || go(url('search'))

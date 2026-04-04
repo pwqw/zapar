@@ -21,21 +21,18 @@ class QueueTest extends TestCase
     #[Test]
     public function getEmptyState(): void
     {
-        $this->getAs('api/queue/state')
-            ->assertJsonStructure(self::QUEUE_STATE_JSON_STRUCTURE);
+        $this->getAs('api/queue/state')->assertJsonStructure(self::QUEUE_STATE_JSON_STRUCTURE);
     }
 
     #[Test]
     public function getExistingState(): void
     {
-        /** @var QueueState $queueState */
-        $queueState = QueueState::factory()->create([
+        $queueState = QueueState::factory()->createOne([
             'current_song_id' => Song::factory(),
             'playback_position' => 123,
         ]);
 
-        $this->getAs('api/queue/state', $queueState->user)
-            ->assertJsonStructure(self::QUEUE_STATE_JSON_STRUCTURE);
+        $this->getAs('api/queue/state', $queueState->user)->assertJsonStructure(self::QUEUE_STATE_JSON_STRUCTURE);
     }
 
     #[Test]
@@ -45,10 +42,9 @@ class QueueTest extends TestCase
 
         $this->assertDatabaseMissing(QueueState::class, ['user_id' => $user->id]);
 
-        $songIds = Song::factory(2)->create()->modelKeys();
+        $songIds = Song::factory()->createMany(2)->modelKeys();
 
-        $this->putAs('api/queue/state', ['songs' => $songIds], $user)
-            ->assertNoContent();
+        $this->putAs('api/queue/state', ['songs' => $songIds], $user)->assertNoContent();
 
         /** @var QueueState $queue */
         $queue = QueueState::query()->whereBelongsTo($user)->firstOrFail();
@@ -56,26 +52,41 @@ class QueueTest extends TestCase
     }
 
     #[Test]
+    public function updateStateWithEmptySongList(): void
+    {
+        $user = create_user();
+
+        $this->assertDatabaseMissing(QueueState::class, ['user_id' => $user->id]);
+
+        $this->putAs('api/queue/state', ['songs' => []], $user)->assertNoContent();
+
+        /** @var QueueState $queue */
+        $queue = QueueState::query()->whereBelongsTo($user)->firstOrFail();
+        self::assertSame([], $queue->song_ids);
+    }
+
+    #[Test]
     public function updatePlaybackStatus(): void
     {
-        /** @var QueueState $state */
-        $state = QueueState::factory()->create();
+        $state = QueueState::factory()->createOne();
+        $song = Song::factory()->createOne();
 
-        /** @var Song $song */
-        $song = Song::factory()->create();
-
-        $this->putAs('api/queue/playback-status', ['song' => $song->id, 'position' => 123], $state->user)
-            ->assertNoContent();
+        $this->putAs(
+            'api/queue/playback-status',
+            ['song' => $song->id, 'position' => 123],
+            $state->user,
+        )->assertNoContent();
 
         $state->refresh();
         self::assertSame($song->id, $state->current_song_id);
         self::assertSame(123, $state->playback_position);
+        $anotherSong = Song::factory()->createOne();
 
-        /** @var Song $anotherSong */
-        $anotherSong = Song::factory()->create();
-
-        $this->putAs('api/queue/playback-status', ['song' => $anotherSong->id, 'position' => 456], $state->user)
-            ->assertNoContent();
+        $this->putAs(
+            'api/queue/playback-status',
+            ['song' => $anotherSong->id, 'position' => 456],
+            $state->user,
+        )->assertNoContent();
 
         $state->refresh();
         self::assertSame($anotherSong->id, $state->current_song_id);
@@ -85,13 +96,15 @@ class QueueTest extends TestCase
     #[Test]
     public function fetchSongs(): void
     {
-        Song::factory(10)->create();
+        Song::factory()->createMany(10);
 
-        $this->getAs('api/queue/fetch?order=rand&limit=5')
+        $this
+            ->getAs('api/queue/fetch?order=rand&limit=5')
             ->assertJsonStructure([0 => SongResource::JSON_STRUCTURE])
             ->assertJsonCount(5, '*');
 
-        $this->getAs('api/queue/fetch?order=asc&sort=title&limit=5')
+        $this
+            ->getAs('api/queue/fetch?order=asc&sort=title&limit=5')
             ->assertJsonStructure([0 => SongResource::JSON_STRUCTURE])
             ->assertJsonCount(5, '*');
     }

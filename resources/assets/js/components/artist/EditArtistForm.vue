@@ -1,33 +1,32 @@
 <template>
   <form @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>{{ t('artists.edit') }}</h1>
+      <h1>Edit Artist</h1>
     </header>
 
     <main class="space-y-5">
       <FormRow>
-        <template #label>{{ t('artists.name') }}</template>
+        <template #label>Name</template>
         <TextInput
           v-model="data.name"
           v-koel-focus
           name="name"
-          :placeholder="t('artists.artistName')"
+          placeholder="Artist name"
           required
-          :title="t('artists.artistName')"
+          title="Artist name"
         />
       </FormRow>
-      <ArtworkField v-model="data.image">{{ t('artists.pickImage') }}</ArtworkField>
+      <ArtworkField v-model="data.image">Pick an image (optional)</ArtworkField>
     </main>
 
     <footer>
-      <Btn type="submit">{{ t('auth.save') }}</Btn>
-      <Btn white @click.prevent="maybeClose">{{ t('auth.cancel') }}</Btn>
+      <Btn type="submit">Save</Btn>
+      <Btn white @click.prevent="maybeClose">Cancel</Btn>
     </footer>
   </form>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import { cloneDeep, pick } from 'lodash'
 import type { ArtistUpdateData } from '@/stores/artistStore'
 import { artistStore } from '@/stores/artistStore'
@@ -41,10 +40,7 @@ import TextInput from '@/components/ui/form/TextInput.vue'
 import ArtworkField from '@/components/ui/form/ArtworkField.vue'
 
 const props = defineProps<{ artist: Artist }>()
-
 const emit = defineEmits<{ (e: 'close'): void }>()
-
-const { t } = useI18n()
 
 const { artist } = props
 
@@ -66,13 +62,13 @@ const { data, isPristine, handleSubmit } = useForm<ArtistUpdateData>({
     await artistStore.update(artist, formData)
   },
   onSuccess: () => {
-    toastSuccess(t('artists.updated'))
+    toastSuccess('Artist updated.')
     close()
   },
 })
 
 const maybeClose = async () => {
-  if (isPristine() || await showConfirmDialog(t('artists.discardChanges'))) {
+  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
     close()
   }
 }

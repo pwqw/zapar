@@ -1,6 +1,6 @@
 <template>
   <article>
-    <button ref="button" class="w-full focus:text-k-highlight" :title="t('songs.sort')" @click.stop="trigger">
+    <button ref="button" class="w-full focus:text-k-highlight" title="Sort" @click.stop="trigger">
       <Icon v-if="sortable" :icon="faSort" />
       <Icon v-else :icon="faEllipsis" />
     </button>
@@ -21,11 +21,10 @@
             <input
               :checked="shouldShowColumn(item.column!)"
               :disabled="!item.visibilityToggleable"
-              :title="item.visibilityToggleable ? t('songs.clickToToggleColumn', { label: item.label }) : ''"
-              class="disabled:opacity-20 disabled:cursor-not-allowed bg-k-fg group-hover:border-k-highlight-fg h-4
-              aspect-square rounded checked:border-k-fg-70 checked:border-2 checked:bg-k-highlight"
+              :title="item.visibilityToggleable ? `Click to toggle the ${item.label} column` : ''"
+              class="disabled:opacity-20 disabled:cursor-not-allowed bg-k-fg group-hover:border-k-highlight-fg h-4 aspect-square rounded checked:border-k-fg-70 checked:border-2 checked:bg-k-highlight"
               type="checkbox"
-            >
+            />
           </label>
           <span class="flex-1 text-left">{{ item.label }}</span>
           <span class="icon hidden ml-3">
@@ -44,25 +43,29 @@ import { isEqual } from 'lodash'
 import { faArrowDown, faArrowUp, faCheck, faEllipsis, faSort } from '@fortawesome/free-solid-svg-icons'
 import { OnClickOutside } from '@vueuse/components'
 import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useFloatingUi } from '@/composables/useFloatingUi'
 import { arrayify } from '@/utils/helpers'
 import type { getPlayableCollectionContentType } from '@/utils/typeGuards'
 import { usePlayableListColumnVisibility } from '@/composables/usePlayableListColumnVisibility'
 
-const props = withDefaults(defineProps<{
-  sortable?: boolean
-  field?: MaybeArray<PlayableListSortField> // the current field(s) being sorted by
-  order?: SortOrder
-  hasCustomOrderSort?: boolean // whether to provide "custom order" sort (like for playlists)
-  contentType?: ReturnType<typeof getPlayableCollectionContentType>
-}>(), {
-  sortable: true,
-  field: 'title',
-  order: 'asc',
-  hasCustomOrderSort: false,
-  contentType: 'songs',
-})
+const props = withDefaults(
+  defineProps<{
+    sortable?: boolean
+    field?: MaybeArray<PlayableListSortField> // the current field(s) being sorted by
+    order?: SortOrder
+    hasCustomOrderSort?: boolean // whether to provide "custom order" sort (like for playlists)
+    contentType?: ReturnType<typeof getPlayableCollectionContentType>
+    collaborative?: boolean
+  }>(),
+  {
+    sortable: true,
+    field: 'title',
+    order: 'asc',
+    hasCustomOrderSort: false,
+    contentType: 'songs',
+    collaborative: false,
+  },
+)
 
 const emit = defineEmits<{ (e: 'sort', field: MaybeArray<PlayableListSortField>): void }>()
 
@@ -73,52 +76,64 @@ interface MenuItem {
   visibilityToggleable: boolean
 }
 
-const { t } = useI18n()
-
 const {
   shouldShowColumn,
   toggleColumn,
   isConfigurable: shouldShowColumnVisibilityCheckboxes,
 } = usePlayableListColumnVisibility()
 
-const { field, order, hasCustomOrderSort, contentType } = toRefs(props)
+const { field, order, hasCustomOrderSort, contentType, collaborative } = toRefs(props)
 
 const button = ref<HTMLButtonElement>()
 const menu = ref<HTMLDivElement>()
 
 const menuItems = computed(() => {
-  const title: MenuItem = { column: 'title', label: t('songs.title'), field: 'title', visibilityToggleable: false }
-  const artist: MenuItem = { label: t('songs.artist'), field: 'artist_name', visibilityToggleable: false }
-  const author: MenuItem = { label: t('songs.author'), field: 'podcast_author', visibilityToggleable: false }
+  const title: MenuItem = { column: 'title', label: 'Title', field: 'title', visibilityToggleable: false }
+  const artist: MenuItem = { label: 'Artist', field: 'artist_name', visibilityToggleable: false }
+  const author: MenuItem = { label: 'Author', field: 'podcast_author', visibilityToggleable: false }
 
   const artistOrAuthor: MenuItem = {
-    label: t('songs.artistOrAuthor'),
+    label: 'Artist or Author',
     field: ['artist_name', 'podcast_author'],
     visibilityToggleable: false,
   }
 
-  const album: MenuItem = { column: 'album', label: t('songs.album'), field: 'album_name', visibilityToggleable: true }
-  const track: MenuItem = { column: 'track', label: t('songs.trackAndDisc'), field: 'track', visibilityToggleable: true }
-  const time: MenuItem = { column: 'duration', label: t('songs.time'), field: 'length', visibilityToggleable: true }
-  const genre: MenuItem = { column: 'genre', label: t('songs.genre'), field: 'genre', visibilityToggleable: true }
-  const year: MenuItem = { column: 'year', label: t('songs.year'), field: 'year', visibilityToggleable: true }
+  const album: MenuItem = { column: 'album', label: 'Album', field: 'album_name', visibilityToggleable: true }
+  const track: MenuItem = { column: 'track', label: 'Track & Disc', field: 'track', visibilityToggleable: true }
+  const time: MenuItem = { column: 'duration', label: 'Time', field: 'length', visibilityToggleable: true }
+  const genre: MenuItem = { column: 'genre', label: 'Genre', field: 'genre', visibilityToggleable: true }
+  const year: MenuItem = { column: 'year', label: 'Year', field: 'year', visibilityToggleable: true }
 
   const dateAdded: MenuItem = {
-    label: t('songs.dateAdded'),
+    label: 'Date Added',
     field: 'created_at',
     visibilityToggleable: false,
   }
 
-  const podcast: MenuItem = { column: 'album', label: t('menu.playable.podcast'), field: 'podcast_title', visibilityToggleable: true }
+  const podcast: MenuItem = { column: 'album', label: 'Podcast', field: 'podcast_title', visibilityToggleable: true }
 
   const albumOrPodcast: MenuItem = {
     column: 'album',
-    label: t('songs.albumOrPodcast'),
+    label: 'Album or Podcast',
     field: ['album_name', 'podcast_title'],
     visibilityToggleable: true,
   }
 
-  const customOrder: MenuItem = { label: t('songs.customOrder'), field: 'position', visibilityToggleable: false }
+  const customOrder: MenuItem = { label: 'Custom Order', field: 'position', visibilityToggleable: false }
+
+  const collaborator: MenuItem = {
+    column: 'playlist_collaborator',
+    label: 'User',
+    field: 'collaboration.user.name',
+    visibilityToggleable: true,
+  }
+
+  const contributedAt: MenuItem = {
+    column: 'playlist_added_at',
+    label: 'Contributed',
+    field: 'collaboration.added_at',
+    visibilityToggleable: true,
+  }
 
   let items: MenuItem[] = [title, album, artist, track, genre, year, time, dateAdded]
 
@@ -126,6 +141,10 @@ const menuItems = computed(() => {
     items = [title, podcast, author, time, dateAdded]
   } else if (contentType.value === 'mixed') {
     items = [title, albumOrPodcast, artistOrAuthor, time, dateAdded]
+  }
+
+  if (collaborative.value) {
+    items.push(collaborator, contributedAt)
   }
 
   if (hasCustomOrderSort.value) {

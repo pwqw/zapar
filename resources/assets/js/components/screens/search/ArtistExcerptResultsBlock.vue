@@ -10,7 +10,7 @@
     <template v-else>
       <ul v-if="artists.length" class="results">
         <li v-for="artist in artists" :key="artist.id">
-          <ArtistCard :artist="artist" layout="compact" />
+          <ArtistCard :artist layout="compact" />
         </li>
       </ul>
       <p v-else>{{ t('screens.noneFound') }}</p>
@@ -26,7 +26,7 @@ import ArtistCard from '@/components/artist/ArtistCard.vue'
 import ArtistCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkeleton.vue'
 import ExcerptResultBlock from '@/components/screens/search/ExcerptResultBlock.vue'
 
-const props = withDefaults(defineProps<{ artists?: Artist[], searching?: boolean }>(), {
+const props = withDefaults(defineProps<{ artists?: Artist[]; searching?: boolean }>(), {
   artists: () => [],
   searching: false,
 })

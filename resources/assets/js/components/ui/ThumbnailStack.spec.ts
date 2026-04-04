@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import Component from './ThumbnailStack.vue'
 
@@ -24,10 +24,7 @@ describe('thumbnailStack.vue', () => {
   it('displays the first thumbnail if less than 4 are provided', () => {
     const { getAllByTestId } = h.render(Component, {
       props: {
-        thumbnails: [
-          'https://via.placeholder.com/150',
-          'https://via.placeholder.com/150?foo',
-        ],
+        thumbnails: ['https://via.placeholder.com/150', 'https://via.placeholder.com/150?foo'],
       },
     })
 

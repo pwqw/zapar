@@ -6,6 +6,7 @@
     class="playlist select-none"
     draggable="true"
     :active
+    @dblclick="onDblClick"
     @contextmenu="onContextMenu"
     @dragleave.stop="onDragLeave"
     @dragover.stop="onDragOver"
@@ -30,10 +31,12 @@ import { computed, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { defineAsyncComponent } from '@/utils/helpers'
 import { playableStore } from '@/stores/playableStore'
+import { recentlyPlayedStore } from '@/stores/recentlyPlayedStore'
 import { useRouter } from '@/composables/useRouter'
 import { useDraggable, useDroppable } from '@/composables/useDragAndDrop'
 import { usePlaylistContentManagement } from '@/composables/usePlaylistContentManagement'
 import { useContextMenu } from '@/composables/useContextMenu'
+import { playback } from '@/services/playbackManager'
 
 import SidebarItem from '@/components/layout/main-wrapper/sidebar/SidebarItem.vue'
 
@@ -82,9 +85,11 @@ const isRecentlyPlayedList = (list: PlaylistLike): list is RecentlyPlayedList =>
 }
 
 const active = computed(() => {
-  return (isCurrentScreen('Favorites') && isFavoriteList(list.value))
-    || (isCurrentScreen('RecentlyPlayed') && isRecentlyPlayedList(list.value))
-    || (isCurrentScreen('Playlist') && (list.value as Playlist).id === getRouteParam('id'))
+  return (
+    (isCurrentScreen('Favorites') && isFavoriteList(list.value)) ||
+    (isCurrentScreen('RecentlyPlayed') && isRecentlyPlayedList(list.value)) ||
+    (isCurrentScreen('Playlist') && (list.value as Playlist).id === getRouteParam('id'))
+  )
 })
 
 const href = computed(() => {
@@ -120,6 +125,22 @@ const onContextMenu = (event: MouseEvent) => {
     openContextMenu<'PLAYLIST'>(PlaylistContextMenu, event, {
       playlist: list.value,
     })
+  }
+}
+
+const onDblClick = async () => {
+  let playables: Playable[]
+
+  if (isFavoriteList(list.value)) {
+    playables = await playableStore.fetchFavorites()
+  } else if (isRecentlyPlayedList(list.value)) {
+    playables = await recentlyPlayedStore.fetch()
+  } else {
+    playables = await playableStore.fetchForPlaylist(list.value as Playlist)
+  }
+
+  if (playables.length) {
+    playback().queueAndPlay(playables)
   }
 }
 

@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class LiveEventResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'name',
@@ -26,8 +26,9 @@ class LiveEventResource extends JsonResource
     ];
 
     // Right now we only have Ticketmaster events, so we keep it simple.
-    public function __construct(private readonly TicketmasterEvent $event)
-    {
+    public function __construct(
+        private readonly TicketmasterEvent $event,
+    ) {
         parent::__construct($event);
     }
 

@@ -28,7 +28,7 @@
       @drop.prevent="onDrop"
       @dragover.prevent
     >
-      <div v-if="files.length" class="pb-4 space-y-3">
+      <div v-if="files.length" class="pb-4 space-y-4">
         <UploadItem v-for="file in files" :key="file.id" :file="file" data-testid="upload-item" />
       </div>
 
@@ -49,7 +49,7 @@
               name="file[]"
               type="file"
               @change="onFileInputChange"
-            >
+            />
           </a>
         </span>
       </ScreenEmptyState>

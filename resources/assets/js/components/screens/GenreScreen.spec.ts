@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { screen, waitFor } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { genreStore } from '@/stores/genreStore'
@@ -21,11 +21,6 @@ describe('genreScreen', () => {
       global: {
         stubs: {
           SongList: h.stub('song-list'),
-          ScreenBase: h.stub('screen-base'),
-          ScreenHeader: h.stub('screen-header'),
-          ScreenEmptyState: h.stub('screen-empty-state'),
-          PlayableListSkeleton: h.stub('playable-list-skeleton'),
-          ScreenHeaderSkeleton: h.stub('screen-header-skeleton'),
         },
       },
     })
@@ -49,9 +44,6 @@ describe('genreScreen', () => {
 
   it('renders the song list', async () => {
     await renderComponent()
-    // Wait for loading to complete and songs to be loaded
-    await waitFor(() => {
-      expect(screen.getByTestId('song-list')).toBeTruthy()
-    }, { timeout: 3000 })
+    screen.getByTestId('song-list')
   })
 })

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Facades\License;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\AddSongsToPlaylistRequest;
 use App\Http\Requests\API\Playlist\RemoveSongsFromPlaylistRequest;
 use App\Http\Resources\CollaborativeSongResource;
+use App\Http\Resources\SongResource;
 use App\Models\Playlist;
 use App\Models\User;
 use App\Repositories\SongRepository;
@@ -21,9 +23,8 @@ class PlaylistSongController extends Controller
     public function __construct(
         private readonly SongRepository $songRepository,
         private readonly PlaylistService $playlistService,
-        private readonly Authenticatable $user
-    ) {
-    }
+        private readonly Authenticatable $user,
+    ) {}
 
     public function index(Playlist $playlist)
     {
@@ -46,14 +47,16 @@ class PlaylistSongController extends Controller
 
         $playables = $this->songRepository->getMany(ids: $request->songs, scopedUser: $this->user);
 
-        return self::createResourceCollection(
-            $this->playlistService->addPlayablesToPlaylist($playlist, $playables, $this->user)
-        );
+        return self::createResourceCollection($this->playlistService->addPlayablesToPlaylist(
+            $playlist,
+            $playables,
+            $this->user,
+        ));
     }
 
     private static function createResourceCollection(Collection $songs): ResourceCollection
     {
-        return CollaborativeSongResource::collection($songs);
+        return License::isPlus() ? CollaborativeSongResource::collection($songs) : SongResource::collection($songs);
     }
 
     public function destroy(Playlist $playlist, RemoveSongsFromPlaylistRequest $request)

@@ -1,17 +1,29 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { screen, waitFor } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
+import { assertOpenModal } from '@/__tests__/assertions'
 import { MessageToasterStub } from '@/__tests__/stubs'
 import { playlistStore } from '@/stores/playlistStore'
 import { playableStore } from '@/stores/playableStore'
 import { playbackService } from '@/services/QueuePlaybackService'
-import { eventBus } from '@/utils/eventBus'
 import Router from '@/router'
 import { playlistFolderStore } from '@/stores/playlistFolderStore'
+import EditPlaylistFolderForm from '@/components/playlist/EditPlaylistFolderForm.vue'
+
+const openModalMock = vi.fn()
+
+vi.mock('@/composables/useModal', () => ({
+  useModal: () => ({
+    openModal: openModalMock,
+  }),
+}))
+
 import Component from './PlaylistFolderContextMenu.vue'
 
 describe('playlistFolderContextMenu.vue', () => {
-  const h = createHarness()
+  const h = createHarness({
+    beforeEach: () => openModalMock.mockClear(),
+  })
 
   const renderComponent = async (folder?: PlaylistFolder) => {
     folder = folder || h.factory('playlist-folder')
@@ -36,12 +48,11 @@ describe('playlistFolderContextMenu.vue', () => {
 
   it('renames', async () => {
     const { folder } = await renderComponent()
-    const emitMock = h.mock(eventBus, 'emit')
 
     // The component uses t('playlists.folder.rename') which translates to "Rename Playlist Folder"
     await h.user.click(screen.getByText('Rename Playlist Folder'))
 
-    expect(emitMock).toHaveBeenCalledWith('MODAL_SHOW_EDIT_PLAYLIST_FOLDER_FORM', folder)
+    await assertOpenModal(openModalMock, EditPlaylistFolderForm, { folder })
   })
 
   it('deletes', async () => {

@@ -27,14 +27,14 @@ class UploadController extends Controller
         AlbumRepository $albumRepository,
         SongRepository $songRepository,
         UploadRequest $request,
-        Authenticatable $user
+        Authenticatable $user,
     ) {
         $this->authorize('upload', User::class);
 
         try {
             $file = $request->file->move(
                 artifact_path('tmp/' . Ulid::generate()),
-                $request->file->getClientOriginalName()
+                $request->file->getClientOriginalName(),
             );
 
             /** @var Song|PendingDispatch $dispatchedResult */

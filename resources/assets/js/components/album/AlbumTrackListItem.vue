@@ -15,16 +15,15 @@
 <script lang="ts" setup>
 import type { Ref } from 'vue'
 import { computed, defineAsyncComponent, toRefs } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { playableStore } from '@/stores/playableStore'
 import { authService } from '@/services/authService'
 import { useThirdPartyServices } from '@/composables/useThirdPartyServices'
 import { requireInjection } from '@/utils/helpers'
 import { secondsToHis } from '@/utils/formatters'
-import { PlayablesKey } from '@/symbols'
+import { PlayablesKey } from '@/config/symbols'
 import { playback } from '@/services/playbackManager'
 
-const props = defineProps<{ album: Album, track: AlbumTrack }>()
+const props = defineProps<{ album: Album; track: AlbumTrack }>()
 
 const AppleMusicButton = defineAsyncComponent(() => import('@/components/ui/AppleMusicButton.vue'))
 
@@ -32,11 +31,10 @@ const { album, track } = toRefs(props)
 
 const { useAppleMusic } = useThirdPartyServices()
 
-const { t } = useI18n()
 const songsToMatchAgainst = requireInjection<Ref<Song[]>>(PlayablesKey)
 
 const matchedSong = computed(() => playableStore.matchSongsByTitle(track.value.title, songsToMatchAgainst.value))
-const tooltip = computed(() => matchedSong.value ? t('ui.tooltips.clickToPlay') : '')
+const tooltip = computed(() => (matchedSong.value ? 'Click to play' : ''))
 const fmtLength = computed(() => secondsToHis(track.value.length))
 
 const active = computed(() => matchedSong.value && matchedSong.value.playback_state !== 'Stopped')

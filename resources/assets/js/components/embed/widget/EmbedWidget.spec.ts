@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { embedService } from '@/stores/embedService'
 import { themeStore } from '@/stores/themeStore'
@@ -21,10 +21,12 @@ describe('embedWidget.vue', async () => {
       preview: false,
     }
 
-    getWidgetPayloadMock = getWidgetPayloadMock ?? h.mock(embedService, 'getWidgetPayload').mockResolvedValueOnce({
-      embed,
-      options,
-    })
+    getWidgetPayloadMock =
+      getWidgetPayloadMock ??
+      h.mock(embedService, 'getWidgetPayload').mockResolvedValueOnce({
+        embed,
+        options,
+      })
 
     const initThemeMock = h.mock(themeStore, 'init')
 

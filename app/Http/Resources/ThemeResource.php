@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ThemeResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'name',
@@ -25,8 +25,9 @@ class ThemeResource extends JsonResource
         'is_custom',
     ];
 
-    public function __construct(private readonly Theme $theme)
-    {
+    public function __construct(
+        private readonly Theme $theme,
+    ) {
         parent::__construct($theme);
     }
 

@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class PodcastResource extends JsonResource
 {
-    public const JSON_STRUCTURE = [
+    public const array JSON_STRUCTURE = [
         'type',
         'id',
         'url',
@@ -21,8 +21,10 @@ class PodcastResource extends JsonResource
         'author',
     ];
 
-    public function __construct(private readonly Podcast $podcast, private readonly bool $withSubscriptionData = true)
-    {
+    public function __construct(
+        private readonly Podcast $podcast,
+        private readonly bool $withSubscriptionData = true,
+    ) {
         parent::__construct($this->podcast);
     }
 
