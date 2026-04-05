@@ -31,8 +31,9 @@ class ArtistTest extends TestCase
     #[Test]
     public function show(): void
     {
-        $this->getAs('api/artists/'
-        . Artist::factory()->createOne()->id)->assertJsonStructure(ArtistResource::JSON_STRUCTURE);
+        $artist = Artist::factory()->createOne();
+
+        $this->getAs("api/artists/{$artist->id}", $artist->user)->assertJsonStructure(ArtistResource::JSON_STRUCTURE);
     }
 
     #[Test]

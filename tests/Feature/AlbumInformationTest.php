@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Album;
+use App\Models\User;
 use App\Services\EncyclopediaService;
 use App\Values\Album\AlbumInformation;
 use Mockery;
@@ -43,7 +44,9 @@ class AlbumInformationTest extends TestCase
                 ],
             ));
 
-        $this->getAs("api/albums/{$album->id}/information")->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
+        $owner = User::query()->findOrFail($album->artist->user_id);
+
+        $this->getAs("api/albums/{$album->id}/information", $owner)->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
     }
 
     #[Test]
@@ -52,8 +55,12 @@ class AlbumInformationTest extends TestCase
         config(['koel.services.lastfm.key' => null]);
         config(['koel.services.lastfm.secret' => null]);
 
+        $album = Album::factory()->createOne();
+        $owner = User::query()->findOrFail($album->artist->user_id);
+
         $this->getAs(
-            'api/albums/' . Album::factory()->createOne()->id . '/information',
+            "api/albums/{$album->id}/information",
+            $owner,
         )->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
     }
 }

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Helpers\Ulid;
 use App\Http\Resources\AlbumResource;
 use App\Models\Album;
+use App\Models\User;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -37,8 +38,10 @@ class AlbumTest extends TestCase
     #[Test]
     public function show(): void
     {
-        $this->getAs('api/albums/'
-        . Album::factory()->createOne()->id)->assertJsonStructure(AlbumResource::JSON_STRUCTURE);
+        $album = Album::factory()->createOne();
+        $owner = User::query()->findOrFail($album->user_id);
+
+        $this->getAs("api/albums/{$album->id}", $owner)->assertJsonStructure(AlbumResource::JSON_STRUCTURE);
     }
 
     #[Test]

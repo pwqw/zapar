@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Artist;
+use App\Models\User;
 use App\Services\EncyclopediaService;
 use App\Values\Artist\ArtistInformation;
 use Mockery;
@@ -31,7 +32,9 @@ class ArtistInformationTest extends TestCase
                 ],
             ));
 
-        $this->getAs("api/artists/{$artist->id}/information")->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
+        $owner = User::query()->findOrFail($artist->user_id);
+
+        $this->getAs("api/artists/{$artist->id}/information", $owner)->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
     }
 
     #[Test]
@@ -40,8 +43,12 @@ class ArtistInformationTest extends TestCase
         config(['koel.services.lastfm.key' => null]);
         config(['koel.services.lastfm.secret' => null]);
 
+        $artist = Artist::factory()->createOne();
+        $owner = User::query()->findOrFail($artist->user_id);
+
         $this->getAs(
-            'api/artists/' . Artist::factory()->createOne()->id . '/information',
+            "api/artists/{$artist->id}/information",
+            $owner,
         )->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
     }
 }
