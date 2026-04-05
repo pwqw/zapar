@@ -72,7 +72,13 @@ class EncyclopediaService
     {
         $info = $this->encyclopedia->getArtistInformation($artist) ?: ArtistInformation::make();
 
-        if ($artist->image || !SpotifyService::enabled() && !$info->image) {
+        if ($artist->image) {
+            $info->image = image_storage_url($artist->image);
+
+            return $info;
+        }
+
+        if (!SpotifyService::enabled() && !$info->image) {
             return $info;
         }
 
@@ -84,6 +90,20 @@ class EncyclopediaService
         );
 
         return $info;
+    }
+
+    public function clearArtistStoredData(Artist $artist): void
+    {
+        Cache::forget(cache_key('artist information', $artist->name));
+        $artist->image = '';
+        $artist->save();
+    }
+
+    public function clearAlbumStoredData(Album $album): void
+    {
+        Cache::forget(cache_key('album information', $album->name, $album->artist->name));
+        $album->cover = '';
+        $album->save();
     }
 
     private function fetchAndStoreAlbumCover(Album $album, AlbumInformation $info): ?string
