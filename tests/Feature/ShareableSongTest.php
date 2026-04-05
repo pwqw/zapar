@@ -67,7 +67,7 @@ class ShareableSongTest extends TestCase
             'site' => $siteName,
         ], 'es');
 
-        $response = $this->get("/songs/{$song->id}");
+        $response = $this->withHeaders(['Accept-Language' => 'es'])->get("/songs/{$song->id}");
 
         $response->assertOk();
         $response->assertSee('property="og:description" content="' . $expectedDescription . '"', false);

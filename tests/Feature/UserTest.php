@@ -149,15 +149,17 @@ class UserTest extends TestCase
     #[Test]
     public function updatingUserToANonAvailableRoleIsNotAllowed(): void
     {
-        $manager = create_manager();
+        $target = create_user();
 
         $this
             ->putAs(
-                "api/users/{$manager->public_id}",
+                "api/users/{$target->public_id}",
                 [
+                    'name' => $target->name,
+                    'email' => $target->email,
                     'role' => 'manager',
                 ],
-                create_manager(),
+                create_admin(),
             )
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['role']);

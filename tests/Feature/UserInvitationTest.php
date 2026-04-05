@@ -121,6 +121,9 @@ class UserInvitationTest extends TestCase
                 'token' => $prospect->invitation_token,
                 'name' => 'Bruce Dickinson',
                 'password' => 'SuperSecretPassword',
+                'terms_accepted' => true,
+                'privacy_accepted' => true,
+                'age_verified' => true,
             ])
             ->assertSuccessful()
             ->assertJsonStructure(['token', 'audio-token']);

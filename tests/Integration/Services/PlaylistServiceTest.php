@@ -228,12 +228,19 @@ class PlaylistServiceTest extends TestCase
     #[Test]
     public function addMixOfSongsAndEpisodesToPlaylist(): void
     {
+        /** @var PodcastService $podcastService */
+        $podcastService = app(PodcastService::class);
+
         $playlist = create_playlist();
         $playlist->addPlayables(Song::factory()->createMany(2));
+        $podcast = Podcast::factory()->createOne();
         $playables = Song::factory()
             ->asEpisode()
+            ->for($podcast)
             ->createMany(2)
             ->merge(Song::factory()->createMany(2));
+
+        $podcastService->subscribeUserToPodcast($playlist->owner, $podcast);
 
         $addedEpisodes = $this->service->addPlayablesToPlaylist($playlist, $playables, $playlist->owner);
         $playlist->refresh();

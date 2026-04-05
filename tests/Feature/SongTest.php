@@ -130,7 +130,8 @@ class SongTest extends TestCase
     #[Test]
     public function multipleUpdateNoCompilation(): void
     {
-        $songIds = Song::factory()->createMany(2)->modelKeys();
+        $album = Album::factory()->create();
+        $songIds = Song::factory()->count(2)->for($album)->create()->modelKeys();
 
         $this->putAs(
             '/api/songs',
@@ -170,7 +171,6 @@ class SongTest extends TestCase
     {
         $originalSongs = Song::factory()->createMany(2);
         $originalSongIds = $originalSongs->modelKeys();
-        $originalAlbumNames = $originalSongs->pluck('album.name')->all();
         $originalAlbumIds = $originalSongs->pluck('album_id')->all();
 
         $this->putAs(
@@ -193,10 +193,10 @@ class SongTest extends TestCase
             ->get()
             ->orderByArray($originalSongIds);
 
-        // Even though the album name doesn't change, a new artist should have been created
-        // and thus, a new album with the same name was created as well.
-        collect([0, 1])->each(static function (int $i) use ($songs, $originalAlbumNames, $originalAlbumIds): void {
-            self::assertSame($songs[$i]->album->name, $originalAlbumNames[$i]);
+        // Empty album name is stored as '' and a new artist should have been created,
+        // so new albums replace the previous ones.
+        collect([0, 1])->each(static function (int $i) use ($songs, $originalAlbumIds): void {
+            self::assertSame('', $songs[$i]->album->name);
             self::assertNotSame($songs[$i]->album_id, $originalAlbumIds[$i]);
         });
 
