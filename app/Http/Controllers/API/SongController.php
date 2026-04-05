@@ -34,6 +34,7 @@ class SongController extends Controller
             sortColumns: $request->sort ? explode(',', $request->sort) : ['songs.title'],
             sortDirection: $request->order ?: 'asc',
             scopedUser: $this->user,
+            ownedOnly: $request->boolean('owned'),
         ));
     }
 

@@ -158,6 +158,10 @@ class Song extends Model implements AuditableContract, Favoriteable, Embeddable
      */
     public function editableBy(User $user): bool
     {
+        if ($user->hasAdminOrModeratorRole()) {
+            return true;
+        }
+
         if ($this->isEpisode()) {
             return $user->subscribedToPodcast($this->podcast);
         }

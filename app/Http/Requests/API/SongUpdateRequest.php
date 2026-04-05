@@ -64,13 +64,25 @@ class SongUpdateRequest extends Request
             $albumName = '';
         }
 
+        $track = null;
+        if ($this->has('data.track')) {
+            $trackInput = $this->input('data.track');
+            $track = $trackInput !== null ? (int) $trackInput : null;
+        }
+
+        $disc = null;
+        if ($this->has('data.disc')) {
+            $discInput = $this->input('data.disc');
+            $disc = $discInput !== null ? (int) $discInput : null;
+        }
+
         return SongUpdateData::make(
             title: $this->input('data.title'),
             artistName: $this->input('data.artist_name'),
             albumName: $albumName,
             albumArtistName: $this->input('data.album_artist_name'),
-            track: $this->has('data.track') ? (int) $this->input('data.track') : null,
-            disc: $this->has('data.disc') ? (int) $this->input('data.disc') : null,
+            track: $track,
+            disc: $disc,
             genre: $this->input('data.genre'),
             year: $this->has('data.year') ? (int) $this->input('data.year') : null,
             lyrics: $this->input('data.lyrics'),

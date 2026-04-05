@@ -34,6 +34,7 @@ class SongService
         private readonly TranscodeRepository $transcodeRepository,
         private readonly AlbumService $albumService,
         private readonly CacheStrategy $cache,
+        private readonly ImageStorage $imageStorage,
     ) {}
 
     public function updateSongs(array $ids, SongUpdateData $data): SongUpdateResult
@@ -41,7 +42,10 @@ class SongService
         if (count($ids) === 1) {
             // If we're only updating one song, an empty non-required should be converted to the default values.
             // This allows the user to clear those fields.
-            $data->disc = $data->disc ?: 1;
+            if ($data->disc === null) {
+                $data->disc = 1;
+            }
+
             $data->track = $data->track ?: 0;
             $data->lyrics = $data->lyrics ?: '';
             $data->year = $data->year ?: null;
@@ -111,7 +115,10 @@ class SongService
     private function updateSong(Song $song, SongUpdateData $data): Song
     {
         // For non-nullable fields, if the provided data is empty, use the existing value
-        $data->albumName = $data->albumName ?: $song->album->name;
+        if ($data->albumName === null) {
+            $data->albumName = $song->album->name;
+        }
+
         $data->artistName = $data->artistName ?: $song->artist->name;
         $data->title = $data->title ?: $song->title;
 
@@ -147,6 +154,11 @@ class SongService
 
         if (!$song->genreEqualsTo($data->genre)) {
             $song->syncGenres($data->genre);
+        }
+
+        if ($data->songCover !== null && $data->songCover !== '') {
+            $song->cover = $this->imageStorage->storeImage($data->songCover);
+            $song->save();
         }
 
         return $this->songRepository->getOne($song->id);

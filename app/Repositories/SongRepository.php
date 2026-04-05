@@ -103,11 +103,19 @@ class SongRepository extends Repository implements ScoutableRepository
         string $sortDirection,
         ?User $scopedUser = null,
         int $perPage = 50,
+        bool $ownedOnly = false,
     ): Paginator {
         $scopedUser ??= $this->auth->user();
 
         return Song::query(type: PlayableType::SONG, user: $scopedUser)
             ->withUserContext()
+            ->when(
+                $ownedOnly,
+                static fn (SongBuilder $query) => $query->where(static function (SongBuilder $q) use ($scopedUser): void {
+                    $q->where('songs.owner_id', $scopedUser->id)
+                        ->orWhere('songs.artist_user_id', $scopedUser->id);
+                }),
+            )
             ->sort($sortColumns, $sortDirection)
             ->simplePaginate($perPage);
     }
@@ -289,25 +297,49 @@ class SongRepository extends Repository implements ScoutableRepository
     }
 
     /**
-     * Gets several songs, but also includes collaborative information.
+     * Gets several songs, but also includes collaborative information for the given playlist pivot row.
      *
      * @return Collection|array<array-key, Song>
      */
-    public function getManyInCollaborativeContext(array $ids, ?User $scopedUser = null): Collection
+    public function getManyInCollaborativeContext(array $ids, ?User $scopedUser = null, ?Playlist $playlist = null): Collection
     {
-        return Song::query(user: $scopedUser ?? $this->auth->user())
-            ->withUserContext()
-            ->leftJoin('playlist_song', 'songs.id', '=', 'playlist_song.song_id')
-            ->leftJoin('playlists', 'playlists.id', '=', 'playlist_song.playlist_id')
-            ->join('users as collaborators', 'playlist_song.user_id', '=', 'collaborators.id')
-            ->addSelect(
-                'collaborators.public_id as collaborator_public_id',
-                'collaborators.name as collaborator_name',
-                'collaborators.email as collaborator_email',
+        $user = $scopedUser ?? $this->auth->user();
+
+        $songs = $this->getMany($ids, preserveOrder: true, scopedUser: $user);
+
+        if (!$playlist || !$ids) {
+            return $songs;
+        }
+
+        $pivotRows = DB::table('playlist_song')
+            ->join('users', 'playlist_song.user_id', '=', 'users.id')
+            ->where('playlist_song.playlist_id', $playlist->id)
+            ->whereIn('playlist_song.song_id', $ids)
+            ->select([
+                'playlist_song.song_id',
+                'users.public_id as collaborator_public_id',
+                'users.name as collaborator_name',
+                'users.email as collaborator_email',
                 'playlist_song.created_at as added_at',
-            )
-            ->whereIn('songs.id', $ids)
-            ->get();
+            ])
+            ->get()
+            ->keyBy('song_id');
+
+        foreach ($songs as $song) {
+            $row = $pivotRows->get($song->id);
+
+            if (!$row) {
+                continue;
+            }
+
+            $song->setAttribute('collaborator_public_id', $row->collaborator_public_id);
+            $song->setAttribute('collaborator_name', $row->collaborator_name);
+            $song->setAttribute('collaborator_email', $row->collaborator_email);
+            $song->setAttribute('collaborator_avatar', null);
+            $song->setAttribute('added_at', $row->added_at);
+        }
+
+        return $songs;
     }
 
     /** @param string $id */
