@@ -2,7 +2,7 @@ import { reactive } from 'vue'
 import { differenceBy, unionBy } from 'lodash'
 import { arrayify, moveItemsInList } from '@/utils/helpers'
 import { logger } from '@/utils/logger'
-import { isEpisode, isSong } from '@/utils/typeGuards'
+import { isSong } from '@/utils/typeGuards'
 import { http } from '@/services/http'
 import { playableStore } from '@/stores/playableStore'
 
@@ -11,7 +11,7 @@ export const queueStore = {
     playables: [],
   }),
 
-  init (savedState: QueueState) {
+  init(savedState: QueueState) {
     // don't set this.all here, as it would trigger saving state
     this.state.playables = playableStore.syncWithVault(savedState.songs)
 
@@ -26,37 +26,37 @@ export const queueStore = {
     }
   },
 
-  get all () {
+  get all() {
     return this.state.playables
   },
 
-  set all (playables: Playable[]) {
+  set all(playables: Playable[]) {
     this.state.playables = playables
     playableStore.syncWithVault(playables.filter(isSong))
     this.saveState()
   },
 
-  get first () {
+  get first() {
     return this.all[0]
   },
 
-  get last () {
+  get last() {
     return this.all[this.all.length - 1]
   },
 
-  contains (playable: Playable) {
+  contains(playable: Playable) {
     return this.all.includes(reactive(playable))
   },
 
   /**
    * Add playable(s) to the end of the current queue.
    */
-  queue (playables: MaybeArray<Playable>) {
+  queue(playables: MaybeArray<Playable>) {
     this.unqueue(playables)
     this.all = unionBy(this.all, arrayify(playables), 'id')
   },
 
-  queueIfNotQueued (playable: Playable, position: 'top' | 'bottom' | 'after-current' = 'after-current') {
+  queueIfNotQueued(playable: Playable, position: 'top' | 'bottom' | 'after-current' = 'after-current') {
     if (this.contains(playable)) {
       return
     }
@@ -74,15 +74,15 @@ export const queueStore = {
     }
   },
 
-  queueToTop (playables: MaybeArray<Playable>) {
+  queueToTop(playables: MaybeArray<Playable>) {
     this.all = unionBy(arrayify(playables), this.all, 'id')
   },
 
-  replaceQueueWith (playables: MaybeArray<Playable>) {
+  replaceQueueWith(playables: MaybeArray<Playable>) {
     this.all = arrayify(playables)
   },
 
-  queueAfterCurrent (playables: MaybeArray<Playable>) {
+  queueAfterCurrent(playables: MaybeArray<Playable>) {
     playables = arrayify(playables)
 
     if (!this.current || !this.all.length) {
@@ -96,7 +96,7 @@ export const queueStore = {
     this.all = head.concat(reactive(playables), this.all)
   },
 
-  unqueue (playables: MaybeArray<Playable>) {
+  unqueue(playables: MaybeArray<Playable>) {
     playables = arrayify(playables)
     playables.forEach(song => (song.playback_state = 'Stopped'))
     this.all = differenceBy(this.all, playables, 'id')
@@ -105,27 +105,27 @@ export const queueStore = {
   /**
    * Move some songs to after a target.
    */
-  move (playables: MaybeArray<Playable>, target: Playable, placement: Placement) {
+  move(playables: MaybeArray<Playable>, target: Playable, placement: Placement) {
     this.state.playables = moveItemsInList(this.state.playables, playables, target, placement)
     this.saveState()
   },
 
-  clear () {
+  clear() {
     this.all = []
   },
 
   /**
    * Clear the queue without saving the state.
    */
-  clearSilently () {
+  clearSilently() {
     this.state.playables = []
   },
 
-  indexOf (playable: Playable) {
+  indexOf(playable: Playable) {
     return this.all.indexOf(reactive(playable))
   },
 
-  get next () {
+  get next() {
     if (!this.current) {
       return this.first
     }
@@ -135,7 +135,7 @@ export const queueStore = {
     return index >= this.all.length ? undefined : this.all[index]
   },
 
-  get previous () {
+  get previous() {
     if (!this.current) {
       return this.last
     }
@@ -145,58 +145,31 @@ export const queueStore = {
     return index < 0 ? undefined : this.all[index]
   },
 
-  get current () {
-    return this.all.find(({ playback_state }) => playback_state !== 'Stopped')
+  get current() {
+    // Search the queue first (reactive array — triggers Vue computed re-evaluation).
+    // Fall back to the vault for songs removed from the queue (e.g. after replaceQueueWith).
+    return this.all.find(({ playback_state }) => playback_state !== 'Stopped') || playableStore.findPlaying()
   },
 
-  async fetchRandom (limit = 500, owned = false) {
-    const params = new URLSearchParams({ order: 'rand', limit: String(limit) })
-    if (owned) {
-      params.set('owned', '1')
-    }
-    this.all = await http.get<Song[]>(`queue/fetch?${params.toString()}`)
+  async fetchRandom(limit = 500) {
+    this.all = await http.get<Song[]>(`queue/fetch?order=rand&limit=${limit}`)
     return this.all
   },
 
-  async fetchInOrder (sortField: PlayableListSortField, order: SortOrder, limit = 500, owned = false) {
-    const params = new URLSearchParams({ order, sort: String(sortField), limit: String(limit) })
-    if (owned) {
-      params.set('owned', '1')
-    }
-    this.all = await http.get<Song[]>(`queue/fetch?${params.toString()}`)
+  async fetchInOrder(sortField: PlayableListSortField, order: SortOrder, limit = 500) {
+    this.all = await http.get<Song[]>(`queue/fetch?order=${order}&sort=${sortField}&limit=${limit}`)
     return this.all
   },
 
-  saveState () {
-    // Filter out deleted playables and get IDs of songs and episodes (both are stored in songs table)
-    const playableIds = this.state.playables
-      .filter(playable => {
-        // Include songs and episodes, but exclude deleted songs
-        if (isSong(playable) && playable.deleted) {
-          return false
-        }
-        return isSong(playable) || isEpisode(playable)
-      })
-      .map(({ id }) => id)
-
-    // Skip saving if there are no valid playables
-    if (playableIds.length === 0) {
+  saveState() {
+    if (!this.state.playables.length) {
       return
     }
 
-    http.silently.put('queue/state', { songs: playableIds })
-      .catch((error: unknown) => {
-        if (error && typeof error === 'object' && 'response' in error) {
-          const axiosError = error as { response?: { data?: unknown, status?: number } }
-          logger.error('Failed to save queue state', {
-            playableIds,
-            playableCount: playableIds.length,
-            error: axiosError.response?.data,
-            status: axiosError.response?.status,
-          })
-        } else {
-          logger.error('Failed to save queue state', error)
-        }
-      })
+    try {
+      http.silently.put('queue/state', { songs: this.state.playables.map(({ id }) => id) })
+    } catch (error: unknown) {
+      logger.error(error)
+    }
   },
 }
