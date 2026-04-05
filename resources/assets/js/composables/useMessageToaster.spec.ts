@@ -23,16 +23,21 @@ describe('useMessageToaster', () => {
   it('exposes toast methods', () => {
     const { toastSuccess, toastInfo, toastWarning, toastError } = useMessageToaster()
 
-    toastSuccess('Done!')
-    expect(successMock).toHaveBeenCalledWith('Done!')
+    const successMsg = 'Done!'
+    const infoMsg = 'FYI'
+    const warningMsg = 'Careful'
+    const errorMsg = 'Oops'
 
-    toastInfo('FYI')
-    expect(infoMock).toHaveBeenCalledWith('FYI')
+    toastSuccess(successMsg)
+    expect(successMock).toHaveBeenCalledWith(successMsg)
 
-    toastWarning('Careful')
-    expect(warningMock).toHaveBeenCalledWith('Careful')
+    toastInfo(infoMsg)
+    expect(infoMock).toHaveBeenCalledWith(infoMsg)
 
-    toastError('Oops')
-    expect(errorMock).toHaveBeenCalledWith('Oops')
+    toastWarning(warningMsg)
+    expect(warningMock).toHaveBeenCalledWith(warningMsg)
+
+    toastError(errorMsg)
+    expect(errorMock).toHaveBeenCalledWith(errorMsg)
   })
 })

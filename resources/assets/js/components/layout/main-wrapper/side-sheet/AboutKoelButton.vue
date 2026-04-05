@@ -33,7 +33,7 @@ const { shouldNotifyNewVersion } = useNewVersionNotification()
 const { name: appName } = useBranding()
 
 const aboutTitle = computed(() =>
-  shouldNotifyNewVersion.value ? t('meta.newVersionAvailable') : t('meta.about', { app: appName.value }),
+  shouldNotifyNewVersion.value ? t('meta.newVersionAvailable') : t('meta.about', { app: appName }),
 )
 
 const openAboutKoelModal = () => openModal<'ABOUT_KOEL'>(AboutKoelModal)
