@@ -6,7 +6,7 @@ use App\Services\License\Contracts\LicenseServiceInterface;
 use App\Values\License\LicenseStatus;
 
 /**
- * Stub: no license backend; runtime behaves as Koel Plus unlocked (no I/O).
+ * Community edition: no license backend; bulk visibility and manager invites are restricted.
  */
 class CommunityLicenseService implements LicenseServiceInterface
 {
@@ -23,12 +23,12 @@ class CommunityLicenseService implements LicenseServiceInterface
 
     public function isPlus(): bool
     {
-        return true;
+        return false;
     }
 
     public function isCommunity(): bool
     {
-        return false;
+        return true;
     }
 
     public function requirePlus(): void

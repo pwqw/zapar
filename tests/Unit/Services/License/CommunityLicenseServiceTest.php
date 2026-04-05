@@ -14,8 +14,8 @@ class CommunityLicenseServiceTest extends TestCase
     {
         $service = new CommunityLicenseService();
 
-        $this->assertFalse($service->isCommunity());
-        $this->assertTrue($service->isPlus());
+        $this->assertTrue($service->isCommunity());
+        $this->assertFalse($service->isPlus());
         $this->assertTrue($service->getStatus()->isValid());
         $this->assertSame(LicenseStatusEnum::VALID, $service->getStatus()->status);
     }
