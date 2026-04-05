@@ -4,14 +4,13 @@ use App\Facades\YouTube;
 use App\Helpers\Uuid;
 use App\Http\Controllers\API\Acl\CheckResourcePermissionController;
 use App\Http\Controllers\API\Acl\FetchAssignableRolesController;
-use App\Http\Controllers\API\ActivateLicenseController;
+use App\Http\Controllers\API\AiController;
 use App\Http\Controllers\API\AlbumController;
 use App\Http\Controllers\API\AlbumSongController;
 use App\Http\Controllers\API\Artist\ArtistAlbumController;
 use App\Http\Controllers\API\Artist\ArtistController;
 use App\Http\Controllers\API\Artist\ArtistSongController;
 use App\Http\Controllers\API\Artist\FetchArtistEventsController;
-use App\Http\Controllers\API\Artist\ClearArtistInformationController;
 use App\Http\Controllers\API\Artist\FetchArtistInformationController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DisconnectFromLastfmController;
@@ -19,7 +18,6 @@ use App\Http\Controllers\API\Embed\EmbedController;
 use App\Http\Controllers\API\Embed\EmbedOptionsController;
 use App\Http\Controllers\API\ExcerptSearchController;
 use App\Http\Controllers\API\FavoriteController;
-use App\Http\Controllers\API\ClearAlbumInformationController;
 use App\Http\Controllers\API\FetchAlbumInformationController;
 use App\Http\Controllers\API\FetchAlbumThumbnailController;
 use App\Http\Controllers\API\FetchDemoCreditsController;
@@ -27,18 +25,19 @@ use App\Http\Controllers\API\FetchFavoriteSongsController;
 use App\Http\Controllers\API\FetchInitialDataController;
 use App\Http\Controllers\API\FetchOverviewController;
 use App\Http\Controllers\API\FetchRecentlyPlayedSongController;
+use App\Http\Controllers\API\FetchSongsByIdsController;
 use App\Http\Controllers\API\FetchSongsForQueueController;
 use App\Http\Controllers\API\FetchSongsToQueueByGenreController;
 use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\GenreController;
 use App\Http\Controllers\API\GetOneTimeTokenController;
-use App\Http\Controllers\API\GoogleDocPageController;
 use App\Http\Controllers\API\LambdaSongController as S3SongController;
 use App\Http\Controllers\API\LikeMultipleSongsController;
 use App\Http\Controllers\API\MediaBrowser\FetchFolderSongsController;
 use App\Http\Controllers\API\MediaBrowser\FetchRecursiveFolderSongsController;
 use App\Http\Controllers\API\MediaBrowser\FetchSubfoldersController;
 use App\Http\Controllers\API\MediaBrowser\PaginateFolderSongsController;
+use App\Http\Controllers\API\MoveFavoriteSongsController;
 use App\Http\Controllers\API\MovePlaylistSongsController;
 use App\Http\Controllers\API\PaginateSongsByGenreController;
 use App\Http\Controllers\API\PlaylistCollaboration\AcceptPlaylistCollaborationInviteController;
@@ -52,20 +51,16 @@ use App\Http\Controllers\API\Podcast\PodcastController;
 use App\Http\Controllers\API\Podcast\PodcastEpisodeController;
 use App\Http\Controllers\API\Podcast\UnsubscribeFromPodcastController;
 use App\Http\Controllers\API\ProfileController;
-use App\Http\Controllers\API\ResourceVisibilityController;
 use App\Http\Controllers\API\QueueStateController;
 use App\Http\Controllers\API\RadioStationController;
+use App\Http\Controllers\API\RadioStationNowPlayingController;
 use App\Http\Controllers\API\RegisterPlayController;
 use App\Http\Controllers\API\ResetPasswordController;
 use App\Http\Controllers\API\ScrobbleController;
 use App\Http\Controllers\API\SearchYouTubeController;
 use App\Http\Controllers\API\SetLastfmSessionKeyController;
-use App\Http\Controllers\API\Settings\GetGoogleDocPagesController;
 use App\Http\Controllers\API\Settings\UpdateBrandingController;
-use App\Http\Controllers\API\Settings\UpdateConsentLegalUrlsController;
-use App\Http\Controllers\API\Settings\UpdateGoogleDocPagesController;
 use App\Http\Controllers\API\Settings\UpdateMediaPathController;
-use App\Http\Controllers\API\Settings\UpdateWelcomeMessageController;
 use App\Http\Controllers\API\SongController;
 use App\Http\Controllers\API\SongSearchController;
 use App\Http\Controllers\API\ThemeController;
@@ -76,213 +71,205 @@ use App\Http\Controllers\API\UpdateUserPreferenceController;
 use App\Http\Controllers\API\UploadController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserInvitationController;
-use App\Http\Controllers\Auth\AnonymousSessionController;
+use App\Http\Controllers\Download\CheckDownloadableCountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Pusher\Pusher;
 
-Route::prefix('api')->middleware('api')->group(static function (): void {
-    Route::get('ping', static fn () => null);
+Route::prefix('api')
+    ->middleware('api')
+    ->group(static function (): void {
+        Route::get('ping', static fn () => null);
 
-    Route::middleware('throttle:10,1')->group(static function (): void {
-        Route::post('me', [AuthController::class, 'login'])->name('auth.login');
-        Route::post('me/otp', [AuthController::class, 'loginUsingOneTimeToken']);
-        Route::post('me/anonymous', [AnonymousSessionController::class, 'create'])->name('auth.anonymous');
+        Route::middleware('throttle:10,1')->group(static function (): void {
+            Route::post('me', [AuthController::class, 'login'])->name('auth.login');
+            Route::post('me/otp', [AuthController::class, 'loginUsingOneTimeToken']);
 
-        Route::delete('me', [AuthController::class, 'logout']);
+            Route::delete('me', [AuthController::class, 'logout']);
 
-        Route::post('forgot-password', ForgotPasswordController::class);
-        Route::post('reset-password', ResetPasswordController::class);
+            Route::post('forgot-password', ForgotPasswordController::class);
+            Route::post('reset-password', ResetPasswordController::class);
 
-        Route::get('invitations', [UserInvitationController::class, 'get']);
-        Route::post('invitations/accept', [UserInvitationController::class, 'accept']);
+            Route::get('invitations', [UserInvitationController::class, 'get']);
+            Route::post('invitations/accept', [UserInvitationController::class, 'accept']);
 
-        Route::get('embeds/{embed}/{options}', [EmbedController::class, 'getPayload'])->name('embeds.payload');
-        Route::post('embed-options', [EmbedOptionsController::class, 'encrypt']);
+            Route::get('embeds/{embed}/{options}', [EmbedController::class, 'getPayload'])->name('embeds.payload');
+            Route::post('embed-options', [EmbedOptionsController::class, 'encrypt']);
+        });
 
-        Route::get('google-doc-pages/{slug}', [GoogleDocPageController::class, 'show']);
-    });
+        Route::middleware('auth')->group(static function (): void {
+            Route::get('one-time-token', GetOneTimeTokenController::class);
+            Route::post('broadcasting/auth', static function (Request $request) {
+                $pusher = new Pusher(
+                    config('broadcasting.connections.pusher.key'),
+                    config('broadcasting.connections.pusher.secret'),
+                    config('broadcasting.connections.pusher.app_id'),
+                    [
+                        'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+                        'encrypted' => true,
+                    ],
+                );
 
-    Route::middleware('auth')->group(static function (): void {
-        Route::get('one-time-token', GetOneTimeTokenController::class);
-        Route::post('broadcasting/auth', static function (Request $request) {
-            $pusher = new Pusher(
-                config('broadcasting.connections.pusher.key'),
-                config('broadcasting.connections.pusher.secret'),
-                config('broadcasting.connections.pusher.app_id'),
-                [
-                    'cluster' => config('broadcasting.connections.pusher.options.cluster'),
-                    'encrypted' => true,
-                ]
+                return $pusher->authorizeChannel($request->input('channel_name'), $request->input('socket_id'));
+            })->name('broadcasting.auth');
+
+            Route::get('overview', FetchOverviewController::class);
+            Route::get('data', FetchInitialDataController::class);
+
+            Route::get('queue/fetch', FetchSongsForQueueController::class);
+            Route::put('queue/playback-status', UpdatePlaybackStatusController::class);
+            Route::get('queue/state', [QueueStateController::class, 'show']);
+            Route::put('queue/state', [QueueStateController::class, 'update']);
+
+            Route::put('settings/media-path', UpdateMediaPathController::class);
+            Route::put('settings/branding', UpdateBrandingController::class);
+
+            Route::get('download/check', CheckDownloadableCountController::class);
+
+            Route::apiResource('albums', AlbumController::class);
+            Route::apiResource('albums.songs', AlbumSongController::class);
+
+            Route::apiResource('artists', ArtistController::class);
+            Route::apiResource('artists.albums', ArtistAlbumController::class);
+            Route::apiResource('artists.songs', ArtistSongController::class);
+
+            Route::post('songs/{song}/scrobble', ScrobbleController::class)->where(['song' => Uuid::REGEX]);
+
+            Route::apiResource('songs', SongController::class)
+                ->except('update', 'destroy')
+                ->where(['song' => Uuid::REGEX]);
+
+            Route::put('songs', [SongController::class, 'update']);
+            Route::delete('songs', [SongController::class, 'destroy']);
+
+            // Fetch songs under several folder paths (may include multiple nested levels).
+            // This is a POST request because the folder paths may be long.
+            Route::post('songs/by-folders', FetchRecursiveFolderSongsController::class);
+            Route::post('songs/by-ids', FetchSongsByIdsController::class);
+
+            // Fetch songs **directly** in a specific folder path (or the media root if no path is specified)
+            Route::get('songs/in-folder', FetchFolderSongsController::class);
+
+            Route::post('upload', UploadController::class);
+
+            // Interaction routes
+            Route::post('interaction/play', RegisterPlayController::class);
+
+            // Like/unlike routes (deprecated)
+            Route::post('interaction/like', ToggleLikeSongController::class);
+            Route::post('interaction/batch/like', LikeMultipleSongsController::class);
+            Route::post('interaction/batch/unlike', UnlikeMultipleSongsController::class);
+
+            Route::post('favorites/toggle', [FavoriteController::class, 'toggle']);
+            Route::post('favorites/move', MoveFavoriteSongsController::class);
+            Route::post('favorites', [FavoriteController::class, 'store']);
+            Route::delete('favorites', [FavoriteController::class, 'destroy']);
+
+            Route::get('songs/recently-played', FetchRecentlyPlayedSongController::class);
+            Route::get('songs/favorite', FetchFavoriteSongsController::class); // @deprecated
+            Route::get('songs/favorites', FetchFavoriteSongsController::class);
+
+            Route::apiResource('playlist-folders', PlaylistFolderController::class);
+            Route::apiResource('playlist-folders.playlists', PlaylistFolderPlaylistController::class)->except(
+                'destroy',
             );
+            Route::delete('playlist-folders/{playlistFolder}/playlists', [
+                PlaylistFolderPlaylistController::class,
+                'destroy',
+            ]);
 
-            return $pusher->authorizeChannel($request->input('channel_name'), $request->input('socket_id'));
-        })->name('broadcasting.auth');
+            // Playlist routes
+            Route::apiResource('playlists', PlaylistController::class);
+            Route::apiResource('playlists.songs', PlaylistSongController::class)->except('destroy');
+            Route::delete('playlists/{playlist}/songs', [PlaylistSongController::class, 'destroy']);
+            Route::post('playlists/{playlist}/songs/move', MovePlaylistSongsController::class);
 
-        Route::get('overview', FetchOverviewController::class);
-        Route::get('data', FetchInitialDataController::class);
+            // Genre routes
+            Route::get('genres/{genre?}/songs', PaginateSongsByGenreController::class);
+            Route::get('genres/{genre?}/songs/queue', FetchSongsToQueueByGenreController::class);
+            Route::get('genres', [GenreController::class, 'index']);
+            Route::get('genres/{genre}', [GenreController::class, 'show']);
 
-        Route::get('queue/fetch', FetchSongsForQueueController::class);
-        Route::put('queue/playback-status', UpdatePlaybackStatusController::class);
-        Route::get('queue/state', [QueueStateController::class, 'show']);
-        Route::put('queue/state', [QueueStateController::class, 'update']);
+            Route::apiResource('users', UserController::class)->except('show');
 
-        Route::put('settings/media-path', UpdateMediaPathController::class);
-        Route::put('settings/branding', UpdateBrandingController::class);
-        Route::put('settings/welcome-message', UpdateWelcomeMessageController::class);
-        Route::put('settings/google-doc-pages', UpdateGoogleDocPagesController::class);
-        Route::get('settings/google-doc-pages', GetGoogleDocPagesController::class);
-        Route::put('settings/consent-legal-urls', UpdateConsentLegalUrlsController::class);
+            // User and user profile routes
+            Route::apiResource('user', UserController::class)->except('show');
+            Route::get('me', [ProfileController::class, 'show']);
+            Route::put('me', [ProfileController::class, 'update']);
+            Route::patch('me/preferences', UpdateUserPreferenceController::class);
 
-        Route::apiResource('albums', AlbumController::class);
-        Route::apiResource('albums.songs', AlbumSongController::class);
+            // Last.fm-related routes
+            Route::post('lastfm/session-key', SetLastfmSessionKeyController::class);
+            Route::delete('lastfm/disconnect', DisconnectFromLastfmController::class)->name('lastfm.disconnect');
 
-        Route::apiResource('artists', ArtistController::class);
-        Route::apiResource('artists.albums', ArtistAlbumController::class);
-        Route::apiResource('artists.songs', ArtistSongController::class);
+            // YouTube-related routes
+            if (YouTube::enabled()) {
+                Route::get('youtube/search/song/{song}', SearchYouTubeController::class);
+            }
 
-        Route::post('songs/{song}/scrobble', ScrobbleController::class)->where(['song' => Uuid::REGEX]);
+            // Media information routes
+            Route::get('albums/{album}/information', FetchAlbumInformationController::class);
+            Route::get('artists/{artist}/information', FetchArtistInformationController::class);
 
-        Route::apiResource('songs', SongController::class)
-            ->except('update', 'destroy')
-            ->where(['song' => Uuid::REGEX]);
+            // Events (shows) routes
+            Route::get('artists/{artist}/events', FetchArtistEventsController::class);
 
-        Route::put('songs', [SongController::class, 'update']);
-        Route::delete('songs', [SongController::class, 'destroy']);
+            // Cover/image routes
+            Route::get('albums/{album}/thumbnail', FetchAlbumThumbnailController::class);
 
-        // Fetch songs under several folder paths (may include multiple nested levels).
-        // This is a POST request because the folder paths may be long.
-        Route::post('songs/by-folders', FetchRecursiveFolderSongsController::class);
+            // deprecated routes
+            Route::get('album/{album}/thumbnail', FetchAlbumThumbnailController::class);
 
-        // Fetch songs **directly** in a specific folder path (or the media root if no path is specified)
-        Route::get('songs/in-folder', FetchFolderSongsController::class);
+            Route::get('search', ExcerptSearchController::class);
+            Route::get('search/songs', SongSearchController::class);
 
-        Route::post('upload', UploadController::class);
+            Route::post('invitations', [UserInvitationController::class, 'invite']);
+            Route::delete('invitations', [UserInvitationController::class, 'revoke']);
 
-        // Interaction routes
-        Route::post('interaction/play', RegisterPlayController::class);
+            // Playlist collaboration routes
+            Route::post('playlists/{playlist}/collaborators/invite', CreatePlaylistCollaborationTokenController::class);
+            Route::post('playlists/collaborators/accept', AcceptPlaylistCollaborationInviteController::class);
+            Route::get('playlists/{playlist}/collaborators', [PlaylistCollaboratorController::class, 'index']);
+            Route::delete('playlists/{playlist}/collaborators', [PlaylistCollaboratorController::class, 'destroy']);
 
-        // Like/unlike routes (deprecated)
-        Route::post('interaction/like', ToggleLikeSongController::class);
-        Route::post('interaction/batch/like', LikeMultipleSongsController::class);
-        Route::post('interaction/batch/unlike', UnlikeMultipleSongsController::class);
+            // Podcast routes
+            Route::apiResource('podcasts', PodcastController::class);
+            Route::apiResource('podcasts.episodes', PodcastEpisodeController::class);
+            Route::delete('podcasts/{podcast}/subscriptions', UnsubscribeFromPodcastController::class);
 
-        Route::post('favorites/toggle', [FavoriteController::class, 'toggle']);
-        Route::post('favorites', [FavoriteController::class, 'store']);
-        Route::delete('favorites', [FavoriteController::class, 'destroy']);
+            // Media browser routes
+            Route::get('browse/folders', FetchSubfoldersController::class);
+            Route::get('browse/songs', PaginateFolderSongsController::class);
 
-        Route::get('songs/recently-played', FetchRecentlyPlayedSongController::class);
-        Route::get('songs/favorite', FetchFavoriteSongsController::class); // @deprecated
-        Route::get('songs/favorites', FetchFavoriteSongsController::class);
+            // Radio station routes
+            Route::group(['prefix' => 'radio'], static function (): void {
+                Route::apiResource('stations', RadioStationController::class);
+                Route::get('stations/{radioStation}/now-playing', RadioStationNowPlayingController::class);
+            });
 
-        Route::apiResource('playlist-folders', PlaylistFolderController::class);
-        Route::apiResource('playlist-folders.playlists', PlaylistFolderPlaylistController::class)->except('destroy');
-        Route::delete(
-            'playlist-folders/{playlistFolder}/playlists',
-            [PlaylistFolderPlaylistController::class, 'destroy']
-        );
+            // AI assistant
+            Route::post('ai/prompt', AiController::class)->middleware('throttle:10,1');
 
-        // Playlist routes
-        Route::apiResource('playlists', PlaylistController::class);
-        Route::apiResource('playlists.songs', PlaylistSongController::class)->except('destroy');
-        Route::delete('playlists/{playlist}/songs', [PlaylistSongController::class, 'destroy']);
-        Route::post('playlists/{playlist}/songs/move', MovePlaylistSongsController::class);
+            // Theme routes
+            Route::apiResource('themes', ThemeController::class)->except('show', 'update');
 
-        // Genre routes
-        Route::get('genres/{genre?}/songs', PaginateSongsByGenreController::class);
-        Route::get('genres/{genre?}/songs/queue', FetchSongsToQueueByGenreController::class);
-        Route::get('genres', [GenreController::class, 'index']);
-        Route::get('genres/{genre}', [GenreController::class, 'show']);
+            // Embed routes
+            Route::post('embeds/resolve', [EmbedController::class, 'resolveForEmbeddable']);
 
-        Route::apiResource('users', UserController::class)->except('show');
-
-        // Manager-Artist relationship routes
-        Route::get('managers/{manager}/artists', [UserController::class, 'listManagedArtists']);
-        Route::post('managers/{manager}/artists/{artist}', [UserController::class, 'assignArtist']);
-        Route::delete('managers/{manager}/artists/{artist}', [UserController::class, 'removeArtist']);
-
-        // User and user profile routes
-        Route::apiResource('user', UserController::class)->except('show');
-        Route::get('me', [ProfileController::class, 'show']);
-        Route::put('me', [ProfileController::class, 'update']);
-        Route::patch('me/preferences', UpdateUserPreferenceController::class);
-
-        // Last.fm-related routes
-        Route::post('lastfm/session-key', SetLastfmSessionKeyController::class);
-        Route::delete('lastfm/disconnect', DisconnectFromLastfmController::class)->name('lastfm.disconnect');
-
-        // YouTube-related routes
-        if (YouTube::enabled()) {
-            Route::get('youtube/search/song/{song}', SearchYouTubeController::class);
-        }
-
-        // Media information routes
-        Route::get('albums/{album}/information', FetchAlbumInformationController::class);
-        Route::delete('albums/{album}/information', ClearAlbumInformationController::class);
-        Route::get('artists/{artist}/information', FetchArtistInformationController::class);
-        Route::delete('artists/{artist}/information', ClearArtistInformationController::class);
-
-        // Events (shows) routes
-        Route::get('artists/{artist}/events', FetchArtistEventsController::class);
-
-        // Cover/image routes
-        Route::get('albums/{album}/thumbnail', FetchAlbumThumbnailController::class);
-
-        // deprecated routes
-        Route::get('album/{album}/thumbnail', FetchAlbumThumbnailController::class);
-
-        Route::get('search', ExcerptSearchController::class);
-        Route::get('search/songs', SongSearchController::class);
-
-        Route::post('invitations', [UserInvitationController::class, 'invite']);
-        Route::delete('invitations', [UserInvitationController::class, 'revoke']);
-
-        Route::put('songs/publicize', [ResourceVisibilityController::class, 'publicizeSongs']);
-        Route::put('songs/privatize', [ResourceVisibilityController::class, 'privatizeSongs']);
-
-        // License routes
-        Route::post('licenses/activate', ActivateLicenseController::class);
-
-        // Playlist collaboration routes
-        Route::post('playlists/{playlist}/collaborators/invite', CreatePlaylistCollaborationTokenController::class);
-        Route::post('playlists/collaborators/accept', AcceptPlaylistCollaborationInviteController::class);
-        Route::get('playlists/{playlist}/collaborators', [PlaylistCollaboratorController::class, 'index']);
-        Route::delete('playlists/{playlist}/collaborators', [PlaylistCollaboratorController::class, 'destroy']);
-
-        // Podcast routes
-        Route::put('podcasts/publicize', [ResourceVisibilityController::class, 'publicizePodcasts']);
-        Route::put('podcasts/privatize', [ResourceVisibilityController::class, 'privatizePodcasts']);
-        Route::apiResource('podcasts', PodcastController::class);
-        Route::apiResource('podcasts.episodes', PodcastEpisodeController::class);
-        Route::delete('podcasts/{podcast}/subscriptions', UnsubscribeFromPodcastController::class);
-
-        // Media browser routes
-        Route::get('browse/folders', FetchSubfoldersController::class);
-        Route::get('browse/songs', PaginateFolderSongsController::class);
-
-        // Radio station routes
-        Route::group(['prefix' => 'radio'], static function (): void {
-            Route::apiResource('stations', RadioStationController::class);
+            // ACL routes
+            Route::group(['prefix' => 'acl'], static function (): void {
+                Route::get('permissions/{type}/{id}/{action}', CheckResourcePermissionController::class);
+                Route::get('assignable-roles', FetchAssignableRolesController::class);
+            });
         });
 
-        // Theme routes
-        Route::apiResource('themes', ThemeController::class)->except('show', 'update');
+        // Object-storage (S3) routes
+        Route::middleware('os.auth')
+            ->prefix('os/s3')
+            ->group(static function (): void {
+                Route::post('song', [S3SongController::class, 'put'])->name('s3.song.put'); // we follow AWS's convention here.
+                Route::delete('song', [S3SongController::class, 'remove'])->name('s3.song.remove'); // and here.
+            });
 
-        // Embed routes
-        Route::post('embeds/resolve', [EmbedController::class, 'resolveForEmbeddable']);
-
-        // ACL routes
-        Route::group(['prefix' => 'acl'], static function (): void {
-            Route::get('permissions/{type}/{id}/{action}', CheckResourcePermissionController::class);
-            Route::get('assignable-roles', FetchAssignableRolesController::class);
-        });
+        Route::get('demo/credits', FetchDemoCreditsController::class);
     });
-
-    // Object-storage (S3) routes
-    Route::middleware('os.auth')->prefix('os/s3')->group(static function (): void {
-        Route::post('song', [S3SongController::class, 'put'])->name('s3.song.put'); // we follow AWS's convention here.
-        Route::delete('song', [S3SongController::class, 'remove'])->name('s3.song.remove'); // and here.
-    });
-
-    Route::get('demo/credits', FetchDemoCreditsController::class);
-});
