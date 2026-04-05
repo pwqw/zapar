@@ -16,9 +16,6 @@ php artisan list | grep koel
   koel:admin:change-password  Change a user's password
   koel:doctor                 Check Koel setup
   koel:init                   Install or upgrade Koel
-  koel:license:activate       Activate a Koel Plus license
-  koel:license:deactivate     Deactivate the currently active Koel Plus license
-  koel:license:status         Check the current Koel Plus license status
   koel:podcasts:sync          Synchronize podcasts.
   koel:prune                  Remove empty artists and albums
   ...
@@ -176,42 +173,6 @@ Instead of running `php artisan koel:init` directly, you should run `composer ko
 under the hood after installing dependencies. To pass options to `php artisan koel:init`, use argument forwarding, e.g.,
 `composer koel:init -- --no-assets`.
 :::
-
-### `koel:license:activate`
-
-Activate a Koel Plus license.
-
-#### Usage
-
-```bash
-php artisan koel:license:activate <key>
-```
-
-#### Arguments
-
-| Name  | Description                  |
-|-------|------------------------------|
-| `key` | The license key to activate. |
-
-### `koel:license:deactivate`
-
-Deactivate the currently active Koel Plus license.
-
-#### Usage
-
-```bash
-php artisan koel:license:deactivate
-```
-
-### `koel:license:status`
-
-Check the current Koel Plus license status.
-
-#### Usage
-
-```bash
-php artisan koel:license:status
-```
 
 ### `koel:podcasts:sync`
 
