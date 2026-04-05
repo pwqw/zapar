@@ -323,7 +323,8 @@
   "settings": {
     "mediaPath": "Ruta de Medios",
     "noLocalStorage": "Dado que no estás usando el almacenamiento local, no es necesario establecer una ruta de medios.",
-    "mediaPathDescription": "La ruta <em>absoluta</em> al directorio del servidor que contiene tu multimedia. Koel escaneará este directorio en busca de canciones y extraerá cualquier información disponible. El escaneo puede tomar un tiempo, especialmente si tienes muchas canciones, así que ten paciencia.",
+    "mediaPathDescription": "La ruta {0} al directorio del servidor que contiene tu multimedia. Koel escaneará este directorio en busca de canciones y extraerá cualquier información disponible. El escaneo puede tomar un tiempo, especialmente si tienes muchas canciones, así que ten paciencia.",
+    "mediaPathEmphasizedWord": "absoluta",
     "mediaPathPlaceholder": "/ruta/a/tu/musica",
     "saveAndScan": "Guardar y Escanear",
     "scanning": "Escaneando…",
@@ -867,7 +868,7 @@
       "refreshNow": "Actualizar ahora"
     },
     "support": {
-      "description": "¿Te encanta Koel? Por favor, considera apoyar su desarrollo a través de <a href=\"https://github.com/users/phanan/sponsorship\" rel=\"noopener\" target=\"_blank\">GitHub Sponsors</a> y/o <a href=\"https://opencollective.com/koel\" rel=\"noopener\" target=\"_blank\">OpenCollective</a>.",
+      "description": "¿Te encanta Koel? Por favor, considera apoyar su desarrollo a través de {0} y/o {1}.",
       "hide": "Ocultar",
       "dontBugAgain": "No me molestes más"
     },

@@ -24,6 +24,8 @@ const testI18n = createI18n({
   legacy: false,
   locale: 'en',
   fallbackLocale: 'en',
+  warnHtmlInMessage: 'off',
+  globalInjection: true,
   messages: {
     en,
   },

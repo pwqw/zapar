@@ -315,7 +315,8 @@
   "settings": {
     "mediaPath": "Media Path",
     "noLocalStorage": "Since you're not using the local storage, there's no need to set a media path.",
-    "mediaPathDescription": "The <em>absolute</em> path to the server directory containing your media. Koel will scan this directory for songs and extract any available information. Scanning may take a while, especially if you have a lot of songs, so be patient.",
+    "mediaPathDescription": "The {0} path to the server directory containing your media. Koel will scan this directory for songs and extract any available information. Scanning may take a while, especially if you have a lot of songs, so be patient.",
+    "mediaPathEmphasizedWord": "absolute",
     "mediaPathPlaceholder": "/path/to/your/music",
     "saveAndScan": "Save & Scan",
     "scanning": "Scanning…",
@@ -859,7 +860,7 @@
       "refreshNow": "Refresh now"
     },
     "support": {
-      "description": "Loving Koel? Please consider supporting its development via <a href=\"https://github.com/users/phanan/sponsorship\" rel=\"noopener\" target=\"_blank\">GitHub Sponsors</a> and/or <a href=\"https://opencollective.com/koel\" rel=\"noopener\" target=\"_blank\">OpenCollective</a>.",
+      "description": "Loving Koel? Please consider supporting its development via {0} and/or {1}.",
       "hide": "Hide",
       "dontBugAgain": "Don't bug me again"
     },
