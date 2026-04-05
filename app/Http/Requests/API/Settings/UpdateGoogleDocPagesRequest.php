@@ -30,7 +30,7 @@ class UpdateGoogleDocPagesRequest extends Request
     public function messages(): array
     {
         return [
-            'pages.*.slug.regex' => 'El slug debe contener solo letras minúsculas, números y guiones (ej: terminos-y-condiciones).',
+            'pages.*.slug.regex' => 'The slug must contain only lowercase letters, numbers, and hyphens (e.g. terms-and-conditions).',
         ];
     }
 
@@ -63,7 +63,7 @@ class UpdateGoogleDocPagesRequest extends Request
             $slugs = array_column($pages, 'slug');
 
             if (count($slugs) !== count(array_unique($slugs))) {
-                $validator->errors()->add('pages', 'Los slugs deben ser únicos.');
+                $validator->errors()->add('pages', 'Slugs must be unique.');
             }
         });
     }

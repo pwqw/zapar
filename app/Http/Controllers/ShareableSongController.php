@@ -82,9 +82,9 @@ class ShareableSongController extends Controller
 
     private function buildSongDescription(string $title, ?string $artist, string $siteName): string
     {
-        $artistPart = $artist ? " de {$artist}" : '';
+        $artistPart = $artist ? " by {$artist}" : '';
 
-        return "Escucha {$title}{$artistPart} en {$siteName}.";
+        return "Listen to {$title}{$artistPart} on {$siteName}.";
     }
 
     private function resolveImageUrl(?string $image): ?string

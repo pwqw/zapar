@@ -96,7 +96,7 @@ class ShareableArtistController extends Controller
             return $summary;
         }
 
-        return "Escucha a {$name} en {$siteName}.";
+        return "Listen to {$name} on {$siteName}.";
     }
 
     private function resolveImageUrl(?string $image): ?string

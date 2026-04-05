@@ -17,7 +17,7 @@ class ShareableArtistTest extends TestCase
     public function artistInformationPageFallsBackToEncouragingDescription(): void
     {
         $artist = Artist::factory()->create([
-            'name' => 'Artista SEO',
+            'name' => 'SEO Artist',
             'image' => 'artist-seo.jpg',
         ]);
         $album = Album::factory()->for($artist)->create();
@@ -29,15 +29,15 @@ class ShareableArtistTest extends TestCase
             ->andReturn(ArtistInformation::make());
 
         $siteName = (string) koel_branding('name');
-        $expectedDescription = "Escucha a {$artist->name} en {$siteName}.";
+        $expectedDescription = "Listen to {$artist->name} on {$siteName}.";
 
         $response = $this->get("/artists/{$artist->id}/information");
 
         $response->assertOk();
-        $response->assertSee('property="og:title" content="Artista SEO"', false);
+        $response->assertSee('property="og:title" content="SEO Artist"', false);
         $response->assertSee('property="og:description" content="' . $expectedDescription . '"', false);
         $response->assertSee('property="og:image" content="' . image_storage_url($artist->image) . '"', false);
-        $response->assertSee('<title>Artista SEO</title>', false);
+        $response->assertSee('<title>SEO Artist</title>', false);
         $response->assertSee('name="description" content="' . $expectedDescription . '"', false);
         $this->assertStringContainsString('\/#\/artists\/' . $artist->id . '\/information', $response->getContent());
     }
@@ -46,13 +46,13 @@ class ShareableArtistTest extends TestCase
     public function artistWithoutPublicSongsServesDefaultOpenGraphWithoutArtistData(): void
     {
         $artist = Artist::factory()->create([
-            'name' => 'Artista Privado',
+            'name' => 'Private Artist',
         ]);
 
         $response = $this->get("/artists/{$artist->id}");
 
         $response->assertOk();
-        $response->assertDontSee('<title>Artista Privado</title>', false);
-        $response->assertDontSee('property="og:title" content="Artista Privado"', false);
+        $response->assertDontSee('<title>Private Artist</title>', false);
+        $response->assertDontSee('property="og:title" content="Private Artist"', false);
     }
 }

@@ -96,7 +96,7 @@ class ShareableAlbumController extends Controller
             return $summary;
         }
 
-        return "Escucha el album {$name} de {$artist} en {$siteName}.";
+        return "Listen to {$name} by {$artist} on {$siteName}.";
     }
 
     private function resolveImageUrl(?string $image): ?string

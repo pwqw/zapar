@@ -14,7 +14,7 @@ class ShareableAlbumTest extends TestCase
     public function publicAlbumPageServesOpenGraphMetaWithAlbumData(): void
     {
         $artist = Artist::factory()->create([
-            'name' => 'Artista Album',
+            'name' => 'Album Artist',
             'image' => 'artist-image.jpg',
         ]);
         $album = Album::factory()->for($artist)->create([
@@ -24,7 +24,7 @@ class ShareableAlbumTest extends TestCase
         Song::factory()->for($album)->public()->create();
 
         $siteName = (string) koel_branding('name');
-        $expectedDescription = "Escucha el album {$album->name} de {$artist->name} en {$siteName}.";
+        $expectedDescription = "Listen to {$album->name} by {$artist->name} on {$siteName}.";
 
         $response = $this->get("/albums/{$album->id}");
 
