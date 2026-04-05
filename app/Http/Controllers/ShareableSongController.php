@@ -82,9 +82,18 @@ class ShareableSongController extends Controller
 
     private function buildSongDescription(string $title, ?string $artist, string $siteName): string
     {
-        $artistPart = $artist ? " by {$artist}" : '';
+        if ($artist) {
+            return __('shareable.song_with_artist', [
+                'title' => $title,
+                'artist' => $artist,
+                'site' => $siteName,
+            ]);
+        }
 
-        return "Listen to {$title}{$artistPart} on {$siteName}.";
+        return __('shareable.song_without_artist', [
+            'title' => $title,
+            'site' => $siteName,
+        ]);
     }
 
     private function resolveImageUrl(?string $image): ?string

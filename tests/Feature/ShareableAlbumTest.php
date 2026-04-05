@@ -24,7 +24,11 @@ class ShareableAlbumTest extends TestCase
         Song::factory()->for($album)->public()->create();
 
         $siteName = (string) koel_branding('name');
-        $expectedDescription = "Listen to {$album->name} by {$artist->name} on {$siteName}.";
+        $expectedDescription = __('shareable.album_fallback', [
+            'name' => $album->name,
+            'artist' => $artist->name,
+            'site' => $siteName,
+        ], 'en');
 
         $response = $this->get("/albums/{$album->id}");
 

@@ -96,7 +96,10 @@ class ShareableArtistController extends Controller
             return $summary;
         }
 
-        return "Listen to {$name} on {$siteName}.";
+        return __('shareable.artist_fallback', [
+            'name' => $name,
+            'site' => $siteName,
+        ]);
     }
 
     private function resolveImageUrl(?string $image): ?string

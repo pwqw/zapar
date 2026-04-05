@@ -26,7 +26,11 @@ class ShareableSongTest extends TestCase
         ]);
 
         $siteName = (string) koel_branding('name');
-        $expectedDescription = "Listen to {$song->title} by {$artist->name} on {$siteName}.";
+        $expectedDescription = __('shareable.song_with_artist', [
+            'title' => $song->title,
+            'artist' => $artist->name,
+            'site' => $siteName,
+        ], 'en');
 
         $response = $this->get("/songs/{$song->id}");
 
@@ -37,6 +41,37 @@ class ShareableSongTest extends TestCase
         $response->assertSee('<title>Song One</title>', false);
         $response->assertSee('name="description" content="' . $expectedDescription . '"', false);
         $this->assertStringContainsString('\/#\/songs\/' . $song->id, $response->getContent());
+    }
+
+    #[Test]
+    public function publicSongPageServesSpanishOpenGraphMetaWhenLocaleIsSpanish(): void
+    {
+        $this->app->setLocale('es');
+
+        $artist = Artist::factory()->create([
+            'name' => 'Artista Uno',
+            'image' => 'artist-cover.jpg',
+        ]);
+        $album = Album::factory()->for($artist)->create([
+            'name' => 'Álbum Uno',
+            'cover' => 'album-cover.jpg',
+        ]);
+        $song = Song::factory()->for($album)->public()->create([
+            'title' => 'Canción Uno',
+        ]);
+
+        $siteName = (string) koel_branding('name');
+        $expectedDescription = __('shareable.song_with_artist', [
+            'title' => $song->title,
+            'artist' => $artist->name,
+            'site' => $siteName,
+        ], 'es');
+
+        $response = $this->get("/songs/{$song->id}");
+
+        $response->assertOk();
+        $response->assertSee('property="og:description" content="' . $expectedDescription . '"', false);
+        $response->assertSee('name="description" content="' . $expectedDescription . '"', false);
     }
 
     #[Test]
