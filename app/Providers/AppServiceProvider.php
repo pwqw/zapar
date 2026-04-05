@@ -15,8 +15,8 @@ use App\Services\Contracts\Encyclopedia;
 use App\Services\Geolocation\Contracts\GeolocationService;
 use App\Services\Geolocation\IPinfoService;
 use App\Services\LastfmService;
+use App\Services\License\CommunityLicenseService;
 use App\Services\License\Contracts\LicenseServiceInterface;
-use App\Services\LicenseService;
 use App\Services\MusicBrainzService;
 use App\Services\NullEncyclopedia;
 use App\Services\Scanners\Contracts\ScannerCacheStrategy as ScannerCacheStrategyContract;
@@ -72,7 +72,7 @@ class AppServiceProvider extends ServiceProvider
             return app(NullEncyclopedia::class);
         });
 
-        $this->app->bind(LicenseServiceInterface::class, LicenseService::class);
+        $this->app->bind(LicenseServiceInterface::class, CommunityLicenseService::class);
 
         $this->app->bind(ScannerCacheStrategyContract::class, static function () {
             // Use a no-cache strategy for unit tests to ensure consistent results

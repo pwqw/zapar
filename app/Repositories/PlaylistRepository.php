@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-use App\Facades\License;
 use App\Models\Playlist;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -28,6 +27,6 @@ class PlaylistRepository extends Repository
 
     private static function accessibleByUser(User $user): BelongsToMany
     {
-        return License::isCommunity() ? $user->ownedPlaylists() : $user->playlists();
+        return $user->playlists();
     }
 }

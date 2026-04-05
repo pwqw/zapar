@@ -60,11 +60,6 @@ class SongBuilder extends FavoriteableBuilder
 
     public function accessible(): self
     {
-        if (License::isCommunity()) {
-            // In the Community Edition, all songs are accessible by all users.
-            return $this;
-        }
-
         throw_unless($this->user, new LogicException('User must be set to query accessible songs.'));
 
         // We want to alias both podcasts and podcast_user tables to avoid possible conflicts with other joins.

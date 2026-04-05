@@ -4,12 +4,18 @@
     <testsuites>
         <testsuite name="feature">
             <directory suffix="Test.php">./tests/Feature</directory>
+            <!-- Upstream parity: vendor license command tests; excluded in this fork (CommunityLicenseService). -->
+            <exclude>./tests/Feature/Commands/ActivateLicenseCommandTest.php</exclude>
+            <exclude>./tests/Feature/Commands/CheckLicenseStatusCommandTest.php</exclude>
+            <exclude>./tests/Feature/Commands/DeactivateLicenseCommandTest.php</exclude>
         </testsuite>
         <testsuite name="unit">
             <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>
         <testsuite name="integration">
             <directory suffix="Test.php">./tests/Integration</directory>
+            <!-- Upstream parity: vendor LicenseService integration tests; excluded in this fork. -->
+            <exclude>./tests/Integration/Services/LicenseServiceTest.php</exclude>
         </testsuite>
     </testsuites>
     <php>
@@ -29,6 +35,8 @@
         <!-- Spotify integration during tests must be opt-in -->
         <env name="SPOTIFY_CLIENT_ID" value=""/>
         <env name="SPOTIFY_CLIENT_SECRET" value=""/>
+        <!-- Koel Plus: 1 skips Plus tests (main CI); 0 runs them (local / master). -->
+        <env name="SKIP_KOEL_PLUS_TESTS" value="0"/>
         <env name="YOUTUBE_API_KEY" value="foo"/>
         <env name="AWS_REGION" value="us-west-2"/>
         <env name="AWS_BUCKET" value="koel"/>

@@ -3,13 +3,15 @@
 namespace App\Values\License;
 
 use App\Enums\LicenseStatus as Status;
-use App\Models\License;
 
+/**
+ * Plus/Koel licensing is disabled in this fork; {@see self::valid()} accepts a plain object for stubs.
+ */
 final class LicenseStatus
 {
     private function __construct(
         public Status $status,
-        public ?License $license,
+        public ?object $license,
     ) {}
 
     public function isValid(): bool
@@ -27,17 +29,17 @@ final class LicenseStatus
         return new self(Status::NO_LICENSE, null);
     }
 
-    public static function valid(License $license): self
+    public static function valid(object $license): self
     {
         return new self(Status::VALID, $license);
     }
 
-    public static function invalid(License $license): self
+    public static function invalid(object $license): self
     {
         return new self(Status::INVALID, $license);
     }
 
-    public static function unknown(License $license): self
+    public static function unknown(object $license): self
     {
         return new self(Status::UNKNOWN, $license);
     }

@@ -206,6 +206,15 @@ return [
         'enabled' => env('AI_ENABLED', false),
     ],
 
+    /*
+     |--------------------------------------------------------------------------
+     | Koel Plus (compatibility only; no payment backend in this fork)
+     |--------------------------------------------------------------------------
+     */
+    'plus' => [
+        'product_id' => env('KOEL_PLUS_PRODUCT_ID'),
+    ],
+
     'misc' => [
         'home_url' => 'https://koel.dev',
         'docs_url' => 'https://docs.koel.dev',

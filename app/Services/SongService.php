@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Events\LibraryChanged;
 use App\Facades\Dispatcher;
-use App\Facades\License;
 use App\Jobs\DeleteSongFilesJob;
 use App\Jobs\DeleteTranscodeFilesJob;
 use App\Jobs\ExtractSongFolderStructureJob;
@@ -157,8 +156,6 @@ class SongService
     /** @return array<string> IDs of songs that are marked as private */
     public function markSongsAsPrivate(EloquentCollection $songs): array
     {
-        License::requirePlus();
-
         // Songs that are in collaborative playlists can't be marked as private.
         /**
          * @var Collection<array-key, Song> $collaborativeSongs

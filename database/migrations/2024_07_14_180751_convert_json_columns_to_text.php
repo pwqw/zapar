@@ -19,10 +19,12 @@ return new class extends Migration {
             $table->text('song_ids')->change();
         });
 
-        Schema::table('licenses', static function (Blueprint $table): void {
-            $table->text('instance')->nullable()->change();
-            $table->text('meta')->nullable()->change();
-        });
+        if (Schema::hasTable('licenses')) {
+            Schema::table('licenses', static function (Blueprint $table): void {
+                $table->text('instance')->nullable()->change();
+                $table->text('meta')->nullable()->change();
+            });
+        }
 
         Schema::table('songs', static function (Blueprint $table): void {
             $table->text('episode_metadata')->nullable()->change();

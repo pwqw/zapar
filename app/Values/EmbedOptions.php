@@ -2,7 +2,6 @@
 
 namespace App\Values;
 
-use App\Facades\License;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -14,13 +13,7 @@ class EmbedOptions implements Arrayable
         public string $theme,
         public string $layout,
         public bool $preview,
-    ) {
-        // Preview mode and theme are only customizable in Koel Plus
-        if (License::isCommunity()) {
-            $this->theme = 'classic';
-            $this->preview = false;
-        }
-    }
+    ) {}
 
     public static function make(string $theme = 'classic', string $layout = 'full', bool $preview = false): self
     {

@@ -12,8 +12,4 @@ return new class extends Migration
         Cache::forget('license_status');
     }
 
-    public function down(): void
-    {
-        // No rollback - licensing system has been permanently removed
-    }
 };

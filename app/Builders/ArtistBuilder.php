@@ -33,10 +33,6 @@ class ArtistBuilder extends FavoriteableBuilder
 
     private function accessible(): self
     {
-        if (License::isCommunity()) {
-            return $this;
-        }
-
         throw_unless($this->user, new LogicException('User must be set to query accessible artists.'));
 
         if (!$this->user->preferences->includePublicMedia) {

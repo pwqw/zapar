@@ -3,7 +3,6 @@
 namespace App\Models\Concerns\Users;
 
 use App\Enums\Acl\Role as RoleEnum;
-use App\Facades\License;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Arr;
 
@@ -29,7 +28,7 @@ trait HasUserAttributes
 
     protected function isSso(): Attribute
     {
-        return Attribute::get(fn (): bool => License::isPlus() && $this->sso_provider)->shouldCache();
+        return Attribute::get(fn (): bool => (bool) $this->sso_provider)->shouldCache();
     }
 
     protected function connectedToLastfm(): Attribute

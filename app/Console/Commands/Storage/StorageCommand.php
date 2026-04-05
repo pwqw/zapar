@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\Storage;
 
-use App\Facades\License;
 use App\Models\Setting;
 use Illuminate\Console\Command;
 
@@ -22,21 +21,17 @@ class StorageCommand extends Command
             $this->components->twoColumnDetail('Media path', Setting::get('media_path') ?: '<not set>');
         }
 
-        if (License::isPlus()) {
-            $choices = [
-                'local' => 'This server',
-                's3' => 'Amazon S3 or compatible services (DO Spaces, Cloudflare R2, etc.)',
-                'dropbox' => 'Dropbox',
-            ];
+        $choices = [
+            'local' => 'This server',
+            's3' => 'Amazon S3 or compatible services (DO Spaces, Cloudflare R2, etc.)',
+            'dropbox' => 'Dropbox',
+        ];
 
-            $driver = $this->choice(
-                'Where do you want to store your media files?',
-                $choices,
-                config('koel.storage_driver'),
-            );
-        } else {
-            $driver = 'local';
-        }
+        $driver = $this->choice(
+            'Where do you want to store your media files?',
+            $choices,
+            config('koel.storage_driver'),
+        );
 
         if ($this->call("koel:storage:$driver") === self::SUCCESS) {
             $this->output->success('Storage has been set up.');

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Facades\License;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\AddSongsToPlaylistRequest;
 use App\Http\Requests\API\Playlist\RemoveSongsFromPlaylistRequest;
@@ -56,7 +55,7 @@ class PlaylistSongController extends Controller
 
     private static function createResourceCollection(Collection $songs): ResourceCollection
     {
-        return License::isPlus() ? CollaborativeSongResource::collection($songs) : SongResource::collection($songs);
+        return CollaborativeSongResource::collection($songs);
     }
 
     public function destroy(Playlist $playlist, RemoveSongsFromPlaylistRequest $request)
