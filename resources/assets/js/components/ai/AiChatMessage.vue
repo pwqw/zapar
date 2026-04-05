@@ -10,8 +10,8 @@
         v-if="message.role === 'assistant' && !message.error"
         class="copy-btn"
         type="button"
-        aria-label="Copy message to clipboard"
-        title="Copy to clipboard"
+        :aria-label="$t('ai.copyMessageAria')"
+        :title="$t('ai.copyToClipboard')"
         @click="copy"
       >
         <ClipboardCheckIcon v-if="copied" class="size-4" />

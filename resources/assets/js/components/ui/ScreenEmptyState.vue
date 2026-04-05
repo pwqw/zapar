@@ -8,7 +8,9 @@
         <slot name="icon">☕️</slot>
       </span>
       <div class="text text-center text-3xl font-light flex flex-col gap-2">
-        <slot>Placeholder text goes here.</slot>
+        <slot>
+          <span>{{ $t('ui.tooltips.placeholderEmptyState') }}</span>
+        </slot>
       </div>
     </div>
   </article>

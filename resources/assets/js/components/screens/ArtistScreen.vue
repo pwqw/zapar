@@ -32,7 +32,7 @@
             />
             <Btn gray @click="requestContextMenu">
               <Icon :icon="faEllipsis" fixed-width />
-              <span class="sr-only">More Actions</span>
+              <span class="sr-only">{{ $t('misc.moreActions') }}</span>
             </Btn>
           </SongListControls>
         </template>
@@ -44,16 +44,16 @@
         <nav>
           <ul>
             <li :class="activeTab === 'songs' && 'active'">
-              <a :href="url('artists.show', { id: artist.id, tab: 'songs' })">Songs</a>
+              <a :href="url('artists.show', { id: artist.id, tab: 'songs' })">{{ $t('misc.songs') }}</a>
             </li>
             <li :class="activeTab === 'albums' && 'active'">
-              <a :href="url('artists.show', { id: artist.id, tab: 'albums' })">Albums</a>
+              <a :href="url('artists.show', { id: artist.id, tab: 'albums' })">{{ $t('misc.albums') }}</a>
             </li>
             <li v-if="useEncyclopedia" :class="activeTab === 'information' && 'active'">
-              <a :href="url('artists.show', { id: artist.id, tab: 'information' })">Information</a>
+              <a :href="url('artists.show', { id: artist.id, tab: 'information' })">{{ $t('misc.information') }}</a>
             </li>
             <li v-if="useTicketmaster" :class="activeTab === 'events' && 'active'">
-              <a :href="url('artists.show', { id: artist.id, tab: 'events' })">Events</a>
+              <a :href="url('artists.show', { id: artist.id, tab: 'events' })">{{ $t('misc.events') }}</a>
             </li>
           </ul>
         </nav>

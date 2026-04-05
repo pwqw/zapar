@@ -2,7 +2,7 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader :layout="playables.length === 0 ? 'collapsed' : headerLayout">
-        Current Queue
+        {{ $t('screens.currentQueue') }}
 
         <template #thumbnail>
           <ThumbnailStack :thumbnails />
@@ -42,10 +42,11 @@
         <Icon :icon="faCoffee" />
       </template>
 
-      No songs queued.
+      {{ $t('emptyStates.queueEmpty') }}
       <span v-if="libraryNotEmpty" class="block secondary">
-        How about
-        <a class="start" @click.prevent="shuffleSome">playing some random songs</a>?
+        {{ $t('screens.howAboutPlayingRandom') }}
+        <a class="start" @click.prevent="shuffleSome">{{ $t('screens.playingSomeRandomSongs') }}</a
+        >?
       </span>
     </ScreenEmptyState>
   </ScreenBase>

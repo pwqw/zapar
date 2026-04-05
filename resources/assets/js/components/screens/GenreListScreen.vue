@@ -2,7 +2,7 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed" :disabled="loading">
-        Genres
+        {{ $t('sidebar.genres') }}
 
         <template #controls>
           <div class="flex gap-2">
@@ -22,8 +22,8 @@
       <template #icon>
         <GuitarIcon :size="96" />
       </template>
-      No genres found.
-      <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
+      {{ $t('screens.noGenresFound') }}
+      <span v-if="currentUserCan.manageSettings()" class="secondary block">{{ $t('screens.home.setupLibrary') }}</span>
     </ScreenEmptyState>
 
     <template v-else>

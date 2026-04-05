@@ -1,33 +1,36 @@
 <template>
   <ul>
-    <MenuItem @click="play">Play</MenuItem>
-    <MenuItem @click="shuffle">Shuffle</MenuItem>
-    <MenuItem @click="addToQueue">Add to Queue</MenuItem>
+    <MenuItem @click="play">{{ t('ui.buttons.play') }}</MenuItem>
+    <MenuItem @click="shuffle">{{ t('albums.shuffle') }}</MenuItem>
+    <MenuItem @click="addToQueue">{{ t('playlists.addToQueue') }}</MenuItem>
     <MenuItem>
-      Share
+      {{ t('playlists.share') }}
       <template #subMenuItems>
-        <MenuItem @click="showEmbedModal">Embed…</MenuItem>
-        <MenuItem v-if="canShowCollaboration" @click="showCollaborationModal">Collaborate…</MenuItem>
+        <MenuItem @click="showEmbedModal">{{ t('playlists.embed') }}</MenuItem>
+        <MenuItem v-if="canShowCollaboration" @click="showCollaborationModal">{{ t('playlists.collaborate') }}</MenuItem>
       </template>
     </MenuItem>
     <template v-if="allowDownload">
       <Separator />
-      <MenuItem @click="download">Download</MenuItem>
+      <MenuItem @click="download">{{ t('playlists.download') }}</MenuItem>
     </template>
     <template v-if="canToggleOffline">
       <Separator />
-      <MenuItem @click="toggleOffline">{{ allCached ? 'Remove Offline Versions' : 'Make Available Offline' }}</MenuItem>
+      <MenuItem @click="toggleOffline">{{
+        allCached ? t('offline.removeOfflineVersions') : t('offline.makeAvailableOffline')
+      }}</MenuItem>
     </template>
     <template v-if="canEditPlaylist">
       <Separator />
-      <MenuItem @click="edit">Edit…</MenuItem>
-      <MenuItem @click="destroy">Delete</MenuItem>
+      <MenuItem @click="edit">{{ t('playlists.edit') }}</MenuItem>
+      <MenuItem @click="destroy">{{ t('playlists.delete') }}</MenuItem>
     </template>
   </ul>
 </template>
 
 <script lang="ts" setup>
 import { computed, onMounted, ref, toRef, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { eventBus } from '@/utils/eventBus'
 import { defineAsyncComponent } from '@/utils/helpers'
 import { pluralize } from '@/utils/formatters'
@@ -48,6 +51,8 @@ import { useDownload } from '@/composables/useDownload'
 
 const props = defineProps<{ playlist: Playlist }>()
 const { playlist } = toRefs(props)
+
+const { t } = useI18n()
 
 const EditPlaylistForm = defineAsyncComponent(() => import('@/components/playlist/EditPlaylistForm.vue'))
 const EditSmartPlaylistForm = defineAsyncComponent(
@@ -81,9 +86,9 @@ const edit = () =>
 
 const destroy = () =>
   trigger(async () => {
-    if (await showConfirmDialog(`Delete the playlist "${playlist.value.name}"?`)) {
+    if (await showConfirmDialog(t('playlists.deleteConfirm', { name: playlist.value.name }))) {
       await playlistStore.delete(playlist.value)
-      toastSuccess(`Playlist "${playlist.value.name}" deleted.`)
+      toastSuccess(t('playlists.deleted', { name: playlist.value.name }))
       eventBus.emit('PLAYLIST_DELETED', playlist.value)
     }
   })
@@ -99,7 +104,7 @@ const play = () =>
       playback().queueAndPlay(songs)
       go(url('queue'))
     } else {
-      toastWarning('The playlist is empty.')
+      toastWarning(t('playlists.empty'))
     }
   })
 
@@ -111,7 +116,7 @@ const shuffle = () =>
       playback().queueAndPlay(songs, true)
       go(url('queue'))
     } else {
-      toastWarning('The playlist is empty.')
+      toastWarning(t('playlists.empty'))
     }
   })
 
@@ -121,9 +126,9 @@ const addToQueue = () =>
 
     if (songs.length) {
       queueStore.queueAfterCurrent(songs)
-      toastSuccess('Playlist added to queue.')
+      toastSuccess(t('playlists.addedToQueue'))
     } else {
-      toastWarning('The playlist is empty.')
+      toastWarning(t('playlists.empty'))
     }
   })
 
@@ -139,14 +144,18 @@ const allCached = computed(() => allPlayablesCached(playlistSongs.value))
 
 const toggleOffline = () =>
   trigger(async () => {
-    if (!playlistSongs.value.length) return
+    if (!playlistSongs.value.length) {
+      return
+    }
 
     if (allCached.value) {
       removePlayablesOfflineCache(playlistSongs.value)
-      toastSuccess(`Removed offline versions for "${playlist.value.name}".`)
+      toastSuccess(t('playlists.removedOfflineVersionsFor', { name: playlist.value.name }))
     } else {
       makePlayablesAvailableOffline(playlistSongs.value)
-      toastSuccess(`Making ${pluralize(playlistSongs.value, 'song')} available offline…`)
+      toastSuccess(
+        t('playlists.makingSongsAvailableOffline', { items: pluralize(playlistSongs.value, 'song') }),
+      )
     }
   })
 

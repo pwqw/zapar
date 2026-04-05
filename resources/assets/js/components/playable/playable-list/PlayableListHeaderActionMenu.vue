@@ -1,6 +1,6 @@
 <template>
   <article>
-    <button ref="button" class="w-full focus:text-k-highlight" title="Sort" @click.stop="trigger">
+    <button ref="button" class="w-full focus:text-k-highlight" :title="t('ui.tooltips.sort')" @click.stop="trigger">
       <Icon v-if="sortable" :icon="faSort" />
       <Icon v-else :icon="faEllipsis" />
     </button>
@@ -21,7 +21,7 @@
             <input
               :checked="shouldShowColumn(item.column!)"
               :disabled="!item.visibilityToggleable"
-              :title="item.visibilityToggleable ? `Click to toggle the ${item.label} column` : ''"
+              :title="item.visibilityToggleable ? t('songs.clickToToggleColumn', { label: item.label }) : ''"
               class="disabled:opacity-20 disabled:cursor-not-allowed bg-k-fg group-hover:border-k-highlight-fg h-4 aspect-square rounded checked:border-k-fg-70 checked:border-2 checked:bg-k-highlight"
               type="checkbox"
             />
@@ -43,6 +43,7 @@ import { isEqual } from 'lodash'
 import { faArrowDown, faArrowUp, faCheck, faEllipsis, faSort } from '@fortawesome/free-solid-svg-icons'
 import { OnClickOutside } from '@vueuse/components'
 import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useFloatingUi } from '@/composables/useFloatingUi'
 import { arrayify } from '@/utils/helpers'
 import type { getPlayableCollectionContentType } from '@/utils/typeGuards'
@@ -69,6 +70,8 @@ const props = withDefaults(
 
 const emit = defineEmits<{ (e: 'sort', field: MaybeArray<PlayableListSortField>): void }>()
 
+const { t } = useI18n()
+
 interface MenuItem {
   column?: PlayableListColumnName
   label: string
@@ -88,49 +91,54 @@ const button = ref<HTMLButtonElement>()
 const menu = ref<HTMLDivElement>()
 
 const menuItems = computed(() => {
-  const title: MenuItem = { column: 'title', label: 'Title', field: 'title', visibilityToggleable: false }
-  const artist: MenuItem = { label: 'Artist', field: 'artist_name', visibilityToggleable: false }
-  const author: MenuItem = { label: 'Author', field: 'podcast_author', visibilityToggleable: false }
+  const title: MenuItem = { column: 'title', label: t('songs.title'), field: 'title', visibilityToggleable: false }
+  const artist: MenuItem = { label: t('songs.artist'), field: 'artist_name', visibilityToggleable: false }
+  const author: MenuItem = { label: t('songs.author'), field: 'podcast_author', visibilityToggleable: false }
 
   const artistOrAuthor: MenuItem = {
-    label: 'Artist or Author',
+    label: t('songs.artistOrAuthor'),
     field: ['artist_name', 'podcast_author'],
     visibilityToggleable: false,
   }
 
-  const album: MenuItem = { column: 'album', label: 'Album', field: 'album_name', visibilityToggleable: true }
-  const track: MenuItem = { column: 'track', label: 'Track & Disc', field: 'track', visibilityToggleable: true }
-  const time: MenuItem = { column: 'duration', label: 'Time', field: 'length', visibilityToggleable: true }
-  const genre: MenuItem = { column: 'genre', label: 'Genre', field: 'genre', visibilityToggleable: true }
-  const year: MenuItem = { column: 'year', label: 'Year', field: 'year', visibilityToggleable: true }
+  const album: MenuItem = { column: 'album', label: t('songs.album'), field: 'album_name', visibilityToggleable: true }
+  const track: MenuItem = { column: 'track', label: t('songs.trackAndDisc'), field: 'track', visibilityToggleable: true }
+  const time: MenuItem = { column: 'duration', label: t('songs.time'), field: 'length', visibilityToggleable: true }
+  const genre: MenuItem = { column: 'genre', label: t('songs.genre'), field: 'genre', visibilityToggleable: true }
+  const year: MenuItem = { column: 'year', label: t('songs.year'), field: 'year', visibilityToggleable: true }
 
   const dateAdded: MenuItem = {
-    label: 'Date Added',
+    label: t('songs.dateAdded'),
     field: 'created_at',
     visibilityToggleable: false,
   }
 
-  const podcast: MenuItem = { column: 'album', label: 'Podcast', field: 'podcast_title', visibilityToggleable: true }
+  const podcast: MenuItem = {
+    column: 'album',
+    label: t('menu.playable.podcast'),
+    field: 'podcast_title',
+    visibilityToggleable: true,
+  }
 
   const albumOrPodcast: MenuItem = {
     column: 'album',
-    label: 'Album or Podcast',
+    label: t('songs.albumOrPodcast'),
     field: ['album_name', 'podcast_title'],
     visibilityToggleable: true,
   }
 
-  const customOrder: MenuItem = { label: 'Custom Order', field: 'position', visibilityToggleable: false }
+  const customOrder: MenuItem = { label: t('songs.customOrder'), field: 'position', visibilityToggleable: false }
 
   const collaborator: MenuItem = {
     column: 'playlist_collaborator',
-    label: 'User',
+    label: t('users.roles.user.label'),
     field: 'collaboration.user.name',
     visibilityToggleable: true,
   }
 
   const contributedAt: MenuItem = {
     column: 'playlist_added_at',
-    label: 'Contributed',
+    label: t('ui.tooltips.contributed'),
     field: 'collaboration.added_at',
     visibilityToggleable: true,
   }

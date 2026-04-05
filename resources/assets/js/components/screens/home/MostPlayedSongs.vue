@@ -1,10 +1,10 @@
 <template>
   <HomeScreenBlock>
-    <template #header>Most Played</template>
+    <template #header>{{ $t('screens.mostPlayed') }}</template>
     <PlayableCardGridSkeleton v-if="loading" class="-mx-6" />
     <template v-else>
       <PlayableCardGrid v-if="playables.length" class="-mx-6" :playables />
-      <p v-else>Nothing played as of late.</p>
+      <p v-else>{{ $t('emptyStates.mostPlayedEmpty') }}</p>
     </template>
   </HomeScreenBlock>
 </template>

@@ -37,7 +37,7 @@
 
             <Btn gray @click="requestContextMenu">
               <Icon :icon="faEllipsis" fixed-width />
-              <span class="sr-only">More Actions</span>
+              <span class="sr-only">{{ $t('misc.moreActions') }}</span>
             </Btn>
           </SongListControls>
         </template>
@@ -49,13 +49,13 @@
         <nav>
           <ul>
             <li :class="activeTab === 'songs' && 'active'">
-              <a :href="url('albums.show', { id: album.id, tab: 'songs' })">Songs</a>
+              <a :href="url('albums.show', { id: album.id, tab: 'songs' })">{{ $t('misc.songs') }}</a>
             </li>
             <li :class="activeTab === 'other-albums' && 'active'">
-              <a :href="url('albums.show', { id: album.id, tab: 'other-albums' })">Other Albums</a>
+              <a :href="url('albums.show', { id: album.id, tab: 'other-albums' })">{{ $t('misc.otherAlbums') }}</a>
             </li>
             <li v-if="useEncyclopedia" :class="activeTab === 'information' && 'active'">
-              <a :href="url('albums.show', { id: album.id, tab: 'information' })">Information</a>
+              <a :href="url('albums.show', { id: album.id, tab: 'information' })">{{ $t('misc.information') }}</a>
             </li>
           </ul>
         </nav>

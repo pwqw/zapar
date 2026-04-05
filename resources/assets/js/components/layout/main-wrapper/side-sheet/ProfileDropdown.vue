@@ -14,14 +14,14 @@
     </button>
 
     <ul v-if="open" v-koel-focus class="context-menu" tabindex="0" @keydown.esc="open = false">
-      <ContextMenuItem data-testid="profile-preferences-link" @click="goToProfile"
-        >Profile & Preferences</ContextMenuItem
-      >
+      <ContextMenuItem data-testid="profile-preferences-link" @click="goToProfile">{{
+        t('ui.tooltips.profilePreferences')
+      }}</ContextMenuItem>
       <li class="separator" />
-      <ContextMenuItem data-testid="logout-btn" @click="logout">Log Out</ContextMenuItem>
+      <ContextMenuItem data-testid="logout-btn" @click="logout">{{ t('misc.logOut') }}</ContextMenuItem>
       <li class="separator" />
       <ContextMenuItem data-testid="about-btn" @click="openAbout">
-        {{ shouldNotifyNewVersion ? 'New version available!' : `About ${appName}` }}
+        {{ shouldNotifyNewVersion ? t('meta.newVersionAvailable') : t('meta.about', { app: appName }) }}
       </ContextMenuItem>
     </ul>
   </div>
@@ -29,6 +29,7 @@
 
 <script lang="ts" setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { eventBus } from '@/utils/eventBus'
 import { useAuthorization } from '@/composables/useAuthorization'
 import { useRouter } from '@/composables/useRouter'
@@ -42,6 +43,7 @@ import UserAvatar from '@/components/user/UserAvatar.vue'
 
 const AboutKoelModal = defineAsyncComponent(() => import('@/components/meta/AboutKoelModal.vue'))
 
+const { t } = useI18n()
 const { go, url } = useRouter()
 const { currentUser } = useAuthorization()
 const { shouldNotifyNewVersion } = useNewVersionNotification()

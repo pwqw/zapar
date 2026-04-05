@@ -15,7 +15,7 @@
     </template>
 
     <template v-if="!loading && info?.url" #footer>
-      <a :href="info.url" rel="noopener" target="_blank">Source</a>
+      <a :href="info.url" rel="noopener" target="_blank">{{ $t('albums.source') }}</a>
     </template>
   </AlbumArtistInfo>
 </template>

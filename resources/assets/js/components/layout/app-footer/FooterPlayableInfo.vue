@@ -8,7 +8,7 @@
     <span
       v-koel-tooltip
       :class="playable && 'cursor-pointer'"
-      :title="playable ? 'Scroll to currently playing' : undefined"
+      :title="playable ? t('ui.tooltips.scrollToCurrentPlaying') : undefined"
       class="album-thumb block h-[55%] md:h-3/4 aspect-square rounded-full bg-cover"
       @click="scrollToCurrentInQueue"
     />
@@ -26,6 +26,7 @@
 <script lang="ts" setup>
 import type { Ref } from 'vue'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getPlayableProp, requireInjection, use } from '@/utils/helpers'
 import { isSong } from '@/utils/typeGuards'
 import { CurrentStreamableKey } from '@/config/symbols'
@@ -36,6 +37,7 @@ import { cache } from '@/services/cache'
 
 import MarqueeText from '@/components/ui/MarqueeText.vue'
 
+const { t } = useI18n()
 const { startDragging } = useDraggable('playables')
 const { go, url } = useRouter()
 const { cover: defaultCover } = useBranding()

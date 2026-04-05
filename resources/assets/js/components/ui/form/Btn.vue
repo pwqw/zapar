@@ -6,7 +6,7 @@
     type="button"
     :disabled="disabled"
   >
-    <slot>Click me</slot>
+    <slot>{{ $t('buttons.clickMe') }}</slot>
   </button>
   <a
     v-else
@@ -14,7 +14,7 @@
     class="text-base text-white border border-transparent bg-k-primary px-3.5 py-2 rounded cursor-pointer"
     :aria-disabled="disabled"
   >
-    <slot>Click me</slot>
+    <slot>{{ $t('buttons.clickMe') }}</slot>
   </a>
 </template>
 

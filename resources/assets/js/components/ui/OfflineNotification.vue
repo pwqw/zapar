@@ -2,11 +2,11 @@
   <article
     v-if="!dismissed"
     class="text-orange-600 p-4 bg-white rounded-md flex items-center gap-3 fixed z-[10000] left-6 shadow-lg cursor-pointer max-w-xs"
-    title="Click to dismiss"
+    :title="$t('ui.tooltips.clickToDismiss')"
     @click="dismissed = true"
   >
     <WifiOff :size="20" class="shrink-0" />
-    <span class="text-gray-800">You're offline.</span>
+    <span class="text-gray-800">{{ $t('notifications.offline') }}</span>
   </article>
 </template>
 

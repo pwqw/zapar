@@ -31,9 +31,9 @@
         <img
           v-if="user.sso_provider === 'Google'"
           :src="googleLogo"
-          alt="Google"
+          :alt="t('ui.altText.googleLogo')"
           height="14"
-          title="Google SSO"
+          :title="t('ui.tooltips.googleSso')"
           width="14"
         />
       </h3>

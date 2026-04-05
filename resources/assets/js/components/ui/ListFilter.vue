@@ -1,7 +1,7 @@
 <template>
   <OnClickOutside @trigger="maybeHideInput">
     <form class="flex border rounded-md border-k-fg-10 focus-within:border-k-highlight" @submit.prevent>
-      <button v-koel-tooltip class="px-3.5 py-2" title="Filter" type="button" @click.prevent="showInput">
+      <button v-koel-tooltip class="px-3.5 py-2" :title="$t('ui.tooltips.filter')" type="button" @click.prevent="showInput">
         <Icon :icon="faFilter" fixed-width />
       </button>
       <TextInput
@@ -9,7 +9,7 @@
         ref="input"
         v-model="keywords"
         class="text-k-fg bg-transparent border-0 rounded-none !pl-0 !h-[unset] placeholder:text-k-fg-50 outline-none"
-        placeholder="Keywords"
+        :placeholder="$t('form.placeholders.keywords')"
         type="search"
         @blur="inputting = false"
         @focus="inputting = true"

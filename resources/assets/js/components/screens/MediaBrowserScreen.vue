@@ -2,12 +2,12 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader :disabled="loading">
-        Media Browser
+        {{ $t('ui.tooltips.mediaBrowserTitle') }}
 
         <template #meta>
           <div class="flex items-center gap-2 mt-2">
             <Breadcrumbs :path class="flex-1" />
-            <Btn transparent small title="Reload" @click.prevent="refresh">
+            <Btn transparent small :title="$t('misc.reload')" @click.prevent="refresh">
               <Icon :icon="faRotateRight" />
             </Btn>
           </div>
@@ -16,8 +16,8 @@
     </template>
 
     <ScreenEmptyState v-if="libraryEmpty">
-      No files found.
-      <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
+      {{ $t('screens.noFilesFound') }}
+      <span v-if="currentUserCan.manageSettings()" class="secondary block">{{ $t('screens.home.setupLibrary') }}</span>
     </ScreenEmptyState>
 
     <div v-else class="-m-6 h-full min-h-full flex flex-col flex-1 overflow-auto">
@@ -35,7 +35,7 @@
         <template #icon>
           <Icon :icon="faFolderOpen" class="text-k-fg" />
         </template>
-        This folder is empty.
+        {{ $t('ui.tooltips.folderEmpty') }}
       </ScreenEmptyState>
     </div>
   </ScreenBase>

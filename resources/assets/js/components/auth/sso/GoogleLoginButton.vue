@@ -1,7 +1,7 @@
 <template>
   <button
     class="opacity-50 hover:opacity-100"
-    title="Log in with Google"
+    :title="$t('ui.tooltips.loginWithGoogle')"
     type="button"
     @click.prevent="loginWithGoogle"
   >

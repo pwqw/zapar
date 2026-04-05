@@ -1,8 +1,8 @@
 <template>
   <div class="select-none w-full flex flex-col" tabindex="0" @keydown.esc="close">
     <header>
-      <SelectBox v-model="selectedPresetName" class="!bg-black/30 !text-white" title="Select equalizer">
-        <option :value="null" disabled>Preset</option>
+      <SelectBox v-model="selectedPresetName" class="!bg-black/30 !text-white" :title="$t('ui.tooltips.selectEqualizer')">
+        <option :value="null" disabled>{{ $t('ui.equalizer.preset') }}</option>
         <option v-for="preset in presets" :key="preset.name!" :value="preset.name">{{ preset.name }}</option>
       </SelectBox>
     </header>

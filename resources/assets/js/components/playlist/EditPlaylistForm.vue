@@ -1,30 +1,30 @@
 <template>
   <form @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>Edit Playlist</h1>
+      <h1>{{ $t('playlists.editPlaylistHeading') }}</h1>
     </header>
 
     <main>
       <div class="grid grid-cols-2 gap-4">
         <FormRow>
           <template #label>Name *</template>
-          <TextInput v-model="data.name" v-koel-focus name="name" placeholder="Playlist name" required />
+          <TextInput v-model="data.name" v-koel-focus name="name" :placeholder="$t('playlists.playlistName')" required />
         </FormRow>
         <FormRow>
-          <template #label>Folder</template>
+          <template #label>{{ $t('smartPlaylists.folder') }}</template>
           <FolderSelect v-model:folder-id="data.folder_id" v-model:folder-name="data.folder_name" />
         </FormRow>
         <FormRow class="col-span-2">
-          <template #label>Description</template>
+          <template #label>{{ $t('smartPlaylists.description') }}</template>
           <TextArea v-model="data.description" class="h-28" name="description" />
         </FormRow>
-        <ArtworkField v-model="data.cover">Pick a cover (optional)</ArtworkField>
+        <ArtworkField v-model="data.cover">{{ $t('playlists.pickCover') }}</ArtworkField>
       </div>
     </main>
 
     <footer>
-      <Btn type="submit">Save</Btn>
-      <Btn white @click.prevent="maybeClose">Cancel</Btn>
+      <Btn type="submit">{{ $t('albums.save') }}</Btn>
+      <Btn white @click.prevent="maybeClose">{{ $t('albums.cancel') }}</Btn>
     </footer>
   </form>
 </template>

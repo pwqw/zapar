@@ -2,7 +2,7 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader :layout="playables.length === 0 ? 'collapsed' : headerLayout">
-        Available Offline
+        {{ $t('sidebar.availableOffline') }}
 
         <template #thumbnail>
           <ThumbnailStack :thumbnails="thumbnails" />
@@ -37,8 +37,8 @@
       <template #icon>
         <Icon :icon="faCloudArrowDown" />
       </template>
-      No songs available offline.
-      <span class="secondary block"> Right-click a song and select "Make Available Offline" to cache it. </span>
+      {{ $t('ui.tooltips.noSongsOffline') }}
+      <span class="secondary block">{{ $t('screens.offlineSongsCacheHint') }}</span>
     </ScreenEmptyState>
   </ScreenBase>
 </template>

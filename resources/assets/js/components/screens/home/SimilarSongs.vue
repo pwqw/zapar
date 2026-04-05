@@ -1,6 +1,6 @@
 <template>
   <HomeScreenBlock v-if="loading || playables.length">
-    <template #header>You Might Also Like</template>
+    <template #header>{{ $t('ui.tooltips.youMightAlsoLike') }}</template>
     <PlayableCardGridSkeleton v-if="loading" class="-mx-6" />
     <PlayableCardGrid v-else class="-mx-6" :playables />
   </HomeScreenBlock>

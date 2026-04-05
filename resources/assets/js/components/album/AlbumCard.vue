@@ -41,7 +41,7 @@
         role="button"
         @click.prevent="download"
       >
-        Download
+        {{ $t('albums.download') }}
       </a>
     </template>
   </BaseCard>

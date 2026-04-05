@@ -2,37 +2,39 @@
   <form class="md:w-[480px] w-full" @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
       <h1>
-        New Playlist
-        <span v-if="playables.length" data-testid="from-playables">from {{ pluralize(playables, entityName) }}</span>
+        {{ $t('playlists.newPlaylist') }}
+        <span v-if="playables.length" data-testid="from-playables"
+          >{{ $t('playlists.fromWord') }} {{ pluralize(playables, entityName) }}</span
+        >
       </h1>
     </header>
 
     <main>
       <div class="grid grid-cols-2 gap-4">
         <FormRow>
-          <template #label>Name *</template>
-          <TextInput v-model="data.name" v-koel-focus name="name" placeholder="Playlist name" required />
+          <template #label>{{ $t('playlists.name') }}</template>
+          <TextInput v-model="data.name" v-koel-focus name="name" :placeholder="$t('playlists.playlistName')" required />
         </FormRow>
         <FormRow>
-          <template #label>Folder</template>
+          <template #label>{{ $t('smartPlaylists.folder') }}</template>
           <FolderSelect v-model:folder-id="data.folder_id" v-model:folder-name="data.folder_name" />
         </FormRow>
         <FormRow class="col-span-2">
-          <template #label>Description</template>
+          <template #label>{{ $t('playlists.description') }}</template>
           <TextArea
             v-model="data.description"
             class="h-20"
             name="description"
-            placeholder="Some optional description"
+            :placeholder="$t('playlists.optionalDescription')"
           />
         </FormRow>
-        <ArtworkField v-model="data.cover">Pick a cover (optional)</ArtworkField>
+        <ArtworkField v-model="data.cover">{{ $t('playlists.pickCover') }}</ArtworkField>
       </div>
     </main>
 
     <footer>
-      <Btn type="submit">Save</Btn>
-      <Btn white @click.prevent="maybeClose">Cancel</Btn>
+      <Btn type="submit">{{ $t('ui.buttons.save') }}</Btn>
+      <Btn white @click.prevent="maybeClose">{{ $t('dialogs.cancel') }}</Btn>
     </footer>
   </form>
 </template>

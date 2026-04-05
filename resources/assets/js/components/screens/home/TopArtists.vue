@@ -1,6 +1,6 @@
 <template>
   <HomeScreenSection>
-    <template #header>Top Artists</template>
+    <template #header>{{ $t('screens.topArtists') }}</template>
     <ol v-if="loading" class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
       <li v-for="i in 4" :key="i">
         <ArtistCardSkeleton layout="compact" />
@@ -12,7 +12,7 @@
           <ArtistCard :artist layout="compact" />
         </li>
       </ol>
-      <p v-else>No artists found.</p>
+      <p v-else>{{ $t('emptyStates.topArtistsEmpty') }}</p>
     </template>
   </HomeScreenSection>
 </template>

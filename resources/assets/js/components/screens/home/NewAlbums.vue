@@ -1,6 +1,6 @@
 <template>
   <HomeScreenBlock>
-    <template #header>Latest Albums</template>
+    <template #header>{{ $t('ui.tooltips.latestAlbums') }}</template>
     <ol v-if="loading" class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
       <li v-for="i in 4" :key="i">
         <AlbumCardSkeleton layout="compact" />
@@ -12,7 +12,7 @@
           <AlbumCard :album layout="compact" />
         </li>
       </ol>
-      <p v-else>No albums added yet.</p>
+      <p v-else>{{ $t('emptyStates.newAlbumsEmpty') }}</p>
     </template>
   </HomeScreenBlock>
 </template>

@@ -1,45 +1,52 @@
 <template>
   <form class="md:w-[420px] min-w-full" @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>Edit Radio Station</h1>
+      <h1>{{ $t('radio.edit') }}</h1>
     </header>
 
     <main class="space-y-5">
       <FormRow>
-        <template #label>Name</template>
-        <TextInput v-model="data.name" v-koel-focus name="name" placeholder="My Favorite Radio Station" required />
+        <template #label>{{ $t('radio.name') }}</template>
+        <TextInput
+          v-model="data.name"
+          v-koel-focus
+          name="name"
+          :placeholder="$t('radio.namePlaceholder')"
+          required
+        />
       </FormRow>
       <FormRow>
-        <template #label>URL</template>
-        <TextInput v-model="data.url" type="url" name="url" placeholder="https://radio.example.com/stream" required />
+        <template #label>{{ $t('radio.url') }}</template>
+        <TextInput v-model="data.url" type="url" name="url" :placeholder="$t('radio.urlPlaceholder')" required />
       </FormRow>
       <FormRow>
-        <template #label>Description</template>
+        <template #label>{{ $t('radio.description') }}</template>
         <TextArea
           v-model="data.description"
           name="description"
           class="max-h-24"
-          placeholder="A short description of the station"
+          :placeholder="$t('radio.descriptionPlaceholder')"
         />
       </FormRow>
-      <ArtworkField v-model="data.logo">Pick a logo (optional)</ArtworkField>
+      <ArtworkField v-model="data.logo">{{ $t('radio.pickLogo') }}</ArtworkField>
       <FormRow>
         <label>
           <CheckBox v-model="data.is_public" name="is_public" />
-          <span class="ml-2">Make this station public</span>
+          <span class="ml-2">{{ $t('radio.makePublic') }}</span>
         </label>
       </FormRow>
     </main>
 
     <footer>
-      <Btn type="submit">Save</Btn>
-      <Btn white @click.prevent="maybeClose">Cancel</Btn>
+      <Btn type="submit">{{ $t('radio.save') }}</Btn>
+      <Btn white @click.prevent="maybeClose">{{ $t('radio.cancel') }}</Btn>
     </footer>
   </form>
 </template>
 
 <script setup lang="ts">
 import { cloneDeep, pick } from 'lodash'
+import { useI18n } from 'vue-i18n'
 import { useDialogBox } from '@/composables/useDialogBox'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import type { RadioStationData } from '@/stores/radioStationStore'
@@ -58,10 +65,11 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 
 const { station } = props
 
-const close = () => emit('close')
-
+const { t } = useI18n()
 const { toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
+
+const close = () => emit('close')
 
 const { data, isPristine, handleSubmit } = useForm<RadioStationData>({
   initialValues: { ...pick(station, 'name', 'url', 'description', 'is_public', 'logo') },
@@ -76,12 +84,12 @@ const { data, isPristine, handleSubmit } = useForm<RadioStationData>({
   },
   onSuccess: () => {
     close()
-    toastSuccess('Station updated.')
+    toastSuccess(t('radio.updated'))
   },
 })
 
 const maybeClose = async () => {
-  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
+  if (isPristine() || (await showConfirmDialog(t('radio.discardChanges')))) {
     close()
   }
 }

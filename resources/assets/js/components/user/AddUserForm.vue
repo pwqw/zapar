@@ -1,29 +1,35 @@
 <template>
   <form @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>Add New User</h1>
+      <h1>{{ $t('users.add') }}</h1>
     </header>
 
     <main class="space-y-5">
       <FormRow>
-        <template #label>Name</template>
+        <template #label>{{ $t('users.name') }}</template>
         <TextInput v-model="data.name" v-koel-focus name="name" required />
       </FormRow>
       <FormRow>
-        <template #label>Email</template>
+        <template #label>{{ $t('users.email') }}</template>
         <TextInput v-model="data.email" name="email" required type="email" />
       </FormRow>
       <FormRow>
-        <template #label>Password</template>
-        <PasswordField v-model="data.password" autocomplete="new-password" name="password" required title="Password" />
-        <template #help>Min. 10 characters. Should be a mix of characters, numbers, and symbols.</template>
+        <template #label>{{ $t('users.password') }}</template>
+        <PasswordField
+          v-model="data.password"
+          autocomplete="new-password"
+          name="password"
+          required
+          :title="$t('users.password')"
+        />
+        <template #help>{{ $t('users.passwordRequirements') }}</template>
       </FormRow>
       <RolePicker v-model="data.role" />
     </main>
 
     <footer>
-      <Btn :disabled="loading" class="btn-add" type="submit">Save</Btn>
-      <Btn :disabled="loading" class="btn-cancel" white @click.prevent="maybeClose">Cancel</Btn>
+      <Btn :disabled="loading" class="btn-add" type="submit">{{ $t('users.save') }}</Btn>
+      <Btn :disabled="loading" class="btn-cancel" white @click.prevent="maybeClose">{{ $t('users.cancel') }}</Btn>
     </footer>
   </form>
 </template>
@@ -34,6 +40,7 @@ import { userStore } from '@/stores/userStore'
 import { useDialogBox } from '@/composables/useDialogBox'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import { useForm } from '@/composables/useForm'
+import { useI18n } from 'vue-i18n'
 
 import Btn from '@/components/ui/form/Btn.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
@@ -43,6 +50,7 @@ import PasswordField from '@/components/ui/form/PasswordField.vue'
 
 const emit = defineEmits<{ (e: 'close'): void }>()
 
+const { t } = useI18n()
 const { toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
 
@@ -57,13 +65,13 @@ const { data, isPristine, loading, handleSubmit } = useForm<CreateUserData>({
   },
   onSubmit: async data => await userStore.store(data),
   onSuccess: (user: User) => {
-    toastSuccess(`New user "${user.name}" created.`)
+    toastSuccess(t('users.created', { name: user.name }))
     close()
   },
 })
 
 const maybeClose = async () => {
-  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
+  if (isPristine() || (await showConfirmDialog(t('users.discardChanges')))) {
     close()
   }
 }

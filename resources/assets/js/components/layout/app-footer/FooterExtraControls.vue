@@ -6,7 +6,7 @@
       <FooterBtn
         class="visualizer-btn hidden md:!block"
         data-testid="toggle-visualizer-btn"
-        title="Toggle visualizer"
+        :title="t('ui.tooltips.toggleVisualizer')"
         @click.prevent="toggleVisualizer"
       >
         <Icon :icon="faBolt" fixed-width />
@@ -16,7 +16,7 @@
         v-if="useEqualizer"
         :class="{ active: showEqualizer }"
         class="equalizer"
-        title="Show equalizer"
+        :title="t('ui.tooltips.showEqualizer')"
         @click.prevent="showEqualizer"
       >
         <AudioLinesIcon :size="16" />
@@ -35,6 +35,7 @@
 import { faBolt, faCompress, faExpand } from '@fortawesome/free-solid-svg-icons'
 import { AudioLinesIcon } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { eventBus } from '@/utils/eventBus'
 import { isFullscreenSupported, isAudioContextSupported as useEqualizer } from '@/utils/supports'
 import { defineAsyncComponent } from '@/utils/helpers'
@@ -47,9 +48,12 @@ import FooterQueueIcon from '@/components/layout/app-footer/FooterQueueButton.vu
 
 const Equalizer = defineAsyncComponent(() => import('@/components/ui/equalizer/Equalizer.vue'))
 const { openModal } = useModal()
+const { t } = useI18n()
 
 const isFullscreen = ref(false)
-const fullscreenButtonTitle = computed(() => (isFullscreen.value ? 'Exit fullscreen mode' : 'Enter fullscreen mode'))
+const fullscreenButtonTitle = computed(() =>
+  isFullscreen.value ? t('ui.tooltips.exitFullscreen') : t('ui.tooltips.enterFullscreen'),
+)
 
 const { go, isCurrentScreen, url } = useRouter()
 

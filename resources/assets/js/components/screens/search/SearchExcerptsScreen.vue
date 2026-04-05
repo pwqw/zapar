@@ -2,10 +2,8 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed">
-        <span v-if="q"
-          >Searching for <span class="font-thin">{{ q }}</span></span
-        >
-        <span v-else>Search</span>
+        <span v-if="q">{{ $t('content.screening.searchingFor') }} <span class="font-thin">{{ q }}</span></span>
+        <span v-else>{{ $t('content.screening.search') }}</span>
       </ScreenHeader>
     </template>
 

@@ -2,13 +2,13 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed" :disabled="loading">
-        Radio Stations
+        {{ $t('screens.radioStations') }}
 
         <template #controls>
           <div class="flex gap-2">
             <Btn
               v-koel-tooltip
-              :title="preferences.radio_stations_favorites_only ? 'Show all' : 'Show favorites only'"
+              :title="preferences.radio_stations_favorites_only ? $t('misc.showAll') : $t('misc.showFavoritesOnly')"
               class="border border-k-fg-10"
               small
               transparent
@@ -34,11 +34,11 @@
               v-koel-tooltip
               highlight
               small
-              title="Add a new station"
+              :title="$t('ui.tooltips.addNewStation')"
               @click.prevent="requestAddStationForm"
             >
               <Icon :icon="faAdd" fixed-width />
-              <span class="sr-only">Add a new station</span>
+              <span class="sr-only">{{ $t('ui.tooltips.addNewStation') }}</span>
             </Btn>
 
             <ViewModeSwitch v-model="preferences.radio_stations_view_mode" />
@@ -51,10 +51,10 @@
       <template #icon>
         <RadioIcon :size="96" />
       </template>
-      <template v-if="preferences.radio_stations_favorites_only"> No favorite stations. </template>
+      <template v-if="preferences.radio_stations_favorites_only">{{ $t('ui.tooltips.noFavoriteStations') }}</template>
       <template v-else>
-        No stations found.
-        <span class="secondary block">Add a station to get started.</span>
+        {{ $t('ui.tooltips.noStationsFound') }}
+        <span class="secondary block">{{ $t('ui.tooltips.addStationToStart') }}</span>
       </template>
     </ScreenEmptyState>
 

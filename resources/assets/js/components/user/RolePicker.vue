@@ -1,6 +1,6 @@
 <template>
   <FormRow>
-    <template #label>Role</template>
+    <template #label>{{ $t('users.role') }}</template>
     <SelectBox v-model="value" name="role" required>
       <option v-for="{ id, label } in assignableRoles" :key="id" :value="id">{{ label }}</option>
     </SelectBox>

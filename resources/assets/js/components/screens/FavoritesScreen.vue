@@ -2,7 +2,7 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader :layout="playables.length === 0 ? 'collapsed' : headerLayout">
-        Your Favorites
+        {{ $t('screens.favorites') }}
 
         <template #thumbnail>
           <ThumbnailStack :thumbnails="thumbnails" />
@@ -16,13 +16,13 @@
             v-if="downloadable"
             class="download"
             role="button"
-            title="Download all favorites"
+            :title="$t('ui.tooltips.downloadAllFavorites')"
             @click.prevent="download"
           >
-            Download All
+            {{ $t('ui.buttons.downloadAll') }}
           </a>
           <a v-if="canToggleOffline" role="button" @click.prevent="toggleOffline">
-            {{ allCached ? 'Remove Offline' : 'Make Offline' }}
+            {{ allCached ? $t('offline.removeOffline') : $t('offline.makeOffline') }}
           </a>
         </template>
 
@@ -54,10 +54,9 @@
       <template #icon>
         <Icon :icon="faHeartBroken" />
       </template>
-      No favorites yet.
+      {{ $t('misc.noFavoritesYet') }}
       <span class="secondary block">
-        Click the&nbsp;
-        <Icon :icon="faStar" />&nbsp; icon to mark a song as favorite.
+        {{ $t('screens.favoritesEmptyHint') }}
       </span>
     </ScreenEmptyState>
   </ScreenBase>

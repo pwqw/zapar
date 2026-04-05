@@ -5,7 +5,7 @@
   >
     <button
       class="fixed top-4 right-4 z-20 text-k-fg-50 hover:text-k-fg transition-colors cursor-pointer"
-      title="Close"
+      :title="$t('ai.close')"
       type="button"
       @click="goBack"
     >

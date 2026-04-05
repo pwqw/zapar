@@ -19,7 +19,7 @@
     <template #meta>
       <a :title="`Shuffle all songs by ${artist.name}`" role="button" @click.prevent="shuffle"> Shuffle </a>
       <a v-if="allowDownload" :title="`Download all songs by ${artist.name}`" role="button" @click.prevent="download">
-        Download
+        {{ $t('menu.artist.download') }}
       </a>
     </template>
   </BaseCard>

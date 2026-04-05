@@ -7,27 +7,33 @@
       @submit.prevent="submit"
     >
       <header class="mb-4">
-        Welcome to Koel! To accept the invitation, fill in the form below and click that button.
+        {{ $t('content.invitation.welcomeInvitation') }}
       </header>
 
       <FormRow>
-        <template #label>Your email</template>
+        <template #label>{{ $t('content.invitation.yourEmail') }}</template>
         <TextInput v-model="userProspect.email" disabled />
       </FormRow>
 
       <FormRow>
-        <template #label>Your name</template>
-        <TextInput v-model="name" v-koel-focus data-testid="name" placeholder="Erm… Bruce Dickinson?" required />
+        <template #label>{{ $t('content.invitation.yourName') }}</template>
+        <TextInput
+          v-model="name"
+          v-koel-focus
+          data-testid="name"
+          :placeholder="$t('form.placeholders.erne')"
+          required
+        />
       </FormRow>
 
       <FormRow>
-        <template #label>Password</template>
+        <template #label>{{ $t('content.invitation.password') }}</template>
         <PasswordField v-model="password" data-testid="password" required />
-        <template #help>Min. 10 characters. Should be a mix of characters, numbers, and symbols.</template>
+        <template #help>{{ $t('content.invitation.passwordMinRequirements') }}</template>
       </FormRow>
 
       <FormRow>
-        <Btn :disabled="loading" data-testid="submit" type="submit">Accept &amp; Log In</Btn>
+        <Btn :disabled="loading" data-testid="submit" type="submit">{{ $t('content.invitation.acceptLogin') }}</Btn>
       </FormRow>
     </form>
   </div>
@@ -35,6 +41,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { invitationService } from '@/services/invitationService'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 import { useRouter } from '@/composables/useRouter'
@@ -44,6 +51,7 @@ import PasswordField from '@/components/ui/form/PasswordField.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
 
+const { t } = useI18n()
 const { getRouteParam } = useRouter()
 const { handleHttpError } = useErrorHandler('dialog')
 
@@ -70,7 +78,7 @@ onMounted(async () => {
   try {
     userProspect.value = await invitationService.getUserProspect(token)
   } catch (error: unknown) {
-    handleHttpError(error, { 404: 'Invalid or expired invite.' })
+    handleHttpError(error, { 404: t('screens.invalidInvitation') })
   }
 })
 </script>

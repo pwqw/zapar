@@ -2,7 +2,7 @@
   <label class="text-k-highlight text-base inline-block md:hidden ml-2">
     <input v-model="value" class="hidden" type="checkbox" />
     <Icon :icon="value ? faCaretUp : faCaretDown" class="toggle" />
-    <span class="hidden">Toggle the song list controls</span>
+    <span class="hidden">{{ $t('ui.tooltips.visualizerToggleControls') }}</span>
   </label>
 </template>
 

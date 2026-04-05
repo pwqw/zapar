@@ -3,7 +3,7 @@
     <template #icon>
       <Icon :icon="faFolderTree" fixed-width />
     </template>
-    Media Browser
+    {{ $t('sidebar.mediaBrowser') }}
   </SidebarItem>
 </template>
 

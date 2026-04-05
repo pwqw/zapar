@@ -8,18 +8,18 @@
   >
     <main class="p-6">
       <div class="mb-4">
-        <img alt="Logo" class="inline-block" :src="logo" width="128" />
+        <img :alt="t('ui.altText.logo')" class="inline-block" :src="logo" width="128" />
       </div>
 
       <div class="current-version">
         {{ appName }} {{ currentVersion }}
-        <span v-if="isPlus" class="badge">Plus</span>
-        <span v-else>Community</span>
-        Edition
+        <span v-if="isPlus" class="badge">{{ t('ui.tooltips.plusEdition') }}</span>
+        <span v-else>{{ t('ui.tooltips.community') }}</span>
+        {{ t('ui.tooltips.edition') }}
         <p v-if="isPlus" class="plus-badge">
-          Licensed to {{ license.customerName }} &lt;{{ license.customerEmail }}&gt;
+          {{ t('meta.licensedTo', { name: license.customerName, email: license.customerEmail }) }}
           <br />
-          License key: <span class="key font-mono">{{ license.shortKey }}</span>
+          {{ t('meta.licenseKey') }} <span class="key font-mono">{{ license.shortKey }}</span>
         </p>
 
         <template v-else>
@@ -32,35 +32,33 @@
 
       <p v-if="shouldNotifyNewVersion" data-testid="new-version-about">
         <a :href="latestVersionReleaseUrl" target="_blank">
-          A new version of {{ appName }} is available ({{ latestVersion }})!
+          {{ t('meta.newVersion', { app: appName, version: latestVersion }) }}
         </a>
       </p>
 
       <p v-if="!hasCustomBranding" class="author">
-        Made with ❤️ by
-        <a href="https://github.com/phanan" rel="noopener" target="_blank">Phan An</a>
-        and quite a few awesome
-        <a href="https://github.com/koel/koel/graphs/contributors" rel="noopener" target="_blank">contributors</a>.
+        {{ t('meta.madeWith') }}
+        <a href="https://github.com/phanan" rel="noopener" target="_blank">{{ t('meta.authorName') }}</a>
+        {{ t('meta.andQuiteAFewAwesome') }}
+        <a href="https://github.com/koel/koel/graphs/contributors" rel="noopener" target="_blank">{{
+          t('meta.contributors')
+        }}</a>.
       </p>
 
       <CreditsBlock v-if="isDemo" />
 
-      <p v-if="!isPlus">
-        Loving Koel? Please consider supporting its development via
-        <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">GitHub Sponsors</a>
-        and/or
-        <a href="https://opencollective.com/koel" rel="noopener" target="_blank">OpenCollective</a>.
-      </p>
+      <p v-if="!isPlus" v-html="t('content.support.description')" />
     </main>
 
     <footer>
-      <Btn danger data-testid="close-modal-btn" rounded @click.prevent="close">Close</Btn>
+      <Btn danger data-testid="close-modal-btn" rounded @click.prevent="close">{{ t('ai.close') }}</Btn>
     </footer>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { defineAsyncComponent } from '@/utils/helpers'
+import { useI18n } from 'vue-i18n'
 import { useKoelPlus } from '@/composables/useKoelPlus'
 import { useNewVersionNotification } from '@/composables/useNewVersionNotification'
 import { usePolicies } from '@/composables/usePolicies'
@@ -72,6 +70,8 @@ import BtnUpgradeToPlus from '@/components/koel-plus/BtnUpgradeToPlus.vue'
 import CreditsBlock from '@/components/meta/CreditsBlock.vue'
 
 const KoelPlusModal = defineAsyncComponent(() => import('@/components/koel-plus/KoelPlusModal.vue'))
+
+const { t } = useI18n()
 
 const emit = defineEmits<{ (e: 'close'): void }>()
 const { name: appName, logo, hasCustomBranding } = useBranding()

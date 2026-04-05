@@ -2,15 +2,13 @@
   <div class="space-y-4">
     <FormRow v-if="isPlus">
       <label class="pref-row">
-        <span>Make uploaded songs public by default</span>
+        <span>{{ $t('preferences.makeUploadedPublic') }}</span>
         <CheckBox v-model="preferences.make_uploads_public" name="make_uploads_public" />
       </label>
     </FormRow>
     <FormRow v-if="isPlus">
       <label class="pref-row">
-        <span
-          >Show other users' public songs, albums, artists, and radio stations in your library (reload required)</span
-        >
+        <span>{{ $t('preferences.showOthersPublicMedia') }}</span>
         <CheckBox v-model="preferences.include_public_media" name="include_public_media" />
       </label>
     </FormRow>
@@ -22,20 +20,20 @@
     </FormRow>
     <FormRow v-if="onMobile">
       <label class="pref-row">
-        <span>Show "Now Playing" notification</span>
+        <span>{{ $t('preferences.showNowPlayingNotification') }}</span>
         <CheckBox v-model="preferences.show_now_playing_notification" name="notify" />
       </label>
     </FormRow>
     <FormRow v-if="!onMobile">
       <label class="pref-row">
-        <span>Confirm before closing Koel</span>
+        <span>{{ $t('preferences.confirmClosing') }}</span>
         <CheckBox v-model="preferences.confirm_before_closing" name="confirm_closing" />
       </label>
     </FormRow>
     <FormRow v-if="showTranscodingOption">
       <div class="pref-row">
         <span>
-          Convert and play media at
+          {{ $t('preferences.convertPlayMedia') }}
           <select
             v-model="preferences.transcode_quality"
             :disabled="!preferences.transcode_on_mobile"
@@ -45,7 +43,7 @@
               {{ quality }}
             </option>
           </select>
-          kbps on mobile
+          {{ $t('preferences.kbpsOnMobile') }}
         </span>
         <CheckBox
           v-model="preferences.transcode_on_mobile"
@@ -56,7 +54,7 @@
     </FormRow>
     <FormRow>
       <label class="pref-row">
-        <span>Show a translucent, blurred overlay of the current album's art</span>
+        <span>{{ $t('preferences.showAlbumArtOverlay') }}</span>
         <CheckBox v-model="preferences.show_album_art_overlay" name="show_album_art_overlay" />
       </label>
     </FormRow>
@@ -64,7 +62,9 @@
       <div class="pref-row">
         <span class="flex-1">
           <span class="flex items-center gap-3">
-            <label id="crossfade-label" for="crossfade-slider" class="shrink-0">Crossfade songs</label>
+            <label id="crossfade-label" for="crossfade-slider" class="shrink-0">{{
+              $t('ui.tooltips.crossfadeSongs')
+            }}</label>
             <input
               id="crossfade-slider"
               v-model.number="preferences.crossfade_duration"

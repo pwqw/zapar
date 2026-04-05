@@ -1,6 +1,6 @@
 <template>
   <div v-koel-overflow-fade class="max-h-[9rem] overflow-auto" data-testid="demo-credits">
-    Music by
+    {{ $t('ui.tooltips.musicBy') }}
     <ul class="inline">
       <li v-for="credit in credits" :key="credit.name" class="inline">
         <a :href="credit.url" target="_blank">{{ credit.name }}</a>

@@ -1,6 +1,6 @@
 <template>
   <HomeScreenBlock>
-    <template #header>Top Albums</template>
+    <template #header>{{ $t('screens.topAlbums') }}</template>
     <ol v-if="loading" class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
       <li v-for="i in 4" :key="i">
         <AlbumCardSkeleton layout="compact" />
@@ -12,7 +12,7 @@
           <AlbumCard :album layout="compact" />
         </li>
       </ol>
-      <p v-else>No albums found.</p>
+      <p v-else>{{ $t('emptyStates.topAlbumsEmpty') }}</p>
     </template>
   </HomeScreenBlock>
 </template>

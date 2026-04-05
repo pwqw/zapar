@@ -1,7 +1,7 @@
 <template>
   <button
     class="ai-float-btn group w-12 h-12 rounded-full cursor-pointer p-0.5"
-    title="AI Assistant"
+    :title="$t('ai.title')"
     type="button"
     @click="go(url('ai'))"
   >

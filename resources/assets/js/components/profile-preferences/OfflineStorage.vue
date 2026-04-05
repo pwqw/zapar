@@ -1,10 +1,10 @@
 <template>
   <div class="space-y-6">
-    <section v-if="!supported" class="text-k-fg-70">Offline playback is not supported in this browser.</section>
+    <section v-if="!supported" class="text-k-fg-70">{{ $t('ui.tooltips.offlineNotSupportedBrowser') }}</section>
 
     <template v-else>
       <section class="space-y-3">
-        <h4 class="font-semibold text-k-fg uppercase tracking-wider text-sm">Storage Usage</h4>
+        <h4 class="font-semibold text-k-fg uppercase tracking-wider text-sm">{{ $t('ui.tooltips.storageUsage') }}</h4>
         <div class="space-y-2">
           <div class="flex items-center gap-4">
             <div class="flex-1 h-2 bg-k-fg-10 rounded-full overflow-hidden">
@@ -13,13 +13,17 @@
             <span class="text-sm text-k-fg-70 whitespace-nowrap">{{ usageLabel }}</span>
           </div>
           <p class="text-sm text-k-fg-70">
-            {{ cachedSongCount }} {{ cachedSongCount === 1 ? 'song' : 'songs' }} available offline
+            {{
+              cachedSongCount === 1
+                ? $t('offline.oneSongAvailableOffline')
+                : $t('offline.nSongsAvailableOffline', { n: cachedSongCount })
+            }}
           </p>
         </div>
       </section>
 
       <section v-if="cachedSongCount" class="space-y-3">
-        <Btn danger small @click.prevent="clearAll">Clear All</Btn>
+        <Btn danger small @click.prevent="clearAll">{{ $t('offline.clearAll') }}</Btn>
       </section>
     </template>
   </div>

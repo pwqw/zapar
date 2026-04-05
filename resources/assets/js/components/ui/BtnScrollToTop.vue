@@ -4,11 +4,11 @@
       v-show="showing"
       ref="el"
       class="sm:hidden block fixed right-[1.8rem] z-20 opacity-100 duration-500 transition-opacity rounded-full py-2 px-4 bg-black/50"
-      title="Scroll to top"
+      :title="$t('ui.tooltips.scrollToTop')"
       type="button"
       @click="scrollToTop"
     >
-      <Icon :icon="faCircleUp" />&nbsp; Top
+      <Icon :icon="faCircleUp" />&nbsp; {{ $t('ui.tooltips.top') }}
     </button>
   </Transition>
 </template>

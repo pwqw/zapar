@@ -1,10 +1,6 @@
 <template>
   <section id="mainContent" class="flex-1 relative overflow-hidden">
-    <!--
-      Most of the views are render-expensive and have their own UI states (viewport/scroll position), e.g. the playable
-      lists), so we use v-show.
-      For those that don't need to maintain their own UI state, we use v-if to avoid rendering them when not needed.
-    -->
+    <!-- Route screens: heavy views use v-show; lightweight ones use v-if when not visible. -->
     <VisualizerScreen v-if="screen === 'Visualizer'" />
     <ArtOverlay v-if="showArtOverlay" :album="(currentPlayingItem as Song).album_id" />
 

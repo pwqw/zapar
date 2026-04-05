@@ -1,6 +1,6 @@
 <template>
   <article>
-    <h3 class="text-2xl mb-3">Track Listing</h3>
+    <h3 class="text-2xl mb-3">{{ $t('form.labels.trackListing') }}</h3>
 
     <ul>
       <li

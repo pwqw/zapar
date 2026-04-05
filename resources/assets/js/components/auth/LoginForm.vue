@@ -25,7 +25,7 @@
 
       <FormRow v-if="canResetPassword">
         <a class="text-right text-[.95rem] text-k-fg-70" role="button" @click.prevent="showForgotPasswordForm">
-          Forgot password?
+          {{ $t('auth.forgotPassword') }}
         </a>
       </FormRow>
     </form>

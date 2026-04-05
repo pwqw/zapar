@@ -1,7 +1,7 @@
 <template>
   <div class="add-to w-full max-w-[256px] min-w-[200px] p-3 space-y-3" data-testid="add-to-menu" tabindex="0">
     <section class="existing-playlists">
-      <p class="mb-2 text-[0.9rem]">Add {{ pluralize(playables, 'item') }} to</p>
+      <p class="mb-2 text-[0.9rem]">{{ addToHeading }}</p>
 
       <ul v-koel-overflow-fade class="relative max-h-48 overflow-y-scroll space-y-1.5">
         <template v-if="config.queue">
@@ -13,12 +13,16 @@
               tabindex="0"
               @click="queueAfterCurrent"
             >
-              After Current
+              {{ $t('menu.playable.afterCurrent') }}
             </li>
-            <li class="bottom-queue" data-testid="queue-bottom" tabindex="0" @click="queueToBottom">Bottom of Queue</li>
-            <li class="top-queue" data-testid="queue-top" tabindex="0" @click="queueToTop">Top of Queue</li>
+            <li class="bottom-queue" data-testid="queue-bottom" tabindex="0" @click="queueToBottom">{{
+              $t('menu.playable.bottomOfQueue')
+            }}</li>
+            <li class="top-queue" data-testid="queue-top" tabindex="0" @click="queueToTop">{{
+              $t('menu.playable.topOfQueue')
+            }}</li>
           </template>
-          <li v-else data-testid="queue" tabindex="0" @click="queueToBottom">Queue</li>
+          <li v-else data-testid="queue" tabindex="0" @click="queueToBottom">{{ $t('menu.playable.queue') }}</li>
         </template>
 
         <li
@@ -28,7 +32,7 @@
           tabindex="0"
           @click="addToFavorites"
         >
-          Favorites
+          {{ $t('menu.playable.favorites') }}
         </li>
 
         <li
@@ -45,14 +49,14 @@
     </section>
 
     <Btn class="!w-full !border !border-solid !border-white/20" transparent @click.prevent="addToNewPlaylist">
-      New Playlist…
+      {{ t('misc.newPlaylistEllipsis') }}
     </Btn>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, toRef, toRefs, watch } from 'vue'
-import { pluralize } from '@/utils/formatters'
+import { useI18n } from 'vue-i18n'
 import { playlistStore } from '@/stores/playlistStore'
 import { queueStore } from '@/stores/queueStore'
 import { usePlayableMenuMethods } from '@/composables/usePlayableMenuMethods'
@@ -63,6 +67,16 @@ const props = defineProps<{ playables: Playable[]; config: AddToMenuConfig }>()
 const emit = defineEmits<{ (e: 'closing'): void }>()
 
 const { playables, config } = toRefs(props)
+
+const { t } = useI18n()
+
+const addToHeading = computed(() =>
+  t('misc.addItemTo', {
+    count: playables.value.length,
+    item:
+      playables.value.length === 1 ? t('messages.genericItemSingular') : t('messages.genericItemPlural'),
+  }),
+)
 
 const queue = toRef(queueStore.state, 'playables')
 const currentPlayable = computed(() => queueStore.current)

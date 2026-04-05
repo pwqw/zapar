@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>Rename Playlist Folder</h1>
+      <h1>{{ $t('playlists.folder.rename') }}</h1>
     </header>
 
     <main>
@@ -10,16 +10,16 @@
           v-model="data.name"
           v-koel-focus
           name="name"
-          placeholder="Folder name"
+          :placeholder="$t('playlists.folder.name')"
           required
-          title="Folder name"
+          :title="$t('playlists.folder.name')"
         />
       </FormRow>
     </main>
 
     <footer>
-      <Btn type="submit">Save</Btn>
-      <Btn white @click.prevent="maybeClose">Cancel</Btn>
+      <Btn type="submit">{{ $t('albums.save') }}</Btn>
+      <Btn white @click.prevent="maybeClose">{{ $t('albums.cancel') }}</Btn>
     </footer>
   </form>
 </template>

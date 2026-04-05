@@ -1,7 +1,7 @@
 <template>
   <div>
     <h4 v-if="isSong(playable) && showDisc && playable.disc" class="title text-k-fg !flex gap-2 p-2 uppercase pl-5">
-      Disc {{ playable.disc }}
+      {{ t('songs.disc') }} {{ playable.disc }}
     </h4>
 
     <article
@@ -29,8 +29,8 @@
             :icon="faSpinner"
             class="!opacity-50"
             spin
-            title="Caching for offline playback"
-            aria-label="Caching for offline playback"
+            :title="t('ui.tooltips.cachingOffline')"
+            :aria-label="t('ui.tooltips.cachingOffline')"
           />
           <Icon
             v-else-if="cachingFailed"
@@ -73,6 +73,7 @@
 <script lang="ts" setup>
 import { faExclamationTriangle, faPodcast, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { computed, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getPlayableProp, requireInjection } from '@/utils/helpers'
 import { isSong } from '@/utils/typeGuards'
 import { secondsToHis } from '@/utils/formatters'
@@ -87,6 +88,8 @@ import UserAvatar from '@/components/user/UserAvatar.vue'
 import ExternalMark from '@/components/ui/ExternalMark.vue'
 import OfflineMark from '@/components/ui/OfflineMark.vue'
 import FavoriteButton from '@/components/ui/FavoriteButton.vue'
+
+const { t } = useI18n()
 
 const props = withDefaults(defineProps<{ item: PlayableRow; showDisc?: boolean }>(), {
   showDisc: false,

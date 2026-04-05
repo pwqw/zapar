@@ -3,13 +3,13 @@
     <div :class="cssClass" class="h-full w-full min-h-[32px] bg-k-fg-5 relative rounded-lg overflow-hidden">
       <div class="absolute z-1 h-full w-full flex items-center">
         <span class="name px-4 flex-1 flex items-center">{{ file.name }}</span>
-        <Btn v-if="canRetry" class="!px-3" icon-only title="Retry" transparent unrounded @click="retry">
+        <Btn v-if="canRetry" class="!px-3" icon-only :title="$t('ui.buttons.retry')" transparent unrounded @click="retry">
           <Icon :icon="faRotateBack" />
         </Btn>
-        <Btn v-if="canAbort" class="!px-3" icon-only title="Abort" transparent unrounded @click="abort">
+        <Btn v-if="canAbort" class="!px-3" icon-only :title="$t('ui.tooltips.abort')" transparent unrounded @click="abort">
           <Icon :icon="faXmark" />
         </Btn>
-        <Btn v-if="canRemove" class="!px-3" icon-only title="Remove" transparent unrounded @click="remove">
+        <Btn v-if="canRemove" class="!px-3" icon-only :title="$t('ui.buttons.remove')" transparent unrounded @click="remove">
           <Icon :icon="faTrashCan" />
         </Btn>
       </div>
@@ -19,10 +19,10 @@
         <Icon :icon="faExclamationCircle" class="mr-1" />
         {{ file.message }}
       </span>
-      <span v-if="file.status === 'Canceled'">Canceled.</span>
-      <span v-if="file.status === 'Ready'">Queued.</span>
+      <span v-if="file.status === 'Canceled'">{{ $t('ui.tooltips.uploadCanceled') }}</span>
+      <span v-if="file.status === 'Ready'">{{ $t('ui.tooltips.uploadQueued') }}</span>
       <span v-if="file.status === 'Uploading'">
-        Uploading
+        {{ $t('ui.tooltips.uploading') }}
         <span class="tabular-nums">
           <strong>{{ Math.round(file.progress * 100) / 100 }}</strong
           >%
@@ -30,7 +30,7 @@
       </span>
       <span v-if="file.status === 'Uploaded'" class="text-k-success">
         <Icon :icon="faCheckCircle" class="mr-1" />
-        Uploaded.
+        {{ $t('ui.tooltips.uploaded') }}
       </span>
     </p>
   </article>
@@ -47,6 +47,7 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 import { computed, defineAsyncComponent, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useDialogBox } from '@/composables/useDialogBox'
 import type { UploadFile } from '@/services/uploadService'
 import { uploadService } from '@/services/uploadService'
@@ -55,6 +56,7 @@ const props = defineProps<{ file: UploadFile }>()
 
 const Btn = defineAsyncComponent(() => import('@/components/ui/form/Btn.vue'))
 
+const { t } = useI18n()
 const { file } = toRefs(props)
 
 const canRetry = computed(() => file.value.status === 'Canceled' || file.value.status === 'Errored')
@@ -69,7 +71,7 @@ const remove = () => uploadService.remove(file.value)
 const retry = () => uploadService.retry(file.value)
 
 const abort = async () => {
-  if ((await showConfirmDialog('Abort this upload?')) && file.value.status === 'Uploading') {
+  if ((await showConfirmDialog(t('ui.tooltips.abortUploadConfirm'))) && file.value.status === 'Uploading') {
     uploadService.abort(file.value)
   }
 }

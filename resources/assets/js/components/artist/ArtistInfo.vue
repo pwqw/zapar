@@ -11,7 +11,7 @@
     <div v-if="!loading && info?.bio" v-html="info.bio.full" />
 
     <template v-if="info && !loading" #footer>
-      <a :href="info.url" rel="openener" target="_blank">Source</a>
+      <a :href="info.url" rel="noopener" target="_blank">{{ $t('albums.source') }}</a>
     </template>
   </AlbumArtistInfo>
 </template>

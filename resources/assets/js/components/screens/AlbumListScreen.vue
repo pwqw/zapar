@@ -2,12 +2,12 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed" :disabled="loading">
-        Albums
+        {{ $t('screens.albums') }}
         <template #controls>
           <div class="flex gap-2">
             <Btn
               v-koel-tooltip
-              :title="preferences.albums_favorites_only ? 'Show all' : 'Show favorites only'"
+              :title="preferences.albums_favorites_only ? $t('misc.showAll') : $t('misc.showFavoritesOnly')"
               class="border border-k-fg-10"
               transparent
               @click.prevent="toggleFavoritesOnly"
@@ -34,15 +34,15 @@
       <template #icon>
         <Icon :icon="faCompactDisc" />
       </template>
-      No albums found.
-      <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
+      {{ $t('screens.noAlbumsFound') }}
+      <span v-if="currentUserCan.manageSettings()" class="secondary block">{{ $t('screens.home.setupLibrary') }}</span>
     </ScreenEmptyState>
 
     <ScreenEmptyState v-else-if="noFavoriteAlbums">
       <template #icon>
         <Icon :icon="faCompactDisc" />
       </template>
-      No favorite albums.
+      {{ $t('ui.tooltips.noFavoriteAlbums') }}
     </ScreenEmptyState>
 
     <div v-else ref="gridContainer" v-koel-overflow-fade class="-m-6 flex-1 overflow-auto">

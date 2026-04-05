@@ -30,7 +30,7 @@
             <template v-if="lastPlayedAt">
               •
               <span class="text-k-fg-50">
-                Last played
+                {{ $t('podcasts.sortFields.lastPlayed') }}
                 <time :datetime="podcast.last_played_at" :title="podcast.last_played_at">{{ lastPlayedAt }}</time>
               </span>
             </template>

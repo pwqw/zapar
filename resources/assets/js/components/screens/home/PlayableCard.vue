@@ -18,8 +18,8 @@
           :icon="faSpinner"
           class="!opacity-50"
           spin
-          title="Caching for offline playback"
-          aria-label="Caching for offline playback"
+          :title="t('ui.tooltips.cachingOffline')"
+          :aria-label="t('ui.tooltips.cachingOffline')"
         />
         <Icon
           v-else-if="cachingFailed"
@@ -41,6 +41,7 @@
 <script lang="ts" setup>
 import { faExclamationTriangle, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { computed, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { defineAsyncComponent, getPlayableProp } from '@/utils/helpers'
 import { secondsToHis } from '@/utils/formatters'
 import { isSong } from '@/utils/typeGuards'
@@ -56,6 +57,8 @@ const PlayableContextMenu = defineAsyncComponent(() => import('@/components/play
 
 const props = defineProps<{ playable: Playable }>()
 const { playable } = toRefs(props)
+
+const { t } = useI18n()
 
 const { startDragging } = useDraggable('playables')
 const { openContextMenu } = useContextMenu()

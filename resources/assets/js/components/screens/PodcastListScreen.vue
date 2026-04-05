@@ -2,12 +2,12 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader :disabled="loading" layout="collapsed">
-        Podcasts
+        {{ $t('sidebar.podcasts') }}
         <template #controls>
           <div class="flex gap-2">
             <Btn
               v-koel-tooltip
-              :title="preferences.podcasts_favorites_only ? 'Show all' : 'Show favorites only'"
+              :title="preferences.podcasts_favorites_only ? $t('misc.showAll') : $t('misc.showFavoritesOnly')"
               class="border border-k-fg-10"
               small
               transparent
@@ -41,10 +41,10 @@
       <template #icon>
         <Icon :icon="faPodcast" />
       </template>
-      <template v-if="preferences.podcasts_favorites_only"> No favorite podcasts. </template>
+      <template v-if="preferences.podcasts_favorites_only">{{ $t('ui.tooltips.noFavoritePodcasts') }}</template>
       <template v-else>
-        No podcasts found.
-        <span class="secondary block">Add a podcast to get started.</span>
+        {{ $t('ui.tooltips.noPodcastsFoundScreen') }}
+        <span class="secondary block">{{ $t('ui.tooltips.addPodcastToStart') }}</span>
       </template>
     </ScreenEmptyState>
 
