@@ -5,7 +5,9 @@ import userEvent from '@testing-library/user-event'
 import type { UserEvent } from '@testing-library/user-event'
 import { afterEach, beforeEach, vi } from 'vite-plus/test'
 import { defineComponent, nextTick, shallowRef } from 'vue'
+import { createI18n } from 'vue-i18n'
 import factory from '@/__tests__/factory'
+import en from '@/locales/en.json'
 import { DialogBoxStub, MessageToasterStub, OverlayStub } from '@/__tests__/stubs'
 import { commonStore } from '@/stores/commonStore'
 import { userStore } from '@/stores/userStore'
@@ -17,6 +19,15 @@ import { noop } from '@/utils/helpers'
 import { deepMerge, setPropIfNotExists } from '@/__tests__/utils'
 import { eventBus } from '@/utils/eventBus'
 import { cache } from '@/services/cache'
+
+const testI18n = createI18n({
+  legacy: false,
+  locale: 'en',
+  fallbackLocale: 'en',
+  messages: {
+    en,
+  },
+})
 
 class TestHarness {
   public router: Router
@@ -123,6 +134,7 @@ class TestHarness {
       deepMerge(
         {
           global: {
+            plugins: [testI18n],
             directives: {
               'koel-focus': {},
               'koel-tooltip': {},

@@ -49,8 +49,7 @@ describe('playlistFolderContextMenu.vue', () => {
   it('renames', async () => {
     const { folder } = await renderComponent()
 
-    // The component uses t('playlists.folder.rename') which translates to "Rename Playlist Folder"
-    await h.user.click(screen.getByText('Rename Playlist Folder'))
+    await h.user.click(screen.getByText('Rename'))
 
     await assertOpenModal(openModalMock, EditPlaylistFolderForm, { folder })
   })

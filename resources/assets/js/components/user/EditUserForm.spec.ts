@@ -35,7 +35,7 @@ describe('editUserForm.vue', () => {
     const { user } = renderComponent()
 
     await h.type(screen.getByLabelText('Name'), 'Jane Doe')
-    await h.type(screen.getByPlaceholderText(/leave.*empty/i), 'new-password-duck')
+    await h.type(screen.getByPlaceholderText(/leave.*blank/i), 'new-password-duck')
     await fireEvent.update(screen.getByTestId('role-picker'), 'manager')
     await h.user.click(screen.getByRole('button', { name: /update/i }))
 

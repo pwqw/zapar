@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
+import { authService } from '@/services/authService'
 import { http } from '@/services/http'
+import { commonStore } from '@/stores/commonStore'
 import { radioStationStore as store } from '@/stores/radioStationStore'
 
 describe('radioStationStore', () => {
@@ -9,6 +11,7 @@ describe('radioStationStore', () => {
       store.state.stations = []
       store.nowPlaying.value = null
       store.stopPolling()
+      commonStore.state.cdn_url = ''
     },
   })
 
@@ -35,11 +38,13 @@ describe('radioStationStore', () => {
 
   it('gets source URL', () => {
     const station = h.factory('radio-station', { url: 'https://sslstream.online/8026/;' })
+    commonStore.state.cdn_url = 'https://cdn.example/'
+    const tokenMock = h.mock(authService, 'getAudioToken').mockReturnValue('audio-token')
 
-    // getSourceUrl returns the direct URL from the streaming server
-    // We bypass the proxy to avoid consuming PHP server bandwidth
-    // audioService is disconnected for radio to allow direct playback without CORS
-    expect(store.getSourceUrl(station)).toBe('https://sslstream.online/8026/;')
+    expect(store.getSourceUrl(station)).toBe(
+      `https://cdn.example/radio/stream/${station.id}?t=audio-token`,
+    )
+    expect(tokenMock).toHaveBeenCalled()
   })
 
   it('gets the currently playing station', () => {

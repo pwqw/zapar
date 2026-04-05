@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/vue'
+import { screen, waitFor } from '@testing-library/vue'
 import { describe, expect, it } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { commonStore } from '@/stores/commonStore'
@@ -31,8 +31,9 @@ describe('albumInfo.vue', () => {
       },
     })
 
-    await h.tick(1)
-    expect(fetchMock).not.toHaveBeenCalled()
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(album)
+    })
 
     return {
       ...rendered,
@@ -43,12 +44,8 @@ describe('albumInfo.vue', () => {
   }
 
   it.each<[EncyclopediaDisplayMode]>([['aside'], ['full']])('renders in %s mode', async mode => {
-    const { fetchMock, album } = await renderComponent(mode)
+    await renderComponent(mode)
 
-    await screen.getByTestId('album-info-load').click()
-    await h.tick(1)
-
-    expect(fetchMock).toHaveBeenCalledWith(album)
     screen.getByTestId('album-info-tracks')
 
     if (mode === 'aside') {
@@ -60,11 +57,8 @@ describe('albumInfo.vue', () => {
     expect(screen.getByTestId('album-info').classList.contains(mode)).toBe(true)
   })
 
-  it('fetches album info when load information is clicked', async () => {
+  it('fetches album info on mount when Last.fm is enabled', async () => {
     const { fetchMock, album } = await renderComponent('aside')
-
-    await screen.getByTestId('album-info-load').click()
-    await h.tick(1)
 
     expect(fetchMock).toHaveBeenCalledWith(album)
   })

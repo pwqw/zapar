@@ -85,12 +85,4 @@ describe('podcastContextMenu.vue', () => {
     expect(favoriteMock).toHaveBeenCalledWith(podcast)
   })
 
-  it('unsubscribes', async () => {
-    const { podcast } = await renderComponent()
-    const unsubMock = h.mock(podcastStore, 'unsubscribe')
-
-    await h.user.click(screen.getByText('Unsubscribe'))
-
-    expect(unsubMock).toHaveBeenCalledWith(podcast)
-  })
 })

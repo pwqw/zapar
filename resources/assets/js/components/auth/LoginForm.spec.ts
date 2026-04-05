@@ -13,10 +13,6 @@ describe('loginForm.vue', () => {
   const submitForm = async (loginMock: ReturnType<typeof h.mock>) => {
     const rendered = h.render(Component)
 
-    // First, click on "Internal account" to show the form
-    await h.user.click(screen.getByTestId('internal-account'))
-    await h.tick()
-
     await h.type(screen.getByPlaceholderText('Your email address', { exact: false }), 'john@doe.com')
     await h.type(screen.getByPlaceholderText('Your password', { exact: false }), 'secret')
     await h.user.click(screen.getByTestId('submit'))
@@ -37,10 +33,6 @@ describe('loginForm.vue', () => {
     const logMock = h.mock(logger, 'error')
     const rendered = h.render(Component)
 
-    // First, click on "Internal account" to show the form
-    await h.user.click(screen.getByTestId('internal-account'))
-    await h.tick()
-
     await h.type(screen.getByPlaceholderText('Your email address', { exact: false }), 'john@doe.com')
     await h.type(screen.getByPlaceholderText('Your password', { exact: false }), 'secret')
     await h.user.click(screen.getByTestId('submit'))
@@ -54,9 +46,6 @@ describe('loginForm.vue', () => {
 
   it('shows forgot password form', async () => {
     h.render(Component)
-    // First, click on "Internal account" to show the form
-    await h.user.click(screen.getByTestId('internal-account'))
-    await h.tick()
     await h.user.click(screen.getByText('Forgot password?', { exact: false }))
 
     await waitFor(() => screen.getByTestId('forgot-password-form'))
@@ -75,90 +64,8 @@ describe('loginForm.vue', () => {
 
     h.render(Component)
 
-    screen.getByTestId('google-login')
+    screen.getByTitle('Log in with Google')
 
     window.SSO_PROVIDERS = []
-  })
-
-  it('shows anonymous login button when allowed', async () => {
-    window.ALLOW_ANONYMOUS = true
-    h.render(Component)
-
-    screen.getByTestId('anonymous-login')
-
-    window.ALLOW_ANONYMOUS = false
-  })
-
-  it('hides anonymous login button when not allowed', async () => {
-    window.ALLOW_ANONYMOUS = false
-    h.render(Component)
-
-    expect(screen.queryByTestId('anonymous-login')).toBeNull()
-  })
-
-  it('shows consent step when anonymous login is clicked', async () => {
-    window.ALLOW_ANONYMOUS = true
-    h.render(Component)
-
-    await h.user.click(screen.getByTestId('anonymous-login'))
-    await h.tick()
-
-    expect(screen.getByTestId('anonymous-consent-submit')).toBeTruthy()
-    expect(screen.getByTestId('terms-checkbox')).toBeTruthy()
-    expect(screen.getByTestId('privacy-checkbox')).toBeTruthy()
-    expect(screen.getByTestId('age-checkbox')).toBeTruthy()
-
-    window.ALLOW_ANONYMOUS = false
-  })
-
-  it('logs in anonymously after accepting consent', async () => {
-    window.ALLOW_ANONYMOUS = true
-    const loginAnonymouslyMock = h.mock(authService, 'loginAnonymously').mockResolvedValue({
-      'token': 'api-token',
-      'audio-token': 'audio-token',
-    })
-    const setTokensMock = h.mock(authService, 'setTokensUsingCompositeToken')
-
-    const rendered = h.render(Component)
-
-    await h.user.click(screen.getByTestId('anonymous-login'))
-    await h.tick()
-
-    await h.user.click(screen.getByTestId('terms-checkbox'))
-    await h.user.click(screen.getByTestId('privacy-checkbox'))
-    await h.user.click(screen.getByTestId('age-checkbox'))
-    await h.user.click(screen.getByTestId('anonymous-consent-submit'))
-    await h.tick()
-
-    expect(loginAnonymouslyMock).toHaveBeenCalledWith(expect.objectContaining({
-      terms_accepted: true,
-      privacy_accepted: true,
-      age_verified: true,
-    }))
-    expect(setTokensMock).toHaveBeenCalled()
-    expect(rendered.emitted().loggedin).toBeTruthy()
-
-    window.ALLOW_ANONYMOUS = false
-  })
-
-  it('handles anonymous login failure', async () => {
-    window.ALLOW_ANONYMOUS = true
-    const loginAnonymouslyMock = h.mock(authService, 'loginAnonymously').mockRejectedValue('Network error')
-    const logMock = h.mock(logger, 'error')
-
-    h.render(Component)
-
-    await h.user.click(screen.getByTestId('anonymous-login'))
-    await h.tick()
-    await h.user.click(screen.getByTestId('terms-checkbox'))
-    await h.user.click(screen.getByTestId('privacy-checkbox'))
-    await h.user.click(screen.getByTestId('age-checkbox'))
-    await h.user.click(screen.getByTestId('anonymous-consent-submit'))
-    await h.tick()
-
-    expect(loginAnonymouslyMock).toHaveBeenCalled()
-    expect(logMock).toHaveBeenCalledWith('Anonymous login failed:', 'Network error')
-
-    window.ALLOW_ANONYMOUS = false
   })
 })

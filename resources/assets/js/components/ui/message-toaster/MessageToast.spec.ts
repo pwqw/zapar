@@ -10,9 +10,9 @@ describe('messageToast.vue', () => {
     return h.render(Component, {
       props: {
         message: {
-          id: 101,
+          id: '101',
           type: 'success',
-          message: 'Everything is fine',
+          content: 'Everything is fine',
           timeout: 5,
         },
       },

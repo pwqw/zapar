@@ -120,7 +120,7 @@ describe('embedWidgetBanner.vue', async () => {
     renderComponent(embed)
 
     screen.getByText('A Night at the Opera')
-    screen.getByText('Album by Queen')
+    screen.getByText('Queen')
     expect(screen.queryByTestId('preview-badge')).toBeNull()
   })
 

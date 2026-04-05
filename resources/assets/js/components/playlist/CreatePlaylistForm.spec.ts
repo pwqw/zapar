@@ -50,9 +50,7 @@ describe('createPlaylistForm.vue', () => {
     const storeMock = h.mock(playlistStore, 'store').mockResolvedValue(h.factory('playlist'))
     const { folder, playables } = renderComponent()
 
-    // The format is "from {count} {item}" where item is singular "song"
-    // pluralize returns "2 songs", split(' ')[0] gives "2", entityName is "song"
-    screen.getByText(`from ${playables.length} song`)
+    screen.getByText(`from ${playables.length} songs`)
 
     await h.type(screen.getByRole('textbox', { name: 'name' }), 'My playlist')
     await h.type(screen.getByRole('textbox', { name: 'description' }), 'Some description')

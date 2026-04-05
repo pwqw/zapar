@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
-import { screen } from '@testing-library/vue'
+import { screen, waitFor } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { commonStore } from '@/stores/commonStore'
 import { encyclopediaService } from '@/services/encyclopediaService'
@@ -27,8 +27,9 @@ describe('artistInfo.vue', () => {
       },
     })
 
-    await h.tick(1)
-    expect(fetchMock).not.toHaveBeenCalled()
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(artist)
+    })
 
     return {
       ...rendered,
@@ -50,11 +51,8 @@ describe('artistInfo.vue', () => {
     expect(screen.getByTestId('artist-info').classList.contains(mode)).toBe(true)
   })
 
-  it('fetches artist info when load information is clicked', async () => {
+  it('fetches artist info on mount when Last.fm is enabled', async () => {
     const { fetchMock, artist } = await renderComponent('aside')
-
-    await screen.getByTestId('artist-info-load').click()
-    await h.tick(1)
 
     expect(fetchMock).toHaveBeenCalledWith(artist)
   })

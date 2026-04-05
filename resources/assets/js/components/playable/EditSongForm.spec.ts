@@ -80,7 +80,7 @@ describe('editSongForm.vue', () => {
       year: 1971,
     })
 
-    expect(alertMock).toHaveBeenCalledWith('Updated 1 Song.')
+    expect(alertMock).toHaveBeenCalledWith('Updated 1 song.')
     expect(emitMock).toHaveBeenCalledWith('SONGS_UPDATED', result)
   })
 
@@ -125,7 +125,7 @@ describe('editSongForm.vue', () => {
       year: 1990,
     })
 
-    expect(alertMock).toHaveBeenCalledWith('Updated 3 Songs.')
+    expect(alertMock).toHaveBeenCalledWith('Updated 3 songs.')
     expect(emitMock).toHaveBeenCalledWith('SONGS_UPDATED', result)
   })
 

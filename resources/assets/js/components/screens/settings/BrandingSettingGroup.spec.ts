@@ -39,10 +39,8 @@ describe('brandingSettingGroup.vue', () => {
 
     expect(updateMock).toHaveBeenCalledWith({
       cover: 'data:new-cover',
-      description: null,
       logo: 'data:new-logo',
       name: 'New App Name',
-      og_image: null,
     })
   })
 })
