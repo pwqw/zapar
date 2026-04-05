@@ -287,7 +287,12 @@ class PodcastService
             $podcasts = $podcasts->filter(static fn (Podcast $podcast) => $user->can('publish', $podcast));
         }
 
-        $podcasts->toQuery()->update(['is_public' => true]);
+        $ids = $podcasts->modelKeys();
+        if (!$ids) {
+            return;
+        }
+
+        Podcast::query()->whereKey($ids)->update(['is_public' => true]);
     }
 
     /**
@@ -301,6 +306,10 @@ class PodcastService
         }
 
         $applicablePodcastIds = $podcasts->modelKeys();
+
+        if (!$applicablePodcastIds) {
+            return [];
+        }
 
         Podcast::query()->whereKey($applicablePodcastIds)->update(['is_public' => false]);
 
