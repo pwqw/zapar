@@ -12,6 +12,7 @@ use App\Http\Requests\API\RevokeUserInvitationRequest;
 use App\Http\Resources\UserProspectResource;
 use App\Models\User;
 use App\Services\AuthenticationService;
+use App\Services\ConsentService;
 use App\Services\UserInvitationService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Response;
@@ -21,6 +22,7 @@ class UserInvitationController extends Controller
     public function __construct(
         private readonly UserInvitationService $invitationService,
         private readonly AuthenticationService $auth,
+        private readonly ConsentService $consentService,
     ) {}
 
     /** @param User $invitor */
@@ -49,11 +51,9 @@ class UserInvitationController extends Controller
                 $request->token,
                 $request->name,
                 $request->password,
-                [
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
-                ]
             );
+
+            $this->consentService->recordConsent($user, $request);
 
             return response()->json($this->auth->login($user->email, $request->password)->toArray());
         } catch (InvitationNotFoundException) {

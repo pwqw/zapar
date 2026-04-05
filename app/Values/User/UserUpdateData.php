@@ -17,6 +17,7 @@ final readonly class UserUpdateData
         ?string $plainTextPassword,
         public ?Role $role,
         public ?string $avatar,
+        public ?bool $verified,
     ) {
         $this->password = $plainTextPassword ? Hash::make($plainTextPassword) : null;
     }
@@ -27,6 +28,7 @@ final readonly class UserUpdateData
         #[SensitiveParameter] ?string $plainTextPassword = null,
         ?Role $role = null,
         ?string $avatar = null,
+        ?bool $verified = null,
     ): self {
         return new self(
             name: $name,
@@ -34,6 +36,7 @@ final readonly class UserUpdateData
             plainTextPassword: $plainTextPassword,
             role: $role,
             avatar: $avatar,
+            verified: $verified,
         );
     }
 }

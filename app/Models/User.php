@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Builders\UserBuilder;
 use App\Casts\UserPreferencesCast;
 use App\Enums\Acl\Role as RoleEnum;
+use App\Models\Concerns\Users\HasArtistManagerPermissions;
 use App\Models\Concerns\Users\HasUserAttributes;
 use App\Models\Concerns\Users\HasUserRelationships;
 use App\Models\Contracts\Permissionable;
@@ -36,6 +37,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Collection<array-key, PlaylistFolder> $playlistFolders
  * @property Collection<array-key, Podcast> $podcasts
  * @property Collection<array-key, Theme> $themes
+ * @property Collection<array-key, UserConsentLog> $consentLogs
  * @property Organization $organization
  * @property PersonalAccessToken $currentAccessToken
  * @property UserPreferences $preferences
@@ -66,6 +68,7 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     use HasRoles {
         scopeRole as scopeWhereRole;
     }
+    use HasArtistManagerPermissions;
     use HasUserAttributes;
     use HasUserRelationships;
     use Notifiable;
@@ -76,6 +79,8 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     public const string FIRST_ADMIN_PASSWORD = 'KoelIsCool';
     public const string DEMO_PASSWORD = 'demo';
     public const string DEMO_USER_DOMAIN = 'demo.koel.dev';
+    public const string ANONYMOUS_USER_DOMAIN = 'anonymous.koel.dev';
+    public const string ANONYMOUS_PASSWORD = 'anonymous';
 
     protected $guarded = ['id', 'public_id'];
     protected $hidden = ['password', 'remember_token', 'created_at', 'updated_at', 'invitation_accepted_at'];
@@ -87,7 +92,13 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     {
         return [
             'preferences' => UserPreferencesCast::class,
+            'verified' => 'boolean',
         ];
+    }
+
+    public function isVerified(): bool
+    {
+        return (bool) $this->verified;
     }
 
     // @mago-ignore lint:no-redundant-method-override
@@ -120,6 +131,19 @@ class User extends Authenticatable implements AuditableContract, Permissionable
     public function subscribedToPodcast(Podcast $podcast): bool
     {
         return $this->podcasts()->whereKey($podcast)->exists();
+    }
+
+    /**
+     * Admin, moderator, and manager roles can bypass per-resource ownership for selected policies.
+     */
+    public function hasElevatedRole(): bool
+    {
+        return $this->role->level() >= RoleEnum::MANAGER->level();
+    }
+
+    public function hasAdminOrModeratorRole(): bool
+    {
+        return $this->role === RoleEnum::ADMIN || $this->role === RoleEnum::MODERATOR;
     }
 
     public static function getPermissionableIdentifier(): string

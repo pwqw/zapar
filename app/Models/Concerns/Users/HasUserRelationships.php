@@ -4,6 +4,7 @@ namespace App\Models\Concerns\Users;
 
 use App\Models\Interaction;
 use App\Models\Organization;
+use App\Models\UserConsentLog;
 use App\Models\Playlist;
 use App\Models\PlaylistFolder;
 use App\Models\Podcast;
@@ -50,6 +51,11 @@ trait HasUserRelationships
     public function interactions(): HasMany
     {
         return $this->hasMany(Interaction::class);
+    }
+
+    public function consentLogs(): HasMany
+    {
+        return $this->hasMany(UserConsentLog::class);
     }
 
     public function podcasts(): BelongsToMany
