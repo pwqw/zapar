@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vite-plus/test'
-import { arrayify, flattenParams, limitBy, use } from './helpers'
+import { arrayify, flattenParams, getPlayableCover, limitBy, use } from './helpers'
 
 describe('helpers utils', () => {
   it('use() triggers a closure with a defined value', () => {
@@ -56,6 +56,18 @@ describe('helpers utils', () => {
 
     it('skips null and undefined values', () => {
       expect(flattenParams({ type: 'favorites', id: null, extra: undefined })).toEqual({ type: 'favorites' })
+    })
+  })
+
+  describe('getPlayableCover', () => {
+    it('returns album_cover for songs', () => {
+      const song = { type: 'songs', album_cover: '/album.png' } as Song
+      expect(getPlayableCover(song)).toBe('/album.png')
+    })
+
+    it('returns episode_image for episodes', () => {
+      const episode = { type: 'episodes', episode_image: '/episode.png' } as Episode
+      expect(getPlayableCover(episode)).toBe('/episode.png')
     })
   })
 })
