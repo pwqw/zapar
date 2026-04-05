@@ -71,9 +71,20 @@ class SongBuilder extends FavoriteableBuilder
                     $this->user->id,
                 );
             })
-            ->whereNot(static function (self $query): void {
-                // Episodes must belong to a podcast that the user is subscribed to.
-                $query->whereNotNull('songs.podcast_id')->whereNull('podcast_user_a11y.podcast_id');
+            ->whereNot(function (self $query): void {
+                $organizationId = $this->user->organization_id;
+
+                $query->whereNotNull('songs.podcast_id')
+                    ->whereNull('podcast_user_a11y.podcast_id')
+                    ->whereNot(static function (self $q) use ($organizationId): void {
+                        $q->where('podcasts_a11y.is_public', true)
+                            ->whereExists(static function ($sub) use ($organizationId): void {
+                                $sub->selectRaw('1')
+                                    ->from('users')
+                                    ->whereColumn('users.id', 'podcasts_a11y.added_by')
+                                    ->where('users.organization_id', $organizationId);
+                            });
+                    });
             });
 
         // If the song is a podcast episode, we need to ensure that the user has access to it.
