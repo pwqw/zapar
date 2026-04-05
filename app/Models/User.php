@@ -101,6 +101,35 @@ class User extends Authenticatable implements AuditableContract, Permissionable
         return (bool) $this->verified;
     }
 
+    public function canVerify(User $target): bool
+    {
+        if ($this->id === $target->id) {
+            return false;
+        }
+
+        if ($this->role === RoleEnum::ADMIN) {
+            return true;
+        }
+
+        if ($this->role === RoleEnum::MODERATOR) {
+            return $target->role === RoleEnum::ARTIST;
+        }
+
+        if ($this->role === RoleEnum::MANAGER) {
+            if (!$this->isVerified()) {
+                return false;
+            }
+
+            if ($target->role !== RoleEnum::ARTIST) {
+                return false;
+            }
+
+            return $this->managedArtists()->whereKey($target->id)->exists();
+        }
+
+        return false;
+    }
+
     // @mago-ignore lint:no-redundant-method-override
     public static function query(): UserBuilder
     {
