@@ -1,4 +1,4 @@
-.PHONY: help build dev test stop clean logs shell hot-rm
+.PHONY: help build dev test test-backend test-all stop clean logs shell hot-rm migrate
 
 # Variables
 IMAGE_NAME := koel/web
@@ -27,16 +27,30 @@ dev: ## Docker dev: Laravel + vp build --watch (production-like, no HMR). http:/
 		--env-file .env \
 		$(IMAGE_NAME)
 
-test: ## Run frontend tests (vp test)
+# Tests: --entrypoint sh evita docker-entrypoint.sh (ese script siempre arranca el servidor).
+# Sin volumen anónimo en node_modules: si no, Docker tapa el bind mount y el dir queda vacío
+# (en dev el entrypoint hace pnpm install; aquí no). --rm elimina el contenedor al terminar.
+test: ## Run frontend + PHP tests (salida solo de los tests)
 	@docker stop $(CONTAINER_NAME_TEST) 2>/dev/null || true
 	@docker rm $(CONTAINER_NAME_TEST) 2>/dev/null || true
 	docker run --rm \
 		--name $(CONTAINER_NAME_TEST) \
+		--entrypoint sh \
 		-v $(PWD):/var/www/html \
-		-v /var/www/html/node_modules \
-		-v /var/www/html/.pnpm-store \
 		$(IMAGE_NAME) \
-		sh -c "vp test"
+		-c 'set -e; cd /var/www/html && pnpm run test && php artisan test --compact'
+
+test-backend: ## Solo PHP (php artisan test --compact)
+	@docker stop $(CONTAINER_NAME_TEST) 2>/dev/null || true
+	@docker rm $(CONTAINER_NAME_TEST) 2>/dev/null || true
+	docker run --rm \
+		--name $(CONTAINER_NAME_TEST) \
+		--entrypoint sh \
+		-v $(PWD):/var/www/html \
+		$(IMAGE_NAME) \
+		-c 'set -e; cd /var/www/html && php artisan test --compact'
+
+test-all: test ## Igual que make test (compatibilidad)
 
 stop: ## Stop containers
 	@docker stop $(CONTAINER_NAME_DEV) $(CONTAINER_NAME_TEST) 2>/dev/null || true
