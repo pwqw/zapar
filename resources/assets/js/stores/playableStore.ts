@@ -3,7 +3,7 @@ import { differenceBy, merge, orderBy, sumBy, take, unionBy, uniqBy } from 'loda
 import type { Reactive } from 'vue'
 import { reactive, watch } from 'vue'
 import { arrayify, moveItemsInList, use } from '@/utils/helpers'
-import { isSong } from '@/utils/typeGuards'
+import { isEpisode, isSong } from '@/utils/typeGuards'
 import { logger } from '@/utils/logger'
 import { md5 } from '@/utils/crypto'
 import { normalizeForComparison, secondsToHumanReadable } from '@/utils/formatters'
@@ -183,7 +183,10 @@ export const playableStore = {
       : `${commonStore.state.cdn_url}play/${playable.id}?t=${authService.getAudioToken()}`
   },
 
-  getShareableUrl: (song: Playable) => `${window.BASE_URL}#/songs/${song.id}`,
+  getShareableUrl: (playable: Playable) =>
+    isEpisode(playable)
+      ? `${window.BASE_URL}podcasts/${playable.podcast_id}`
+      : `${window.BASE_URL}#/songs/${playable.id}`,
 
   syncWithVault(playables: MaybeArray<Playable>) {
     return arrayify(playables).map(playable => {
