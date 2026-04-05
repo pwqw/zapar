@@ -48,6 +48,9 @@ clean: ## Limpiar todo (imagen y contenedores)
 logs: ## Ver logs del contenedor dev
 	docker logs -f $(CONTAINER_NAME_DEV)
 
+migrate: ## Aplicar migraciones en el contenedor dev
+	docker exec $(CONTAINER_NAME_DEV) php artisan migrate --force --no-interaction
+
 shell: ## Shell interactivo en contenedor
 	docker run -it --rm \
 		-v $(PWD):/var/www/html \
