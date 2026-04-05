@@ -167,6 +167,10 @@ class SongService
                 : rescue_if($data->songCover, fn () => $this->imageStorage->storeImage($data->songCover), $song->cover);
         }
 
+        if ($data->artistUserId !== null) {
+            $song->artist_user_id = $data->artistUserId;
+        }
+
         $song->push();
 
         if (!$song->genreEqualsTo($data->genre)) {

@@ -30,7 +30,7 @@ class SongUpdateRequest extends Request
                     $user && ($user->canAssignCoOwnerArtist() || $user->isArtist()),
                     function () use ($user) {
                         if ($user->canAssignCoOwnerArtist()) {
-                            return Rule::in($user->getAssignableArtistsForCoOwner()->pluck('id')->all());
+                            return Rule::in($user->getAssignableArtistsForCoOwner()->pluck('public_id')->all());
                         }
 
                         return Rule::in([$user->public_id, null, '']);
