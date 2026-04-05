@@ -4,12 +4,14 @@ on:
   pull_request:
     branches:
       - master
+      - main
     paths-ignore:
       - resources/assets/**
       - docs/**
   push:
     branches:
       - master
+      - main
     paths-ignore:
       - resources/assets/**
       - docs/**
@@ -38,6 +40,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
+      SKIP_KOEL_PLUS_TESTS: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && '1' || '0' }}
       DB_CONNECTION: pgsql-ci
       DB_HOST: localhost
       DB_PORT: 5432
