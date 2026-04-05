@@ -100,8 +100,8 @@ RUN mkdir -p \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 storage bootstrap/cache
 
-# Exponer puertos (Laravel y Vite)
-EXPOSE 8000 5173
+# Puerto HTTP de Laravel (assets: manifest desde public/build; watch en entrypoint)
+EXPOSE 8000
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 

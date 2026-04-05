@@ -93,27 +93,28 @@ if [ "$APP_ENV_VAL" = "local" ] || [ "$APP_ENV_VAL" = "development" ]; then
   php artisan cache:clear 2>/dev/null || true
 fi
 
-# Start development server with hot reload
-echo '✅ Iniciando servidor de desarrollo...'
+# Start Laravel + mismos comandos que "pnpm run build" en modo watch (assets vía manifest; sin HMR)
+echo '✅ Iniciando servidor de desarrollo (build de producción en watch)...'
+rm -f /var/www/html/public/hot
 # Run Laravel server on 0.0.0.0 to be accessible from the host
-# Vite is configured in vite.config.js to listen on 0.0.0.0 with HMR on localhost
 # Only run queue:listen if QUEUE_CONNECTION is not 'sync' (not needed for sync)
-# Check queue configuration before starting
 QUEUE_CONN=$(grep "^QUEUE_CONNECTION=" /var/www/html/.env 2>/dev/null | cut -d'=' -f2 || echo "sync")
 if [ "$QUEUE_CONN" = "sync" ]; then
   echo 'ℹ️  Queue connection es "sync", omitiendo queue:listen para reducir consumo de CPU'
-  exec npx concurrently -k -c "#93c5fd,#fdba74" \
+  exec npx concurrently -k -c "#93c5fd,#fdba74,#c4b5fd" \
     "php artisan serve --host=0.0.0.0 --port=8000" \
-    "vite" \
-    --names=server,vite \
+    "vp build --watch" \
+    "vp build --watch --config vite.config.sw.js" \
+    --names=server,build,build-sw \
     --restart-tries=3
 else
   echo 'ℹ️  Queue connection es "'"$QUEUE_CONN"'", iniciando queue:listen'
-  exec npx concurrently -k -c "#93c5fd,#c4b5fd,#fdba74" \
+  exec npx concurrently -k -c "#93c5fd,#c4b5fd,#fdba74,#a7f3d0" \
     "php artisan serve --host=0.0.0.0 --port=8000" \
     "php artisan queue:listen --tries=1 --sleep=3 --max-time=3600" \
-    "vite" \
-    --names=server,queue,vite \
+    "vp build --watch" \
+    "vp build --watch --config vite.config.sw.js" \
+    --names=server,queue,build,build-sw \
     --restart-tries=3
 fi
 

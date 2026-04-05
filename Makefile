@@ -15,12 +15,11 @@ build: ## Construir imagen
 hot-rm: ## Quita public/hot (modo Vite). Usa manifest en public/build; sin build: pnpm run build
 	@rm -f public/hot && echo "public/hot eliminado."
 
-dev: ## Desarrollo con live reload en Docker (puerto 5173). Abre http://localhost:8000
+dev: ## Desarrollo en Docker: Laravel + vp build --watch (como producción, sin HMR). http://localhost:8000
 	@docker stop $(CONTAINER_NAME_DEV) 2>/dev/null || true
 	docker run --rm \
 		--name $(CONTAINER_NAME_DEV) \
 		-p 8000:8000 \
-		-p 5173:5173 \
 		-v $(PWD):/var/www/html \
 		-v /var/www/html/node_modules \
 		-v /var/www/html/.pnpm-store \
