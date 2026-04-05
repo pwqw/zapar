@@ -32,7 +32,7 @@ class UserUpdateRequest extends Request
             'role' => [
                 'required',
                 Rule::enum(Role::class),
-                new AvailableRole(),
+                new AvailableRole($this->route('user')),
                 new UserCanManageRole($this->user()),
             ],
             'verified' => ['sometimes', 'boolean'],
