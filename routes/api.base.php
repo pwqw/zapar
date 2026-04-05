@@ -55,6 +55,7 @@ use App\Http\Controllers\API\QueueStateController;
 use App\Http\Controllers\API\RadioStationController;
 use App\Http\Controllers\API\RadioStationNowPlayingController;
 use App\Http\Controllers\API\RegisterPlayController;
+use App\Http\Controllers\API\ResourceVisibilityController;
 use App\Http\Controllers\API\ResetPasswordController;
 use App\Http\Controllers\API\ScrobbleController;
 use App\Http\Controllers\API\SearchYouTubeController;
@@ -134,6 +135,9 @@ Route::prefix('api')
             Route::apiResource('artists.songs', ArtistSongController::class);
 
             Route::post('songs/{song}/scrobble', ScrobbleController::class)->where(['song' => Uuid::REGEX]);
+
+            Route::put('songs/publicize', [ResourceVisibilityController::class, 'publicizeSongs']);
+            Route::put('songs/privatize', [ResourceVisibilityController::class, 'privatizeSongs']);
 
             Route::apiResource('songs', SongController::class)
                 ->except('update', 'destroy')
@@ -233,7 +237,9 @@ Route::prefix('api')
             Route::delete('playlists/{playlist}/collaborators', [PlaylistCollaboratorController::class, 'destroy']);
 
             // Podcast routes
-            Route::apiResource('podcasts', PodcastController::class);
+            Route::put('podcasts/publicize', [ResourceVisibilityController::class, 'publicizePodcasts']);
+            Route::put('podcasts/privatize', [ResourceVisibilityController::class, 'privatizePodcasts']);
+            Route::apiResource('podcasts', PodcastController::class)->except(['update', 'destroy']);
             Route::apiResource('podcasts.episodes', PodcastEpisodeController::class);
             Route::delete('podcasts/{podcast}/subscriptions', UnsubscribeFromPodcastController::class);
 

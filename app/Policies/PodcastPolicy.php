@@ -9,7 +9,7 @@ class PodcastPolicy
 {
     public function access(User $user, Podcast $podcast): bool
     {
-        if ($user->hasElevatedRole()) {
+        if ($user->hasAdminOrModeratorRole()) {
             return true;
         }
 
@@ -24,7 +24,7 @@ class PodcastPolicy
 
     public function edit(User $user, Podcast $podcast): bool
     {
-        if ($user->hasElevatedRole()) {
+        if ($user->hasAdminOrModeratorRole()) {
             return true;
         }
 
@@ -44,7 +44,7 @@ class PodcastPolicy
 
     public function publish(User $user, Podcast $podcast): bool
     {
-        if ($user->hasElevatedRole()) {
+        if ($user->hasAdminOrModeratorRole()) {
             return true;
         }
 

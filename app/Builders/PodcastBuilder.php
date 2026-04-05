@@ -25,7 +25,7 @@ class PodcastBuilder extends FavoriteableBuilder
     {
         throw_if(!$this->user, new LogicException('User must be set to query accessible podcasts.'));
 
-        if ($this->user->hasElevatedRole()) {
+        if ($this->user->hasAdminOrModeratorRole()) {
             return $this;
         }
 

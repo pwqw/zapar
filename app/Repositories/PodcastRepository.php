@@ -22,7 +22,7 @@ class PodcastRepository extends Repository implements ScoutableRepository
             ->with('subscribers')
             ->setScopedUser($user ?? $this->auth->user())
             ->withFavoriteStatus(favoritesOnly: $favoritesOnly)
-            ->subscribed()
+            ->accessible()
             ->get();
     }
 
