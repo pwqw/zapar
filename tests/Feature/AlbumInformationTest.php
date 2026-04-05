@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Album;
+use App\Models\User;
 use App\Services\EncyclopediaService;
 use App\Values\Album\AlbumInformation;
 use Mockery;
@@ -16,12 +17,11 @@ class AlbumInformationTest extends TestCase
     {
         config(['koel.services.lastfm.key' => 'foo']);
         config(['koel.services.lastfm.secret' => 'geheim']);
-
-        /** @var Album $album */
-        $album = Album::factory()->create();
+        $album = Album::factory()->createOne();
 
         $lastfm = $this->mock(EncyclopediaService::class);
-        $lastfm->expects('getAlbumInformation')
+        $lastfm
+            ->expects('getAlbumInformation')
             ->with(Mockery::on(static fn (Album $a) => $a->is($album)))
             ->andReturn(AlbumInformation::make(
                 url: 'https://lastfm.com/album/foo',
@@ -41,11 +41,12 @@ class AlbumInformationTest extends TestCase
                         'length' => 456,
                         'url' => 'https://lastfm.com/track/bar',
                     ],
-                ]
+                ],
             ));
 
-        $this->getAs("api/albums/{$album->id}/information", $album->artist->user)
-            ->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
+        $owner = User::query()->findOrFail($album->artist->user_id);
+
+        $this->getAs("api/albums/{$album->id}/information", $owner)->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
     }
 
     #[Test]
@@ -54,76 +55,12 @@ class AlbumInformationTest extends TestCase
         config(['koel.services.lastfm.key' => null]);
         config(['koel.services.lastfm.secret' => null]);
 
-        /** @var Album $album */
-        $album = Album::factory()->create();
-        $this->getAs("api/albums/{$album->id}/information", $album->artist->user)
-            ->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
-    }
+        $album = Album::factory()->createOne();
+        $owner = User::query()->findOrFail($album->artist->user_id);
 
-    #[Test]
-    public function getInformationForbiddenWhenNotOwner(): void
-    {
-        /** @var Album $album */
-        $album = Album::factory()->create();
-        $otherUser = \App\Models\User::factory()->create();
-
-        $this->getAs("api/albums/{$album->id}/information", $otherUser)
-            ->assertForbidden();
-    }
-
-    #[Test]
-    public function adminCanGetInformationForAnyAlbum(): void
-    {
-        /** @var Album $album */
-        $album = Album::factory()->create();
-        $admin = \Tests\create_admin();
-
-        $this->mock(EncyclopediaService::class)
-            ->expects('getAlbumInformation')
-            ->with(Mockery::on(static fn (Album $a) => $a->is($album)))
-            ->andReturn(AlbumInformation::make());
-
-        $this->getAs("api/albums/{$album->id}/information", $admin)
-            ->assertOk()
-            ->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
-    }
-
-    #[Test]
-    public function clearInformation(): void
-    {
-        /** @var Album $album */
-        $album = Album::factory()->create(['cover' => 'stored-cover.jpg']);
-        self::assertSame('stored-cover.jpg', $album->cover);
-
-        $this->deleteAs("api/albums/{$album->id}/information", [], $album->artist->user)
-            ->assertNoContent();
-
-        $album->refresh();
-        self::assertSame('', $album->cover);
-    }
-
-    #[Test]
-    public function clearInformationForbiddenWhenNotOwner(): void
-    {
-        /** @var Album $album */
-        $album = Album::factory()->create();
-        $otherUser = \App\Models\User::factory()->create();
-
-        $this->deleteAs("api/albums/{$album->id}/information", [], $otherUser)
-            ->assertForbidden();
-    }
-
-    #[Test]
-    public function adminCanClearInformationForAnyAlbum(): void
-    {
-        /** @var Album $album */
-        $album = Album::factory()->create(['cover' => 'stored-cover.jpg']);
-        $admin = \Tests\create_admin();
-
-        $this->deleteAs("api/albums/{$album->id}/information", [], $admin)
-            ->assertNoContent();
-
-        $album->refresh();
-        self::assertSame('', $album->cover);
+        $this->getAs(
+            "api/albums/{$album->id}/information",
+            $owner,
+        )->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
     }
 }

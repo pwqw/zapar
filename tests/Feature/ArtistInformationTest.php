@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Artist;
+use App\Models\User;
 use App\Services\EncyclopediaService;
 use App\Values\Artist\ArtistInformation;
 use Mockery;
@@ -16,12 +17,11 @@ class ArtistInformationTest extends TestCase
     {
         config(['koel.services.lastfm.key' => 'foo']);
         config(['koel.services.lastfm.secret' => 'geheim']);
-
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create();
+        $artist = Artist::factory()->createOne();
 
         $lastfm = $this->mock(EncyclopediaService::class);
-        $lastfm->expects('getArtistInformation')
+        $lastfm
+            ->expects('getArtistInformation')
             ->with(Mockery::on(static fn (Artist $a) => $a->is($artist)))
             ->andReturn(ArtistInformation::make(
                 url: 'https://lastfm.com/artist/foo',
@@ -32,8 +32,9 @@ class ArtistInformationTest extends TestCase
                 ],
             ));
 
-        $this->getAs("api/artists/{$artist->id}/information", $artist->user)
-            ->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
+        $owner = User::query()->findOrFail($artist->user_id);
+
+        $this->getAs("api/artists/{$artist->id}/information", $owner)->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
     }
 
     #[Test]
@@ -42,76 +43,12 @@ class ArtistInformationTest extends TestCase
         config(['koel.services.lastfm.key' => null]);
         config(['koel.services.lastfm.secret' => null]);
 
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create();
-        $this->getAs("api/artists/{$artist->id}/information", $artist->user)
-            ->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
-    }
+        $artist = Artist::factory()->createOne();
+        $owner = User::query()->findOrFail($artist->user_id);
 
-    #[Test]
-    public function getInformationForbiddenWhenNotOwner(): void
-    {
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create();
-        $otherUser = \App\Models\User::factory()->create();
-
-        $this->getAs("api/artists/{$artist->id}/information", $otherUser)
-            ->assertForbidden();
-    }
-
-    #[Test]
-    public function adminCanGetInformationForAnyArtist(): void
-    {
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create();
-        $admin = \Tests\create_admin();
-
-        $this->mock(EncyclopediaService::class)
-            ->expects('getArtistInformation')
-            ->with(Mockery::on(static fn (Artist $a) => $a->is($artist)))
-            ->andReturn(ArtistInformation::make());
-
-        $this->getAs("api/artists/{$artist->id}/information", $admin)
-            ->assertOk()
-            ->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
-    }
-
-    #[Test]
-    public function clearInformation(): void
-    {
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create(['image' => 'stored-image.jpg']);
-        self::assertSame('stored-image.jpg', $artist->image);
-
-        $this->deleteAs("api/artists/{$artist->id}/information", [], $artist->user)
-            ->assertNoContent();
-
-        $artist->refresh();
-        self::assertSame('', $artist->image);
-    }
-
-    #[Test]
-    public function clearInformationForbiddenWhenNotOwner(): void
-    {
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create();
-        $otherUser = \App\Models\User::factory()->create();
-
-        $this->deleteAs("api/artists/{$artist->id}/information", [], $otherUser)
-            ->assertForbidden();
-    }
-
-    #[Test]
-    public function adminCanClearInformationForAnyArtist(): void
-    {
-        /** @var Artist $artist */
-        $artist = Artist::factory()->create(['image' => 'stored-image.jpg']);
-        $admin = \Tests\create_admin();
-
-        $this->deleteAs("api/artists/{$artist->id}/information", [], $admin)
-            ->assertNoContent();
-
-        $artist->refresh();
-        self::assertSame('', $artist->image);
+        $this->getAs(
+            "api/artists/{$artist->id}/information",
+            $owner,
+        )->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
     }
 }

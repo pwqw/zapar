@@ -18,6 +18,9 @@ class SetUserRoleCommandTest extends TestCase
             ->artisan('koel:admin:set-user-role', ['email' => 'jane@example.com'])
             ->expectsChoice('What role should the user have?', 'admin', [
                 'admin' => 'Admin',
+                'artist' => 'Artist',
+                'manager' => 'Manager',
+                'moderator' => 'Moderator',
                 'user' => 'User',
             ])
             ->assertSuccessful();
