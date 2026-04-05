@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
 import { playableStore } from '@/stores/playableStore'
 import { offlineManifest } from '@/services/offlineManifest'
+import { logger } from '@/utils/logger'
 import { useOfflinePlayback } from './useOfflinePlayback'
 
 vi.mock('@/services/offlineManifest', () => ({
@@ -11,6 +12,15 @@ vi.mock('@/services/offlineManifest', () => ({
     put: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
     clear: vi.fn().mockResolvedValue(undefined),
+  },
+}))
+
+vi.mock('@/utils/logger', () => ({
+  logger: {
+    warn: vi.fn(),
+    log: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
   },
 }))
 
@@ -59,6 +69,7 @@ describe('useOfflinePlayback', () => {
     vi.mocked(offlineManifest.put).mockClear()
     vi.mocked(offlineManifest.remove).mockClear()
     vi.mocked(offlineManifest.clear).mockClear()
+    vi.mocked(logger.error).mockClear()
   })
 
   it('sends CACHE_AUDIO message to SW', () => {
@@ -153,6 +164,9 @@ describe('useOfflinePlayback', () => {
     })
 
     expect(isCaching(song)).toBe(false)
+    expect(vi.mocked(logger.error)).toHaveBeenCalledWith(
+      `Failed to cache song ${song.id}: Network error`,
+    )
   })
 
   it('sends GET_CACHE_STATUS message to SW', () => {
