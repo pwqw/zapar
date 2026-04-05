@@ -51,26 +51,28 @@ class SongFactory extends Factory
 
     public function asEpisode(): self
     {
-        return $this->state(fn () => [
-            'podcast_id' => Podcast::factory(),
-            'episode_metadata' => EpisodeMetadata::fromArray([
-                'link' => $this->faker->url(),
-                'description' => $this->faker->paragraph,
-                'duration' => $this->faker->randomFloat(2, 10, 500),
-                'image' => $this->faker->imageUrl(),
-            ]),
-            'is_public' => true,
-            'artist_id' => null,
-            'owner_id' => null,
-            'album_id' => null,
-            'storage' => null,
-            'path' => $this->faker->url(),
-            'lyrics' => '',
-            'track' => null,
-            'disc' => 0,
-            'year' => null,
-            'mime_type' => null,
-            'file_size' => null,
-        ]);
+        return $this->state(function (array $attributes): array {
+            return [
+                'podcast_id' => $attributes['podcast_id'] ?? Podcast::factory(),
+                'episode_metadata' => EpisodeMetadata::fromArray([
+                    'link' => $this->faker->url(),
+                    'description' => $this->faker->paragraph,
+                    'duration' => $this->faker->randomFloat(2, 10, 500),
+                    'image' => $this->faker->imageUrl(),
+                ]),
+                'is_public' => true,
+                'artist_id' => null,
+                'owner_id' => null,
+                'album_id' => null,
+                'storage' => null,
+                'path' => $this->faker->url(),
+                'lyrics' => '',
+                'track' => null,
+                'disc' => 0,
+                'year' => null,
+                'mime_type' => null,
+                'file_size' => null,
+            ];
+        });
     }
 }
