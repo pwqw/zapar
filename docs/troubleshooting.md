@@ -100,17 +100,6 @@ This may sometimes happen with the native PHP streaming method. Check [Streaming
 alternatives.
 :::
 
-::: details You receive a `Multiple licenses found` warning when running `koel:license:status` command
-Koel Plus only requires one license key. If it detects more than one key in the database, the warning will be issued.
-Most of the time this shouldn't cause any problem, but if you're experiencing issues, try emptying the `licenses` table
-and re-activating your license key.
-:::
-
-::: details You've reinstalled or moved Koel to another server and receive a Koel Plus license error
-This typically comes from the fact that Koel Plus supports only one installation per license key. To fix the issue,
-you can either disable the current activation via the Lemon Squeezy dashboard or email me for support.
-:::
-
 ## Reinstalling Koel
 
 In the worst case scenario, you can always reinstall Koel. Although Koel doesn't provide a built-in way to reinstall
@@ -119,12 +108,10 @@ itself, you can do so manually by following these steps:
 1. Backup your database
 2. Have you backed up your database yet?
 3. No, seriously, make sure you have a backup of your database
-4. (Koel Plus only) [Deactivate](plus/purchase-activation.md#deactivation) your Koel Plus license
-5. Back up the `public/img` directory. This is where your album art, artist images, user avatars, etc. are stored.
-6. Delete or empty the root Koel directory
-7. Follow the [installation guide](guide/getting-started#installation) to install Koel afresh
-8. Restore your database and the `public/img` directory
-9. (Koel Plus only) [Reactivate](plus/purchase-activation.md#activation) your Koel Plus license
+4. Back up the `public/img` directory. This is where your album art, artist images, user avatars, etc. are stored.
+5. Delete or empty the root Koel directory
+6. Follow the [installation guide](guide/getting-started#installation) to install Koel afresh
+7. Restore your database and the `public/img` directory
 
 By now you should have a fresh Koel installation with all your data intact and hopefully without the issue you were
 facing.
