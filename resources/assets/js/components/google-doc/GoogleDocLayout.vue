@@ -4,7 +4,7 @@
     <header class="flex-shrink-0 h-k-header-height bg-k-bg-secondary border-b border-k-border flex items-center px-6 gap-4">
       <button
         v-if="!loading"
-        title="Volver"
+        title="Back"
         class="back-button flex items-center justify-center w-10 h-10 rounded-full hover:bg-k-bg-hover transition-colors"
         @click="goBack"
       >
@@ -12,14 +12,14 @@
       </button>
 
       <h1 class="text-xl md:text-2xl font-thin md:font-bold text-k-text-primary flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
-        {{ page?.title || 'Cargando...' }}
+        {{ page?.title || 'Loading…' }}
       </h1>
     </header>
 
-    <!-- Contenido principal -->
+    <!-- Main content -->
     <main class="flex-1 overflow-hidden relative">
       <div v-if="loading" class="flex items-center justify-center h-full">
-        <p class="text-k-text-secondary">Cargando documento...</p>
+        <p class="text-k-text-secondary">Loading document…</p>
       </div>
 
       <div v-else-if="error" class="flex items-center justify-center h-full">
@@ -56,7 +56,7 @@ const slug = computed(() => getRouteParam('slug'))
 
 const loadPage = async () => {
   if (!slug.value) {
-    error.value = 'Slug no especificado'
+    error.value = 'Slug is required'
     loading.value = false
     return
   }
@@ -68,30 +68,30 @@ const loadPage = async () => {
     page.value = await settingStore.getGoogleDocPageBySlug(slug.value)
 
     if (page.value?.embed_url) {
-      // La URL ya debe venir con embedded=true desde la BD
+      // embed_url should already include embedded=true from the database
       iframeSrc.value = page.value.embed_url
     } else {
-      error.value = 'URL de embed no disponible'
+      error.value = 'Embed URL is not available'
       console.error('No embed_url in page:', page.value)
     }
   } catch (e: any) {
     error.value = e.response?.status === 404
-      ? 'Página no encontrada'
-      : 'Error al cargar el documento'
+      ? 'Page not found'
+      : 'Failed to load document'
   } finally {
     loading.value = false
   }
 }
 
 const goBack = () => {
-  // Intentar usar el historial del navegador
+  // Prefer browser history when available
   if (window.history.length > 1) {
     go(-1)
   } else if (page.value?.default_back_url) {
-    // Si no hay historial, usar default_back_url
+    // No history: use default_back_url
     go(page.value.default_back_url)
   } else {
-    // Fallback a home
+    // Fallback: home
     go('/home')
   }
 }

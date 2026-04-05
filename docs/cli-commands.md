@@ -105,6 +105,7 @@ After running this command, you'll have the following test accounts available (p
 - **artista2@e.mail** - Artist account managed by manager2 (unverified)
 - **artista3@e.mail** - Artist account managed by both managers (verified)
 - **artista4@e.mail** - Independent artist account (unverified)
+- **usuario@e.mail** - Regular user account (verified)
 
 #### Sample Content
 

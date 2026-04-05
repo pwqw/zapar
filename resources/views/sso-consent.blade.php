@@ -13,7 +13,7 @@
     <link rel="icon" href="{{ koel_branding('logo') ?? static_url('img/icon.png') }}">
 
     <style>
-        /* Mismas variables que resources/assets/css/partials/vars.pcss (Login) */
+        /* Same variables as resources/assets/css/partials/vars.pcss (Login) */
         :root {
             --color-fg: #ffffff;
             --color-bg: #181818;
@@ -194,7 +194,7 @@
 
         @if($errors->any())
         <div class="error-message">
-            Debes aceptar todos los términos para continuar.
+            {{ __('sso.error_accept_all') }}
         </div>
         @endif
 
@@ -205,27 +205,27 @@
                 <div class="checkbox-item">
                     <input type="checkbox" name="terms_accepted" id="terms_accepted" value="1" required>
                     <label for="terms_accepted">
-                        Acepto los <a href="{{ $terms_url ?? '#' }}" target="_blank" rel="noopener">Términos y Condiciones</a>
+                        {!! __('sso.terms_label', ['url' => $terms_url ?? '#']) !!}
                     </label>
                 </div>
 
                 <div class="checkbox-item">
                     <input type="checkbox" name="privacy_accepted" id="privacy_accepted" value="1" required>
                     <label for="privacy_accepted">
-                        Acepto la <a href="{{ $privacy_url ?? '#' }}" target="_blank" rel="noopener">Política de Privacidad</a>
+                        {!! __('sso.privacy_label', ['url' => $privacy_url ?? '#']) !!}
                     </label>
                 </div>
 
                 <div class="checkbox-item">
                     <input type="checkbox" name="age_verified" id="age_verified" value="1" required>
                     <label for="age_verified">
-                        Confirmo que tengo 13 años o más
+                        {{ __('sso.age_label') }}
                     </label>
                 </div>
             </div>
 
             <button type="submit" class="btn">
-                Aceptar y Continuar
+                {{ __('sso.accept_and_continue') }}
             </button>
         </form>
     </div>

@@ -105,7 +105,7 @@ class WelcomeMessageSettingTest extends TestCase
     {
         $message = 'Welcome! Visit {document}';
         $variables = [
-            ['name' => 'document', 'url' => '/#/document/ejemplo'],
+            ['name' => 'document', 'url' => '/#/document/example'],
         ];
 
         $this->putAs('/api/settings/welcome-message', [
@@ -142,7 +142,7 @@ class WelcomeMessageSettingTest extends TestCase
         $message = 'Welcome! Visit {privacy} and {document}';
         $variables = [
             ['name' => 'privacy', 'url' => 'https://example.com/privacy'],
-            ['name' => 'document', 'url' => '/#/document/ejemplo'],
+            ['name' => 'document', 'url' => '/#/document/example'],
         ];
 
         $this->putAs('/api/settings/welcome-message', [

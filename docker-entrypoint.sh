@@ -4,13 +4,13 @@ set -e
 
 # Install Composer dependencies (required before composer koel:init)
 if [ ! -d /var/www/html/vendor ]; then
-    echo '📦 Instalando dependencias de Composer...'
+    echo '📦 Installing Composer dependencies...'
     composer install --no-interaction --prefer-dist
 fi
 
 # Install Node.js dependencies (required for development)
 if [ ! -d /var/www/html/node_modules ]; then
-    echo '📦 Instalando dependencias de Node.js...'
+    echo '📦 Installing Node.js dependencies...'
     pnpm install
 fi
 
@@ -29,7 +29,7 @@ fi
 
 # Create .env from .env.example if it doesn't exist (koel:init does this, but we pre-configure it for non-interactive mode)
 if [ ! -f /var/www/html/.env ]; then
-    echo '📝 Creando archivo .env desde .env.example...'
+    echo '📝 Creating .env from .env.example...'
     cp /var/www/html/.env.example /var/www/html/.env
     
     # Configure for SQLite in Docker (required for non-interactive mode)
@@ -74,33 +74,33 @@ if [ "$INITIALIZED" = "false" ] && [ -f /var/www/html/.env ]; then
 fi
 
 if [ "$INITIALIZED" = "false" ]; then
-    echo '🚀 Inicializando Koel usando el proceso oficial (composer koel:init)...'
-    echo '⚠️  Esto solo se ejecuta la primera vez. Si necesitas reinicializar, usa: docker exec koel_dev php artisan dev:setup --force'
+    echo '🚀 Initializing Koel using the official process (composer koel:init)...'
+    echo '⚠️  This runs only once. To reinitialize, run: docker exec koel_dev php artisan dev:setup --force'
     composer koel:init -- --no-assets --no-interaction --no-scheduler
 else
-    echo '✅ Koel ya está inicializado. Omitiendo koel:init para proteger los datos existentes.'
-    echo 'ℹ️  Si necesitas reinicializar, usa: docker exec koel_dev php artisan dev:setup --force'
+    echo '✅ Koel is already initialized. Skipping koel:init to protect existing data.'
+    echo 'ℹ️  To reinitialize, run: docker exec koel_dev php artisan dev:setup --force'
 fi
 
 # Clear Laravel cache in development to ensure fresh changes are reflected
-# This ensures that view/config/route cache doesn't interfere with hot reload
+# This ensures that view/config/route cache does not interfere with hot reload
 APP_ENV_VAL=$(grep "^APP_ENV=" /var/www/html/.env 2>/dev/null | cut -d'=' -f2 | tr -d '"' || echo "production")
 if [ "$APP_ENV_VAL" = "local" ] || [ "$APP_ENV_VAL" = "development" ]; then
-  echo '🧹 Limpiando cache de Laravel para desarrollo...'
+  echo '🧹 Clearing Laravel cache for development...'
   php artisan config:clear 2>/dev/null || true
   php artisan view:clear 2>/dev/null || true
   php artisan route:clear 2>/dev/null || true
   php artisan cache:clear 2>/dev/null || true
 fi
 
-# Start Laravel + mismos comandos que "pnpm run build" en modo watch (assets vía manifest; sin HMR)
-echo '✅ Iniciando servidor de desarrollo (build de producción en watch)...'
+# Start Laravel + same commands as "pnpm run build" in watch mode (assets via manifest; no HMR)
+echo '✅ Starting development server (production build in watch mode)...'
 rm -f /var/www/html/public/hot
 # Run Laravel server on 0.0.0.0 to be accessible from the host
 # Only run queue:listen if QUEUE_CONNECTION is not 'sync' (not needed for sync)
 QUEUE_CONN=$(grep "^QUEUE_CONNECTION=" /var/www/html/.env 2>/dev/null | cut -d'=' -f2 || echo "sync")
 if [ "$QUEUE_CONN" = "sync" ]; then
-  echo 'ℹ️  Queue connection es "sync", omitiendo queue:listen para reducir consumo de CPU'
+  echo 'ℹ️  Queue connection is "sync"; skipping queue:listen to reduce CPU usage'
   exec npx concurrently -k -c "#93c5fd,#fdba74,#c4b5fd" \
     "php artisan serve --host=0.0.0.0 --port=8000" \
     "vp build --watch" \
@@ -108,7 +108,7 @@ if [ "$QUEUE_CONN" = "sync" ]; then
     --names=server,build,build-sw \
     --restart-tries=3
 else
-  echo 'ℹ️  Queue connection es "'"$QUEUE_CONN"'", iniciando queue:listen'
+  echo 'ℹ️  Queue connection is "'"$QUEUE_CONN"'"; starting queue:listen'
   exec npx concurrently -k -c "#93c5fd,#c4b5fd,#fdba74,#a7f3d0" \
     "php artisan serve --host=0.0.0.0 --port=8000" \
     "php artisan queue:listen --tries=1 --sleep=3 --max-time=3600" \
@@ -117,4 +117,3 @@ else
     --names=server,queue,build,build-sw \
     --restart-tries=3
 fi
-

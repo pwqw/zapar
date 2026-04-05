@@ -14,13 +14,13 @@ class DevSetupCommand extends Command
     {
         // ⚠️ WARNING: This command DELETES THE ENTIRE DATABASE
         if (!$this->option('force')) {
-            $this->components->error('⚠️  ADVERTENCIA: Este comando BORRARÁ TODA LA BASE DE DATOS');
+            $this->components->error('⚠️  WARNING: This command will WIPE THE ENTIRE DATABASE');
             $this->newLine();
-            $this->components->warn('Esto eliminará todos los usuarios, canciones, álbumes y otros datos.');
+            $this->components->warn('This will remove all users, songs, albums, and other data.');
             $this->newLine();
 
-            if (!$this->confirm('¿Estás seguro de que quieres continuar?', false)) {
-                $this->components->info('Operación cancelada.');
+            if (!$this->confirm('Are you sure you want to continue?', false)) {
+                $this->components->info('Cancelled.');
                 return self::FAILURE;
             }
         }

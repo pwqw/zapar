@@ -14,27 +14,27 @@ class ShareableSongTest extends TestCase
     public function publicSongPageServesOpenGraphMetaWithSongData(): void
     {
         $artist = Artist::factory()->create([
-            'name' => 'Artista Uno',
+            'name' => 'Artist One',
             'image' => 'artist-cover.jpg',
         ]);
         $album = Album::factory()->for($artist)->create([
-            'name' => 'Album Uno',
+            'name' => 'Album One',
             'cover' => 'album-cover.jpg',
         ]);
         $song = Song::factory()->for($album)->public()->create([
-            'title' => 'Cancion Uno',
+            'title' => 'Song One',
         ]);
 
         $siteName = (string) koel_branding('name');
-        $expectedDescription = "Escucha {$song->title} de {$artist->name} en {$siteName}.";
+        $expectedDescription = "Listen to {$song->title} by {$artist->name} on {$siteName}.";
 
         $response = $this->get("/songs/{$song->id}");
 
         $response->assertOk();
-        $response->assertSee('property="og:title" content="Cancion Uno"', false);
+        $response->assertSee('property="og:title" content="Song One"', false);
         $response->assertSee('property="og:description" content="' . $expectedDescription . '"', false);
         $response->assertSee('property="og:image" content="' . image_storage_url($album->cover) . '"', false);
-        $response->assertSee('<title>Cancion Uno</title>', false);
+        $response->assertSee('<title>Song One</title>', false);
         $response->assertSee('name="description" content="' . $expectedDescription . '"', false);
         $this->assertStringContainsString('\/#\/songs\/' . $song->id, $response->getContent());
     }
@@ -44,11 +44,11 @@ class ShareableSongTest extends TestCase
     {
         $artist = Artist::factory()->create();
         $album = Album::factory()->for($artist)->create([
-            'name' => 'Album Uno',
+            'name' => 'Album One',
             'cover' => 'album-cover.jpg',
         ]);
         $song = Song::factory()->for($album)->public()->create([
-            'title' => 'Cancion Con Portada',
+            'title' => 'Song With Cover',
             'cover' => 'song-custom-cover.jpg',
         ]);
 
@@ -62,13 +62,13 @@ class ShareableSongTest extends TestCase
     public function privateSongPageServesDefaultOpenGraphWithoutSongData(): void
     {
         $song = Song::factory()->private()->create([
-            'title' => 'Cancion Privada',
+            'title' => 'Private Song',
         ]);
 
         $response = $this->get("/songs/{$song->id}");
 
         $response->assertOk();
-        $response->assertDontSee('<title>Cancion Privada</title>', false);
-        $response->assertDontSee('property="og:title" content="Cancion Privada"', false);
+        $response->assertDontSee('<title>Private Song</title>', false);
+        $response->assertDontSee('property="og:title" content="Private Song"', false);
     }
 }

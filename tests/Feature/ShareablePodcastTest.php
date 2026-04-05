@@ -12,20 +12,20 @@ class ShareablePodcastTest extends TestCase
     public function publicPodcastPageServesOpenGraphMetaWithPodcastData(): void
     {
         $podcast = Podcast::factory()->public()->create([
-            'title' => 'Mi Podcast Favorito',
-            'description' => 'Descripción larga del podcast que se usa en og:description.',
+            'title' => 'My Favorite Podcast',
+            'description' => 'Long podcast description used for og:description.',
             'image' => 'https://example.com/podcast-cover.png',
         ]);
 
         $response = $this->get("/podcasts/{$podcast->id}");
 
         $response->assertOk();
-        $response->assertSee('property="og:title" content="Mi Podcast Favorito"', false);
+        $response->assertSee('property="og:title" content="My Favorite Podcast"', false);
         $response->assertSee('property="og:description"', false);
         $response->assertSee('property="og:image" content="https://example.com/podcast-cover.png"', false);
         $response->assertSee('property="og:url"', false);
         $response->assertSee('name="twitter:card" content="summary_large_image"', false);
-        $response->assertSee('name="twitter:title" content="Mi Podcast Favorito"', false);
+        $response->assertSee('name="twitter:title" content="My Favorite Podcast"', false);
         $response->assertSee('name="twitter:image" content="https://example.com/podcast-cover.png"', false);
         $response->assertSee('rel="canonical"', false);
         $this->assertStringContainsString("podcasts/{$podcast->id}", $response->getContent());
@@ -35,33 +35,33 @@ class ShareablePodcastTest extends TestCase
     public function publicPodcastPageServesSeoTitleAndMetaDescription(): void
     {
         $podcast = Podcast::factory()->public()->create([
-            'title' => 'Podcast con SEO',
-            'description' => 'Resumen breve para buscadores y tarjetas sociales.',
+            'title' => 'SEO Podcast',
+            'description' => 'Short summary for search engines and social cards.',
             'image' => 'https://example.com/cover.png',
         ]);
 
         $response = $this->get("/podcasts/{$podcast->id}");
 
         $response->assertOk();
-        $response->assertSee('<title>Podcast con SEO</title>', false);
-        $response->assertSee('name="description" content="Resumen breve para buscadores y tarjetas sociales."', false);
+        $response->assertSee('<title>SEO Podcast</title>', false);
+        $response->assertSee('name="description" content="Short summary for search engines and social cards."', false);
     }
 
     #[Test]
     public function privatePodcastPageServesDefaultOpenGraphWithoutPodcastData(): void
     {
         $podcast = Podcast::factory()->private()->create([
-            'title' => 'Podcast Privado',
-            'description' => 'No debe mostrarse en meta.',
+            'title' => 'Private Podcast',
+            'description' => 'Must not appear in meta.',
             'image' => 'https://example.com/private-cover.png',
         ]);
 
         $response = $this->get("/podcasts/{$podcast->id}");
 
         $response->assertOk();
-        $response->assertDontSee('<title>Podcast Privado</title>', false);
-        $response->assertDontSee('property="og:title" content="Podcast Privado"', false);
-        $response->assertDontSee('name="description" content="No debe mostrarse en meta."', false);
+        $response->assertDontSee('<title>Private Podcast</title>', false);
+        $response->assertDontSee('property="og:title" content="Private Podcast"', false);
+        $response->assertDontSee('name="description" content="Must not appear in meta."', false);
         $response->assertDontSee('https://example.com/private-cover.png', false);
     }
 
