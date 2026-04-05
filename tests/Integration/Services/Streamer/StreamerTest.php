@@ -17,6 +17,7 @@ use App\Values\RequestedStreamingConfig;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\PlusTestCase;
 use Tests\TestCase;
 
 use function Tests\test_path;
@@ -26,6 +27,8 @@ class StreamerTest extends TestCase
     #[Test]
     public function resolveAdapters(): void
     {
+        PlusTestCase::ensurePlusTestsEnabled();
+
         // prevent real HTTP calls from being made, e.g., from DropboxStorage
         Http::fake();
 

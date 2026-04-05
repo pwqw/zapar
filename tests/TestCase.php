@@ -25,11 +25,12 @@ abstract class TestCase extends BaseTestCase
     use MakesHttpRequests;
 
     /**
-     * @var Filesystem The backup of the real filesystem instance, to restore after tests.
+     * @var ?Filesystem The backup of the real filesystem instance, to restore after tests.
      * This is necessary because we might be mocking the File facade in tests, and at the same time
      * we delete test resources during suite's teardown.
+     * Null when {@see setUp()} did not complete (e.g. skipped Plus tests before parent setUp).
      */
-    private Filesystem $fileSystem;
+    private ?Filesystem $fileSystem = null;
 
     public function setUp(): void
     {
@@ -53,7 +54,10 @@ abstract class TestCase extends BaseTestCase
 
     protected function tearDown(): void
     {
-        File::swap($this->fileSystem);
+        if ($this->fileSystem !== null) {
+            File::swap($this->fileSystem);
+        }
+
         self::destroySandbox();
         MediaBrowser::clearCache();
 
