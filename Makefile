@@ -1,4 +1,4 @@
-.PHONY: help build dev test stop clean logs shell
+.PHONY: help build dev test stop clean logs shell hot-rm
 
 # Variables
 IMAGE_NAME := koel/web
@@ -11,6 +11,9 @@ help: ## Mostrar ayuda
 
 build: ## Construir imagen
 	docker build -t $(IMAGE_NAME) .
+
+hot-rm: ## Quita public/hot (modo Vite). Usa manifest en public/build; sin build: pnpm run build
+	@rm -f public/hot && echo "public/hot eliminado."
 
 dev: ## Desarrollo con live reload en Docker (puerto 5173). Abre http://localhost:8000
 	@docker stop $(CONTAINER_NAME_DEV) 2>/dev/null || true
