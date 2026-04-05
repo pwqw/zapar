@@ -29,7 +29,10 @@ class ShareableArtistTest extends TestCase
             ->andReturn(ArtistInformation::make());
 
         $siteName = (string) koel_branding('name');
-        $expectedDescription = "Listen to {$artist->name} on {$siteName}.";
+        $expectedDescription = __('shareable.artist_fallback', [
+            'name' => $artist->name,
+            'site' => $siteName,
+        ], 'en');
 
         $response = $this->get("/artists/{$artist->id}/information");
 
