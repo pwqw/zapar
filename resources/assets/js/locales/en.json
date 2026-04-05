@@ -31,11 +31,13 @@
   "koelPlus": {
     "upgrade": "Upgrade to Plus",
     "tagline": "Koel Plus adds premium features on top of the default installation.",
-    "payOnceHtml": "Pay <em>once</em> and enjoy all additional features forever — including those to be built into the app in the future!",
+    "payOnceLine": "Pay {0} and enjoy all additional features forever — including those to be built into the app in the future!",
+    "payOnceEmphasis": "once",
     "activate": "Activate",
     "purchase": "Purchase Koel Plus",
     "haveLicenseKey": "I have a license key",
-    "visitMoreInfoHtml": "Visit <a href=\"https://koel.dev#plus\" target=\"_blank\" rel=\"noopener\">koel.dev</a> for more information.",
+    "visitMoreInfo": "Visit {0} for more information.",
+    "visitMoreInfoLinkLabel": "koel.dev",
     "modalImgAlt": "Koel Plus"
   },
   "embed": {
