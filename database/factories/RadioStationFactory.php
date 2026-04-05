@@ -18,7 +18,7 @@ class RadioStationFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
+            'user_id' => User::factory()->state(['verified' => true]),
             'name' => $this->faker->company(),
             'url' => $this->faker->url(),
             'logo' => Ulid::generate() . '.webp',
