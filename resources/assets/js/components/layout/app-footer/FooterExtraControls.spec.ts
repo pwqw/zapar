@@ -28,7 +28,7 @@ describe('footerExtraControls.vue', () => {
     renderComponent()
     const emitMock = h.mock(eventBus, 'emit')
 
-    await h.user.click(screen.getByTitle('Enter fullscreen mode'))
+    await h.user.click(screen.getByTitle('Enter fullscreen'))
 
     expect(emitMock).toHaveBeenCalledWith('FULLSCREEN_TOGGLE')
   })
