@@ -48,10 +48,10 @@
       <CreditsBlock v-if="isDemo" />
 
       <i18n-t v-if="!isPlus" keypath="content.support.description" scope="global" tag="p">
-        <template #0>
+        <template #github>
           <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">GitHub Sponsors</a>
         </template>
-        <template #1>
+        <template #opencollective>
           <a href="https://opencollective.com/koel" rel="noopener" target="_blank">OpenCollective</a>
         </template>
       </i18n-t>

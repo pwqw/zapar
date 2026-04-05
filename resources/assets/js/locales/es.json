@@ -984,7 +984,7 @@
       "refreshNow": "Actualizar ahora"
     },
     "support": {
-      "description": "¿Te encanta Koel? Por favor, considera apoyar su desarrollo a través de {0} y/o {1}.",
+      "description": "¿Te encanta Koel? Por favor, considera apoyar su desarrollo a través de {github} y/o {opencollective}.",
       "hide": "Ocultar",
       "dontBugAgain": "No me molestes más"
     },

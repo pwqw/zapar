@@ -977,7 +977,7 @@
       "refreshNow": "Refresh now"
     },
     "support": {
-      "description": "Loving Koel? Please consider supporting its development via {0} and/or {1}.",
+      "description": "Loving Koel? Please consider supporting its development via {github} and/or {opencollective}.",
       "hide": "Hide",
       "dontBugAgain": "Don't bug me again"
     },
