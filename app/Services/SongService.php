@@ -139,6 +139,10 @@ class SongService
         $song->disc = $data->disc;
         $song->year = $data->year;
 
+        if ($data->artistUserId !== null) {
+            $song->artist_user_id = $data->artistUserId;
+        }
+
         $song->push();
 
         if (!$song->genreEqualsTo($data->genre)) {

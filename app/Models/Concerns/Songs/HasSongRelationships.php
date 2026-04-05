@@ -21,6 +21,11 @@ trait HasSongRelationships
         return $this->belongsTo(User::class);
     }
 
+    public function artistUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'artist_user_id');
+    }
+
     public function artist(): BelongsTo
     {
         return $this->belongsTo(Artist::class);

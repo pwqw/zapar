@@ -135,7 +135,63 @@ class Song extends Model implements AuditableContract, Favoriteable, Embeddable
             return $user->subscribedToPodcast($this->podcast);
         }
 
-        return $this->is_public || $this->ownedBy($user);
+        if ($this->is_public || $this->ownedBy($user)) {
+            return true;
+        }
+
+        if ($this->artist_user_id !== null && $this->artist_user_id === $user->id) {
+            return true;
+        }
+
+        $artistUser = $this->resolveArtistUserForPermissions();
+
+        if ($artistUser && $user->canEditArtistContent($artistUser, $this->uploaded_by_id)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the user may change metadata or delete this song (stricter than {@see accessibleBy()}:
+     * public tracks are not editable by arbitrary accounts).
+     */
+    public function editableBy(User $user): bool
+    {
+        if ($this->isEpisode()) {
+            return $user->subscribedToPodcast($this->podcast);
+        }
+
+        if ($this->ownedBy($user)) {
+            return true;
+        }
+
+        if ($this->artist_user_id !== null && $this->artist_user_id === $user->id) {
+            return true;
+        }
+
+        $artistUser = $this->resolveArtistUserForPermissions();
+
+        if ($artistUser && $user->canEditArtistContent($artistUser, $this->uploaded_by_id)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function resolveArtistUserForPermissions(): ?User
+    {
+        if ($this->artist_user_id) {
+            return $this->artistUser ?? User::find($this->artist_user_id);
+        }
+
+        $owner = $this->owner;
+
+        if ($owner && $owner->isArtist()) {
+            return $owner;
+        }
+
+        return null;
     }
 
     public function ownedBy(User $user): bool

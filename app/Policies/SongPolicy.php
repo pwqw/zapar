@@ -19,12 +19,12 @@ class SongPolicy
 
     public function delete(User $user, Song $song): bool
     {
-        return $song->ownedBy($user);
+        return $song->editableBy($user);
     }
 
     public function edit(User $user, Song $song): bool
     {
-        return $song->accessibleBy($user);
+        return $song->editableBy($user);
     }
 
     public function download(User $user, Song $song): bool
