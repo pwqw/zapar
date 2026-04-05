@@ -70,8 +70,8 @@ RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/docker-php-upl
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Instalar Node.js 18 y pnpm
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+# Instalar Node.js 22 y pnpm
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g pnpm
 

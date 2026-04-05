@@ -6,7 +6,6 @@ use App\Ai\Agents\KoelAssistant;
 use App\Ai\AiAssistantResult;
 use App\Ai\AiRequestContext;
 use App\Ai\Serializers\AiResultSerializerRegistry;
-use App\Attributes\RequiresPlus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\AiRequest;
 use App\Models\User;
@@ -15,7 +14,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Laravel\Ai\Exceptions\AiException;
 
-#[RequiresPlus]
 class AiController extends Controller
 {
     /** @param User $user */

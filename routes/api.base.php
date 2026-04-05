@@ -4,7 +4,6 @@ use App\Facades\YouTube;
 use App\Helpers\Uuid;
 use App\Http\Controllers\API\Acl\CheckResourcePermissionController;
 use App\Http\Controllers\API\Acl\FetchAssignableRolesController;
-use App\Http\Controllers\API\ActivateLicenseController;
 use App\Http\Controllers\API\AiController;
 use App\Http\Controllers\API\AlbumController;
 use App\Http\Controllers\API\AlbumSongController;
@@ -51,9 +50,7 @@ use App\Http\Controllers\API\PlaylistSongController;
 use App\Http\Controllers\API\Podcast\PodcastController;
 use App\Http\Controllers\API\Podcast\PodcastEpisodeController;
 use App\Http\Controllers\API\Podcast\UnsubscribeFromPodcastController;
-use App\Http\Controllers\API\PrivatizeSongsController;
 use App\Http\Controllers\API\ProfileController;
-use App\Http\Controllers\API\PublicizeSongsController;
 use App\Http\Controllers\API\QueueStateController;
 use App\Http\Controllers\API\RadioStationController;
 use App\Http\Controllers\API\RadioStationNowPlayingController;
@@ -228,12 +225,6 @@ Route::prefix('api')
 
             Route::post('invitations', [UserInvitationController::class, 'invite']);
             Route::delete('invitations', [UserInvitationController::class, 'revoke']);
-
-            Route::put('songs/publicize', PublicizeSongsController::class);
-            Route::put('songs/privatize', PrivatizeSongsController::class);
-
-            // License routes
-            Route::post('licenses/activate', ActivateLicenseController::class);
 
             // Playlist collaboration routes
             Route::post('playlists/{playlist}/collaborators/invite', CreatePlaylistCollaborationTokenController::class);
