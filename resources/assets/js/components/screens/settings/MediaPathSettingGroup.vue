@@ -7,7 +7,11 @@
       </p>
       <FormRow v-else>
         <template #help>
-          <span id="mediaPathHelp" v-html="$t('settings.mediaPathDescription')" />
+          <i18n-t keypath="settings.mediaPathDescription" tag="span" id="mediaPathHelp">
+            <template #0>
+              <em>{{ $t('settings.mediaPathEmphasizedWord') }}</em>
+            </template>
+          </i18n-t>
         </template>
 
         <TextInput

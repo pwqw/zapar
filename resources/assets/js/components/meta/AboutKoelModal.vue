@@ -47,7 +47,14 @@
 
       <CreditsBlock v-if="isDemo" />
 
-      <p v-if="!isPlus" v-html="t('content.support.description')" />
+      <i18n-t v-if="!isPlus" keypath="content.support.description" scope="global" tag="p">
+        <template #0>
+          <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">GitHub Sponsors</a>
+        </template>
+        <template #1>
+          <a href="https://opencollective.com/koel" rel="noopener" target="_blank">OpenCollective</a>
+        </template>
+      </i18n-t>
     </main>
 
     <footer>

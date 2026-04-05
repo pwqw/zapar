@@ -1,6 +1,13 @@
 <template>
   <div v-if="shown" class="bg-k-bg text-[0.9rem] px-6 py-4 flex z-10 space-x-3" data-testid="support-bar">
-    <p class="flex-1" v-html="$t('content.support.description')" />
+    <i18n-t keypath="content.support.description" class="flex-1" scope="global" tag="p">
+      <template #0>
+        <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">GitHub Sponsors</a>
+      </template>
+      <template #1>
+        <a href="https://opencollective.com/koel" rel="noopener" target="_blank">OpenCollective</a>
+      </template>
+    </i18n-t>
     <button type="button" @click.prevent="close">{{ $t('content.support.hide') }}</button>
     <span class="block after:content-['•'] after:block" />
     <button type="button" @click.prevent="stopBugging">{{ $t('content.support.dontBugAgain') }}</button>
