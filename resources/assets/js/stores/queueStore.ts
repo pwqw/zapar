@@ -162,6 +162,10 @@ export const queueStore = {
   },
 
   saveState() {
+    if (!this.state.playables.length) {
+      return
+    }
+
     try {
       http.silently.put('queue/state', { songs: this.state.playables.map(({ id }) => id) })
     } catch (error: unknown) {
