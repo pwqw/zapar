@@ -3,6 +3,7 @@
 namespace App\Services\SongStorages;
 
 use App\Enums\SongStorageType;
+use App\Exceptions\KoelPlusRequiredException;
 use App\Filesystems\DropboxFilesystem;
 use App\Models\User;
 use App\Services\SongStorages\Concerns\DeletesUsingFilesystem;
@@ -60,13 +61,19 @@ class DropboxStorage extends CloudStorage
                 'grant_type' => 'refresh_token',
             ]);
 
+        $accessToken = $response->json('access_token');
+
+        if (!$accessToken) {
+            throw new KoelPlusRequiredException('Dropbox access token could not be obtained.');
+        }
+
         Cache::put(
             'dropbox_access_token',
-            $response->json('access_token'),
+            $accessToken,
             now()->addSeconds($response->json('expires_in') - 60), // 60 seconds buffer
         );
 
-        return $response->json('access_token');
+        return $accessToken;
     }
 
     public function getPresignedUrl(string $key): string
