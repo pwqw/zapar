@@ -14,7 +14,7 @@ class SongBuilder extends FavoriteableBuilder
 {
     use CanScopeByUser;
 
-    public const SORT_COLUMNS_NORMALIZE_MAP = [
+    public const array SORT_COLUMNS_NORMALIZE_MAP = [
         'title' => 'songs.title',
         'track' => 'songs.track',
         'length' => 'songs.length',
@@ -28,7 +28,7 @@ class SongBuilder extends FavoriteableBuilder
         'genre' => 'genres.name',
     ];
 
-    private const VALID_SORT_COLUMNS = [
+    private const array VALID_SORT_COLUMNS = [
         'songs.title',
         'songs.track',
         'songs.length',
@@ -53,64 +53,58 @@ class SongBuilder extends FavoriteableBuilder
     {
         throw_unless($this->user, new LogicException('User must be set to query play counts.'));
 
-        return $this
-            ->leftJoin('interactions', function (JoinClause $join): void {
-                $join->on('interactions.song_id', 'songs.id')->where('interactions.user_id', $this->user->id);
-            })
-            ->addSelect(DB::raw('COALESCE(interactions.play_count, 0) as play_count'));
+        return $this->leftJoin('interactions', function (JoinClause $join): void {
+            $join->on('interactions.song_id', 'songs.id')->where('interactions.user_id', $this->user->id);
+        })->addSelect(DB::raw('COALESCE(interactions.play_count, 0) as play_count'));
     }
 
     public function accessible(): self
     {
         throw_unless($this->user, new LogicException('User must be set to query accessible songs.'));
 
-        if ($this->user->hasElevatedRole()) {
-            return $this;
-        }
-
-        // Join podcasts to check accessibility for episodes
-        $this->leftJoin('podcasts as podcasts_a11y', 'songs.podcast_id', 'podcasts_a11y.id');
-
-        return $this->where(function (self $query): void {
-            // For podcast episodes: check podcast accessibility (public or owned by user)
-            $query->where(function (self $episodeQuery): void {
-                $episodeQuery->whereNotNull('songs.podcast_id')
-                    ->where(function (self $podcastAccess): void {
-                        // Public podcasts from users in the same organization
-                        $podcastAccess->where(function (self $publicPodcast): void {
-                            $publicPodcast->where('podcasts_a11y.is_public', true)
-                                ->whereExists(function ($subQuery): void {
-                                    $subQuery->select('users.id')
-                                        ->from('users')
-                                        ->whereColumn('users.id', 'podcasts_a11y.added_by')
-                                        ->where('users.organization_id', $this->user->organization_id);
-                                });
-                        })
-                        // Or podcasts added by the user themselves
-                        ->orWhere('podcasts_a11y.added_by', $this->user->id);
-                    });
+        // We want to alias both podcasts and podcast_user tables to avoid possible conflicts with other joins.
+        $this
+            ->leftJoin('podcasts as podcasts_a11y', 'songs.podcast_id', 'podcasts_a11y.id')
+            ->leftJoin('podcast_user as podcast_user_a11y', function (JoinClause $join): void {
+                $join->on('podcasts_a11y.id', 'podcast_user_a11y.podcast_id')->where(
+                    'podcast_user_a11y.user_id',
+                    $this->user->id,
+                );
             })
-            // For regular songs (not episodes)
-            ->orWhere(function (self $songQuery): void {
-                $songQuery->whereNull('songs.podcast_id')
-                    ->where(function (self $songAccess): void {
-                        // Depending on the user preferences, the song must be either:
-                        // - owned by the user, or
-                        // - shared (is_public=true) by the users in the same organization
-                        if (!$this->user->preferences->includePublicMedia) {
-                            $songAccess->whereBelongsTo($this->user, 'owner');
-                            return;
-                        }
+            ->whereNot(function (self $query): void {
+                $organizationId = $this->user->organization_id;
 
-                        $songAccess->whereBelongsTo($this->user, 'owner')
-                            ->orWhere(function (self $publicSong): void {
-                                $publicSong->where('songs.is_public', true)
-                                    ->whereHas('owner', function (Builder $owner): void {
-                                        $this->scopeToSameOrganizationExceptCurrentUser($owner);
-                                    });
+                $query->whereNotNull('songs.podcast_id')
+                    ->whereNull('podcast_user_a11y.podcast_id')
+                    ->whereNot(static function (self $q) use ($organizationId): void {
+                        $q->where('podcasts_a11y.is_public', true)
+                            ->whereExists(static function ($sub) use ($organizationId): void {
+                                $sub->selectRaw('1')
+                                    ->from('users')
+                                    ->whereColumn('users.id', 'podcasts_a11y.added_by')
+                                    ->where('users.organization_id', $organizationId);
                             });
                     });
             });
+
+        // If the song is a podcast episode, we need to ensure that the user has access to it.
+        return $this->where(function (self $query): void {
+            $query
+                ->whereNotNull('songs.podcast_id')
+                ->orWhere(function (self $q2) {
+                    if (!$this->user->preferences->includePublicMedia) {
+                        return $q2->whereBelongsTo($this->user, 'owner');
+                    }
+
+                    return $q2->where(function (self $q3): void {
+                        $q3->whereBelongsTo($this->user, 'owner')->orWhere(function (self $q4): void {
+                            $q4->where('songs.is_public', true)->whereHas('owner', fn (Builder $owner) => $owner->where(
+                                'organization_id',
+                                $this->user->organization_id,
+                            )->where('owner_id', '<>', $this->user->id));
+                        });
+                    });
+                });
         });
     }
 
@@ -119,7 +113,8 @@ class SongBuilder extends FavoriteableBuilder
         bool $favoritesOnly = false,
         bool $includePlayCount = true,
     ): self {
-        return $this->accessible()
+        return $this
+            ->accessible()
             ->when($includeFavoriteStatus, static fn (self $query) => $query->withFavoriteStatus($favoritesOnly))
             ->when($includePlayCount, static fn (self $query) => $query->withPlayCount());
     }
@@ -134,15 +129,18 @@ class SongBuilder extends FavoriteableBuilder
         return $this
             ->orderBy($column, $direction)
             // Depending on the column, we might need to order by other columns as well.
-            ->when($column === 'songs.artist_name', static fn (self $query) => $query->orderBy('songs.album_name')
+            ->when($column === 'songs.artist_name', static fn (self $query) => $query
+                ->orderBy('songs.album_name')
                 ->orderBy('songs.disc')
                 ->orderBy('songs.track')
                 ->orderBy('songs.title'))
-            ->when($column === 'songs.album_name', static fn (self $query) => $query->orderBy('songs.artist_name')
+            ->when($column === 'songs.album_name', static fn (self $query) => $query
+                ->orderBy('songs.artist_name')
                 ->orderBy('songs.disc')
                 ->orderBy('songs.track')
                 ->orderBy('songs.title'))
-            ->when($column === 'track', static fn (self $query) => $query->orderBy('songs.disc')
+            ->when($column === 'track', static fn (self $query) => $query
+                ->orderBy('songs.disc')
                 ->orderBy('songs.track'));
     }
 
@@ -150,13 +148,12 @@ class SongBuilder extends FavoriteableBuilder
     {
         $this->when(
             in_array('podcast_title', $columns, true) || in_array('podcast_author', $columns, true),
-            static fn (self $query) => $query->leftJoin('podcasts', 'songs.podcast_id', 'podcasts.id')
-        )->when(
-            in_array('genre', $columns, true),
-            static fn (self $query) => $query
-                ->leftJoin('genre_song', 'songs.id', 'genre_song.song_id')
-                ->leftJoin('genres', 'genre_song.genre_id', 'genres.id')
-        );
+            static fn (self $query) => $query->leftJoin('podcasts', 'songs.podcast_id', 'podcasts.id'),
+        )->when(in_array('genre', $columns, true), static fn (self $query) => $query->leftJoin(
+            'genre_song',
+            'songs.id',
+            'genre_song.song_id',
+        )->leftJoin('genres', 'genre_song.genre_id', 'genres.id'));
 
         foreach ($columns as $column) {
             $this->sortByOneColumn($column, $direction);
@@ -174,16 +171,15 @@ class SongBuilder extends FavoriteableBuilder
 
     public function storedOnCloud(): self
     {
-        return $this->whereNotNull('storage')
-            ->where('storage', '!=', '')
-            ->whereNull('podcast_id');
+        return $this->whereNotNull('storage')->where('storage', '!=', '')->whereNull('podcast_id');
     }
 
     public function storedLocally(): self
     {
         return $this->where(static function (self $query): void {
-            $query->whereNull('songs.storage')->orWhere('songs.storage', '')
-                ->whereNull('songs.podcast_id');
+            $query->where(static function (self $q): void {
+                $q->whereNull('songs.storage')->orWhere('songs.storage', '');
+            })->whereNull('songs.podcast_id');
         });
     }
 }
