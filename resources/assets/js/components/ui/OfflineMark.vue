@@ -1,5 +1,5 @@
 <template>
-  <span class="!opacity-50" :title="$t('nav.availableOffline')">
+  <span class="!opacity-50" :title="$t('sidebar.availableOffline')">
     <Icon :icon="faCloudArrowDown" />
   </span>
 </template>
