@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Facades\License;
 use App\Http\Controllers\API\Concerns\AuthorizesVisibilityChanges;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\ChangeVisibilityRequest;
@@ -18,6 +19,8 @@ class ResourceVisibilityController extends Controller
 
     public function publicizeSongs(ChangeVisibilityRequest $request, SongService $songService): Response
     {
+        abort_if(License::isCommunity(), Response::HTTP_NOT_FOUND);
+
         $songs = Song::query()->findMany($request->songs ?? []);
         $this->authorizeVisibilityChanges($songs, true, publishAbility: 'publish', privatizeAbility: 'edit');
 
@@ -28,6 +31,8 @@ class ResourceVisibilityController extends Controller
 
     public function privatizeSongs(ChangeVisibilityRequest $request, SongService $songService): JsonResponse
     {
+        abort_if(License::isCommunity(), Response::HTTP_NOT_FOUND);
+
         $songs = Song::query()->findMany($request->songs ?? []);
         $this->authorizeVisibilityChanges($songs, false, publishAbility: 'publish', privatizeAbility: 'edit');
 
