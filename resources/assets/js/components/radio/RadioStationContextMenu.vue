@@ -7,7 +7,7 @@
     <MenuItem @click="toggleFavorite">{{ station.favorite ? 'Undo Favorite' : 'Favorite' }}</MenuItem>
     <Separator />
     <MenuItem v-if="allowEdit" @click="requestEditForm">Edit…</MenuItem>
-    <MenuItem v-if="allowDelete" @click="maybeDelete">Delete</MenuItem>
+    <MenuItem v-if="allowDelete" @click="maybeDelete">{{ $t('ui.buttons.delete') }}</MenuItem>
   </ul>
 </template>
 

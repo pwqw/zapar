@@ -1,20 +1,65 @@
 {
   "sidebar": {
-    "yourLibrary": "Tu Biblioteca",
-    "allSongs": "Todas las Canciones",
+    "yourLibrary": "Tu biblioteca",
+    "allSongs": "Todas las canciones",
     "albums": "Álbumes",
     "artists": "Artistas",
     "genres": "Géneros",
     "podcasts": "Podcasts",
     "radio": "Radio",
-    "playlists": "Listas de Reproducción",
+    "playlists": "Listas de reproducción",
     "favorites": "Favoritos",
-    "recentlyPlayed": "Reproducidas Recientemente",
+    "recentlyPlayed": "Reproducidas recientemente",
     "manage": "Administrar",
     "mySongs": "Mis canciones",
     "settings": "Configuración",
     "upload": "Subir",
-    "users": "Usuarios"
+    "users": "Usuarios",
+    "mediaBrowser": "Explorador de medios",
+    "availableOffline": "Disponible sin conexión"
+  },
+  "ai": {
+    "close": "Cerrar",
+    "copyMessageAria": "Copiar mensaje al portapapeles",
+    "copyToClipboard": "Copiar al portapapeles",
+    "title": "Asistente de IA",
+    "titleWithShortcut": "Asistente de IA (/)",
+    "send": "Enviar",
+    "placeholderInitial": "Pedile a Koel que ponga canciones, cree listas, agregue radios y más.",
+    "placeholderChat": "Enviá un mensaje…"
+  },
+  "koelPlus": {
+    "upgrade": "Pasate a Plus",
+    "tagline": "Koel Plus añade funciones premium sobre la instalación predeterminada.",
+    "payOnceLine": "Paga {0} y disfruta de todas las funciones adicionales para siempre, ¡incluidas las que se incorporen en el futuro!",
+    "payOnceEmphasis": "una vez",
+    "activate": "Activar",
+    "purchase": "Comprar Koel Plus",
+    "haveLicenseKey": "Tengo una clave de licencia",
+    "visitMoreInfo": "Visita {0} para más información.",
+    "visitMoreInfoLinkLabel": "koel.dev",
+    "modalImgAlt": "Koel Plus"
+  },
+  "embed": {
+    "widgetContentUnavailable": "Contenido no disponible",
+    "previewBadge": "Vista previa"
+  },
+  "offline": {
+    "makeOffline": "Guardar sin conexión",
+    "removeOffline": "Quitar sin conexión",
+    "removeOfflineVersions": "Quitar versiones sin conexión",
+    "makeAvailableOffline": "Guardar para escuchar sin conexión",
+    "oneSongAvailableOffline": "1 canción disponible sin conexión",
+    "nSongsAvailableOffline": "{n} canciones disponibles sin conexión",
+    "clearAll": "Borrar todo"
+  },
+  "googleDoc": {
+    "loadingTitle": "Cargando…",
+    "loadingDocument": "Cargando documento…",
+    "slugRequired": "El identificador (slug) es obligatorio",
+    "embedUrlUnavailable": "La URL de incrustación no está disponible",
+    "pageNotFound": "Página no encontrada",
+    "failedToLoadDocument": "No se pudo cargar el documento"
   },
   "auth": {
     "logIn": "Iniciar Sesión",
@@ -50,8 +95,12 @@
     "ageVerification": "Confirmo que tengo 13 años o más"
   },
   "playlists": {
+    "editPlaylistHeading": "Editar lista de reproducción",
     "newPlaylist": "Nueva Lista de Reproducción",
     "fromItems": "de {count} {item}",
+    "fromWord": "de",
+    "removedOfflineVersionsFor": "Se quitaron las versiones sin conexión de \"{name}\".",
+    "makingSongsAvailableOffline": "Guardando {items} para escuchar sin conexión…",
     "name": "Nombre *",
     "playlistName": "Nombre de la lista de reproducción",
     "description": "Descripción",
@@ -83,6 +132,8 @@
     "delete": "Eliminar",
     "deleteConfirm": "¿Eliminar la lista de reproducción \"{name}\"?",
     "addedToQueue": "Lista de reproducción añadida a la cola.",
+    "collaboratorOwner": "Propietario",
+    "collaboratorContributor": "Colaborador",
     "invite": "Invitar",
     "folder": {
       "new": "Nueva Carpeta de Lista de Reproducción",
@@ -96,8 +147,8 @@
     }
   },
   "smartPlaylists": {
-    "new": "Nueva Lista Programable",
-    "edit": "Editar Lista Programable",
+    "new": "Nueva lista inteligente",
+    "edit": "Editar lista inteligente",
     "details": "Detalles",
     "rules": "Reglas",
     "name": "Nombre *",
@@ -146,7 +197,8 @@
     "undoFavorite": "Quitar de Favoritos",
     "favorite": "Añadir a Favoritos",
     "deleteConfirm": "¿Eliminar la estación de radio? ¡Esta acción NO es reversible!",
-    "deleted": "Estación de radio eliminada."
+    "deleted": "Estación de radio eliminada.",
+    "playPauseNamed": "Reproducir/pausar {name}"
   },
   "users": {
     "add": "Agregar Nuevo Usuario",
@@ -317,7 +369,8 @@
       "save": "Guardar",
       "preview": "Vista Previa",
       "cancel": "Cancelar",
-      "exitPreview": "Salir de vista previa"
+      "exitPreview": "Salir de vista previa",
+      "created": "Tema creado."
     }
   },
   "settings": {
@@ -450,6 +503,8 @@
     "preferences": "Preferencias",
     "themes": "Temas",
     "integrations": "Integraciones",
+    "tabOffline": "Sin conexión",
+    "offlineSongsCacheHint": "Hacé clic derecho en una canción y elegí «Guardar sin conexión» para guardarla en caché.",
     "nothingFound": "Nada encontrado.",
     "noArtistsFound": "No se encontraron artistas.",
     "noAlbumsFound": "No se encontraron álbumes.",
@@ -502,7 +557,9 @@
       "message": "El contenido solicitado no se puede encontrar."
     },
     "settings": "Configuración",
+    "noSongPlaying": "No hay ninguna canción en reproducción.",
     "acceptCollaborationInvite": "La invitación de colaboración ha expirado o no es válida.",
+    "invalidInvitation": "Invitación no válida o caducada.",
     "favorites": "Tus Favoritos",
     "favoritesEmptyHint": "Haz clic en el icono de estrella para marcar una canción como favorita."
   },
@@ -533,31 +590,20 @@
       "podcastEpisode": "Episodio de Podcast"
     }
   },
-  "koelPlus": {
-    "enterLicenseKey": "Ingresa tu clave de licencia",
-    "activate": "Activar",
-    "activationMessage": "¡Gracias por comprar Koel Plus! Koel ahora se recargará para activar los cambios.",
-    "description": "Koel Plus agrega funciones premium sobre la instalación predeterminada.<br>Paga <em>una vez</em> y disfruta de todas las funciones adicionales para siempre, incluidas las que se construirán en la aplicación en el futuro.",
-    "purchase": "Comprar Koel Plus",
-    "haveLicenseKey": "Tengo una clave de licencia",
-    "visitForMoreInfo": "Visita <a href=\"https://koel.dev#plus\" target=\"_blank\">koel.dev</a> para más información."
-  },
   "meta": {
-    "plus": "Plus",
-    "community": "Comunidad",
-    "edition": "Edición",
-    "licensedTo": "Licenciado a {name} <{email}>",
-    "licenseKey": "Clave de licencia:",
     "newVersion": "¡Una nueva versión de {app} está disponible ({version})!",
     "newVersionAvailable": "¡Nueva versión disponible!",
     "about": "Acerca de {app}",
+    "authorName": "Phan An",
     "madeWith": "Hecho con ❤️ por",
     "andQuiteAFewAwesome": "y bastantes increíbles",
     "contributors": "colaboradores",
     "supportDevelopment": "¿Te encanta Koel? Por favor, considera apoyar su desarrollo a través de",
     "gitHubSponsors": "Patrocinadores de GitHub",
     "and": "y/o",
-    "openCollective": "OpenCollective"
+    "openCollective": "OpenCollective",
+    "licensedTo": "Licencia para {name} <{email}>",
+    "licenseKey": "Clave de licencia:"
   },
   "messages": {
     "itemsAdded": "{count} {item} añadido a \"{playlist}\".",
@@ -606,7 +652,8 @@
       "clear": "Limpiar",
       "viewAll": "Ver Todo",
       "downloadAll": "Descargar Todo",
-      "addTo": "Añadir a…"
+      "addTo": "Añadir a…",
+      "readMore": "Leer más"
     },
     "sorting": {
       "sortBy": "Ordenar por {label}",
@@ -620,8 +667,6 @@
       "removeAvatar": "Eliminar avatar",
       "sortByTrack": "Ordenar por número de pista",
       "sortByTitle": "Ordenar por título",
-      "sortByAlbum": "Ordenar por álbum",
-      "sortByPodcast": "Ordenar por podcast",
       "sortByGenre": "Ordenar por género",
       "sortByYear": "Ordenar por año",
       "sortByDuration": "Ordenar por duración",
@@ -648,6 +693,8 @@
       "mute": "Silenciar",
       "volume": "Volumen",
       "scrollToTop": "Desplazarse al principio",
+      "top": "Arriba",
+      "abortUploadConfirm": "¿Abortar esta subida?",
       "search": "Buscar",
       "pressFToSearch": "Presiona F para buscar",
       "viewThumbnails": "Ver como miniaturas",
@@ -665,6 +712,8 @@
       "exitFullscreen": "Salir de pantalla completa",
       "playAllSongsInAlbum": "Reproducir todas las canciones de \"{name}\"",
       "playAllSongsBy": "Reproducir todas las canciones de {name}",
+      "shuffleAllSongsInAlbum": "Reproducir en aleatorio todas las canciones del álbum {name}",
+      "shuffleAllSongsByArtist": "Reproducir en aleatorio todas las canciones de {name}",
       "isYou": "Este eres tú",
       "adminPrivileges": "Privilegios de administrador",
       "verified": "Usuario verificado",
@@ -675,7 +724,77 @@
       "addStation": "Agregar estación",
       "playPause": "Reproducir/Pausar",
       "addNewGroup": "Agregar un nuevo grupo",
-      "createNewPlaylistOrFolder": "Crear una nueva lista de reproducción o carpeta"
+      "createNewPlaylistOrFolder": "Crear una nueva lista de reproducción o carpeta",
+      "cachingOffline": "Guardando para escuchar sin conexión",
+      "copyMessageToClipboard": "Copiar mensaje al portapapeles",
+      "copyToClipboardShort": "Copiar al portapapeles",
+      "aiAssistant": "Asistente de IA",
+      "sendMessage": "Enviar",
+      "aiAssistantShortcut": "Asistente de IA (/)",
+      "googleSso": "Inicio de sesión con Google",
+      "sort": "Ordenar",
+      "sortByUser": "Ordenar por usuario",
+      "sortByContributedAt": "Ordenar por fecha de aporte",
+      "contributed": "Aportado",
+      "upNext": "Siguiente",
+      "scrollToCurrentPlaying": "Ir a lo que suena ahora",
+      "sortByAlbum": "Ordenar por álbum",
+      "sortByPodcast": "Ordenar por podcast",
+      "sortByAlbumPodcast": "Ordenar por álbum/podcast",
+      "addNewStation": "Agregar una estación nueva",
+      "youtubeVideosHere": "Acá se van a reproducir los videos de YouTube.",
+      "pickVisualizer": "Elegí un visualizador",
+      "folderEmpty": "Esta carpeta está vacía.",
+      "mediaBrowserTitle": "Explorador de medios",
+      "failedLoadVideos": "No se pudieron cargar los videos.",
+      "tryAgain": "Probá de nuevo",
+      "placeholderEmptyState": "Texto de marcador de posición.",
+      "dropToUpload": "Soltá para subir",
+      "uploadCanceled": "Cancelado.",
+      "uploadQueued": "En cola.",
+      "uploading": "Subiendo",
+      "uploaded": "Subido.",
+      "abort": "Abortar",
+      "edition": "Edición",
+      "community": "Comunidad",
+      "plusEdition": "Plus",
+      "musicBy": "Música de",
+      "supportDevShort": "¿Te gusta Koel? Considerá apoyar el desarrollo a través de",
+      "forgotPasswordTitle": "Olvidé mi contraseña",
+      "showCode": "Mostrar código",
+      "viewBuyTickets": "Ver y comprar entradas para este evento",
+      "newFolderNameAria": "Nombre de carpeta nueva",
+      "create": "Crear",
+      "offlineNotSupportedBrowser": "La reproducción sin conexión no está disponible en este navegador.",
+      "storageUsage": "Uso de almacenamiento",
+      "crossfadeSongs": "Fundido entre canciones",
+      "builtInThemes": "Temas integrados",
+      "customThemes": "Temas personalizados",
+      "newRadioStation": "Nueva estación de radio",
+      "editRadioStation": "Editar estación de radio",
+      "noPodcastsFoundLine": "No se encontraron podcasts.",
+      "noFavoriteAlbums": "No hay álbumes favoritos.",
+      "noFavoriteArtists": "No hay artistas favoritos.",
+      "noSongsGenre": "No hay canciones en este género.",
+      "hiddenGems": "Joyas ocultas",
+      "noSongsRediscover": "No hay canciones para redescubrir.",
+      "youMightAlsoLike": "También te puede gustar",
+      "newArtists": "Artistas nuevos",
+      "noNewArtists": "No hay artistas nuevos.",
+      "latestAlbums": "Últimos álbumes",
+      "somethingRandom": "Algo al azar",
+      "noFavoritePodcasts": "No tenés podcasts favoritos.",
+      "noFavoriteStations": "No tenés estaciones favoritas.",
+      "noPodcastsFoundScreen": "No se encontraron podcasts.",
+      "addPodcastToStart": "Agregá un podcast para empezar.",
+      "noStationsFound": "No se encontraron estaciones.",
+      "addStationToStart": "Agregá una estación para empezar.",
+      "noSongsOffline": "No hay canciones disponibles sin conexión.",
+      "passwordLeaveBlankNoChanges": "Dejalo vacío para no cambiar la contraseña",
+      "emailsFieldTitle": "Correos",
+      "visualizerToggleControls": "Mostrar u ocultar los controles de la lista de canciones",
+      "equalizerPresetSelect": "Preajuste",
+      "downloadAllFavorites": "Descargar todos los favoritos"
     },
     "equalizer": {
       "preset": "Preajuste",
@@ -706,7 +825,6 @@
       "backgroundImage": "Imagen de fondo",
       "musicbrainzLogo": "Logo de MusicBrainz",
       "qrCode": "Código QR",
-      "koelPlus": "Koel Plus",
       "episodeThumbnail": "Miniatura del episodio",
       "podcastThumbnail": "Miniatura del podcast",
       "podcastImage": "Imagen del podcast"
@@ -714,7 +832,7 @@
   },
   "menu": {
     "newPlaylist": "Nueva Lista de Reproducción…",
-    "newSmartPlaylist": "Nueva Lista Programable…",
+    "newSmartPlaylist": "Nueva lista inteligente…",
     "newFolder": "Nueva Carpeta…",
     "playable": {
       "goTo": "Ir a",
@@ -728,7 +846,7 @@
       "queue": "Cola",
       "favorites": "Favoritos",
       "newPlaylist": "Nueva Lista de Reproducción…",
-      "newSmartPlaylist": "Nueva Lista Programable…",
+      "newSmartPlaylist": "Nueva lista inteligente…",
       "newFolder": "Nueva Carpeta…",
       "open": "Abrir",
       "removeFromQueue": "Eliminar de la Cola",
@@ -774,6 +892,8 @@
     },
     "playlistFolder": {
       "playAll": "Reproducir Todo",
+      "shuffleAll": "Reproducir todo en aleatorio",
+      "rename": "Renombrar",
       "delete": "Eliminar",
       "noSongsAvailable": "No hay canciones disponibles."
     },
@@ -869,7 +989,7 @@
       "refreshNow": "Actualizar ahora"
     },
     "support": {
-      "description": "¿Te encanta Koel? Por favor, considera apoyar su desarrollo a través de {0} y/o {1}.",
+      "description": "¿Te encanta Koel? Por favor, considera apoyar su desarrollo a través de {github} y/o {opencollective}.",
       "hide": "Ocultar",
       "dontBugAgain": "No me molestes más"
     },
@@ -917,6 +1037,7 @@
     "cannotMarkAsPrivate": "Las canciones no pueden marcarse como privadas si forman parte de una lista de reproducción colaborativa.",
     "someCannotMarkAsPrivate": "Algunas canciones no pueden marcarse como privadas porque forman parte de una lista de reproducción colaborativa.",
     "reload": "Recargar",
+    "rescan": "Volver a buscar",
     "resultsFor": "Resultados para",
     "invited": "Invitados",
     "played": "Reproducido",

@@ -495,6 +495,7 @@
       "message": "The requested content cannot be found."
     },
     "settings": "Settings",
+    "noSongPlaying": "No song is playing.",
     "acceptCollaborationInvite": "The collaboration invite has expired or is invalid.",
     "favorites": "Your Favorites",
     "favoritesEmptyHint": "Click the star icon to mark a song as favorite."
@@ -599,7 +600,8 @@
       "clear": "Clear",
       "viewAll": "View All",
       "downloadAll": "Download All",
-      "addTo": "Add To…"
+      "addTo": "Add To…",
+      "readMore": "Read More"
     },
     "sorting": {
       "sortBy": "Sort by {label}",
@@ -656,6 +658,8 @@
       "exitFullscreen": "Exit fullscreen",
       "playAllSongsInAlbum": "Play all songs in \"{name}\"",
       "playAllSongsBy": "Play all songs by {name}",
+      "shuffleAllSongsInAlbum": "Shuffle all songs in the album {name}",
+      "shuffleAllSongsByArtist": "Shuffle all songs by {name}",
       "isYou": "This is you",
       "adminPrivileges": "Admin privileges",
       "verified": "Verified user",
@@ -766,6 +770,7 @@
     "playlistFolder": {
       "playAll": "Play All",
       "shuffleAll": "Shuffle All",
+      "rename": "Rename",
       "delete": "Delete",
       "noSongsAvailable": "No songs available."
     },
@@ -909,6 +914,7 @@
     "cannotMarkAsPrivate": "Songs cannot be marked as private if they're part of a collaborative playlist.",
     "someCannotMarkAsPrivate": "Some songs cannot be marked as private as they're part of a collaborative playlist.",
     "reload": "Reload",
+    "rescan": "Rescan",
     "resultsFor": "Results for",
     "invited": "Invited",
     "played": "Played",

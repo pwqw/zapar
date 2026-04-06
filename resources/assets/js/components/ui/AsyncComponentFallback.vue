@@ -4,7 +4,7 @@
       <span class="block text-[6rem] mb-4">
         <WifiOff :size="64" />
       </span>
-      <span class="text-3xl font-light">You're offline.</span>
+      <span class="text-3xl font-light">{{ $t('notifications.offline') }}</span>
     </div>
   </div>
 </template>
