@@ -30,7 +30,9 @@ class ShareableAlbumTest extends TestCase
             'site' => $siteName,
         ], 'en');
 
-        $response = $this->get("/albums/{$album->id}");
+        $response = $this
+            ->withoutVite()
+            ->get("/albums/{$album->id}");
 
         $response->assertOk();
         $response->assertSee('property="og:title" content="Album SEO"', false);
@@ -48,7 +50,9 @@ class ShareableAlbumTest extends TestCase
             'name' => 'Album Privado',
         ]);
 
-        $response = $this->get("/albums/{$album->id}");
+        $response = $this
+            ->withoutVite()
+            ->get("/albums/{$album->id}");
 
         $response->assertOk();
         $response->assertDontSee('<title>Album Privado</title>', false);

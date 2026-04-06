@@ -17,7 +17,9 @@ class ShareablePodcastTest extends TestCase
             'image' => 'https://example.com/podcast-cover.png',
         ]);
 
-        $response = $this->get("/podcasts/{$podcast->id}");
+        $response = $this
+            ->withoutVite()
+            ->get("/podcasts/{$podcast->id}");
 
         $response->assertOk();
         $response->assertSee('property="og:title" content="My Favorite Podcast"', false);
@@ -40,7 +42,9 @@ class ShareablePodcastTest extends TestCase
             'image' => 'https://example.com/cover.png',
         ]);
 
-        $response = $this->get("/podcasts/{$podcast->id}");
+        $response = $this
+            ->withoutVite()
+            ->get("/podcasts/{$podcast->id}");
 
         $response->assertOk();
         $response->assertSee('<title>SEO Podcast</title>', false);
@@ -56,7 +60,9 @@ class ShareablePodcastTest extends TestCase
             'image' => 'https://example.com/private-cover.png',
         ]);
 
-        $response = $this->get("/podcasts/{$podcast->id}");
+        $response = $this
+            ->withoutVite()
+            ->get("/podcasts/{$podcast->id}");
 
         $response->assertOk();
         $response->assertDontSee('<title>Private Podcast</title>', false);
@@ -68,7 +74,9 @@ class ShareablePodcastTest extends TestCase
     #[Test]
     public function nonexistentPodcastPageServesIndexWithDefaultMeta(): void
     {
-        $response = $this->get('/podcasts/00000000-0000-0000-0000-000000000000');
+        $response = $this
+            ->withoutVite()
+            ->get('/podcasts/00000000-0000-0000-0000-000000000000');
 
         $response->assertOk();
     }
