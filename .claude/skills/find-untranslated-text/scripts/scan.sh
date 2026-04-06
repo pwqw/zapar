@@ -6,7 +6,7 @@
 ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 cd "$ROOT"
 
-SCAN_DIRS="resources/assets/js/components resources/assets/js/composables"
+SCAN_DIRS="resources/assets/js/components resources/assets/js/composables resources/assets/js/remote"
 TMPFILE=$(mktemp)
 trap 'rm -f "$TMPFILE"' EXIT
 
@@ -22,11 +22,13 @@ for DIR in $SCAN_DIRS; do
         printf '%s\t%s\t%s\n' "$file" "$lineno" "$text"
       done >> "$TMPFILE"
 
-  # 2. Texto inline: >Texto visible</tag>
-  grep -rn --include="*.vue" -E ">[A-Z][a-z][^<{$]*[a-zA-Z.!]<\/[a-z]" "$DIR" 2>/dev/null \
+  # 2. Texto inline: >Texto visible</tag> (permite espacios tras >)
+  # Cierre </tag> HTML o </PascalCase> (componentes Vue)
+  grep -rn --include="*.vue" -E ">[\t ]*[A-Z][a-z][^<{$]*[a-zA-Z.!][\t ]*<\/[a-zA-Z]" "$DIR" 2>/dev/null \
     | grep -v '\$t(' | grep -v '{{' \
     | while IFS=: read -r file lineno text; do
-        inner=$(echo "$text" | sed -E 's/.*>([^<{]+)<\/.*/\1/' | xargs)
+        # Sin xargs: en algunos entornos (p. ej. sandbox) xargs falla y vacía inner
+        inner=$(echo "$text" | sed -E 's/.*>[\t ]*([^<{]+)<\/.*/\1/' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
         [ -n "$inner" ] && printf '%s\t%s\t%s\n' "$file" "$lineno" "$inner"
       done >> "$TMPFILE"
 
