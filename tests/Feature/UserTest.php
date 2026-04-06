@@ -52,21 +52,24 @@ class UserTest extends TestCase
     }
 
     #[Test]
-    public function userWithNonAvailableRoleCannotBeCreated(): void
+    public function adminCanCreateUserWithManagerRole(): void
     {
-        $this
-            ->postAs(
-                'api/users',
-                [
-                    'name' => 'Foo',
-                    'email' => 'bar@baz.com',
-                    'password' => 'secret',
-                    'role' => 'manager',
-                ],
-                create_admin(),
-            )
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['role']);
+        $this->postAs(
+            'api/users',
+            [
+                'name' => 'Foo',
+                'email' => 'bar@baz.com',
+                'password' => 'secret',
+                'role' => 'manager',
+            ],
+            create_admin(),
+        )->assertSuccessful();
+
+        /** @var User $user */
+        $user = User::query()->firstWhere('email', 'bar@baz.com');
+
+        self::assertTrue(Hash::check('secret', $user->password));
+        self::assertSame(Role::MANAGER, $user->role);
     }
 
     #[Test]
@@ -147,7 +150,7 @@ class UserTest extends TestCase
     }
 
     #[Test]
-    public function updatingUserToANonAvailableRoleIsNotAllowed(): void
+    public function adminCanUpdateUserToManagerRole(): void
     {
         $target = create_user();
 
@@ -161,8 +164,11 @@ class UserTest extends TestCase
                 ],
                 create_admin(),
             )
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['role']);
+            ->assertSuccessful();
+
+        $target->refresh();
+
+        self::assertSame(Role::MANAGER, $target->role);
     }
 
     #[Test]
