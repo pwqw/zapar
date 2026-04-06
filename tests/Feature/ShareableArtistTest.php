@@ -34,7 +34,9 @@ class ShareableArtistTest extends TestCase
             'site' => $siteName,
         ], 'en');
 
-        $response = $this->get("/artists/{$artist->id}/information");
+        $response = $this
+            ->withoutVite()
+            ->get("/artists/{$artist->id}/information");
 
         $response->assertOk();
         $response->assertSee('property="og:title" content="SEO Artist"', false);
@@ -52,7 +54,9 @@ class ShareableArtistTest extends TestCase
             'name' => 'Private Artist',
         ]);
 
-        $response = $this->get("/artists/{$artist->id}");
+        $response = $this
+            ->withoutVite()
+            ->get("/artists/{$artist->id}");
 
         $response->assertOk();
         $response->assertDontSee('<title>Private Artist</title>', false);

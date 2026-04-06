@@ -32,7 +32,9 @@ class ShareableSongTest extends TestCase
             'site' => $siteName,
         ], 'en');
 
-        $response = $this->get("/songs/{$song->id}");
+        $response = $this
+            ->withoutVite()
+            ->get("/songs/{$song->id}");
 
         $response->assertOk();
         $response->assertSee('property="og:title" content="Song One"', false);
@@ -67,7 +69,10 @@ class ShareableSongTest extends TestCase
             'site' => $siteName,
         ], 'es');
 
-        $response = $this->withHeaders(['Accept-Language' => 'es'])->get("/songs/{$song->id}");
+        $response = $this
+            ->withoutVite()
+            ->withHeaders(['Accept-Language' => 'es'])
+            ->get("/songs/{$song->id}");
 
         $response->assertOk();
         $response->assertSee('property="og:description" content="' . $expectedDescription . '"', false);
@@ -87,7 +92,9 @@ class ShareableSongTest extends TestCase
             'cover' => 'song-custom-cover.jpg',
         ]);
 
-        $response = $this->get("/songs/{$song->id}");
+        $response = $this
+            ->withoutVite()
+            ->get("/songs/{$song->id}");
 
         $response->assertOk();
         $response->assertSee('property="og:image" content="' . image_storage_url($song->cover) . '"', false);
@@ -100,7 +107,9 @@ class ShareableSongTest extends TestCase
             'title' => 'Private Song',
         ]);
 
-        $response = $this->get("/songs/{$song->id}");
+        $response = $this
+            ->withoutVite()
+            ->get("/songs/{$song->id}");
 
         $response->assertOk();
         $response->assertDontSee('<title>Private Song</title>', false);
