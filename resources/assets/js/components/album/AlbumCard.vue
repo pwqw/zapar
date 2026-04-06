@@ -34,7 +34,13 @@
     </template>
 
     <template #meta>
-      <a :title="`Shuffle all songs in the album ${album.name}`" role="button" @click.prevent="shuffle"> Shuffle </a>
+      <a
+        :title="$t('ui.tooltips.shuffleAllSongsInAlbum', { name: album.name })"
+        role="button"
+        @click.prevent="shuffle"
+      >
+        {{ $t('menu.mediaBrowser.shuffle') }}
+      </a>
       <a
         v-if="allowDownload"
         :title="`Download all songs in the album ${album.name}`"

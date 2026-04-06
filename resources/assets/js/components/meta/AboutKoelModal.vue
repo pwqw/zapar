@@ -49,10 +49,12 @@
 
       <i18n-t v-if="!isPlus" keypath="content.support.description" scope="global" tag="p">
         <template #github>
-          <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">GitHub Sponsors</a>
+          <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">{{
+            t('meta.gitHubSponsors')
+          }}</a>
         </template>
         <template #opencollective>
-          <a href="https://opencollective.com/koel" rel="noopener" target="_blank">OpenCollective</a>
+          <a href="https://opencollective.com/koel" rel="noopener" target="_blank">{{ t('meta.openCollective') }}</a>
         </template>
       </i18n-t>
     </main>

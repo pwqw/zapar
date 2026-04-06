@@ -1,8 +1,8 @@
 <template>
   <ul>
-    <MenuItem @click="play">Play</MenuItem>
-    <MenuItem @click="shuffle">Shuffle</MenuItem>
-    <MenuItem @click="queue">Add to Queue</MenuItem>
+    <MenuItem @click="play">{{ $t('menu.mediaBrowser.play') }}</MenuItem>
+    <MenuItem @click="shuffle">{{ $t('menu.mediaBrowser.shuffle') }}</MenuItem>
+    <MenuItem @click="queue">{{ $t('menu.mediaBrowser.addToQueue') }}</MenuItem>
   </ul>
 </template>
 

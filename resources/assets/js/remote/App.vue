@@ -10,7 +10,7 @@
             <RemoteFooter :streamable="state.streamable" />
           </template>
 
-          <p v-else>No song is playing.</p>
+          <p v-else>{{ $t('screens.noSongPlaying') }}</p>
         </template>
         <Scanner v-else />
       </main>

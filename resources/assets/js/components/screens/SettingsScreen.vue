@@ -1,7 +1,7 @@
 <template>
   <ScreenBase>
     <template #header>
-      <ScreenHeader>Settings</ScreenHeader>
+      <ScreenHeader>{{ $t('screens.settings') }}</ScreenHeader>
     </template>
 
     <main class="space-y-6">

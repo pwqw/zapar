@@ -4,7 +4,9 @@
       <slot />
     </div>
 
-    <Btn v-if="!showingFull" class="mt-4" small @click.prevent="showingFull = true"> Read More </Btn>
+    <Btn v-if="!showingFull" class="mt-4" small @click.prevent="showingFull = true">
+      {{ $t('ui.buttons.readMore') }}
+    </Btn>
   </article>
 </template>
 

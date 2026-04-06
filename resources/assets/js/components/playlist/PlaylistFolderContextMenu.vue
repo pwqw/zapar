@@ -1,8 +1,8 @@
 <template>
   <ul>
     <template v-if="playable">
-      <MenuItem @click="play">Play All</MenuItem>
-      <MenuItem @click="shuffle">Shuffle All</MenuItem>
+      <MenuItem @click="play">{{ $t('menu.playlistFolder.playAll') }}</MenuItem>
+      <MenuItem @click="shuffle">{{ $t('menu.playlistFolder.shuffleAll') }}</MenuItem>
       <Separator />
     </template>
     <MenuItem>
@@ -13,8 +13,8 @@
       </template>
     </MenuItem>
     <Separator />
-    <MenuItem @click="rename">Rename</MenuItem>
-    <MenuItem @click="destroy">Delete</MenuItem>
+    <MenuItem @click="rename">{{ $t('menu.playlistFolder.rename') }}</MenuItem>
+    <MenuItem @click="destroy">{{ $t('menu.playlistFolder.delete') }}</MenuItem>
   </ul>
 </template>
 

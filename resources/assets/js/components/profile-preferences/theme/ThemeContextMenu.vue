@@ -1,10 +1,10 @@
 <template>
   <ul>
-    <MenuItem @click="applyTheme">Apply Theme</MenuItem>
+    <MenuItem @click="applyTheme">{{ $t('menu.theme.apply') }}</MenuItem>
 
     <template v-if="theme.is_custom">
       <Separator />
-      <MenuItem @click="destroy">Delete</MenuItem>
+      <MenuItem @click="destroy">{{ $t('menu.theme.delete') }}</MenuItem>
     </template>
   </ul>
 </template>

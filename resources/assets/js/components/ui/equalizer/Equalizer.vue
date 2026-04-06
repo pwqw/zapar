@@ -9,7 +9,9 @@
 
     <main>
       <div class="t-4 b-5 x-4 p-4 flex gap-1 rounded-md bg-black/20">
-        <EqualizerBand ref="preampBandEl" v-model="preampGain" type="preamp" @commit="save">Preamp</EqualizerBand>
+        <EqualizerBand ref="preampBandEl" v-model="preampGain" type="preamp" @commit="save">{{
+          $t('ui.equalizer.preamp')
+        }}</EqualizerBand>
 
         <span class="text-sm h-[100px] w-[20px] flex flex-col justify-between items-center opacity-50">
           <span class="leading-none text-k-fg">+20</span>
@@ -47,7 +49,7 @@
     </main>
 
     <footer class="border-t-k-fg-5">
-      <Btn @click.prevent="close">Close</Btn>
+      <Btn @click.prevent="close">{{ $t('ui.equalizer.close') }}</Btn>
     </footer>
   </div>
 </template>

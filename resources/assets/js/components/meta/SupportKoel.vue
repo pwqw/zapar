@@ -2,10 +2,12 @@
   <div v-if="shown" class="bg-k-bg text-[0.9rem] px-6 py-4 flex z-10 space-x-3" data-testid="support-bar">
     <i18n-t keypath="content.support.description" class="flex-1" scope="global" tag="p">
       <template #github>
-        <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">GitHub Sponsors</a>
+        <a href="https://github.com/users/phanan/sponsorship" rel="noopener" target="_blank">{{
+          $t('meta.gitHubSponsors')
+        }}</a>
       </template>
       <template #opencollective>
-        <a href="https://opencollective.com/koel" rel="noopener" target="_blank">OpenCollective</a>
+        <a href="https://opencollective.com/koel" rel="noopener" target="_blank">{{ $t('meta.openCollective') }}</a>
       </template>
     </i18n-t>
     <button type="button" @click.prevent="close">{{ $t('content.support.hide') }}</button>

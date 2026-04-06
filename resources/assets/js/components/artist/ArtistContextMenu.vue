@@ -1,13 +1,13 @@
 <template>
   <ul>
-    <MenuItem @click="play">Play All</MenuItem>
-    <MenuItem @click="shuffle">Shuffle All</MenuItem>
+    <MenuItem @click="play">{{ $t('menu.artist.playAll') }}</MenuItem>
+    <MenuItem @click="shuffle">{{ $t('menu.artist.shuffleAll') }}</MenuItem>
     <Separator />
     <MenuItem @click="toggleFavorite">{{ artist.favorite ? 'Undo Favorite' : 'Favorite' }}</MenuItem>
     <MenuItem v-if="allowEdit" @click="requestEditForm">Edit…</MenuItem>
     <template v-if="isStandardArtist && allowDownload">
       <Separator />
-      <MenuItem @click="download">Download</MenuItem>
+      <MenuItem @click="download">{{ $t('menu.artist.download') }}</MenuItem>
     </template>
     <Separator />
     <MenuItem @click="showEmbedModal">Embed…</MenuItem>

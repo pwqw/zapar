@@ -557,6 +557,7 @@
       "message": "El contenido solicitado no se puede encontrar."
     },
     "settings": "Configuración",
+    "noSongPlaying": "No hay ninguna canción en reproducción.",
     "acceptCollaborationInvite": "La invitación de colaboración ha expirado o no es válida.",
     "invalidInvitation": "Invitación no válida o caducada.",
     "favorites": "Tus Favoritos",
@@ -651,7 +652,8 @@
       "clear": "Limpiar",
       "viewAll": "Ver Todo",
       "downloadAll": "Descargar Todo",
-      "addTo": "Añadir a…"
+      "addTo": "Añadir a…",
+      "readMore": "Leer más"
     },
     "sorting": {
       "sortBy": "Ordenar por {label}",
@@ -665,8 +667,6 @@
       "removeAvatar": "Eliminar avatar",
       "sortByTrack": "Ordenar por número de pista",
       "sortByTitle": "Ordenar por título",
-      "sortByAlbum": "Ordenar por álbum",
-      "sortByPodcast": "Ordenar por podcast",
       "sortByGenre": "Ordenar por género",
       "sortByYear": "Ordenar por año",
       "sortByDuration": "Ordenar por duración",
@@ -712,6 +712,8 @@
       "exitFullscreen": "Salir de pantalla completa",
       "playAllSongsInAlbum": "Reproducir todas las canciones de \"{name}\"",
       "playAllSongsBy": "Reproducir todas las canciones de {name}",
+      "shuffleAllSongsInAlbum": "Reproducir en aleatorio todas las canciones del álbum {name}",
+      "shuffleAllSongsByArtist": "Reproducir en aleatorio todas las canciones de {name}",
       "isYou": "Este eres tú",
       "adminPrivileges": "Privilegios de administrador",
       "verified": "Usuario verificado",
@@ -891,6 +893,7 @@
     "playlistFolder": {
       "playAll": "Reproducir Todo",
       "shuffleAll": "Reproducir todo en aleatorio",
+      "rename": "Renombrar",
       "delete": "Eliminar",
       "noSongsAvailable": "No hay canciones disponibles."
     },
@@ -1034,6 +1037,7 @@
     "cannotMarkAsPrivate": "Las canciones no pueden marcarse como privadas si forman parte de una lista de reproducción colaborativa.",
     "someCannotMarkAsPrivate": "Algunas canciones no pueden marcarse como privadas porque forman parte de una lista de reproducción colaborativa.",
     "reload": "Recargar",
+    "rescan": "Volver a buscar",
     "resultsFor": "Resultados para",
     "invited": "Invitados",
     "played": "Reproducido",
