@@ -9,9 +9,12 @@
 
     <main class="!px-8 !py-5 text-center flex flex-col gap-5">
       <div>
-        Koel Plus adds premium features on top of the default installation.<br />
-        Pay <em>once</em> and enjoy all additional features forever — including those to be built into the app in the
-        future!
+        {{ t('koelPlus.tagline') }}<br />
+        <i18n-t keypath="koelPlus.payOnceLine" scope="global" tag="span">
+          <template #0>
+            <em>{{ t('koelPlus.payOnceEmphasis') }}</em>
+          </template>
+        </i18n-t>
       </div>
 
       <div v-show="!showingActivateLicenseForm" class="space-x-3" data-testid="buttons">
@@ -24,9 +27,11 @@
         <Btn class="cancel" transparent @click.prevent="hideActivateLicenseForm">Cancel</Btn>
       </div>
 
-      <div class="text-[0.9rem] text-k-fg-70">
-        Visit <a href="https://koel.dev#plus" target="_blank">koel.dev</a> for more information.
-      </div>
+      <i18n-t keypath="koelPlus.visitMoreInfo" scope="global" tag="div" class="text-[0.9rem] text-k-fg-70">
+        <template #0>
+          <a href="https://koel.dev#plus" target="_blank" rel="noopener">{{ t('koelPlus.visitMoreInfoLinkLabel') }}</a>
+        </template>
+      </i18n-t>
     </main>
 
     <footer class="w-full text-center bg-black/20">
