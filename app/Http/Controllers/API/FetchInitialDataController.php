@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\Acl\Permission;
+use App\Facades\License;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PlaylistFolderResource;
 use App\Http\Resources\PlaylistResource;
@@ -71,7 +72,7 @@ class FetchInitialDataController extends Controller
             'song_length' => $songRepository->getTotalSongLength(),
             'queue_state' => QueueStateResource::make($queueService->getQueueState($user)),
             'koel_plus' => [
-                'active' => false,
+                'active' => License::isPlus() || !License::isCommunity(),
                 'short_key' => null,
                 'customer_name' => null,
                 'customer_email' => null,
