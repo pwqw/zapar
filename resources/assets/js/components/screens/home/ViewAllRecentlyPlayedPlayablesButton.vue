@@ -1,5 +1,7 @@
 <template>
-  <Btn highlight rounded small @click.prevent="goToRecentlyPlayedScreen"> View All </Btn>
+  <Btn highlight rounded small @click.prevent="goToRecentlyPlayedScreen">
+    {{ $t('ui.buttons.viewAll') }}
+  </Btn>
 </template>
 
 <script lang="ts" setup>
