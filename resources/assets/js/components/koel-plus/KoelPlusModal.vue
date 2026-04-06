@@ -10,7 +10,7 @@
     <main class="!px-8 !py-5 text-center flex flex-col gap-5">
       <div>
         {{ t('koelPlus.tagline') }}<br />
-        <i18n-t keypath="koelPlus.payOnceLine" tag="span">
+        <i18n-t keypath="koelPlus.payOnceLine" scope="global" tag="span">
           <template #0>
             <em>{{ t('koelPlus.payOnceEmphasis') }}</em>
           </template>
@@ -27,7 +27,7 @@
         <Btn class="cancel" transparent @click.prevent="hideActivateLicenseForm">{{ t('dialogs.cancel') }}</Btn>
       </div>
 
-      <i18n-t keypath="koelPlus.visitMoreInfo" tag="div" class="text-[0.9rem] text-k-fg-70">
+      <i18n-t keypath="koelPlus.visitMoreInfo" scope="global" tag="div" class="text-[0.9rem] text-k-fg-70">
         <template #0>
           <a href="https://koel.dev#plus" target="_blank" rel="noopener">{{ t('koelPlus.visitMoreInfoLinkLabel') }}</a>
         </template>
