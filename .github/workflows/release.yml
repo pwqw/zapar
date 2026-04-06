@@ -12,8 +12,8 @@ jobs:
     steps:
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-      - uses: actions/checkout@v2
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v5
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -24,11 +24,11 @@ jobs:
         uses: ramsey/composer-install@v2
         with:
           composer-options: "--prefer-dist --no-dev --optimize-autoloader"
+      - uses: pnpm/action-setup@v5
       - name: Set up Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v5
         with:
           node-version: 22
-      - uses: pnpm/action-setup@v4
       - name: Build project
         run: |
           sudo apt install pngquant zip unzip
