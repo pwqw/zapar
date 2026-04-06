@@ -46,7 +46,7 @@ jobs:
       DB_USERNAME: mariadb
       DB_PASSWORD: mariadb
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v5
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
