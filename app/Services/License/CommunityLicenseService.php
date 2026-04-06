@@ -28,7 +28,7 @@ class CommunityLicenseService implements LicenseServiceInterface
 
     public function isCommunity(): bool
     {
-        return true;
+        return false;
     }
 
     public function requirePlus(): void
