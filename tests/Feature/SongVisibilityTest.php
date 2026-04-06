@@ -11,13 +11,26 @@ use function Tests\create_admin;
 class SongVisibilityTest extends TestCase
 {
     #[Test]
-    public function changingVisibilityIsForbiddenInCommunityEdition(): void
+    public function adminCanChangeVisibilityOfOwnSongs(): void
     {
-        $owner = create_admin();
-        Song::factory()->createMany(2);
+        $admin = create_admin();
 
-        $this->putAs('api/songs/publicize', ['songs' => Song::query()->get()->modelKeys()], $owner)->assertNotFound();
+        $privateSongs = Song::factory()
+            ->for($admin, 'owner')
+            ->private()
+            ->createMany(2);
 
-        $this->putAs('api/songs/privatize', ['songs' => Song::query()->get()->modelKeys()], $owner)->assertNotFound();
+        $this->putAs('api/songs/publicize', ['songs' => $privateSongs->modelKeys()], $admin)->assertNoContent();
+
+        $privateSongs->each(static fn (Song $song) => self::assertTrue($song->refresh()->is_public));
+
+        $publicSongs = Song::factory()
+            ->for($admin, 'owner')
+            ->public()
+            ->createMany(2);
+
+        $this->putAs('api/songs/privatize', ['songs' => $publicSongs->modelKeys()], $admin)->assertSuccessful();
+
+        $publicSongs->each(static fn (Song $song) => self::assertFalse($song->refresh()->is_public));
     }
 }
