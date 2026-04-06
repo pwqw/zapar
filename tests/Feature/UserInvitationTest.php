@@ -12,6 +12,7 @@ use Tests\TestCase;
 
 use function Tests\create_admin;
 use function Tests\create_manager;
+use function Tests\create_moderator;
 
 class UserInvitationTest extends TestCase
 {
@@ -42,17 +43,19 @@ class UserInvitationTest extends TestCase
     }
 
     #[Test]
-    public function adminCanInviteManager(): void
+    public function adminModeratorAndManagerCanInviteManager(): void
     {
         Mail::fake();
 
-        $this->postAs('api/invitations', [
-            'emails' => ['foo@bar.io', 'bar@baz.ai'],
-            'role' => 'manager',
-        ], create_admin())
-            ->assertSuccessful();
+        foreach ([create_admin(), create_moderator(), create_manager()] as $inviter) {
+            $this->postAs('api/invitations', [
+                'emails' => ['foo@bar.io', 'bar@baz.ai'],
+                'role' => 'manager',
+            ], $inviter)
+                ->assertSuccessful();
+        }
 
-        Mail::assertQueued(UserInvite::class, 2);
+        Mail::assertQueued(UserInvite::class, 6);
     }
 
     #[Test]

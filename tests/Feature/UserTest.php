@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 use function Tests\create_admin;
+use function Tests\create_manager;
 use function Tests\create_moderator;
 use function Tests\create_user;
 
@@ -15,13 +16,19 @@ class UserTest extends TestCase
     #[Test]
     public function creatingManagersIsOk(): void
     {
-        $this->postAs('api/users', [
-            'name' => 'Manager',
-            'email' => 'foo@bar.com',
-            'password' => 'secret',
-            'role' => 'manager',
-        ], create_admin())
-            ->assertSuccessful();
+        foreach ([
+            ['label' => 'admin', 'actor' => create_admin()],
+            ['label' => 'moderator', 'actor' => create_moderator()],
+            ['label' => 'manager', 'actor' => create_manager()],
+        ] as $entry) {
+            $this->postAs('api/users', [
+                'name' => 'Manager',
+                'email' => "foo+{$entry['label']}@bar.com",
+                'password' => 'secret',
+                'role' => 'manager',
+            ], $entry['actor'])
+                ->assertSuccessful();
+        }
     }
 
     #[Test]
@@ -29,12 +36,14 @@ class UserTest extends TestCase
     {
         $user = create_admin();
 
-        $this->putAs("api/users/{$user->public_id}", [
-            'name' => 'Manager',
-            'email' => 'foo@bar.com',
-            'role' => 'manager',
-        ], create_admin())
-            ->assertSuccessful();
+        foreach ([create_admin(), create_moderator(), create_manager()] as $actor) {
+            $this->putAs("api/users/{$user->public_id}", [
+                'name' => 'Manager',
+                'email' => "foo+{$actor->id}@bar.com",
+                'role' => 'manager',
+            ], $actor)
+                ->assertSuccessful();
+        }
     }
 
     #[Test]
