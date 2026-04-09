@@ -14,10 +14,10 @@
     @drop.stop="onDrop"
   >
     <template #icon>
-      <Icon v-if="isRecentlyPlayed" :icon="faClockRotateLeft" class="text-k-success" fixed-width />
-      <Icon v-else-if="isFavorite" :icon="faStar" class="text-k-highlight" fixed-width />
-      <Icon v-else-if="isSmart" :icon="faWandMagicSparkles" fixed-width />
-      <Icon v-else-if="isCollaborative" :icon="faUsers" fixed-width />
+      <Icon v-if="isRecentlyPlayedList(list)" :icon="faClockRotateLeft" fixed-width />
+      <Icon v-else-if="isFavoriteList(list)" :icon="faStar" fixed-width />
+      <Icon v-else-if="list.is_smart" :icon="faWandMagicSparkles" fixed-width />
+      <Icon v-else-if="list.is_collaborative" :icon="faUsers" fixed-width />
       <ListMusicIcon v-else :size="16" />
     </template>
     {{ list.name }}
@@ -57,24 +57,6 @@ const { addToPlaylist } = usePlaylistContentManagement()
 const { list } = toRefs(props)
 
 const isPlaylist = (list: PlaylistLike): list is Playlist => 'id' in list
-
-const isFavorite = computed(() => {
-  const favoriteName = t('sidebar.favorites')
-  return list.value.name === favoriteName && !isPlaylist(list.value)
-})
-
-const isRecentlyPlayed = computed(() => {
-  const recentlyPlayedName = t('sidebar.recentlyPlayed')
-  return list.value.name === recentlyPlayedName && !isPlaylist(list.value)
-})
-
-const isSmart = computed(() => {
-  return isPlaylist(list.value) && list.value.is_smart
-})
-
-const isCollaborative = computed(() => {
-  return isPlaylist(list.value) && list.value.is_collaborative
-})
 
 const isFavoriteList = (list: PlaylistLike): list is FavoriteList => {
   return list.name === t('sidebar.favorites') && !isPlaylist(list)
