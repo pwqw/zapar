@@ -18,9 +18,7 @@ final class SongUpdateData implements Arrayable
         public ?string $lyrics,
         public ?int $artistUserId = null,
         public ?string $songCover = null,
-    ) {
-        $this->albumArtistName = $this->albumArtistName ?: $this->artistName;
-    }
+    ) {}
 
     public static function make(
         ?string $title = null,
