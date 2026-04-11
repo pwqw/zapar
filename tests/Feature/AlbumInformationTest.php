@@ -63,4 +63,13 @@ class AlbumInformationTest extends TestCase
             $owner,
         )->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
     }
+
+    #[Test]
+    public function clearInformation(): void
+    {
+        $album = Album::factory()->createOne();
+        $owner = User::query()->findOrFail($album->artist->user_id);
+
+        $this->deleteAs("api/albums/{$album->id}/information", [], $owner)->assertNoContent();
+    }
 }
