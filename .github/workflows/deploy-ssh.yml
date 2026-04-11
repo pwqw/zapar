@@ -1,32 +1,56 @@
-name: Deploy to hosting
+name: Deploy SSH
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows:
+      - Build
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: 'ID del run de workflow Build (vacío = último exitoso en main)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
 
 jobs:
   deploy:
-    name: Build and Deploy
+    name: Deploy via SSH
     runs-on: ubuntu-latest
-
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - name: Resolve build run id
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id || '' }}
+          INPUT_BUILD_RUN_ID: ${{ github.event.inputs.build_run_id || '' }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_run" ]; then
+            echo "run_id=$WORKFLOW_RUN_ID" >> "$GITHUB_OUTPUT"
+          elif [ -n "$INPUT_BUILD_RUN_ID" ]; then
+            echo "run_id=$INPUT_BUILD_RUN_ID" >> "$GITHUB_OUTPUT"
+          else
+            RUN_ID=$(gh run list --workflow=build.yml --branch main --status success --limit 1 --json databaseId -q '.[0].databaseId')
+            if [ "$RUN_ID" = "null" ] || [ -z "$RUN_ID" ]; then
+              echo 'No se encontró un run exitoso de Build en main.'
+              exit 1
+            fi
+            echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      - name: Download built assets
+        uses: actions/download-artifact@v4
         with:
-          node-version: '22'
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build assets
-        run: pnpm run build
+          name: public-build
+          path: public/build
+          run-id: ${{ steps.resolve.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup SSH
         run: |
