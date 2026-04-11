@@ -19,6 +19,7 @@ use App\Http\Controllers\API\Embed\EmbedController;
 use App\Http\Controllers\API\Embed\EmbedOptionsController;
 use App\Http\Controllers\API\ExcerptSearchController;
 use App\Http\Controllers\API\FavoriteController;
+use App\Http\Controllers\API\FetchAppDataController;
 use App\Http\Controllers\API\FetchAlbumInformationController;
 use App\Http\Controllers\API\FetchAlbumThumbnailController;
 use App\Http\Controllers\API\FetchDemoCreditsController;
@@ -83,6 +84,7 @@ Route::prefix('api')
     ->middleware('api')
     ->group(static function (): void {
         Route::get('ping', static fn () => null);
+        Route::get('app-data', FetchAppDataController::class);
 
         Route::middleware('throttle:10,1')->group(static function (): void {
             Route::post('me', [AuthController::class, 'login'])->name('auth.login');
