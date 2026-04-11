@@ -24,7 +24,7 @@
 
         <!-- Initial Buttons View -->
         <Transition name="fade" mode="out-in">
-          <div v-if="!showInternalForm" key="buttons" class="space-y-3">
+          <div v-if="!showInternalForm && !showAnonymousConsent" key="buttons" class="space-y-3">
 
             <FormRow v-if="ssoProviders.includes('Google')">
               <Btn
@@ -45,7 +45,7 @@
                 danger
                 data-testid="anonymous-login"
                 type="button"
-                @click="handleAnonymousLogin"
+                @click="showAnonymousConsent = true"
               >
                 {{ t('auth.noWantAccount') }}
               </Btn>
@@ -57,6 +57,41 @@
               </Btn>
             </FormRow>
 
+          </div>
+
+          <div v-else-if="showAnonymousConsent" key="consent" class="space-y-3">
+            <p class="text-sm text-k-fg-70">
+              {{ t('auth.anonymousConsentIntro') }}
+            </p>
+            <FormRow>
+              <LegalCheckboxes
+                v-model:terms-accepted="termsAccepted"
+                v-model:privacy-accepted="privacyAccepted"
+                v-model:age-verified="ageVerified"
+                :terms-url="consentTermsUrl"
+                :privacy-url="consentPrivacyUrl"
+              />
+            </FormRow>
+            <FormRow>
+              <Btn
+                class="w-full"
+                data-testid="anonymous-consent-submit"
+                :disabled="!allConsentsAccepted"
+                type="button"
+                @click="submitAnonymousConsent"
+              >
+                {{ t('auth.acceptAndContinue') }}
+              </Btn>
+            </FormRow>
+            <FormRow>
+              <button
+                class="text-center text-[.95rem] text-k-fg-70 hover:text-k-fg-90 w-full"
+                type="button"
+                @click="showAnonymousConsent = false"
+              >
+                ← {{ t('auth.back') }}
+              </button>
+            </FormRow>
           </div>
 
           <!-- Email/Password Form View -->
@@ -108,6 +143,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { authService } from '@/services/authService'
+import { http } from '@/services/http'
 import { logger } from '@/utils/logger'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import { useForm } from '@/composables/useForm'
@@ -121,12 +157,13 @@ import PasswordField from '@/components/ui/form/PasswordField.vue'
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
+import LegalCheckboxes from '@/components/ui/form/LegalCheckboxes.vue'
 import googleLogo from '@/../img/logos/google.svg'
 import { openPopup } from '@/utils/helpers'
 
 const emit = defineEmits<{ (e: 'loggedin'): void }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { toastWarning, toastError } = useMessageToaster()
 const { logo } = useBranding()
 const { hasWelcomeMessage, welcomeMessageData } = useWelcomeMessage()
@@ -139,6 +176,16 @@ const demoAccount = window.DEMO_ACCOUNT || {
 const failed = ref(false)
 const showingForgotPasswordForm = ref(false)
 const showInternalForm = ref(false)
+const showAnonymousConsent = ref(false)
+const termsAccepted = ref(false)
+const privacyAccepted = ref(false)
+const ageVerified = ref(false)
+const consentTermsUrl = ref<string | undefined>()
+const consentPrivacyUrl = ref<string | undefined>()
+
+const allConsentsAccepted = computed(
+  () => termsAccepted.value && privacyAccepted.value && ageVerified.value,
+)
 const canResetPassword = window.MAILER_CONFIGURED && !window.IS_DEMO
 const ssoProviders = window.SSO_PROVIDERS || []
 const allowAnonymous = window.ALLOW_ANONYMOUS || false
@@ -190,9 +237,20 @@ const { data, handleSubmit } = useForm<{ email: string, password: string }>({
 
 const showForgotPasswordForm = () => (showingForgotPasswordForm.value = true)
 
-const handleAnonymousLogin = async () => {
+const submitAnonymousConsent = async () => {
+  if (!allConsentsAccepted.value) {
+    return
+  }
+
+  const localeCode = locale.value === 'es' ? 'es' : 'en'
+
   try {
-    const compositeToken = await authService.loginAnonymously()
+    const compositeToken = await authService.loginAnonymously({
+      terms_accepted: true,
+      privacy_accepted: true,
+      age_verified: true,
+      locale: localeCode,
+    })
     authService.setTokensUsingCompositeToken(compositeToken)
     emit('loggedin')
   } catch (error) {
@@ -216,7 +274,19 @@ const handleGoogleLogin = async () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  if (allowAnonymous) {
+    try {
+      const data = await http.silently.get<{
+        legal_urls: { terms_url: string | null; privacy_url: string | null }
+      }>('app-data')
+      consentTermsUrl.value = data.legal_urls.terms_url ?? undefined
+      consentPrivacyUrl.value = data.legal_urls.privacy_url ?? undefined
+    } catch (error) {
+      logger.error(error)
+    }
+  }
+
   if (authService.hasRedirect()) {
     toastWarning(t('auth.pleaseLogInFirst'))
   }

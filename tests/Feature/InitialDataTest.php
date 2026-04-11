@@ -42,6 +42,7 @@ class InitialDataTest extends TestCase
                     'product_id',
                 ],
                 'supports_batch_downloading',
+                'allow_anonymous',
             ]);
     }
 }

@@ -33,6 +33,7 @@ use App\Http\Controllers\API\FetchSongsToQueueByGenreController;
 use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\GenreController;
 use App\Http\Controllers\API\GetOneTimeTokenController;
+use App\Http\Controllers\API\GoogleDocPageController;
 use App\Http\Controllers\API\LambdaSongController as S3SongController;
 use App\Http\Controllers\API\LikeMultipleSongsController;
 use App\Http\Controllers\API\MediaBrowser\FetchFolderSongsController;
@@ -62,7 +63,10 @@ use App\Http\Controllers\API\ResetPasswordController;
 use App\Http\Controllers\API\ScrobbleController;
 use App\Http\Controllers\API\SearchYouTubeController;
 use App\Http\Controllers\API\SetLastfmSessionKeyController;
+use App\Http\Controllers\API\Settings\GetGoogleDocPagesController;
 use App\Http\Controllers\API\Settings\UpdateBrandingController;
+use App\Http\Controllers\API\Settings\UpdateConsentLegalUrlsController;
+use App\Http\Controllers\API\Settings\UpdateGoogleDocPagesController;
 use App\Http\Controllers\API\Settings\UpdateMediaPathController;
 use App\Http\Controllers\API\Settings\UpdateWelcomeMessageController;
 use App\Http\Controllers\API\SongController;
@@ -80,6 +84,7 @@ use App\Http\Controllers\API\Upload\KeepDuplicateUploadController;
 use App\Http\Controllers\API\Upload\UploadSongController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserInvitationController;
+use App\Http\Controllers\Auth\AnonymousSessionController;
 use App\Http\Controllers\Download\CheckDownloadableCountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -97,6 +102,7 @@ Route::prefix('api')
 
             Route::post('me/google', [GoogleMobileSsoController::class, 'login']);
             Route::post('me/google/consent', [GoogleMobileSsoController::class, 'consent']);
+            Route::post('me/anonymous', [AnonymousSessionController::class, 'create'])->name('auth.anonymous');
 
             Route::delete('me', [AuthController::class, 'logout']);
 
@@ -108,6 +114,8 @@ Route::prefix('api')
 
             Route::get('embeds/{embed}/{options}', [EmbedController::class, 'getPayload'])->name('embeds.payload');
             Route::post('embed-options', [EmbedOptionsController::class, 'encrypt']);
+
+            Route::get('google-doc-pages/{slug}', [GoogleDocPageController::class, 'show']);
         });
 
         Route::middleware('auth')->group(static function (): void {
@@ -137,6 +145,9 @@ Route::prefix('api')
             Route::put('settings/media-path', UpdateMediaPathController::class);
             Route::put('settings/branding', UpdateBrandingController::class);
             Route::put('settings/welcome-message', UpdateWelcomeMessageController::class);
+            Route::get('settings/google-doc-pages', GetGoogleDocPagesController::class);
+            Route::put('settings/google-doc-pages', UpdateGoogleDocPagesController::class);
+            Route::put('settings/consent-legal-urls', UpdateConsentLegalUrlsController::class);
 
             Route::get('download/check', CheckDownloadableCountController::class);
 

@@ -27,6 +27,7 @@ describe('settingsScreen.vue', () => {
     await h.withPlusEdition(async () => {
       renderComponent()
       screen.getByTestId('media-path-setting-group')
+      await h.user.click(screen.getByRole('tab', { name: 'Branding' }))
       screen.getByTestId('branding-setting-group')
     })
   })

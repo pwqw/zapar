@@ -24,8 +24,13 @@ export const authService = {
     this.maybeRedirect()
   },
 
-  async loginAnonymously() {
-    return await http.post<CompositeToken>('me/anonymous')
+  async loginAnonymously(payload: {
+    terms_accepted: boolean
+    privacy_accepted: boolean
+    age_verified: boolean
+    locale?: string
+  }) {
+    return await http.post<CompositeToken>('me/anonymous', payload)
   },
 
   async logout() {

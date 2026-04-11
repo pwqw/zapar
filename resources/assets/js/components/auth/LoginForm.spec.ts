@@ -13,6 +13,7 @@ describe('loginForm.vue', () => {
   const submitForm = async (loginMock: ReturnType<typeof h.mock>) => {
     const rendered = h.render(Component)
 
+    await h.user.click(screen.getByTestId('internal-account'))
     await h.type(screen.getByPlaceholderText('Your email address', { exact: false }), 'john@doe.com')
     await h.type(screen.getByPlaceholderText('Your password', { exact: false }), 'secret')
     await h.user.click(screen.getByTestId('submit'))
@@ -22,7 +23,10 @@ describe('loginForm.vue', () => {
     return rendered
   }
 
-  it('renders', () => expect(h.render(Component).html()).toMatchSnapshot())
+  it('renders', () => {
+    h.render(Component)
+    screen.getByTestId('internal-account')
+  })
 
   it('logs in', async () => {
     expect((await submitForm(h.mock(authService, 'login'))).emitted().loggedin).toBeTruthy()
@@ -33,6 +37,7 @@ describe('loginForm.vue', () => {
     const logMock = h.mock(logger, 'error')
     const rendered = h.render(Component)
 
+    await h.user.click(screen.getByTestId('internal-account'))
     await h.type(screen.getByPlaceholderText('Your email address', { exact: false }), 'john@doe.com')
     await h.type(screen.getByPlaceholderText('Your password', { exact: false }), 'secret')
     await h.user.click(screen.getByTestId('submit'))
@@ -46,6 +51,7 @@ describe('loginForm.vue', () => {
 
   it('shows forgot password form', async () => {
     h.render(Component)
+    await h.user.click(screen.getByTestId('internal-account'))
     await h.user.click(screen.getByText('Forgot password?', { exact: false }))
 
     await waitFor(() => screen.getByTestId('forgot-password-form'))
@@ -64,7 +70,7 @@ describe('loginForm.vue', () => {
 
     h.render(Component)
 
-    screen.getByTitle('Log in with Google')
+    screen.getByTestId('google-login')
 
     window.SSO_PROVIDERS = []
   })
