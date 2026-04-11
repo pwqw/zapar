@@ -24,6 +24,10 @@ export const authService = {
     this.maybeRedirect()
   },
 
+  async loginAnonymously() {
+    return await http.post<CompositeToken>('me/anonymous')
+  },
+
   async logout() {
     await http.delete('me')
     this.destroy()

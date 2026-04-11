@@ -53,10 +53,16 @@ interface CompositeToken {
 
 type SSOProvider = 'Google' | 'Reverse Proxy'
 
+interface WelcomeMessageData {
+  message: string
+  variables: Array<{ name: string, url: string }>
+}
+
 interface Window {
   BASE_URL: string
   MAILER_CONFIGURED: boolean
   IS_DEMO: boolean
+  ALLOW_ANONYMOUS?: boolean
 
   DEMO_ACCOUNT?: {
     email: string
@@ -69,6 +75,7 @@ interface Window {
   RUNNING_UNIT_TESTS?: boolean
 
   BRANDING: Branding
+  WELCOME_MESSAGE?: WelcomeMessageData | null
 
   readonly PUSHER_APP_KEY: string
   readonly PUSHER_APP_CLUSTER: string
