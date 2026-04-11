@@ -23,6 +23,7 @@
 
   <LoginForm v-if="layout === 'login'" @loggedin="triggerAppInitialization" />
   <Embed v-if="layout === 'embed'" />
+  <GoogleDocLayout v-if="layout === 'google-doc'" />
 
   <AcceptInvitation v-if="layout === 'invitation'" />
   <ResetPasswordForm v-if="layout === 'reset-password'" />
@@ -74,6 +75,7 @@ const DropZone = defineAsyncComponent(() => import('@/components/ui/upload/DropZ
 const AcceptInvitation = defineAsyncComponent(() => import('@/components/invitation/AcceptInvitation.vue'))
 const ResetPasswordForm = defineAsyncComponent(() => import('@/components/auth/ResetPasswordForm.vue'))
 const Embed = defineAsyncComponent(() => import('@/components/embed/widget/EmbedWidget.vue'))
+const GoogleDocLayout = defineAsyncComponent(() => import('@/components/google-doc/GoogleDocLayout.vue'))
 
 const overlay = ref<InstanceType<typeof Overlay>>()
 const dialog = ref<InstanceType<typeof DialogBox>>()
