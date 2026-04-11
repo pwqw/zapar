@@ -45,7 +45,7 @@
                 <template #label>{{ $t('smartPlaylists.description') }}</template>
                 <TextArea v-model="data.description" class="h-28" name="description" />
               </FormRow>
-              <ArtworkField v-model="data.cover">{{ $t('playlists.pickCover') }}</ArtworkField>
+        <ArtworkField v-model="data.cover">{{ $t('playlists.pickCover') }}</ArtworkField>
             </div>
           </TabPanel>
           <TabPanel

@@ -90,7 +90,19 @@ a {
   }
 
   &[bordered] {
-    @apply border-k-fg-20;
+    @apply border-k-fg-20 bg-transparent;
+
+    &[success] {
+      @apply border-k-success;
+    }
+
+    &[danger] {
+      @apply border-k-danger;
+    }
+
+    &[highlight] {
+      @apply border-k-highlight;
+    }
   }
 }
 </style>
