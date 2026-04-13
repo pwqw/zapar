@@ -213,6 +213,9 @@ return [
      */
     'plus' => [
         'product_id' => env('KOEL_PLUS_PRODUCT_ID'),
+    'legal' => [
+        'terms_url' => env('LEGAL_TERMS_URL'),
+        'privacy_url' => env('LEGAL_PRIVACY_URL'),
     ],
 
     'misc' => [
