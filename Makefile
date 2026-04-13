@@ -79,8 +79,9 @@ logs: ## Follow dev container logs
 migrate: ## Run migrations in dev container
 	docker exec $(CONTAINER_NAME_DEV) php artisan migrate --force --no-interaction
 
-data: ## Borra y recrea la DB (migrate:fresh --seed) en el contenedor dev
+data: ## Borra y recrea la DB (migrate:fresh --seed + DevSampleDataSeeder) en el contenedor dev
 	docker exec $(CONTAINER_NAME_DEV) php artisan migrate:fresh --seed --force --no-interaction
+	docker exec $(CONTAINER_NAME_DEV) php artisan db:seed --class=DevSampleDataSeeder --no-interaction
 
 shell: ## Interactive shell in container
 	docker run -it --rm \
