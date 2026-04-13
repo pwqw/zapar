@@ -54,22 +54,6 @@ final readonly class SsoUser
         );
     }
 
-    public function toArray(): array
-    {
-        return [
-            'provider' => $this->provider,
-            'id' => $this->id,
-            'email' => $this->email,
-            'name' => $this->name,
-            'avatar' => $this->avatar,
-        ];
-    }
-
-    public static function assertValidProvider(string $provider): void
-    {
-        Assert::oneOf($provider, ['Google', 'Reverse Proxy']);
-    }
-
     /**
      * @return array{provider: string, id: string, email: string, name: string, avatar: ?string}
      */
@@ -84,17 +68,8 @@ final readonly class SsoUser
         ];
     }
 
-    /**
-     * @param array{provider: string, id: string, email: string, name: string, avatar: ?string} $data
-     */
-    public static function fromArray(array $data): self
+    public static function assertValidProvider(string $provider): void
     {
-        return new self(
-            provider: $data['provider'],
-            id: $data['id'],
-            email: $data['email'],
-            name: $data['name'],
-            avatar: $data['avatar'],
-        );
+        Assert::oneOf($provider, ['Google', 'Reverse Proxy']);
     }
 }
