@@ -76,6 +76,7 @@ interface Window {
 
   BRANDING: Branding
   WELCOME_MESSAGE?: WelcomeMessageData | null
+  CONSENT_LEGAL_URLS?: { terms_url: string | null; privacy_url: string | null } | null
 
   readonly PUSHER_APP_KEY: string
   readonly PUSHER_APP_CLUSTER: string
