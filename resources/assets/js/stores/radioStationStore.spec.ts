@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
-import { authService } from '@/services/authService'
 import { http } from '@/services/http'
-import { commonStore } from '@/stores/commonStore'
 import { radioStationStore as store } from '@/stores/radioStationStore'
 
 describe('radioStationStore', () => {
@@ -11,7 +9,6 @@ describe('radioStationStore', () => {
       store.state.stations = []
       store.nowPlaying.value = null
       store.stopPolling()
-      commonStore.state.cdn_url = ''
     },
   })
 
@@ -38,13 +35,7 @@ describe('radioStationStore', () => {
 
   it('gets source URL', () => {
     const station = h.factory('radio-station', { url: 'https://sslstream.online/8026/;' })
-    commonStore.state.cdn_url = 'https://cdn.example/'
-    const tokenMock = h.mock(authService, 'getAudioToken').mockReturnValue('audio-token')
-
-    expect(store.getSourceUrl(station)).toBe(
-      `https://cdn.example/radio/stream/${station.id}?t=audio-token`,
-    )
-    expect(tokenMock).toHaveBeenCalled()
+    expect(store.getSourceUrl(station)).toBe('https://sslstream.online/8026/;')
   })
 
   it('gets the currently playing station', () => {
