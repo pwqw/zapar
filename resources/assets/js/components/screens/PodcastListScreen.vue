@@ -37,12 +37,19 @@
       </ScreenHeader>
     </template>
 
-    <ScreenEmptyState v-if="noPodcasts">
+    <ScreenEmptyState v-if="noPodcastsInLibrary">
       <template #icon>
         <Icon :icon="faPodcast" />
       </template>
       {{ t('emptyStates.podcastsNotFound') }}
-      <span class="secondary block">{{ t('emptyStates.podcastsNotFound') }}</span>
+      <span class="secondary block">{{ t('emptyStates.podcastsAddHint') }}</span>
+    </ScreenEmptyState>
+
+    <ScreenEmptyState v-else-if="noFavoritePodcasts">
+      <template #icon>
+        <Icon :icon="faPodcast" />
+      </template>
+      {{ t('emptyStates.noFavoritePodcasts') }}
     </ScreenEmptyState>
 
     <div v-else v-koel-overflow-fade class="-m-6 p-6 overflow-auto space-y-3 min-h-full">
@@ -96,7 +103,14 @@ const podcasts = computed(() => {
   ).filter(podcast => preferences.podcasts_favorites_only ? podcast.favorite : true)
 })
 
-const noPodcasts = computed(() => !loading.value && podcasts.value.length === 0)
+const noPodcastsInLibrary = computed(() => !loading.value && podcastStore.state.podcasts.length === 0)
+const noFavoritePodcasts = computed(
+  () =>
+    !loading.value &&
+    preferences.podcasts_favorites_only &&
+    podcastStore.state.podcasts.length > 0 &&
+    podcasts.value.length === 0,
+)
 
 const fetchPodcasts = async () => {
   if (loading.value) {
