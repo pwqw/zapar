@@ -1,4 +1,4 @@
-.PHONY: help build dev install-deps test-front test-backend test test-all stop clean logs shell hot-rm migrate
+.PHONY: help build dev install-deps test-front test-backend test test-all stop clean logs shell hot-rm migrate data
 
 # Variables
 IMAGE_NAME := koel/web
@@ -44,43 +44,23 @@ install-deps: ## Instala vendor + node_modules en los volúmenes Docker (requier
 # --entrypoint sh evita docker-entrypoint.sh (ese script siempre arranca el servidor).
 # Mismos volúmenes que dev: deps ya instaladas sirven offline. No ejecuta pnpm install aquí.
 test-front: ## Solo frontend (pnpm run test)
-	@docker stop $(CONTAINER_NAME_TEST) 2>/dev/null || true
-	@docker rm $(CONTAINER_NAME_TEST) 2>/dev/null || true
-	docker run --rm \
-		--name $(CONTAINER_NAME_TEST) \
-		--entrypoint sh \
+	docker run --rm --name $(CONTAINER_NAME_TEST) --entrypoint sh \
 		-v $(PWD):/var/www/html \
 		-v $(VOL_NODE_MODULES):/var/www/html/node_modules \
 		-v $(VOL_PNPM_STORE):/var/www/html/.pnpm-store \
-		$(IMAGE_NAME) \
-		-c 'set -e; cd /var/www/html; \
-			if [ ! -d node_modules/.pnpm ]; then echo "Faltan dependencias Node (volúmenes vacíos). Con red: make install-deps o arrancar make dev una vez." >&2; exit 1; fi; \
-			pnpm run test'
+		$(IMAGE_NAME) -c 'set -e; cd /var/www/html; pnpm run test'
 
 test-backend: ## Solo backend PHP (php artisan test --compact)
-	@docker stop $(CONTAINER_NAME_TEST) 2>/dev/null || true
-	@docker rm $(CONTAINER_NAME_TEST) 2>/dev/null || true
-	docker run --rm \
-		--name $(CONTAINER_NAME_TEST) \
-		--entrypoint sh \
+	docker run --rm --name $(CONTAINER_NAME_TEST) --entrypoint sh \
 		-v $(PWD):/var/www/html \
-		$(IMAGE_NAME) \
-		-c 'set -e; cd /var/www/html && php artisan test --compact'
+		$(IMAGE_NAME) -c 'set -e; cd /var/www/html && php artisan test --compact'
 
 test: ## Frontend + backend (pnpm run test && php artisan test --compact)
-	@docker stop $(CONTAINER_NAME_TEST) 2>/dev/null || true
-	@docker rm $(CONTAINER_NAME_TEST) 2>/dev/null || true
-	docker run --rm \
-		--name $(CONTAINER_NAME_TEST) \
-		--entrypoint sh \
+	docker run --rm --name $(CONTAINER_NAME_TEST) --entrypoint sh \
 		-v $(PWD):/var/www/html \
 		-v $(VOL_NODE_MODULES):/var/www/html/node_modules \
 		-v $(VOL_PNPM_STORE):/var/www/html/.pnpm-store \
-		$(IMAGE_NAME) \
-		-c 'set -e; cd /var/www/html; \
-			if [ ! -d vendor ]; then echo "Falta vendor. Con red: make install-deps" >&2; exit 1; fi; \
-			if [ ! -d node_modules/.pnpm ]; then echo "Faltan dependencias Node (volúmenes vacíos). Con red: make install-deps o arrancar make dev una vez." >&2; exit 1; fi; \
-			pnpm run test && php artisan test --compact'
+		$(IMAGE_NAME) -c 'set -e; cd /var/www/html; pnpm run test && php artisan test --compact'
 
 test-all: test ## Alias de make test (compatibilidad)
 
@@ -98,6 +78,9 @@ logs: ## Follow dev container logs
 
 migrate: ## Run migrations in dev container
 	docker exec $(CONTAINER_NAME_DEV) php artisan migrate --force --no-interaction
+
+data: ## Borra y recrea la DB (migrate:fresh --seed) en el contenedor dev
+	docker exec $(CONTAINER_NAME_DEV) php artisan migrate:fresh --seed --force --no-interaction
 
 shell: ## Interactive shell in container
 	docker run -it --rm \
