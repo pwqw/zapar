@@ -11,7 +11,7 @@ use function Tests\minimal_base64_encoded_image;
 class BrandingSettingTest extends TestCase
 {
     #[Test]
-    public function notAccessibleInCommunityLicense(): void
+    public function brandingIsAccessibleInFork(): void
     {
         $this->putAs(
             'api/settings/branding',
@@ -21,6 +21,6 @@ class BrandingSettingTest extends TestCase
                 'cover' => minimal_base64_encoded_image(),
             ],
             create_admin(),
-        )->assertNotFound();
+        )->assertNoContent();
     }
 }

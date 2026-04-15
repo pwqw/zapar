@@ -29,6 +29,13 @@ class UpdateBrandingController extends Controller
             $request->input('favicon'),
         );
 
+        if ($request->has('description') || $request->has('og_image')) {
+            $this->settingService->updateOpenGraph(
+                $request->has('description') ? $request->string('description')->toString() : null,
+                $request->has('og_image') ? $request->string('og_image')->toString() : null,
+            );
+        }
+
         return response()->noContent();
     }
 }
