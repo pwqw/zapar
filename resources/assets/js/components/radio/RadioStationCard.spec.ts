@@ -75,7 +75,7 @@ describe('radioStationCard', () => {
   it('requests context menu', async () => {
     const { openContextMenu } = useContextMenu()
     const { station } = renderComponent()
-    await h.trigger(screen.getByTestId('artist-album-card'), 'contextMenu')
+    await h.trigger(screen.getByTestId('radio-station-card'), 'contextMenu')
 
     await assertOpenContextMenu(openContextMenu as Mock, RadioStationContextMenu, { station })
   })
