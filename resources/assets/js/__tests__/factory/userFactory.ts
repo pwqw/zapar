@@ -57,7 +57,14 @@ export const states: Record<string, Omit<Partial<User>, 'type'>> = {
   admin: {
     role: 'admin',
     preferences,
-    permissions: ['manage settings', 'manage users', 'manage songs', 'manage podcasts', 'manage radio stations'],
+    permissions: [
+      'manage settings',
+      'manage all users',
+      'manage songs',
+      'manage podcasts',
+      'manage radio stations',
+      'upload content',
+    ],
   },
   manager: {
     role: 'manager',
