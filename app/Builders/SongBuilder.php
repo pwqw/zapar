@@ -101,7 +101,7 @@ class SongBuilder extends FavoriteableBuilder
                             $q4->where('songs.is_public', true)->whereHas('owner', fn (Builder $owner) => $owner->where(
                                 'organization_id',
                                 $this->user->organization_id,
-                            )->where('owner_id', '<>', $this->user->id));
+                            )->where('users.id', '<>', $this->user->id));
                         });
                     });
                 });
