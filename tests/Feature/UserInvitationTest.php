@@ -49,7 +49,7 @@ class UserInvitationTest extends TestCase
 
         foreach ([create_admin(), create_moderator(), create_manager()] as $inviter) {
             $this->postAs('api/invitations', [
-                'emails' => ['foo@bar.io', 'bar@baz.ai'],
+                'emails' => [Str::uuid() . '@invite.test', Str::uuid() . '@invite.test'],
                 'role' => 'manager',
             ], $inviter)
                 ->assertSuccessful();
