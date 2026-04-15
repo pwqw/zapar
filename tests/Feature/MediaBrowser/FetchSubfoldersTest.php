@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\KoelPlus\MediaBrowser;
+namespace Tests\Feature\MediaBrowser;
 
 use App\Http\Resources\FolderResource;
 use App\Models\Folder;

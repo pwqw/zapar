@@ -1,15 +1,37 @@
 <?php
 
-namespace Tests\Feature\KoelPlus;
+namespace Tests\Feature;
 
+use App\Http\Resources\SongResource;
 use App\Models\Song;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+use function Tests\create_admin;
 use function Tests\create_user;
 
 class SongTest extends TestCase
 {
+    #[Test]
+    public function indexReturnsPaginatedSongs(): void
+    {
+        Song::factory()->count(3)->create();
+
+        $this->getAs('api/songs')->assertJsonStructure(SongResource::PAGINATION_JSON_STRUCTURE);
+        $this->getAs('api/songs?sort=title&order=desc')->assertJsonStructure(SongResource::PAGINATION_JSON_STRUCTURE);
+    }
+
+    #[Test]
+    public function showReturnsExpectedSongStructure(): void
+    {
+        /** @var Song $song */
+        $song = Song::factory()->public()->create();
+
+        $this->getAs("api/songs/{$song->id}")
+            ->assertSuccessful()
+            ->assertJsonStructure(SongResource::JSON_STRUCTURE);
+    }
+
     #[Test]
     public function showSongPolicy(): void
     {
@@ -112,9 +134,41 @@ class SongTest extends TestCase
 
         // But we can delete our own songs.
         $ownSongs = Song::factory(2)->for($currentUser, 'owner')->create();
+        $ownSongIds = $ownSongs->modelKeys();
 
         $this->deleteAs('api/songs', ['songs' => $ownSongs->modelKeys()], $currentUser)
             ->assertSuccessful();
+
+        Song::query()->whereIn('id', $ownSongIds)->get()->each($this->assertModelMissing(...));
+        $externalUnownedSongs->each($this->assertModelExists(...));
+    }
+
+    #[Test]
+    public function updateSongsMetadata(): void
+    {
+        $song = Song::factory()->for(create_admin(), 'owner')->create([
+            'title' => 'Old Title',
+            'track' => 3,
+            'disc' => 2,
+            'lyrics' => 'Old lyrics',
+        ]);
+
+        $this->putAs('api/songs', [
+            'songs' => [$song->id],
+            'data' => [
+                'title' => 'New Title',
+                'lyrics' => 'New lyrics',
+                'track' => 7,
+                'disc' => 1,
+            ],
+        ], $song->owner)->assertSuccessful();
+
+        $song->refresh();
+
+        self::assertSame('New Title', (string) $song->title);
+        self::assertSame('New lyrics', (string) $song->lyrics);
+        self::assertSame(7, $song->track);
+        self::assertSame(1, $song->disc);
     }
 
     #[Test]
