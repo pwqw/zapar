@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\API;
 
-use App\Facades\License;
 use App\Models\Podcast;
 use App\Models\Song;
 use Illuminate\Validation\Rule;
@@ -24,7 +23,7 @@ class ChangeVisibilityRequest extends Request
 
     public function authorize(): bool
     {
-        return License::isPlus();
+        return true;
     }
 
     /** @inheritdoc */
