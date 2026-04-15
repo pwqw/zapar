@@ -13,8 +13,6 @@ import { queueStore } from '@/stores/queueStore'
 import { playableStore } from '@/stores/playableStore'
 import { DialogBoxStub, MessageToasterStub } from '@/__tests__/stubs'
 import Router from '@/router'
-import EditSongForm from '@/components/playable/EditSongForm.vue'
-import CreateEmbedForm from '@/components/embed/CreateEmbedForm.vue'
 import CreatePlaylistForm from '@/components/playlist/CreatePlaylistForm.vue'
 
 const openModalMock = vi.fn()
@@ -34,6 +32,16 @@ vi.mock('@/composables/useOfflinePlayback', () => ({
     swReady: ref(true),
     makeAvailableOffline: makeAvailableOfflineMock,
     removeOfflineCache: removeOfflineCacheMock,
+    makePlayablesAvailableOffline: (playables: Playable[]) => {
+      for (const p of playables) {
+        makeAvailableOfflineMock(p)
+      }
+    },
+    removePlayablesOfflineCache: (playables: Playable[]) => {
+      for (const p of playables) {
+        removeOfflineCacheMock(p)
+      }
+    },
     isCached: isCachedMock,
   }),
 }))
@@ -301,10 +309,12 @@ describe('playableContextMenu.vue', () => {
   it('allows edit songs if current user is admin', async () => {
     h.actingAsAdmin()
     const { playables } = await renderComponent()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
 
     await h.user.click(screen.getByText('Edit…'))
 
-    await assertOpenModal(openModalMock, EditSongForm, { songs: playables as Song[], initialTab: 'details' })
+    expect(emitSpy).toHaveBeenCalledWith('MODAL_SHOW_EDIT_SONG_FORM', playables as Song[])
+    emitSpy.mockRestore()
   })
 
   it('does not allow edit songs if current user is not admin', async () => {
@@ -465,9 +475,12 @@ describe('playableContextMenu.vue', () => {
 
   it('requests the embed form', async () => {
     const { playables } = await renderComponent(h.factory('song'))
+    const emitSpy = vi.spyOn(eventBus, 'emit')
+
     await h.user.click(screen.getByText('Embed…'))
 
-    await assertOpenModal(openModalMock, CreateEmbedForm, { embeddable: playables[0] })
+    expect(emitSpy).toHaveBeenCalledWith('MODAL_SHOW_CREATE_EMBED_FORM', playables[0])
+    emitSpy.mockRestore()
   })
 
   it('makes songs available offline', async () => {

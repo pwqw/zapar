@@ -581,6 +581,8 @@ type PlayableListSortField =
   keyof Pick<Song, 'track' | 'disc' | 'title' | 'album_name' | 'length' | 'artist_name' | 'genre' | 'year' | 'created_at'>
   | keyof Pick<Episode, 'podcast_author' | 'podcast_title'>
   | 'position'
+  | 'collaboration.user.name'
+  | 'collaboration.added_at'
 
 type AlbumListSortField = keyof Pick<Album, 'name' | 'year' | 'artist_name' | 'created_at'>
 type ArtistListSortField = keyof Pick<Artist, 'name' | 'created_at'>

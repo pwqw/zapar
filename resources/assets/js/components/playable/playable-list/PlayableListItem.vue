@@ -26,6 +26,21 @@
       </span>
       <span class="title-artist flex flex-col gap-2 overflow-hidden">
         <span class="title text-k-fg !flex gap-2 items-center">
+          <Icon
+            v-if="cachingOffline"
+            :icon="faSpinner"
+            class="!opacity-50"
+            spin
+            title="Caching for offline playback"
+            aria-label="Caching for offline playback"
+          />
+          <Icon
+            v-else-if="cachingFailed"
+            :icon="faExclamationTriangle"
+            class="text-k-danger !opacity-75"
+            :title="`Error: ${cachingErrorMessage}`"
+          />
+          <OfflineMark v-else-if="cachedOffline" />
           <ExternalMark v-if="external" />
           <PrivateBadge v-if="isSong(playable) && !playable.is_public" label="Privado" />
           <span class="flex-1">{{ playable.title }}</span>
@@ -54,12 +69,13 @@
 </template>
 
 <script lang="ts" setup>
-import { faPodcast } from '@fortawesome/free-solid-svg-icons'
+import { faExclamationTriangle, faPodcast, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { computed, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getPlayableProp, requireInjection } from '@/utils/helpers'
 import { isSong } from '@/utils/typeGuards'
 import { secondsToHis } from '@/utils/formatters'
+import { useOfflinePlayback } from '@/composables/useOfflinePlayback'
 import { usePlayableListColumnVisibility } from '@/composables/usePlayableListColumnVisibility'
 import { PlayableListConfigKey } from '@/config/symbols'
 import { playableStore } from '@/stores/playableStore'
@@ -72,6 +88,7 @@ import UserAvatar from '@/components/user/UserAvatar.vue'
 import ExternalMark from '@/components/ui/ExternalMark.vue'
 import FavoriteButton from '@/components/ui/FavoriteButton.vue'
 import PrivateBadge from '@/components/ui/PrivateBadge.vue'
+import OfflineMark from '@/components/ui/OfflineMark.vue'
 
 const props = withDefaults(defineProps<{ item: PlayableRow, showDisc?: boolean }>(), {
   showDisc: false,
@@ -80,6 +97,7 @@ const props = withDefaults(defineProps<{ item: PlayableRow, showDisc?: boolean }
 const emit = defineEmits<{ (e: 'play', playable: Playable): void }>()
 
 const { t } = useI18n()
+const { isCached, isCaching, hasCachingError, getCachingError } = useOfflinePlayback()
 
 const [config] = requireInjection<[Partial<PlayableListConfig>]>(PlayableListConfigKey, [{}])
 
@@ -90,6 +108,10 @@ const { item } = toRefs(props)
 const playable = computed<Playable>(() => item.value.playable)
 const playing = computed(() => ['Playing', 'Paused'].includes(playable.value.playback_state!))
 const external = computed(() => isSong(playable.value) && playable.value.is_external)
+const cachedOffline = computed(() => isSong(playable.value) && isCached(playable.value))
+const cachingOffline = computed(() => isSong(playable.value) && isCaching(playable.value))
+const cachingFailed = computed(() => isSong(playable.value) && hasCachingError(playable.value))
+const cachingErrorMessage = computed(() => getCachingError(playable.value))
 
 const fmtLength = secondsToHis(playable.value.length)
 const artist = computed(() => {

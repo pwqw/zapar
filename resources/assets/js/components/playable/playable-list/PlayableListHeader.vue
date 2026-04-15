@@ -48,8 +48,48 @@
       </span>
     </span>
     <template v-if="config.collaborative">
-      <span class="collaborator">{{ t('songs.user') }}</span>
-      <span class="added-at">{{ t('songs.added') }}</span>
+      <span
+        class="collaborator"
+        data-testid="header-collaborator"
+        role="button"
+        :title="t('ui.sorting.sortBy', { label: t('songs.user') })"
+        @click="sort('collaboration.user.name')"
+      >
+        {{ t('songs.user') }}
+        <template v-if="config.sortable">
+          <Icon
+            v-if="sortField === 'collaboration.user.name' && sortOrder === 'asc'"
+            :icon="faCaretUp"
+            class="text-k-highlight"
+          />
+          <Icon
+            v-if="sortField === 'collaboration.user.name' && sortOrder === 'desc'"
+            :icon="faCaretDown"
+            class="text-k-highlight"
+          />
+        </template>
+      </span>
+      <span
+        class="added-at"
+        data-testid="header-contributed-at"
+        role="button"
+        :title="t('ui.sorting.sortBy', { label: t('songs.added') })"
+        @click="sort('collaboration.added_at')"
+      >
+        {{ t('songs.added') }}
+        <template v-if="config.sortable">
+          <Icon
+            v-if="sortField === 'collaboration.added_at' && sortOrder === 'asc'"
+            :icon="faCaretUp"
+            class="text-k-highlight"
+          />
+          <Icon
+            v-if="sortField === 'collaboration.added_at' && sortOrder === 'desc'"
+            :icon="faCaretDown"
+            class="text-k-highlight"
+          />
+        </template>
+      </span>
     </template>
     <span
       v-if="shouldShowColumn('genre')"

@@ -288,7 +288,7 @@ const { data, isPristine, handleSubmit } = useForm<SongUpdateData>({
     if (editingOnlyOneSong && dataToSend.song_cover === initialSongCover) {
       delete dataToSend.song_cover
     }
-    await songStore.updateSongs(songs, dataToSend)
+    return songStore.updateSongs(songs, dataToSend)
   },
   onSuccess: (result: SongUpdateResult) => {
     toastSuccess(t('messages.itemsUpdated', { count: songs.length, item: inflect() }))

@@ -111,6 +111,13 @@
     <MenuItem v-if="allowEdit" @click="openEditForm">{{ $t('menu.playable.edit') }}</MenuItem>
     <MenuItem v-if="downloadable" @click="download">{{ $t('menu.playable.download') }}</MenuItem>
 
+    <template v-if="canToggleOffline">
+      <Separator />
+      <MenuItem @click="toggleOffline">
+        {{ allSelectedSongsCached ? 'Remove Offline Versions' : 'Make Available Offline' }}
+      </MenuItem>
+    </template>
+
     <template v-if="canBeRemovedFromPlaylist">
       <Separator />
       <MenuItem @click="removePlayablesFromPlaylist">{{ $t('menu.playable.removeFromPlaylist') }}</MenuItem>
@@ -153,6 +160,7 @@ import { usePlayableMenuMethods } from '@/composables/usePlayableMenuMethods'
 import { usePolicies } from '@/composables/usePolicies'
 import { useContextMenu } from '@/composables/useContextMenu'
 import { useKoelPlus } from '@/composables/useKoelPlus'
+import { useOfflinePlayback } from '@/composables/useOfflinePlayback'
 import { playback } from '@/services/playbackManager'
 
 const props = defineProps<{ playables: Playable[] }>()
@@ -166,6 +174,7 @@ const { MenuItem, Separator, closeContextMenu, trigger } = useContextMenu()
 const { removeFromPlaylist } = usePlaylistContentManagement()
 const { isPlus } = useKoelPlus()
 const { currentUserCan, allowDownload } = usePolicies()
+const { swReady, makePlayablesAvailableOffline, removePlayablesOfflineCache, isCached } = useOfflinePlayback()
 
 const {
   queueAfterCurrent,
@@ -193,6 +202,22 @@ const queue = toRef(queueStore.state, 'playables')
 const currentSong = toRef(queueStore, 'current')
 
 const contentType = computed(() => getPlayableCollectionContentType(playables.value))
+
+const canToggleOffline = computed(() => swReady.value && contentType.value === 'songs')
+
+const allSelectedSongsCached = computed(() => {
+  const songs = playables.value.filter(isSong)
+  return songs.length > 0 && songs.every(p => isCached(p))
+})
+
+const toggleOffline = () =>
+  trigger(() => {
+    if (allSelectedSongsCached.value) {
+      removePlayablesOfflineCache(playables.value)
+    } else {
+      makePlayablesAvailableOffline(playables.value)
+    }
+  })
 const allowEdit = computed(() => contentType.value === 'songs' && currentUserCan.editSong(playables.value as Song[]))
 const onlyOneSelected = computed(() => playables.value.length === 1)
 const firstSongPlaying = computed(() => playables.value.length ? playables.value[0].playback_state === 'Playing' : false)

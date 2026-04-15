@@ -40,14 +40,14 @@ describe('playableListHeader.vue', () => {
           ActionMenu: h.stub(),
         },
         provide: {
-          [<symbol>SelectedPlayablesKey]: [ref(selectedPlayables), (value: Playable[]) => (selectedPlayables = value)],
-          [<symbol>PlayableListConfigKey]: [config],
-          [<symbol>PlayableListContextKey]: [context],
-          [<symbol>PlayableListSortFieldKey]: [
+          [SelectedPlayablesKey]: [ref(selectedPlayables), (value: Playable[]) => (selectedPlayables = value)],
+          [PlayableListConfigKey]: [config],
+          [PlayableListContextKey]: [context],
+          [PlayableListSortFieldKey]: [
             sortFieldRef,
             (value: PlayableListSortField) => (sortFieldRef.value = value),
           ],
-          [<symbol>PlayableListSortOrderKey]: [sortOrderRef, (value: SortOrder) => (sortOrderRef.value = value)],
+          [PlayableListSortOrderKey]: [sortOrderRef, (value: SortOrder) => (sortOrderRef.value = value)],
         },
       },
     })

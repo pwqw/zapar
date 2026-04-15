@@ -10,6 +10,10 @@ describe('index.vue', () => {
   it('initializes playback and related services', async () => {
     h.createAudioPlayer()
 
+    const plyr = document.createElement('div')
+    plyr.className = 'plyr'
+    document.body.appendChild(plyr)
+
     h.render(Component)
     preferenceStore.initialized.value = true
 
