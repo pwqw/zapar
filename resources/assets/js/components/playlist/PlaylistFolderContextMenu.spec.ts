@@ -49,8 +49,7 @@ describe('playlistFolderContextMenu.vue', () => {
   it('renames', async () => {
     const { folder } = await renderComponent()
 
-    // The component uses t('playlists.folder.rename') which translates to "Rename Playlist Folder"
-    await h.user.click(screen.getByText('Rename Playlist Folder'))
+    await h.user.click(screen.getByText('Rename'))
 
     await assertOpenModal(openModalMock, EditPlaylistFolderForm, { folder })
   })
@@ -111,7 +110,6 @@ describe('playlistFolderContextMenu.vue', () => {
 
     const { folder } = await renderComponent(createPlayableFolder())
 
-    // The component uses t('menu.playlistFolder.shuffleAll') which translates to "Shuffle All"
     await h.user.click(screen.getByText('Shuffle All'))
 
     await waitFor(() => {
@@ -138,7 +136,6 @@ describe('playlistFolderContextMenu.vue', () => {
 
     const { folder } = await renderComponent(createPlayableFolder())
 
-    // The component uses t('menu.playlistFolder.shuffleAll') which translates to "Shuffle All"
     await h.user.click(screen.getByText('Shuffle All'))
 
     await waitFor(() => {

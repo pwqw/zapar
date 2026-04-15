@@ -104,7 +104,7 @@ import ArtworkField from '@/components/ui/form/ArtworkField.vue'
 
 const props = defineProps<{ playlist: Playlist }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
-const { t } = useI18n()
+
 const { playlist } = props
 
 const { toastSuccess } = useMessageToaster()

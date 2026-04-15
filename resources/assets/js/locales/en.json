@@ -62,6 +62,8 @@
     "discardChanges": "Discard all changes?",
     "deleted": "Playlist \"{name}\" deleted.",
     "empty": "The playlist is empty.",
+    "play": "Play",
+    "shuffle": "Shuffle",
     "collaboration": "Playlist Collaboration",
     "collaborativeDescription": "Collaborative playlists allow multiple users to contribute.",
     "collaborativeWarning": "Note: Songs added to a collaborative playlist are made accessible to all users, and you cannot mark a song as private if it's still part of a collaborative playlist.",
