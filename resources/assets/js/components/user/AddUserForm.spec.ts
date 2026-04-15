@@ -42,9 +42,10 @@ describe('addUserForm.vue', () => {
         email: 'john@doe.com',
         password: 'secret-password',
         role: 'admin',
+        verified: false,
       })
 
-      expect(toasterMock).toHaveBeenCalledWith(expect.stringMatching(/John Doe.*created/))
+      expect(toasterMock).toHaveBeenCalledWith('New user "John Doe" created.')
     })
   })
 })

@@ -7,9 +7,9 @@ type Action = 'edit' | 'delete' | 'publish'
 export const acl = {
   checkResourcePermission: async (type: ResourceType, id: string | number, action: Action) => {
     return await cache.remember(['permission', type, id, action], async () => {
-      const { allowed } = await http.silently.get<{ allowed: boolean }>(`acl/permissions/${type}/${id}/${action}`)
+      const data = await http.silently.get<{ allowed: boolean }>(`acl/permissions/${type}/${id}/${action}`)
 
-      return allowed
+      return data?.allowed ?? false
     })
   },
 

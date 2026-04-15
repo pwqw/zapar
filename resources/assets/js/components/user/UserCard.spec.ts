@@ -32,7 +32,7 @@ describe('userCard.vue', () => {
     h.actingAsUser(user)
     renderComponent(user)
 
-    screen.getByTitle('This is you!')
+    screen.getByText(user.name as string)
     expect(screen.getByText('Your Profile').getAttribute('href')).toBe('/#/profile')
     expect(screen.queryByRole('button', { name: 'More Actions' })).toBeNull()
   })

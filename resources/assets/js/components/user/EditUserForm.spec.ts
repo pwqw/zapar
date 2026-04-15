@@ -35,7 +35,7 @@ describe('editUserForm.vue', () => {
     const { user } = renderComponent()
 
     await h.type(screen.getByLabelText('Name'), 'Jane Doe')
-    await h.type(screen.getByPlaceholderText(/leave.*empty/i), 'new-password-duck')
+    await h.type(screen.getByPlaceholderText(/leave empty/i), 'new-password-duck')
     await fireEvent.update(screen.getByTestId('role-picker'), 'manager')
     await h.user.click(screen.getByRole('button', { name: /update/i }))
 
@@ -45,9 +45,10 @@ describe('editUserForm.vue', () => {
         email: user.email,
         role: 'manager',
         password: 'new-password-duck',
+        verified: false,
       })
 
-      expect(alertMock).toHaveBeenCalledWith(expect.stringMatching(/profile.*updated/i))
+      expect(alertMock).toHaveBeenCalledWith('User profile updated.')
     })
   })
 })

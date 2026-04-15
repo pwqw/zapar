@@ -54,7 +54,7 @@ export const usePolicies = () => {
 
     manageSettings: () => currentUser.value.permissions.includes('manage settings'),
     manageUsers: () => currentUser.value.permissions.includes('manage all users') || currentUser.value.permissions.includes('manage org users') || currentUser.value.permissions.includes('manage artists'),
-    uploadSongs: () => isPlus.value || currentUser.value.permissions.includes('upload content'),
+    uploadSongs: () => currentUser.value.permissions.includes('upload content'),
 
     // New methods for the refactored role system
     canPublish: () => {
