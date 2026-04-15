@@ -49,8 +49,6 @@ const emit = defineEmits<{
   (e: 'open-folder'): void
 }>()
 
-const { t } = useI18n()
-
 const { item } = toRefs(props)
 
 const playing = computed(() => isSong(item.value) && ['Playing', 'Paused'].includes(item.value.playback_state!))
