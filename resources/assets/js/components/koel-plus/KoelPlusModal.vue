@@ -42,6 +42,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useKoelPlus } from '@/composables/useKoelPlus'
 
 import Btn from '@/components/ui/form/Btn.vue'
