@@ -75,6 +75,7 @@ use App\Http\Controllers\API\UpdateUserPreferenceController;
 use App\Http\Controllers\API\UploadController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UserInvitationController;
+use App\Http\Controllers\Auth\AnonymousSessionController;
 use App\Http\Controllers\Download\CheckDownloadableCountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -92,6 +93,7 @@ Route::prefix('api')
 
             Route::post('me/google', [GoogleMobileSsoController::class, 'login']);
             Route::post('me/google/consent', [GoogleMobileSsoController::class, 'consent']);
+            Route::post('me/anonymous', [AnonymousSessionController::class, 'create'])->name('auth.anonymous');
 
             Route::delete('me', [AuthController::class, 'logout']);
 
