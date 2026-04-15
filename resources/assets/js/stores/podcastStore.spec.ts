@@ -75,14 +75,14 @@ describe('podcastStore', () => {
     expect(podcastStore.byId(podcast.id)).toEqual(podcast)
   })
 
-  it('unsubscribes from a podcast', async () => {
+  it('deletes a podcast', async () => {
     const podcast = h.factory('podcast')
     podcastStore.state.podcasts.push(podcast)
     const deleteMock = h.mock(http, 'delete').mockResolvedValue({})
 
-    await podcastStore.unsubscribe(podcast)
+    await podcastStore.delete(podcast)
 
-    expect(deleteMock).toHaveBeenCalledWith(`podcasts/${podcast.id}/subscriptions`)
+    expect(deleteMock).toHaveBeenCalledWith(`podcasts/${podcast.id}`)
     expect(podcastStore.state.podcasts).not.toContain(podcast)
   })
 
