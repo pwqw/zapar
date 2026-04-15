@@ -22,8 +22,20 @@ describe('sidebarManageSection.vue', () => {
     expect(screen.queryByText('Users')).toBeNull()
   })
 
-  it('shows only the upload menu item if current user is a Plus user', () => {
+  it('does not show Upload for Plus users without upload permission', () => {
     h.actingAsUser().withPlusEdition(() => {
+      h.render(Component)
+      expect(screen.queryByText('Upload')).toBeNull()
+      expect(screen.queryByText('Settings')).toBeNull()
+      expect(screen.queryByText('Users')).toBeNull()
+    })
+  })
+
+  it('shows Upload for Plus users with upload content permission', () => {
+    h.actingAsUser({
+      ...h.factory('user'),
+      permissions: ['upload content'],
+    } as CurrentUser).withPlusEdition(() => {
       h.render(Component)
       screen.getByText('Upload')
       expect(screen.queryByText('Settings')).toBeNull()
