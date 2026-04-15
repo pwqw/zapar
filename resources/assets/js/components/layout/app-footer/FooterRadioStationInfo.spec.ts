@@ -25,7 +25,7 @@ describe('footerRadioStationInfo.vue', () => {
         .render(Component, {
           global: {
             provide: {
-              [<symbol>CurrentStreamableKey]: ref(station),
+              [CurrentStreamableKey]: ref(station),
             },
           },
         })
@@ -45,7 +45,7 @@ describe('footerRadioStationInfo.vue', () => {
     const { html } = h.render(Component, {
       global: {
         provide: {
-          [<symbol>CurrentStreamableKey]: ref(station),
+          [CurrentStreamableKey]: ref(station),
         },
       },
     })
@@ -64,7 +64,7 @@ describe('footerRadioStationInfo.vue', () => {
     const { html } = h.render(Component, {
       global: {
         provide: {
-          [<symbol>CurrentStreamableKey]: ref(station),
+          [CurrentStreamableKey]: ref(station),
         },
       },
     })
