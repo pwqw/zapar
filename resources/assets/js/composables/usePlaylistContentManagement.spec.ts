@@ -3,6 +3,17 @@ import { playlistStore } from '@/stores/playlistStore'
 import { eventBus } from '@/utils/eventBus'
 import { createHarness } from '@/__tests__/TestHarness'
 
+vi.mock('vue-i18n', async importOriginal => {
+  const actual = await importOriginal<typeof import('vue-i18n')>()
+  return {
+    ...actual,
+    useI18n: () => ({
+      t: (key: string, values?: Record<string, unknown>) =>
+        values ? `${key}:${JSON.stringify(values)}` : key,
+    }),
+  }
+})
+
 vi.mock('@/composables/useErrorHandler', () => ({
   useErrorHandler: () => ({
     handleHttpError: vi.fn(),

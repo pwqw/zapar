@@ -10,7 +10,7 @@ describe('usePolicies', () => {
   it('allows admin to edit any song', () => {
     h.actingAsUser({
       ...h.factory('user'),
-      permissions: ['manage songs'],
+      permissions: ['upload content'],
     } as CurrentUser)
 
     const { currentUserCan } = usePolicies()
@@ -112,20 +112,20 @@ describe('usePolicies', () => {
     expect(currentUserCan.manageUsers()).toBe(false)
   })
 
-  it('allows upload for Plus users', async () => {
+  it('denies upload for Plus users without upload permission', async () => {
     const user = h.factory('user', { permissions: [] }) as CurrentUser
     h.actingAsUser(user)
 
     await h.withPlusEdition(async () => {
       const { currentUserCan } = usePolicies()
-      expect(currentUserCan.uploadSongs()).toBe(true)
+      expect(currentUserCan.uploadSongs()).toBe(false)
     })
   })
 
-  it('allows upload for users with manage songs permission', () => {
+  it('allows upload for users with upload content permission', () => {
     h.actingAsUser({
       ...h.factory('user'),
-      permissions: ['manage songs'],
+      permissions: ['upload content'],
     } as CurrentUser)
 
     const { currentUserCan } = usePolicies()
