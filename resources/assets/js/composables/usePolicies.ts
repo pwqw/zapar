@@ -18,6 +18,10 @@ export const usePolicies = () => {
         return true
       }
 
+      if (currentUser.value.permissions.includes('manage songs')) {
+        return true
+      }
+
       if (!isPlus.value) {
         return false
       }
