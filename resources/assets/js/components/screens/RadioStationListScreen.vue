@@ -47,12 +47,19 @@
       </ScreenHeader>
     </template>
 
-    <ScreenEmptyState v-if="noStations">
+    <ScreenEmptyState v-if="noRadioStationsInLibrary">
       <template #icon>
         <RadioIcon :size="96" />
       </template>
-      {{ t('emptyStates.radiosEmpty') }}
-      <span class="secondary block">{{ t('emptyStates.radiosEmpty') }}</span>
+      {{ t('emptyStates.radiosNotFound') }}
+      <span class="secondary block">{{ t('emptyStates.radiosAddHint') }}</span>
+    </ScreenEmptyState>
+
+    <ScreenEmptyState v-else-if="noFavoriteRadioStations">
+      <template #icon>
+        <RadioIcon :size="96" />
+      </template>
+      {{ t('emptyStates.noFavoriteStations') }}
     </ScreenEmptyState>
 
     <div v-else ref="gridContainer" v-koel-overflow-fade class="-m-6 overflow-auto">
@@ -123,7 +130,14 @@ const stations = computed(() => {
 })
 
 const canAdd = computed(() => currentUserCan.addRadioStation())
-const noStations = computed(() => !loading.value && stations.value.length === 0)
+const noRadioStationsInLibrary = computed(() => !loading.value && radioStationStore.state.stations.length === 0)
+const noFavoriteRadioStations = computed(
+  () =>
+    !loading.value &&
+    preferences.radio_stations_favorites_only &&
+    radioStationStore.state.stations.length > 0 &&
+    stations.value.length === 0,
+)
 const showSkeletons = computed(() => loading.value && stations.value.length === 0)
 const itemLayout = computed<CardLayout>(() => preferences.radio_stations_view_mode === 'list' ? 'compact' : 'full')
 

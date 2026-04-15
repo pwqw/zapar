@@ -1,25 +1,15 @@
 import { screen, waitFor } from '@testing-library/vue'
 import { describe, expect, it, vi } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
-import { assertOpenModal } from '@/__tests__/assertions'
 import { preferenceStore as preferences } from '@/stores/preferenceStore'
 import { radioStationStore } from '@/stores/radioStationStore'
-import AddRadioStationForm from '@/components/radio/AddRadioStationForm.vue'
-
-const openModalMock = vi.fn()
-
-vi.mock('@/composables/useModal', () => ({
-  useModal: () => ({
-    openModal: openModalMock,
-  }),
-}))
+import { eventBus } from '@/utils/eventBus'
 
 import Component from './RadioStationListScreen.vue'
 
 describe('radioStationListScreen.vue', () => {
   const h = createHarness({
     beforeEach: () => {
-      openModalMock.mockClear()
       h.mock(radioStationStore, 'fetchAll')
     },
   })
@@ -72,13 +62,15 @@ describe('radioStationListScreen.vue', () => {
   })
 
   it('requests the Add Radio Station form', async () => {
+    const emitSpy = vi.spyOn(eventBus, 'emit')
     await renderComponent()
     await h.tick()
 
-    const addButton = screen.getByRole('button', { name: 'Add a new station' })
+    const addButton = screen.getByRole('button', { name: 'Add station' })
     await h.user.click(addButton)
 
-    await assertOpenModal(openModalMock, AddRadioStationForm)
+    expect(emitSpy).toHaveBeenCalledWith('MODAL_SHOW_ADD_RADIO_STATION_FORM')
+    emitSpy.mockRestore()
   })
 
   it('does not show the Add button in demo mode', async () =>
@@ -86,7 +78,7 @@ describe('radioStationListScreen.vue', () => {
       await renderComponent()
       await h.tick()
 
-      expect(screen.queryByRole('button', { name: 'Add a new station' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Add station' })).toBeNull()
     }))
 
   it('shows the Add button in demo mode for admins', async () =>
@@ -95,7 +87,7 @@ describe('radioStationListScreen.vue', () => {
       await renderComponent()
       await h.tick()
 
-      screen.getByRole('button', { name: 'Add a new station' })
+      screen.getByRole('button', { name: 'Add station' })
     }))
 
   it('shows all or only favorites upon toggling the button', async () => {

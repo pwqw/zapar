@@ -43,7 +43,10 @@ export const usePolicies = () => {
     },
 
     // If the user has the permission, they can always add a radio station, even in demo mode.
-    addRadioStation: () => !window.IS_DEMO || currentUser.value.permissions.includes('upload content'),
+    addRadioStation: () =>
+      !window.IS_DEMO ||
+      currentUser.value.permissions.includes('upload content') ||
+      currentUser.value.permissions.includes('manage radio stations'),
 
     manageSettings: () => currentUser.value.permissions.includes('manage settings'),
     manageUsers: () => currentUser.value.permissions.includes('manage all users') || currentUser.value.permissions.includes('manage org users') || currentUser.value.permissions.includes('manage artists'),
