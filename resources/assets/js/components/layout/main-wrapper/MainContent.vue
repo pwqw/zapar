@@ -6,41 +6,41 @@
     <AnonymousSessionBanner />
 
     <div class="flex-1 overflow-hidden">
-    <!--
+      <!--
       Most of the views are render-expensive and have their own UI states (viewport/scroll position), e.g. the playable
       lists), so we use v-show.
       For those that don't need to maintain their own UI state, we use v-if to avoid rendering them when not needed.
     -->
-    <VisualizerScreen v-if="screen === 'Visualizer'" />
-    <ArtOverlay v-if="showArtOverlay" :album="(currentPlayingItem as Song).album_id" />
+      <VisualizerScreen v-if="screen === 'Visualizer'" />
+      <ArtOverlay v-if="showArtOverlay" :album="(currentPlayingItem as Song).album_id" />
 
-    <HomeScreen v-if="screenLoaded('Home')" v-show="screen === 'Home'" />
-    <QueueScreen v-if="screenLoaded('Queue')" v-show="screen === 'Queue'" />
-    <AllSongsScreen v-if="screenLoaded('Songs')" v-show="screen === 'Songs'" />
-    <AlbumListScreen v-if="screenLoaded('Albums')" v-show="screen === 'Albums'" />
-    <ArtistListScreen v-if="screenLoaded('Artists')" v-show="screen === 'Artists'" />
-    <PlaylistScreen v-if="screenLoaded('Playlist')" v-show="screen === 'Playlist'" />
-    <FavoritesScreen v-if="screenLoaded('Favorites')" v-show="screen === 'Favorites'" />
-    <RecentlyPlayedScreen v-if="screenLoaded('RecentlyPlayed')" v-show="screen === 'RecentlyPlayed'" />
-    <UploadScreen v-if="screenLoaded('Upload')" v-show="screen === 'Upload'" />
-    <SearchExcerptsScreen v-if="screenLoaded('Search.Excerpt')" v-show="screen === 'Search.Excerpt'" />
-    <GenreScreen v-if="screenLoaded('Genre')" v-show="screen === 'Genre'" />
-    <PodcastListScreen v-if="screenLoaded('Podcasts')" v-show="screen === 'Podcasts'" />
-    <RadioStationListScreen v-if="screenLoaded('Radio.Stations')" v-show="screen === 'Radio.Stations'" />
-    <MediaBrowser v-if="useMediaBrowser && screenLoaded('MediaBrowser')" v-show="screen === 'MediaBrowser'" />
-    <GenreListScreen v-if="screenLoaded('Genres')" v-show="screen === 'Genres'" />
+      <HomeScreen v-if="screenLoaded('Home')" v-show="screen === 'Home'" />
+      <QueueScreen v-if="screenLoaded('Queue')" v-show="screen === 'Queue'" />
+      <AllSongsScreen v-if="screenLoaded('Songs')" v-show="screen === 'Songs'" />
+      <AlbumListScreen v-if="screenLoaded('Albums')" v-show="screen === 'Albums'" />
+      <ArtistListScreen v-if="screenLoaded('Artists')" v-show="screen === 'Artists'" />
+      <PlaylistScreen v-if="screenLoaded('Playlist')" v-show="screen === 'Playlist'" />
+      <FavoritesScreen v-if="screenLoaded('Favorites')" v-show="screen === 'Favorites'" />
+      <RecentlyPlayedScreen v-if="screenLoaded('RecentlyPlayed')" v-show="screen === 'RecentlyPlayed'" />
+      <UploadScreen v-if="screenLoaded('Upload')" v-show="screen === 'Upload'" />
+      <SearchExcerptsScreen v-if="screenLoaded('Search.Excerpt')" v-show="screen === 'Search.Excerpt'" />
+      <GenreScreen v-if="screenLoaded('Genre')" v-show="screen === 'Genre'" />
+      <PodcastListScreen v-if="screenLoaded('Podcasts')" v-show="screen === 'Podcasts'" />
+      <RadioStationListScreen v-if="screenLoaded('Radio.Stations')" v-show="screen === 'Radio.Stations'" />
+      <MediaBrowser v-if="useMediaBrowser && screenLoaded('MediaBrowser')" v-show="screen === 'MediaBrowser'" />
+      <GenreListScreen v-if="screenLoaded('Genres')" v-show="screen === 'Genres'" />
 
-    <SearchSongResultsScreen v-if="screen === 'Search.Playables'" />
-    <AlbumScreen v-if="screen === 'Album'" />
-    <ArtistScreen v-if="screen === 'Artist'" />
-    <SettingsScreen v-if="screen === 'Settings'" />
-    <ProfileScreen v-if="screen === 'Profile'" />
-    <PodcastScreen v-if="screen === 'Podcast'" />
-    <EpisodeScreen v-if="screen === 'Episode'" />
-    <UserListScreen v-if="screen === 'Users'" />
-    <YouTubeScreen v-if="useYouTube" v-show="screen === 'YouTube'" />
-    <NotFoundScreen v-if="screen === '404'" />
-    <AcceptPlaylistCollaborationInvite v-if="screen === 'Playlist.Collaborate'" />
+      <SearchSongResultsScreen v-if="screen === 'Search.Playables'" />
+      <AlbumScreen v-if="screen === 'Album'" />
+      <ArtistScreen v-if="screen === 'Artist'" />
+      <SettingsScreen v-if="screen === 'Settings'" />
+      <ProfileScreen v-if="screen === 'Profile'" />
+      <PodcastScreen v-if="screen === 'Podcast'" />
+      <EpisodeScreen v-if="screen === 'Episode'" />
+      <UserListScreen v-if="screen === 'Users'" />
+      <YouTubeScreen v-if="useYouTube" v-show="screen === 'YouTube'" />
+      <NotFoundScreen v-if="screen === '404'" />
+      <AcceptPlaylistCollaborationInvite v-if="screen === 'Playlist.Collaborate'" />
     </div>
   </section>
 </template>

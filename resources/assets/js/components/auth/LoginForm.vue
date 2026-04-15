@@ -25,7 +25,6 @@
         <!-- Initial Buttons View -->
         <Transition name="fade" mode="out-in">
           <div v-if="!showInternalForm" key="buttons" class="space-y-3">
-
             <FormRow v-if="ssoProviders.includes('Google')">
               <Btn
                 class="w-full flex items-center justify-center gap-2"
@@ -39,7 +38,7 @@
               </Btn>
             </FormRow>
 
-            <FormRow v-if="allowAnonymous"> 
+            <FormRow v-if="allowAnonymous">
               <Btn
                 class="w-full"
                 danger
@@ -56,7 +55,6 @@
                 {{ t('auth.internalAccount') }}
               </Btn>
             </FormRow>
-
           </div>
 
           <!-- Email/Password Form View -->
@@ -265,7 +263,9 @@ form {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .fade-enter-from {
