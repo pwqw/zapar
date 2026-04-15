@@ -83,8 +83,6 @@ import AlertBox from '@/components/ui/AlertBox.vue'
 import TextInput from '@/components/ui/form/TextInput.vue'
 import FormRow from '@/components/ui/form/FormRow.vue'
 
-const { t } = useI18n()
-
 const { toastSuccess } = useMessageToaster()
 const { currentUser } = useAuthorization()
 
