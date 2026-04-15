@@ -5,12 +5,15 @@ namespace App\Services;
 use App\Facades\License;
 use App\Models\Setting;
 use App\Values\Branding;
+use Illuminate\Container\Attributes\Config;
 use Illuminate\Support\Arr;
 
 class SettingService
 {
     public function __construct(
         private readonly ImageStorage $imageStorage,
+        #[Config('koel.legal.terms_url')] private readonly ?string $configTermsUrl = null,
+        #[Config('koel.legal.privacy_url')] private readonly ?string $configPrivacyUrl = null,
     ) {}
 
     public function getBranding(): Branding
@@ -122,10 +125,10 @@ class SettingService
         return [
             'terms_url' => $termsSetting !== null && $termsSetting !== ''
                 ? $termsSetting
-                : ($termsPage ? "{$base}/#/document/terms-and-conditions" : null),
+                : ($termsPage ? "{$base}/#/document/terms-and-conditions" : ($this->configTermsUrl ?: null)),
             'privacy_url' => $privacySetting !== null && $privacySetting !== ''
                 ? $privacySetting
-                : ($privacyPage ? "{$base}/#/document/privacy-policy" : null),
+                : ($privacyPage ? "{$base}/#/document/privacy-policy" : ($this->configPrivacyUrl ?: null)),
         ];
     }
 

@@ -143,7 +143,6 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { authService } from '@/services/authService'
-import { http } from '@/services/http'
 import { logger } from '@/utils/logger'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import { useForm } from '@/composables/useForm'
@@ -180,8 +179,8 @@ const showAnonymousConsent = ref(false)
 const termsAccepted = ref(false)
 const privacyAccepted = ref(false)
 const ageVerified = ref(false)
-const consentTermsUrl = ref<string | undefined>()
-const consentPrivacyUrl = ref<string | undefined>()
+const consentTermsUrl = ref<string | undefined>(window.CONSENT_LEGAL_URLS?.terms_url ?? undefined)
+const consentPrivacyUrl = ref<string | undefined>(window.CONSENT_LEGAL_URLS?.privacy_url ?? undefined)
 
 const allConsentsAccepted = computed(
   () => termsAccepted.value && privacyAccepted.value && ageVerified.value,
@@ -274,19 +273,7 @@ const handleGoogleLogin = async () => {
   }
 }
 
-onMounted(async () => {
-  if (allowAnonymous) {
-    try {
-      const data = await http.silently.get<{
-        legal_urls: { terms_url: string | null; privacy_url: string | null }
-      }>('app-data')
-      consentTermsUrl.value = data.legal_urls.terms_url ?? undefined
-      consentPrivacyUrl.value = data.legal_urls.privacy_url ?? undefined
-    } catch (error) {
-      logger.error(error)
-    }
-  }
-
+onMounted(() => {
   if (authService.hasRedirect()) {
     toastWarning(t('auth.pleaseLogInFirst'))
   }
