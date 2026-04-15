@@ -43,8 +43,6 @@ const props = defineProps<{ artist: Artist }>()
 
 const emit = defineEmits<{ (e: 'close'): void }>()
 
-const { t } = useI18n()
-
 const { artist } = props
 
 const { toastSuccess } = useMessageToaster()

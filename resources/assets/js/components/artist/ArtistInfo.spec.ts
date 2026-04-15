@@ -19,6 +19,7 @@ describe('artistInfo.vue', () => {
       props: {
         artist,
         mode,
+        canFetchEncyclopedia: true,
       },
       global: {
         stubs: {

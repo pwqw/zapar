@@ -1,29 +1,18 @@
 import { describe, expect, it, vi } from 'vite-plus/test'
 import { screen } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
-import { assertOpenModal } from '@/__tests__/assertions'
 import factory from '@/__tests__/factory'
 import { downloadService } from '@/services/downloadService'
 import { playbackService } from '@/services/QueuePlaybackService'
 import { commonStore } from '@/stores/commonStore'
 import { playableStore } from '@/stores/playableStore'
 import { acl } from '@/services/acl'
-import CreateEmbedForm from '@/components/embed/CreateEmbedForm.vue'
-
-const openModalMock = vi.fn()
-
-vi.mock('@/composables/useModal', () => ({
-  useModal: () => ({
-    openModal: openModalMock,
-  }),
-}))
+import { eventBus } from '@/utils/eventBus'
 
 import Component from './ArtistContextMenu.vue'
 
 describe('artistContextMenu.vue', () => {
-  const h = createHarness({
-    beforeEach: () => openModalMock.mockClear(),
-  })
+  const h = createHarness()
 
   const renderComponent = async (artist?: Artist) => {
     h.mock(acl, 'checkResourcePermission').mockReturnValue(true)
@@ -108,8 +97,11 @@ describe('artistContextMenu.vue', () => {
 
   it('requests the embed form', async () => {
     const { artist } = await renderComponent()
+    const emitSpy = vi.spyOn(eventBus, 'emit')
+
     await h.user.click(screen.getByText('Embed…'))
 
-    await assertOpenModal(openModalMock, CreateEmbedForm, { embeddable: artist })
+    expect(emitSpy).toHaveBeenCalledWith('MODAL_SHOW_CREATE_EMBED_FORM', artist)
+    emitSpy.mockRestore()
   })
 })
