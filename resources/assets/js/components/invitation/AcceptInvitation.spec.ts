@@ -25,8 +25,15 @@ describe('acceptInvitation.vue', () => {
 
     await h.user.type(screen.getByTestId('name'), 'Bruce Dickinson')
     await h.user.type(screen.getByTestId('password'), 'top-secret')
+    await h.user.click(screen.getByTestId('terms-checkbox'))
+    await h.user.click(screen.getByTestId('privacy-checkbox'))
+    await h.user.click(screen.getByTestId('age-checkbox'))
     await h.user.click(screen.getByTestId('submit'))
 
-    expect(acceptMock).toHaveBeenCalledWith('73a36cfd-4afd-48ae-b031-ae5488858375', 'Bruce Dickinson', 'top-secret')
+    expect(acceptMock).toHaveBeenCalledWith('73a36cfd-4afd-48ae-b031-ae5488858375', 'Bruce Dickinson', 'top-secret', {
+      terms_accepted: true,
+      privacy_accepted: true,
+      age_verified: true,
+    })
   })
 })
