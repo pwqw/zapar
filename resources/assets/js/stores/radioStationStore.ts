@@ -1,5 +1,5 @@
 import type { Reactive } from 'vue'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { http } from '@/services/http'
 import { merge } from 'lodash'
 import { arrayify } from '@/utils/helpers'
@@ -13,6 +13,9 @@ export interface RadioStationData {
 }
 
 export const radioStationStore = {
+  /** ICE / stream metadata line shown under the station name when playing. */
+  nowPlaying: ref<string | null>(null),
+
   // Unlike songs, we don't expect a lot of radio stations per user.
   // Keep it simple by using state.stations only (without the vault/local cache algorithm).
   state: reactive({
