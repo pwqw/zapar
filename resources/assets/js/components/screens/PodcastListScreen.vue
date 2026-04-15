@@ -2,7 +2,7 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader :disabled="loading" layout="collapsed">
-        Podcasts
+        {{ t('screens.podcasts') }}
         <template #controls>
           <div class="flex gap-2">
             <Btn
