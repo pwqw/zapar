@@ -27,8 +27,21 @@ class SongPolicy
         return $song->editableBy($user);
     }
 
+    public function publish(User $user, Song $song): bool
+    {
+        if ($user->hasAdminOrModeratorRole()) {
+            return true;
+        }
+
+        return $user->isVerified() && $song->ownedBy($user);
+    }
+
     public function download(User $user, Song $song): bool
     {
+        if (str_ends_with($user->email, '@' . User::ANONYMOUS_USER_DOMAIN)) {
+            return false;
+        }
+
         return $this->access($user, $song);
     }
 }

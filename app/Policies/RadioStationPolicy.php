@@ -21,7 +21,7 @@ class RadioStationPolicy
     public function edit(User $user, RadioStation $station): bool
     {
         if ($user->hasAdminOrModeratorRole()) {
-            return $this->radioStationBelongsToUserOrganization($user, $station);
+            return true;
         }
 
         return $station->user_id === $user->id

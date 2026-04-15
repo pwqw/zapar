@@ -14,6 +14,7 @@ class PodcastPolicy
         }
 
         return $podcast->added_by === $user->id
+            || $user->subscribedToPodcast($podcast)
             || ($podcast->is_public && $this->isInUsersOrganization($user, $podcast));
     }
 
