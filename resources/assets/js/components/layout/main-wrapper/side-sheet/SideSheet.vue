@@ -153,11 +153,11 @@ watch(streamable, song => {
 }, { immediate: true })
 
 watch(activeTab, tab => {
+  preferenceStore.active_extra_panel_tab = tab
+
   if (!tab) {
     return
   }
-
-  preferenceStore.active_extra_panel_tab = tab
 
   if (!activatedTabs.value.includes(tab)) {
     activatedTabs.value.push(tab)
