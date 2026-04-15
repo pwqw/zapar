@@ -23,11 +23,16 @@ use App\Values\SmartPlaylist\SmartPlaylistRuleGroup as RuleGroup;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use LogicException;
 
 /**
  * @extends Repository<Song>
  * @implements ScoutableRepository<Song>
+ *
+ * Comportamiento fork (B): filtros ownedOnly, playlist colaborativa sin gate Plus,
+ * acceso por artista/uploaded_by, variantes de getSimilar* respecto al upstream.
+ * Resto: alineado con upstream donde no choca con lo anterior (p. ej. búsqueda por letras, Scout).
  */
 class SongRepository extends Repository implements ScoutableRepository
 {
@@ -41,6 +46,14 @@ class SongRepository extends Repository implements ScoutableRepository
     public function findOneByPath(string $path): ?Song
     {
         return Song::query()->where('path', $path)->first();
+    }
+
+    public function findByHash(string $hash, User $user): ?Song
+    {
+        return Song::query()
+            ->where('hash', $hash)
+            ->where('owner_id', $user->id)
+            ->first();
     }
 
     /** @return Collection|array<array-key, Song> */
@@ -79,6 +92,72 @@ class SongRepository extends Repository implements ScoutableRepository
             ->addSelect('interactions.last_played_at')
             ->orderByDesc('interactions.last_played_at')
             ->limit($count)
+            ->get();
+    }
+
+    /** @return Collection|array<array-key, Song> */
+    public function getLeastPlayed(int $count, ?User $user = null, PlayableType $type = PlayableType::SONG): Collection
+    {
+        $user ??= $this->auth->user();
+
+        return Song::query(type: $type, user: $user)
+            ->withUserContext()
+            ->orderBy('interactions.play_count')
+            ->limit($count)
+            ->get();
+    }
+
+    /**
+     * Find songs similar to a set of songs (by shared artist or genre).
+     *
+     * @param  Collection<Song> $songs
+     * @return Collection<Song>
+     */
+    public function getSimilarToMany(iterable $songs, int $limit, ?User $user = null): Collection
+    {
+        $songs = collect($songs);
+        $user ??= $this->auth->user();
+
+        if ($songs->isEmpty()) {
+            return new Collection();
+        }
+
+        $artistIds = $songs->pluck('artist_id')->filter()->unique();
+        $genreIds  = $songs->flatMap(fn (Song $s) => $s->relationLoaded('genres')
+            ? $s->genres->pluck('id')
+            : [])->filter()->unique();
+        $excludeIds = $songs->pluck('id')->filter()->values()->all();
+
+        return Song::query(type: PlayableType::SONG, user: $user)
+            ->withUserContext()
+            ->whereNotIn('songs.id', $excludeIds)
+            ->where(function (Builder $q) use ($artistIds, $genreIds): void {
+                $q->whereIn('songs.artist_id', $artistIds);
+                if ($genreIds->isNotEmpty()) {
+                    $q->orWhereHas('genres', static fn (Builder $gq) => $gq->whereIn('genres.id', $genreIds));
+                }
+            })
+            ->inRandomOrder()
+            ->limit($limit)
+            ->get();
+    }
+
+    /** @return Collection|array<array-key, Song> */
+    public function getSimilar(Song $song, int $limit, User $user): Collection
+    {
+        $song->loadMissing('genres');
+        $genreIds = $song->genres->pluck('id');
+
+        return Song::query(type: PlayableType::SONG, user: $user)
+            ->withUserContext()
+            ->whereKeyNot($song->id)
+            ->where(function (Builder $q) use ($song, $genreIds): void {
+                $q->where('artist_id', $song->artist_id);
+                if ($genreIds->isNotEmpty()) {
+                    $q->orWhereHas('genres', static fn (Builder $gq) => $gq->whereIn('genres.id', $genreIds));
+                }
+            })
+            ->limit($limit)
             ->get();
     }
 
@@ -158,6 +237,7 @@ class SongRepository extends Repository implements ScoutableRepository
     {
         return Song::query(user: $scopedUser ?? $this->auth->user())
             ->withUserContext(favoritesOnly: true)
+            ->orderBy('favorites.position')
             ->get();
     }
 
@@ -368,7 +448,6 @@ class SongRepository extends Repository implements ScoutableRepository
      */
     public function getByGenre(?Genre $genre, int $limit, $random = false, ?User $scopedUser = null): Collection
     {
-
         return Song::query(type: PlayableType::SONG, user: $scopedUser ?? $this->auth->user())
             ->withUserContext()
             ->when($genre, static fn (Builder $builder) => $builder->whereRelation('genres', 'genres.id', $genre->id))
@@ -442,10 +521,27 @@ class SongRepository extends Repository implements ScoutableRepository
     }
 
     /** @return Collection<Song>|array<array-key, Song> */
+    public function searchByLyrics(string $lyrics, int $limit = 50, ?User $user = null): Collection
+    {
+        $query = Song::query(type: PlayableType::SONG, user: $user ?? $this->auth->user())->withUserContext();
+
+        if (DB::getDriverName() === 'sqlite') {
+            $query->where('songs.lyrics', 'like', '%' . $lyrics . '%');
+        } else {
+            $query->whereFullText('songs.lyrics', $lyrics);
+        }
+
+        return $query->limit($limit)->get();
+    }
+
+    /** @return Collection<Song>|array<array-key, Song> */
     public function search(string $keywords, int $limit, ?User $user = null): Collection
     {
         return $this->getMany(
-            ids: Song::search($keywords)->get()->take($limit)->modelKeys(),
+            ids: Song::search($keywords)
+                ->take($limit)
+                ->get()
+                ->modelKeys(),
             preserveOrder: true,
             scopedUser: $user,
         );
