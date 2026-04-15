@@ -23,10 +23,11 @@ describe('settingsScreen.vue', () => {
     expect(screen.queryByTestId('branding-setting-group')).toBeNull()
   })
 
-  it('has the branding settings in Plus license', () => {
-    h.withPlusEdition(() => {
+  it('has the branding settings in Plus license', async () => {
+    await h.withPlusEdition(async () => {
       renderComponent()
       screen.getByTestId('media-path-setting-group')
+      await h.user.click(screen.getByRole('tab', { name: 'Branding' }))
       screen.getByTestId('branding-setting-group')
     })
   })
