@@ -74,12 +74,6 @@ import PlayableListSkeleton from '@/components/playable/playable-list/PlayableLi
 
 const { t } = useI18n()
 
-const itemCountText = computed(() => {
-  const count = playables.value.length
-  const itemText = count === 1 ? t('messages.genericItemSingular') : t('messages.genericItemPlural')
-  return `${count.toLocaleString()} ${itemText}`
-})
-
 const {
   PlayableList,
   ThumbnailStack,
@@ -96,6 +90,12 @@ const {
   applyFilter,
   onSwipe,
 } = usePlayableList(toRef(playableStore.state, 'favorites'), { type: 'Favorites' })
+
+const itemCountText = computed(() => {
+  const count = playables.value.length
+  const itemText = count === 1 ? t('messages.genericItemSingular') : t('messages.genericItemPlural')
+  return `${count.toLocaleString()} ${itemText}`
+})
 
 const { PlayableListControls, config } = usePlayableListControls('Favorites')
 
