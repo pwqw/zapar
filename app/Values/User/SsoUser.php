@@ -72,7 +72,7 @@ final readonly class SsoUser
             id: $data['id'],
             email: $data['email'],
             name: $data['name'],
-            avatar: $data['avatar'],
+            avatar: $data['avatar'] ?? null,
         );
     }
 }
