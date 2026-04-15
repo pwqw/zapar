@@ -26,6 +26,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Throwable;
 
 class SongService
 {
@@ -289,10 +290,14 @@ class SongService
         if (!$hasCover && !in_array('cover', $config->ignores, true)) {
             $coverData = Arr::get($data, 'cover.data');
 
-            if ($coverData) {
-                $this->albumService->storeAlbumCover($album, $coverData);
-            } else {
-                $this->albumService->trySetAlbumCoverFromDirectory($album, dirname($data['path']));
+            try {
+                if ($coverData) {
+                    $this->albumService->storeAlbumCover($album, $coverData);
+                } else {
+                    $this->albumService->trySetAlbumCoverFromDirectory($album, dirname($data['path']));
+                }
+            } catch (Throwable) {
+                // Continue without embedded/directory cover if extraction fails.
             }
         }
 
