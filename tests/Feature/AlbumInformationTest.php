@@ -72,6 +72,23 @@ class AlbumInformationTest extends TestCase
     }
 
     #[Test]
+    public function adminCanGetInformationForAnyAlbum(): void
+    {
+        /** @var Album $album */
+        $album = Album::factory()->create();
+        $admin = \Tests\create_admin();
+
+        $this->mock(EncyclopediaService::class)
+            ->expects('getAlbumInformation')
+            ->with(Mockery::on(static fn (Album $a) => $a->is($album)))
+            ->andReturn(AlbumInformation::make());
+
+        $this->getAs("api/albums/{$album->id}/information", $admin)
+            ->assertOk()
+            ->assertJsonStructure(AlbumInformation::JSON_STRUCTURE);
+    }
+
+    #[Test]
     public function clearInformation(): void
     {
         /** @var Album $album */
@@ -94,5 +111,19 @@ class AlbumInformationTest extends TestCase
 
         $this->deleteAs("api/albums/{$album->id}/information", [], $otherUser)
             ->assertForbidden();
+    }
+
+    #[Test]
+    public function adminCanClearInformationForAnyAlbum(): void
+    {
+        /** @var Album $album */
+        $album = Album::factory()->create(['cover' => 'stored-cover.jpg']);
+        $admin = \Tests\create_admin();
+
+        $this->deleteAs("api/albums/{$album->id}/information", [], $admin)
+            ->assertNoContent();
+
+        $album->refresh();
+        self::assertSame('', $album->cover);
     }
 }
