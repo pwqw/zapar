@@ -37,10 +37,18 @@ describe('brandingSettingGroup.vue', () => {
 
     await h.user.click(screen.getByRole('button', { name: /save/i }))
 
-    expect(updateMock).toHaveBeenCalledWith({
-      cover: 'data:new-cover',
-      logo: 'data:new-logo',
+    expect(updateMock).toHaveBeenCalledTimes(1)
+    const payload = updateMock.mock.calls[0][0]
+
+    expect(payload).toMatchObject({
       name: 'New App Name',
+      logo: 'data:new-logo',
+      cover: 'data:new-cover',
+    })
+
+    expect(payload).toMatchObject({
+      description: null,
+      og_image: null,
     })
   })
 })
