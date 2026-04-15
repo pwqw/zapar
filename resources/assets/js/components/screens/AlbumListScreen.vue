@@ -94,8 +94,6 @@ import VirtualGridScroller from '@/components/ui/VirtualGridScroller.vue'
 import AlbumListSorter from '@/components/album/AlbumListSorter.vue'
 import Btn from '@/components/ui/form/Btn.vue'
 
-const { t } = useI18n()
-
 const { currentUserCan } = usePolicies()
 
 const grid = ref<InstanceType<typeof VirtualGridScroller>>()

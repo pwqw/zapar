@@ -26,7 +26,6 @@ import AlbumCardSkeleton from '@/components/ui/album-artist/ArtistAlbumCardSkele
 import HomeScreenBlock from '@/components/screens/home/HomeScreenBlock.vue'
 
 const props = withDefaults(defineProps<{ loading?: boolean }>(), { loading: false })
-const { t } = useI18n()
 const { loading } = toRefs(props)
 
 const albums = toRef(overviewStore.state, 'recentlyAddedAlbums')

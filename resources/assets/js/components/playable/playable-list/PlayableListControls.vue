@@ -105,8 +105,6 @@ const emit = defineEmits<{
   (e: 'clear-queue' | 'delete-playlist' | 'refresh'): void
 }>()
 
-const { t } = useI18n()
-
 const ListFilter = defineAsyncComponent(() => import('@/components/ui/ListFilter.vue'))
 
 const config = toRef(props, 'config')

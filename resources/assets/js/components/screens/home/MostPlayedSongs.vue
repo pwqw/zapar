@@ -18,7 +18,6 @@ import PlayableCardGrid from '@/components/screens/home/PlayableCardGrid.vue'
 import PlayableCardGridSkeleton from '@/components/screens/home/PlayableCardGridSkeleton.vue'
 
 const props = withDefaults(defineProps<{ loading?: boolean }>(), { loading: false })
-const { t } = useI18n()
 const { loading } = toRefs(props)
 
 const playables = toRef(overviewStore.state, 'mostPlayedSongs')
