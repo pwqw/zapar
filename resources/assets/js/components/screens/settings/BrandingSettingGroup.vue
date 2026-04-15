@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useForm } from '@/composables/useForm'
 import { useBranding } from '@/composables/useBranding'
@@ -76,9 +76,11 @@ const {
 const defaultFavicon = '/img/favicon.ico'
 const defaultImage = currentBranding.logo || ''
 
-const getInitialValues = () => {
-  const opengraph = settingStore.state.opengraph || {}
+const opengraph = settingStore.state.opengraph || {}
+const faviconValue = ref<string | undefined>((props.currentBranding as any).favicon || undefined)
+const ogImageValue = ref<string | undefined>(opengraph.image || undefined)
 
+const getInitialValues = () => {
   return {
     ...props.currentBranding,
     description: opengraph.description ?? undefined,
@@ -118,11 +120,7 @@ const { data, loading, handleSubmit } = useForm({
   },
 })
 
-const opengraph = settingStore.state.opengraph || {}
-const faviconValue = ref<string | undefined>((props.currentBranding as any).favicon || undefined)
-const ogImageValue = ref<string | undefined>(opengraph.image || undefined)
-
-watch(faviconValue, (newValue) => {
+watch(faviconValue, newValue => {
   (data as any).favicon = newValue || null
 })
 </script>
