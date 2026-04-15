@@ -46,8 +46,6 @@ const props = defineProps<{ album: Album }>()
 
 const emit = defineEmits<{ (e: 'close'): void }>()
 
-const { t } = useI18n()
-
 const { album } = props
 
 const { toastSuccess } = useMessageToaster()

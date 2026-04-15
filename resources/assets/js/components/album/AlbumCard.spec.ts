@@ -60,7 +60,7 @@ describe('albumCard', () => {
     const mock = h.mock(downloadService, 'fromAlbum')
     renderComponent()
 
-    await h.user.click(screen.getByTitle('Download all songs'))
+    await h.user.click(screen.getByTitle(/Download all songs/))
 
     expect(mock).toHaveBeenCalledTimes(1)
   })
@@ -80,7 +80,7 @@ describe('albumCard', () => {
     const shuffleMock = h.mock(playbackService, 'queueAndPlay').mockResolvedValue(void 0)
     const { album } = renderComponent(undefined, false)
 
-    await h.user.click(screen.getByTitle('Shuffle all songs'))
+    await h.user.click(screen.getByTitle(/Shuffle all songs/))
     await h.tick()
 
     expect(fetchMock).toHaveBeenCalledWith(album)

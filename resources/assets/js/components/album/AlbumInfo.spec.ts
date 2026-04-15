@@ -22,6 +22,7 @@ describe('albumInfo.vue', () => {
       props: {
         album,
         mode,
+        canFetchEncyclopedia: true,
       },
       global: {
         stubs: {
