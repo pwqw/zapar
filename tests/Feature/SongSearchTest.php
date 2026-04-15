@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Resources\SongResource;
 use App\Models\Song;
+use Laravel\Scout\EngineManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -16,11 +17,13 @@ class SongSearchTest extends TestCase
         parent::setUp();
 
         config()->set('scout.driver', 'collection');
+        $this->app->make(EngineManager::class)->forgetDrivers();
     }
 
     protected function tearDown(): void
     {
-        config()->set('scout.driver', null);
+        config()->set('scout.driver', env('SCOUT_DRIVER'));
+        $this->app->make(EngineManager::class)->forgetDrivers();
 
         parent::tearDown();
     }
