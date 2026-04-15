@@ -257,6 +257,7 @@
     }
   },
   "artists": {
+    "artist": "Artist",
     "edit": "Edit Artist",
     "name": "Name",
     "artistName": "Artist name",
