@@ -18,6 +18,20 @@ export class RadioPlaybackService extends BasePlaybackService {
   public activate (plyrWrapper: HTMLElement) {
     // For radio, we use a separate audio element that never goes through AudioContext
     // This element is NOT managed by Plyr and is never linked to createMediaElementSource
+    if (this.radioAudioElement && !document.body.contains(this.radioAudioElement)) {
+      if (this.boundRadioEvents.length) {
+        this.boundRadioEvents.forEach(([event, handler]) => {
+          this.radioAudioElement!.removeEventListener(event, handler)
+        })
+        this.boundRadioEvents = []
+      }
+      if (this.volumeWatcher) {
+        this.volumeWatcher()
+        this.volumeWatcher = null
+      }
+      this.radioAudioElement = null
+    }
+
     if (!this.radioAudioElement) {
       // Get or create the dedicated radio audio element
       let radioElement = document.getElementById('audio-radio') as HTMLAudioElement
@@ -87,7 +101,9 @@ export class RadioPlaybackService extends BasePlaybackService {
 
     // Ensure the radio audio element is available
     if (!this.radioAudioElement) {
-      await this.activate(document.querySelector('.plyr') as HTMLElement)
+      await this.activate(
+        (document.querySelector('#audio-player') || document.querySelector('.plyr')) as HTMLElement,
+      )
     }
 
     const url = radioStationStore.getSourceUrl(station)

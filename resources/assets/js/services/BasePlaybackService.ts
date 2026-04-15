@@ -3,13 +3,36 @@ import { throttle } from 'lodash'
 import { watch } from 'vue'
 import { volumeManager } from '@/services/volumeManager'
 
+function createPlyrLikePlayer (media: HTMLMediaElement): Plyr {
+  return {
+    media,
+    restart: () => {
+      media.currentTime = 0
+    },
+    play: () => {
+      void media.play()
+    },
+    pause: () => {
+      media.pause()
+    },
+    seek: (position: number) => {
+      media.currentTime = position
+    },
+    setVolume: (volume: number) => {
+      media.volume = volume
+    },
+  }
+}
+
 export abstract class BasePlaybackService {
   public media!: HTMLMediaElement
+  public player!: Plyr
   private boundMediaEvents = new Set<[string, EventListener, boolean]>()
 
-  public activate(mediaElement: HTMLMediaElement) {
+  public activate (mediaElement: HTMLMediaElement) {
     if (!this.media) {
       this.media = mediaElement
+      this.player = createPlyrLikePlayer(mediaElement)
       watch(volumeManager.volume, volume => this.setVolume(volume), { immediate: true })
       this.setMediaSessionActionHandlers()
     }

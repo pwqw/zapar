@@ -76,14 +76,16 @@ describe('playbackService', () => {
   )
 
   it('plays next playable if current playable is errored', () => {
-    const logMock = h.mock(logger, 'error')
+    const logMock = h.mock(logger, 'warn')
     const playNextMock = h.mock(playbackService, 'playNext')
 
     const errorEvent = new Event('error')
     playbackService.media.dispatchEvent(errorEvent)
 
     expect(playNextMock).toHaveBeenCalled()
-    expect(logMock).toHaveBeenCalledWith(errorEvent)
+    expect(logMock).toHaveBeenCalledWith(
+      expect.stringContaining('Audio playback error'),
+    )
   })
 
   it('scrobbles if current playable ends', () => {
@@ -369,7 +371,7 @@ describe('playbackService', () => {
   it('stops listening to media event after deactivation', () => {
     playbackService.deactivate()
 
-    const logMock = h.mock(logger, 'error')
+    const logMock = h.mock(logger, 'warn')
     const playNextMock = h.mock(playbackService, 'playNext')
 
     playbackService.media.dispatchEvent(new Event('error'))
