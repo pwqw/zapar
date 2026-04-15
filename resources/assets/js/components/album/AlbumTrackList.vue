@@ -19,7 +19,7 @@
 import { onMounted, provide, ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { playableStore } from '@/stores/playableStore'
-import { PlayablesKey } from '@/symbols'
+import { PlayablesKey } from '@/config/symbols'
 
 import TrackListItem from '@/components/album/AlbumTrackListItem.vue'
 

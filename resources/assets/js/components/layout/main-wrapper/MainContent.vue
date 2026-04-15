@@ -53,7 +53,7 @@ import { defineAsyncComponent, requireInjection } from '@/utils/helpers'
 import { preferenceStore as preferences } from '@/stores/preferenceStore'
 import { useRouter } from '@/composables/useRouter'
 import { useThirdPartyServices } from '@/composables/useThirdPartyServices'
-import { CurrentStreamableKey } from '@/symbols'
+import { CurrentStreamableKey } from '@/config/symbols'
 import { commonStore } from '@/stores/commonStore'
 import AnonymousSessionBanner from '@/components/layout/AnonymousSessionBanner.vue'
 

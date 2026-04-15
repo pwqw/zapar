@@ -112,7 +112,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icons'
 import { arrayify, requireInjection } from '@/utils/helpers'
-import { PlayableListConfigKey, PlayableListSortFieldKey, PlayableListSortOrderKey } from '@/symbols'
+import { PlayableListConfigKey, PlayableListSortFieldKey, PlayableListSortOrderKey } from '@/config/symbols'
 import type { getPlayableCollectionContentType } from '@/utils/typeGuards'
 import { usePlayableListColumnVisibility } from '@/composables/usePlayableListColumnVisibility'
 

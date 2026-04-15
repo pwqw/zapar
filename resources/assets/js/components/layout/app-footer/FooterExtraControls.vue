@@ -40,7 +40,7 @@ import { eventBus } from '@/utils/eventBus'
 import { isFullscreenSupported, isAudioContextSupported as useEqualizer } from '@/utils/supports'
 import { useRouter } from '@/composables/useRouter'
 import { requireInjection } from '@/utils/helpers'
-import { CurrentStreamableKey } from '@/symbols'
+import { CurrentStreamableKey } from '@/config/symbols'
 import { isRadioStation } from '@/utils/typeGuards'
 
 import VolumeSlider from '@/components/ui/VolumeSlider.vue'
