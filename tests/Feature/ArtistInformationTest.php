@@ -51,4 +51,13 @@ class ArtistInformationTest extends TestCase
             $owner,
         )->assertJsonStructure(ArtistInformation::JSON_STRUCTURE);
     }
+
+    #[Test]
+    public function clearInformation(): void
+    {
+        $artist = Artist::factory()->createOne();
+        $owner = User::query()->findOrFail($artist->user_id);
+
+        $this->deleteAs("api/artists/{$artist->id}/information", [], $owner)->assertNoContent();
+    }
 }
