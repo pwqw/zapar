@@ -1,13 +1,18 @@
-import { describe, expect, it } from 'vite-plus/test'
-import { screen } from '@testing-library/vue'
+import { describe, expect, it, vi } from 'vite-plus/test'
+import { screen, waitFor } from '@testing-library/vue'
 import { createHarness } from '@/__tests__/TestHarness'
 import { playbackService } from '@/services/QueuePlaybackService'
 import { playableStore as episodeStore } from '@/stores/playableStore'
+import { acl } from '@/services/acl'
 import Component from './PodcastContextMenu.vue'
 import { podcastStore } from '@/stores/podcastStore'
 
 describe('podcastContextMenu.vue', () => {
-  const h = createHarness()
+  const h = createHarness({
+    beforeEach: () => {
+      vi.spyOn(acl, 'checkResourcePermission').mockResolvedValue(true)
+    },
+  })
 
   const renderComponent = async (podcast?: Podcast) => {
     podcast =
@@ -82,12 +87,14 @@ describe('podcastContextMenu.vue', () => {
     expect(favoriteMock).toHaveBeenCalledWith(podcast)
   })
 
-  it('unsubscribes', async () => {
+  it('deletes podcast', async () => {
+    const deleteMock = h.mock(podcastStore, 'delete').mockResolvedValue(undefined)
     const { podcast } = await renderComponent()
-    const unsubMock = h.mock(podcastStore, 'unsubscribe')
 
-    await h.user.click(screen.getByText('Unsubscribe'))
+    await h.user.click(screen.getByText('Delete'))
 
-    expect(unsubMock).toHaveBeenCalledWith(podcast)
+    await waitFor(() => {
+      expect(deleteMock).toHaveBeenCalledWith(podcast)
+    })
   })
 })
