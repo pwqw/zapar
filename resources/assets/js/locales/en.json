@@ -16,6 +16,9 @@
     "upload": "Upload",
     "users": "Users"
   },
+  "ai": {
+    "close": "Close"
+  },
   "auth": {
     "logIn": "Log In",
     "forgotPassword": "Forgot password?",
@@ -224,6 +227,8 @@
     "disc": "Disc",
     "genre": "Genre",
     "year": "Year",
+    "user": "User",
+    "added": "Added",
     "trackAndDisc": "Track & Disc",
     "time": "Time",
     "dateAdded": "Date Added",
@@ -547,6 +552,7 @@
   },
   "meta": {
     "plus": "Plus",
+    "authorName": "Phan An",
     "community": "Community",
     "edition": "Edition",
     "licensedTo": "Licensed to {name} <{email}>",
@@ -627,6 +633,7 @@
       "sortByGenre": "Sort by genre",
       "sortByYear": "Sort by year",
       "sortByDuration": "Sort by duration",
+      "sortByAlbum": "Sort by album",
       "playAll": "Play all. Press Alt/⌥ to change mode.",
       "playSelected": "Play selected. Press Alt/⌥ to change mode.",
       "shuffleAll": "Shuffle all. Press Alt/⌥ to change mode.",
@@ -679,7 +686,10 @@
       "addStation": "Add station",
       "playPause": "Play/Pause",
       "addNewGroup": "Add a new group",
-      "createNewPlaylistOrFolder": "Create a new playlist or folder"
+      "createNewPlaylistOrFolder": "Create a new playlist or folder",
+      "community": "Community",
+      "edition": "Edition",
+      "plusEdition": "Plus"
     },
     "equalizer": {
       "preset": "Preset",
