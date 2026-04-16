@@ -62,7 +62,7 @@ describe('duplicateUploadList', () => {
 
     // Open details
     await h.user.click(screen.getByText('Duplicate files'))
-    await h.user.click(screen.getByRole('button', { name: 'Keep All' }))
+    await h.user.click(screen.getByRole('button', { name: 'All' }))
 
     expect(mock).toHaveBeenCalled()
   })
@@ -73,7 +73,7 @@ describe('duplicateUploadList', () => {
     renderComponent()
 
     await h.user.click(screen.getByText('Duplicate files'))
-    await h.user.click(screen.getByRole('button', { name: 'Discard All' }))
+    await h.user.click(screen.getByRole('button', { name: 'Clear' }))
 
     expect(mockShowConfirmDialog).toHaveBeenCalledWith('Discard all duplicate uploads?')
     expect(mock).toHaveBeenCalled()

@@ -44,7 +44,7 @@ describe('duplicateUploadItem', () => {
     const mock = h.mock(uploadService, 'keepDuplicate')
     renderComponent()
 
-    await h.user.click(screen.getByRole('button', { name: 'Keep' }))
+    await h.user.click(screen.getByRole('button', { name: 'Apply' }))
 
     expect(mock).toHaveBeenCalledWith('dup-1')
   })
@@ -54,7 +54,7 @@ describe('duplicateUploadItem', () => {
     const mock = h.mock(uploadService, 'discardDuplicate')
     renderComponent()
 
-    await h.user.click(screen.getByRole('button', { name: 'Discard' }))
+    await h.user.click(screen.getByRole('button', { name: 'Delete' }))
 
     expect(mockShowConfirmDialog).toHaveBeenCalledWith('Discard this duplicate upload?')
     expect(mock).toHaveBeenCalledWith('dup-1')
@@ -65,7 +65,7 @@ describe('duplicateUploadItem', () => {
     const mock = h.mock(uploadService, 'discardDuplicate')
     renderComponent()
 
-    await h.user.click(screen.getByRole('button', { name: 'Discard' }))
+    await h.user.click(screen.getByRole('button', { name: 'Delete' }))
 
     expect(mock).not.toHaveBeenCalled()
   })

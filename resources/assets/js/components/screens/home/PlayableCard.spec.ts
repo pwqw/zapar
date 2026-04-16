@@ -69,12 +69,12 @@ describe('playableCard.vue', () => {
   it('shows offline mark for cached songs', () => {
     isCachedMock.mockReturnValue(true)
     renderCard()
-    screen.getByTitle('Available offline')
+    screen.getByTitle('Available Offline')
   })
 
   it('does not show offline mark for non-cached songs', () => {
     renderCard()
-    expect(screen.queryByTitle('Available offline')).toBeNull()
+    expect(screen.queryByTitle('Available Offline')).toBeNull()
   })
 
   it('shows spinner when caching offline', () => {
@@ -88,7 +88,7 @@ describe('playableCard.vue', () => {
     isCachedMock.mockReturnValue(true)
     renderCard()
     screen.getByTitle('Caching for offline playback')
-    expect(screen.queryByTitle('Available offline')).toBeNull()
+    expect(screen.queryByTitle('Available Offline')).toBeNull()
   })
 
   it('shows error icon when caching fails', () => {

@@ -163,7 +163,7 @@ describe('artistListScreen.vue', () => {
 
     await waitFor(() => {
       const emptyState = screen.getByTestId('screen-empty-state')
-      expect(emptyState.textContent).toContain('No favorite artists')
+      expect(emptyState.textContent).toContain('No artists found')
     })
   })
 })

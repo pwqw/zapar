@@ -161,7 +161,7 @@ describe('albumListScreen.vue', () => {
 
     await waitFor(() => {
       const emptyState = screen.getByTestId('screen-empty-state')
-      expect(emptyState.textContent).toContain('No favorite albums')
+      expect(emptyState.textContent).toContain('No albums found')
     })
   })
 })

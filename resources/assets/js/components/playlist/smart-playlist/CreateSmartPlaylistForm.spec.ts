@@ -21,7 +21,7 @@ describe('createSmartPlaylistForm', () => {
   it('renders the Details tab by default', () => {
     renderComponent()
 
-    screen.getByText('New Smart Playlist')
+    screen.getByText('New Programmable Playlist')
     screen.getByRole('textbox', { name: 'name' })
     screen.getByRole('textbox', { name: 'description' })
   })
