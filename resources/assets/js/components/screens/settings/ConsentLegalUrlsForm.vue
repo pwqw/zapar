@@ -12,7 +12,7 @@
             v-model="data.terms_url"
             type="text"
             :placeholder="t('settings.termsUrlPlaceholder')"
-            class="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+            class="w-full rounded border border-k-fg-10 bg-k-bg-input px-3 py-2 text-sm text-k-fg-input placeholder:text-k-fg-50"
           >
         </FormRow>
 
@@ -22,7 +22,7 @@
             v-model="data.privacy_url"
             type="text"
             :placeholder="t('settings.privacyUrlPlaceholder')"
-            class="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+            class="w-full rounded border border-k-fg-10 bg-k-bg-input px-3 py-2 text-sm text-k-fg-input placeholder:text-k-fg-50"
           >
         </FormRow>
       </div>

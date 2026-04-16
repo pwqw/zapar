@@ -9,13 +9,13 @@
           <template #label>{{ t('settings.welcomeMessageText') }}</template>
           <textarea
             v-model="data.message"
-            class="w-full min-h-40 rounded border border-gray-300 bg-white px-3 py-2 font-mono text-sm dark:border-gray-600 dark:bg-gray-800"
+            class="w-full min-h-40 rounded border border-k-fg-10 bg-k-bg-input px-3 py-2 font-mono text-sm text-k-fg-input placeholder:text-k-fg-50"
             name="message"
             :placeholder="t('settings.welcomeMessagePlaceholder')"
           />
           <template #help>
             {{ t('settings.welcomeMessageHelpPrefix') }}
-            <code class="mx-1 rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800">{variableName}</code>
+            <code class="mx-1 rounded bg-k-bg-20 px-2 py-1 text-xs text-k-fg-80">{variableName}</code>
             {{ t('settings.welcomeMessageHelpSuffix') }}
           </template>
         </FormRow>
@@ -38,10 +38,10 @@
             <div
               v-for="(variable, index) in data.variables"
               :key="index"
-              class="rounded border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900"
+              class="rounded border border-k-fg-10 bg-k-bg-10 p-3"
             >
               <div class="mb-3 flex items-center justify-between">
-                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <label class="text-sm font-semibold text-k-fg-80">
                   {{ variable.name || t('settings.variableName') }}
                 </label>
                 <button
@@ -58,36 +58,36 @@
                   v-model="variable.name"
                   type="text"
                   :placeholder="t('settings.variableName')"
-                  class="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
+                  class="w-full rounded border border-k-fg-10 bg-k-bg-input px-2 py-1 text-sm text-k-fg-input placeholder:text-k-fg-50"
                 >
                 <input
                   v-model="variable.url"
                   type="text"
                   :placeholder="t('settings.variableUrl')"
-                  class="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-800"
+                  class="w-full rounded border border-k-fg-10 bg-k-bg-input px-2 py-1 text-sm text-k-fg-input placeholder:text-k-fg-50"
                 >
               </div>
             </div>
           </div>
 
           <!-- Empty State -->
-          <div v-else class="rounded bg-gray-100 p-4 text-center text-sm text-gray-600 dark:bg-gray-900 dark:text-gray-400">
+          <div v-else class="rounded bg-k-bg-20 p-4 text-center text-sm text-k-fg-70">
             {{ t('settings.noVariablesAdded') }}
           </div>
 
           <!-- Template Variables Reference -->
-          <div v-if="data.variables && data.variables.length > 0" class="mt-4 rounded bg-blue-50 p-3 dark:bg-blue-900/20">
-            <p class="mb-3 text-sm font-semibold text-blue-900 dark:text-blue-200">
+          <div v-if="data.variables && data.variables.length > 0" class="mt-4 rounded border border-k-fg-10 bg-k-bg-20 p-3">
+            <p class="mb-3 text-sm font-semibold text-k-fg">
               {{ t('settings.templateVariablesReference') }}
             </p>
             <div class="space-y-2">
               <div v-for="variable in data.variables" :key="variable.name" class="space-y-1">
-                <div class="text-xs font-semibold text-blue-900 dark:text-blue-200">
+                <div class="text-xs font-semibold text-k-fg-80">
                   {{ variable.name || t('settings.variableName') }}
                 </div>
                 <div class="flex items-center gap-2">
-                  <code class="rounded bg-blue-100 px-2 py-1 font-mono text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-300" v-text="formatVariable(variable.name)" />
-                  <span class="break-all font-mono text-xs text-blue-800 dark:text-blue-300">{{ variable.url }}</span>
+                  <code class="rounded border border-k-fg-10 bg-k-bg-input px-2 py-1 font-mono text-xs text-k-fg-input" v-text="formatVariable(variable.name)" />
+                  <span class="break-all font-mono text-xs text-k-fg-70">{{ variable.url }}</span>
                 </div>
               </div>
             </div>

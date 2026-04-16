@@ -6,7 +6,7 @@
       <div class="space-y-6">
         <!-- Add Page Button -->
         <div class="flex items-center justify-between">
-          <p class="text-sm text-gray-600 dark:text-gray-400">
+          <p class="text-sm text-k-fg-70">
             {{ t('settings.googleDocPagesHelp') }}
           </p>
           <Btn
@@ -23,10 +23,10 @@
           <div
             v-for="(page, index) in data.pages"
             :key="index"
-            class="rounded border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+            class="rounded border border-k-fg-10 bg-k-bg-10 p-4"
           >
             <div class="mb-3 flex items-center justify-between">
-              <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <label class="text-sm font-semibold text-k-fg-80">
                 {{ page.title || t('settings.pageName') }}
               </label>
               <button
@@ -45,7 +45,7 @@
                   v-model="page.title"
                   type="text"
                   :placeholder="t('settings.pageTitlePlaceholder')"
-                  class="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                  class="w-full rounded border border-k-fg-10 bg-k-bg-input px-3 py-2 text-sm text-k-fg-input placeholder:text-k-fg-50"
                   required
                 >
               </FormRow>
@@ -57,7 +57,7 @@
                   type="text"
                   :placeholder="t('settings.pageSlugPlaceholder')"
                   pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
-                  class="w-full rounded border border-gray-300 bg-white px-3 py-2 font-mono text-sm dark:border-gray-600 dark:bg-gray-800"
+                  class="w-full rounded border border-k-fg-10 bg-k-bg-input px-3 py-2 font-mono text-sm text-k-fg-input placeholder:text-k-fg-50"
                   required
                 >
                 <template #help>
@@ -71,7 +71,7 @@
                   v-model="page.embed_url"
                   type="url"
                   :placeholder="t('settings.embedUrlPlaceholder')"
-                  class="w-full rounded border border-gray-300 bg-white px-3 py-2 font-mono text-sm dark:border-gray-600 dark:bg-gray-800"
+                  class="w-full rounded border border-k-fg-10 bg-k-bg-input px-3 py-2 font-mono text-sm text-k-fg-input placeholder:text-k-fg-50"
                   required
                 >
                 <template #help>
@@ -85,7 +85,7 @@
                   v-model="page.default_back_url"
                   type="text"
                   :placeholder="t('settings.defaultBackUrlPlaceholder')"
-                  class="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800"
+                  class="w-full rounded border border-k-fg-10 bg-k-bg-input px-3 py-2 text-sm text-k-fg-input placeholder:text-k-fg-50"
                 >
                 <template #help>
                   {{ t('settings.defaultBackUrlHelp') }}
@@ -93,11 +93,11 @@
               </FormRow>
 
               <!-- Preview URL -->
-              <div class="rounded bg-blue-50 p-3 dark:bg-blue-900/20">
-                <p class="mb-1 text-xs font-semibold text-blue-900 dark:text-blue-200">
+              <div class="rounded border border-k-fg-10 bg-k-bg-20 p-3">
+                <p class="mb-1 text-xs font-semibold text-k-fg-80">
                   {{ t('settings.pageUrl') }}
                 </p>
-                <code class="block rounded bg-blue-100 px-2 py-1 font-mono text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                <code class="block rounded border border-k-fg-10 bg-k-bg-input px-2 py-1 font-mono text-xs text-k-fg-input">
                   /#/document/{{ page.slug || 'slug' }}
                 </code>
               </div>
@@ -106,8 +106,8 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else class="rounded bg-gray-100 p-6 text-center dark:bg-gray-900">
-          <p class="text-sm text-gray-600 dark:text-gray-400">
+        <div v-else class="rounded bg-k-bg-20 p-6 text-center">
+          <p class="text-sm text-k-fg-70">
             {{ t('settings.noPagesAdded') }}
           </p>
         </div>

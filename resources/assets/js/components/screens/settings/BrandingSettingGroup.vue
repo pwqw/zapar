@@ -25,7 +25,7 @@
           <template #label>{{ t('settings.appDescription') }}</template>
           <textarea
             v-model="data.description"
-            class="w-full min-h-24 rounded border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 md:w-2/3"
+            class="w-full min-h-24 rounded border border-k-fg-10 bg-k-bg-input px-3 py-2 text-sm text-k-fg-input placeholder:text-k-fg-50 md:w-2/3"
             name="description"
             :placeholder="t('settings.appDescriptionPlaceholder')"
           />
