@@ -96,6 +96,11 @@ fi
 # Start Laravel + same commands as "pnpm run build" in watch mode (assets via manifest; no HMR)
 echo '✅ Starting development server (production build in watch mode)...'
 rm -f /var/www/html/public/hot
+# Evita ViteManifestNotFoundException: el watch tarda en emitir manifest; la primera petición no debe ir antes.
+if [ ! -f /var/www/html/public/build/manifest.json ]; then
+  echo '📦 Generando manifest inicial (pnpm run build)...'
+  pnpm run build
+fi
 # Run Laravel server on 0.0.0.0 to be accessible from the host
 # Only run queue:listen if QUEUE_CONNECTION is not 'sync' (not needed for sync)
 QUEUE_CONN=$(grep "^QUEUE_CONNECTION=" /var/www/html/.env 2>/dev/null | cut -d'=' -f2 || echo "sync")
