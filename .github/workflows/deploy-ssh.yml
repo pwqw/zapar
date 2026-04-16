@@ -21,6 +21,8 @@ jobs:
   deploy:
     name: Deploy via SSH
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Resolve build run id
@@ -45,7 +47,7 @@ jobs:
           fi
 
       - name: Download built assets
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: public-build
           path: public/build
