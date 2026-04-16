@@ -1,10 +1,12 @@
 <template>
   <ul>
     <MenuItem @click="togglePlayback">
-      {{ station.playback_state === 'Playing' ? 'Stop' : 'Play' }}
+      {{ station.playback_state === 'Playing' ? $t('radio.stop') : $t('radio.play') }}
     </MenuItem>
     <Separator />
-    <MenuItem @click="toggleFavorite">{{ station.favorite ? 'Undo Favorite' : 'Favorite' }}</MenuItem>
+    <MenuItem @click="toggleFavorite">
+      {{ station.favorite ? $t('radio.undoFavorite') : $t('radio.favorite') }}
+    </MenuItem>
     <Separator />
     <MenuItem v-if="allowEdit" @click="requestEditForm">{{ $t('menu.playable.edit') }}</MenuItem>
     <MenuItem v-if="allowDelete" @click="maybeDelete">{{ $t('ui.buttons.delete') }}</MenuItem>
@@ -13,6 +15,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { defineAsyncComponent } from '@/utils/helpers'
 import { useContextMenu } from '@/composables/useContextMenu'
 import { useModal } from '@/composables/useModal'
@@ -27,6 +30,7 @@ const { station } = toRefs(props)
 
 const EditRadioStationForm = defineAsyncComponent(() => import('@/components/radio/EditRadioStationForm.vue'))
 
+const { t } = useI18n()
 const { MenuItem, Separator, trigger } = useContextMenu()
 const { openModal } = useModal()
 const { toastSuccess } = useMessageToaster()
@@ -54,9 +58,9 @@ const requestEditForm = () =>
 
 const maybeDelete = () =>
   trigger(async () => {
-    if (await showConfirmDialog('Delete the radio station? This action is NOT reversible!')) {
+    if (await showConfirmDialog(t('radio.deleteConfirm'))) {
       await radioStationStore.delete(station.value)
-      toastSuccess(`Radio station deleted.`)
+      toastSuccess(t('radio.deleted'))
     }
   })
 

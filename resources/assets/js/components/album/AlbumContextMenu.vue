@@ -3,7 +3,7 @@
     <MenuItem @click="play">{{ $t('menu.artist.playAll') }}</MenuItem>
     <MenuItem @click="shuffle">{{ $t('menu.artist.shuffleAll') }}</MenuItem>
     <Separator />
-    <MenuItem @click="toggleFavorite">{{ album.favorite ? 'Undo Favorite' : 'Favorite' }}</MenuItem>
+    <MenuItem @click="toggleFavorite">{{ album.favorite ? $t('albums.undoFavorite') : $t('albums.favorite') }}</MenuItem>
     <template v-if="allowEdit">
       <MenuItem @click="edit">{{ $t('menu.playable.edit') }}</MenuItem>
     </template>

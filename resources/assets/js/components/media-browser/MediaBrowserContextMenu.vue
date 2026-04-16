@@ -9,6 +9,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from '@/composables/useRouter'
 import { useContextMenu } from '@/composables/useContextMenu'
 import { useMessageToaster } from '@/composables/useMessageToaster'
@@ -21,6 +22,7 @@ import { playback } from '@/services/playbackManager'
 const props = defineProps<{ items: Array<Folder | Song> }>()
 const { items } = toRefs(props)
 
+const { t } = useI18n()
 const { MenuItem, trigger } = useContextMenu()
 const { go, url } = useRouter()
 const { toastWarning, toastSuccess } = useMessageToaster()
@@ -39,7 +41,7 @@ const play = () =>
       playback().queueAndPlay(songs)
       go(url('queue'))
     } else {
-      toastWarning('Nothing to play.')
+      toastWarning(t('emptyStates.nothingToPlay'))
     }
   })
 
@@ -52,7 +54,7 @@ const shuffle = () =>
       playback().queueAndPlay(songs, true)
       go(url('queue'))
     } else {
-      toastWarning('Nothing to play.')
+      toastWarning(t('emptyStates.nothingToPlay'))
     }
   })
 

@@ -166,7 +166,8 @@
     "undoFavorite": "Undo Favorite",
     "favorite": "Favorite",
     "deleteConfirm": "Delete the radio station? This action is NOT reversible!",
-    "deleted": "Radio station deleted."
+    "deleted": "Radio station deleted.",
+    "playPauseNamed": "Play/pause {name}"
   },
   "users": {
     "add": "Add New User",
