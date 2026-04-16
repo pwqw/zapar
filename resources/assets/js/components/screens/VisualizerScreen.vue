@@ -38,8 +38,12 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useFullscreen } from '@vueuse/core'
 import { throttle } from 'lodash'
 import { logger } from '@/utils/logger'
+import { eventBus } from '@/utils/eventBus'
 import { preferenceStore as preferences } from '@/stores/preferenceStore'
 import { visualizerStore } from '@/stores/visualizerStore'
+import { audioService } from '@/services/audioService'
+import { playback } from '@/services/playbackManager'
+import { playbackService as radioPlaybackService } from '@/services/RadioPlaybackService'
 
 import SelectBox from '@/components/ui/form/SelectBox.vue'
 
@@ -84,13 +88,23 @@ const freeUp = () => {
   el.value && (el.value.innerHTML = '')
 }
 
+const canRenderVisualizer = () =>
+  playback('current') !== radioPlaybackService
+  && audioService.initialized
+  && Boolean(audioService.context && audioService.source && audioService.element && audioService.analyzer)
+
 const render = async (viz: Visualizer) => {
   if (!el.value) {
     await nextTick()
     await render(viz)
+    return
   }
 
   freeUp()
+
+  if (!canRenderVisualizer()) {
+    return
+  }
 
   try {
     destroyVisualizer = await viz.init(el.value!)
@@ -101,6 +115,7 @@ const render = async (viz: Visualizer) => {
 }
 
 const selectedVisualizer = ref<Visualizer>()
+const retryRender = () => selectedVisualizer.value && render(selectedVisualizer.value)
 
 watch(selectedId, id => {
   preferences.visualizer = id
@@ -109,6 +124,7 @@ watch(selectedId, id => {
 })
 
 onMounted(() => {
+  eventBus.on('SOCKET_STREAMABLE', retryRender)
   selectedId.value = preferences.visualizer || 'default'
 
   if (!visualizerStore.getVisualizerById(selectedId.value)) {
@@ -117,6 +133,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  eventBus.off('SOCKET_STREAMABLE', retryRender)
   window.clearTimeout(hideControlsTimeout)
   showControls.cancel()
   freeUp()
