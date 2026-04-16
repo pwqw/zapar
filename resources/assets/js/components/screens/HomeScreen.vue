@@ -32,6 +32,7 @@
 import { faVolumeOff } from '@fortawesome/free-solid-svg-icons'
 import { sample } from 'lodash'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { eventBus } from '@/utils/eventBus'
 import { commonStore } from '@/stores/commonStore'
 import { overviewStore } from '@/stores/overviewStore'
@@ -56,20 +57,15 @@ import BtnScrollToTop from '@/components/ui/BtnScrollToTop.vue'
 import ScreenBase from '@/components/screens/ScreenBase.vue'
 
 const { currentUserCan } = usePolicies()
+const { tm } = useI18n()
 
-const greetings = [
-  'Oh hai!',
-  'Hey, %s!',
-  'Howdy, %s!',
-  'Yo!',
-  'How’s it going, %s?',
-  'Sup, %s?',
-  'How’s life, %s?',
-  'How’s your day, %s?',
-  'How have you been, %s?',
-]
-
-const greeting = computed(() => (userStore.current ? sample(greetings)!.replace('%s', userStore.current.name) : ''))
+const greeting = computed(() => {
+  const user = userStore.current
+  if (!user) return ''
+  const messages = tm('screens.home.greetings') as string[]
+  const picked = sample(messages)
+  return picked ? picked.replace('{name}', user.name) : ''
+})
 const libraryEmpty = computed(() => commonStore.state.song_length === 0)
 
 const loading = ref(false)
