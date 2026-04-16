@@ -1,7 +1,7 @@
 <template>
   <footer
     ref="root"
-    class="flex flex-col relative z-20 bg-k-fg-5 h-k-footer-height"
+    class="flex flex-col relative z-20 bg-k-fg-3 border border-k-fg-5 m-4 rounded-xl overflow-hidden h-k-footer-height pt-[var(--progress-bar-height)]"
     @mousemove="showControls"
     @contextmenu.prevent="requestContextMenu"
   >
@@ -102,29 +102,26 @@ const appBackgroundImage = computed(() => {
 })
 
 const initPlaybackRelatedServices = async () => {
-  const plyrWrapper = document.querySelector<HTMLElement>('.plyr')
+  const playerRoot = document.querySelector<HTMLElement>('.plyr')
 
-  if (!plyrWrapper) {
+  if (!playerRoot) {
     // When nothing has been played yet, .plyr is not in the DOM.
-    // Do not poll recursively to avoid an unbounded nextTick loop.
+    // Keep playback/audio service initialization lazy to preserve fork behavior.
     return
   }
-
-  // NOTE: We do NOT call playback() here anymore to avoid activating any service
-  // and potentially initializing audioService before user interaction.
-  // Services will be activated lazily when the user actually plays something.
-  // audioService will be initialized lazily only when QueuePlaybackService is activated
-  // (for songs/episodes that need equalizer/analyzer).
-  // Radio playback uses the audio element directly without AudioContext.
 }
 
-watch(preferenceStore.initialized, async initialized => {
-  if (!initialized) {
-    return
-  }
+watch(
+  preferenceStore.initialized,
+  async initialized => {
+    if (!initialized) {
+      return
+    }
 
-  await initPlaybackRelatedServices()
-}, { immediate: true })
+    await initPlaybackRelatedServices()
+  },
+  { immediate: true },
+)
 
 const setupControlHidingTimer = () => {
   hideControlsTimeout = window.setTimeout(() => root.value?.classList.add('hide-controls'), 5000)
@@ -149,8 +146,7 @@ watch(isFullscreen, fullscreen => {
   }
 })
 
-eventBus.on('FULLSCREEN_TOGGLE', () => toggleFullscreen())
-  .on('UP_NEXT', next => (nextPlayable.value = next))
+eventBus.on('FULLSCREEN_TOGGLE', () => toggleFullscreen()).on('UP_NEXT', next => (nextPlayable.value = next))
 </script>
 
 <style lang="postcss" scoped>
