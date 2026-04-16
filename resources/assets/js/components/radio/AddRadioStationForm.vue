@@ -22,7 +22,7 @@
           :placeholder="$t('radio.descriptionPlaceholder')"
         />
       </FormRow>
-      <ArtworkField v-model="data.logo">Pick or paste a logo (optional)</ArtworkField>
+      <ArtworkField v-model="data.logo">{{ $t('radio.pickOrPasteLogo') }}</ArtworkField>
       <FormRow>
         <label>
           <CheckBox v-model="data.is_public" name="is_public" />

@@ -38,11 +38,11 @@
           <Icon :icon="faUpload" />
         </template>
 
-        {{ canDropFolders ? 'Drop files or folders to upload' : 'Drop files to upload' }}
+        {{ canDropFolders ? $t('screens.dropFiles') : $t('screens.dropFilesNoFolders') }}
 
         <span class="secondary block">
           <a class="block relative !text-k-fg-70 hover:!text-k-fg" role="button">
-            or click here to select songs
+            {{ $t('screens.clickToSelect') }}
             <input
               :accept="acceptAttribute"
               class="absolute opacity-0 w-full h-full z-[2] cursor-pointer left-0 top-0"

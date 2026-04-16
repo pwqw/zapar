@@ -1,8 +1,8 @@
 <template>
   <ul>
-    <MenuItem @click="onItemClicked('new-playlist')">New Playlist…</MenuItem>
-    <MenuItem @click="onItemClicked('new-smart-playlist')">New Smart Playlist…</MenuItem>
-    <MenuItem @click="onItemClicked('new-folder')">New Folder…</MenuItem>
+    <MenuItem @click="onItemClicked('new-playlist')">{{ $t('menu.newPlaylist') }}</MenuItem>
+    <MenuItem @click="onItemClicked('new-smart-playlist')">{{ $t('menu.newSmartPlaylist') }}</MenuItem>
+    <MenuItem @click="onItemClicked('new-folder')">{{ $t('menu.newFolder') }}</MenuItem>
   </ul>
 </template>
 

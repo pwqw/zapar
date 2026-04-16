@@ -37,7 +37,7 @@
         <Icon :icon="faCloudArrowDown" />
       </template>
       {{ $t('ui.tooltips.noSongsOffline') }}
-      <span class="secondary block"> Right-click a song and select "Make Available Offline" to cache it. </span>
+      <span class="secondary block"> {{ $t('screens.offlineSongsCacheHint') }} </span>
     </ScreenEmptyState>
   </ScreenBase>
 </template>

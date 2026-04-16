@@ -43,6 +43,7 @@ import { isEqual } from 'lodash'
 import { faArrowDown, faArrowUp, faCheck, faEllipsis, faSort } from '@fortawesome/free-solid-svg-icons'
 import { OnClickOutside } from '@vueuse/components'
 import { computed, onBeforeUnmount, onMounted, ref, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useFloatingUi } from '@/composables/useFloatingUi'
 import { arrayify } from '@/utils/helpers'
 import type { getPlayableCollectionContentType } from '@/utils/typeGuards'
@@ -81,6 +82,7 @@ const {
   toggleColumn,
   isConfigurable: shouldShowColumnVisibilityCheckboxes,
 } = usePlayableListColumnVisibility()
+const { t } = useI18n()
 
 const { field, order, hasCustomOrderSort, contentType, collaborative } = toRefs(props)
 
@@ -101,7 +103,7 @@ const menuItems = computed(() => {
   const album: MenuItem = { column: 'album', label: 'Album', field: 'album_name', visibilityToggleable: true }
   const track: MenuItem = { column: 'track', label: 'Track & Disc', field: 'track', visibilityToggleable: true }
   const time: MenuItem = { column: 'duration', label: 'Time', field: 'length', visibilityToggleable: true }
-  const genre: MenuItem = { column: 'genre', label: 'Genre', field: 'genre', visibilityToggleable: true }
+  const genre: MenuItem = { column: 'genre', label: t('songs.genre'), field: 'genre', visibilityToggleable: true }
   const year: MenuItem = { column: 'year', label: 'Year', field: 'year', visibilityToggleable: true }
 
   const dateAdded: MenuItem = {

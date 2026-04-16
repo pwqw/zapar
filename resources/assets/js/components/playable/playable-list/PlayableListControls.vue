@@ -8,11 +8,11 @@
             v-koel-tooltip
             class="btn-play-all"
             highlight
-            title="Play all. Press Alt/⌥ to change mode."
+            :title="$t('ui.tooltips.playAll')"
             @click.prevent="playAll"
           >
             <Icon :icon="faPlay" fixed-width />
-            All
+            {{ $t('ui.buttons.all') }}
           </Btn>
 
           <Btn
@@ -20,7 +20,7 @@
             v-koel-tooltip
             class="btn-play-selected"
             highlight
-            title="Play selected. Press Alt/⌥ to change mode."
+            :title="$t('ui.tooltips.playSelected')"
             @click.prevent="playSelected"
           >
             <Icon :icon="faPlay" fixed-width />
@@ -35,11 +35,11 @@
             class="btn-shuffle-all"
             data-testid="btn-shuffle-all"
             highlight
-            title="Shuffle all. Press Alt/⌥ to change mode."
+            :title="$t('ui.tooltips.shuffleAll')"
             @click.prevent="shuffle"
           >
             <Icon :icon="faRandom" fixed-width />
-            All
+            {{ $t('ui.buttons.all') }}
           </Btn>
 
           <Btn
@@ -48,7 +48,7 @@
             class="btn-shuffle-selected"
             data-testid="btn-shuffle-selected"
             highlight
-            title="Shuffle selected. Press Alt/⌥ to change mode."
+            :title="$t('ui.tooltips.shuffleSelected')"
             @click.prevent="shuffleSelected"
           >
             <Icon :icon="faRandom" fixed-width />
@@ -57,10 +57,15 @@
         </template>
 
         <Btn v-if="showAddToButton" ref="addToButton" success @click.prevent.stop="toggleAddToMenu">
-          {{ showingAddToMenu ? 'Cancel' : 'Add To…' }}
+          {{ showingAddToMenu ? $t('form.labels.cancelAddTo') : $t('ui.buttons.addTo') }}
         </Btn>
 
-        <Btn v-if="config.clearQueue" danger title="Clear current queue" @click.prevent="clearQueue">{{ $t('ui.buttons.clear') }}</Btn>
+        <Btn
+          v-if="config.clearQueue"
+          danger
+          :title="$t('ui.tooltips.clearQueue')"
+          @click.prevent="clearQueue"
+        >{{ $t('ui.buttons.clear') }}</Btn>
       </BtnGroup>
 
       <BtnGroup v-if="config.refresh">

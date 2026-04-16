@@ -26,7 +26,7 @@
             :placeholder="$t('playlists.optionalDescription')"
           />
         </FormRow>
-        <ArtworkField v-model="data.cover">Pick or paste a cover (optional)</ArtworkField>
+        <ArtworkField v-model="data.cover">{{ $t('playlists.pickOrPasteCover') }}</ArtworkField>
       </div>
     </main>
 

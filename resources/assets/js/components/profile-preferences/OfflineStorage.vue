@@ -12,9 +12,7 @@
             </div>
             <span class="text-sm text-k-fg-70 whitespace-nowrap">{{ usageLabel }}</span>
           </div>
-          <p class="text-sm text-k-fg-70">
-            {{ cachedSongCount }} {{ cachedSongCount === 1 ? 'song' : 'songs' }} available offline
-          </p>
+          <p class="text-sm text-k-fg-70">{{ availableOfflineLabel }}</p>
         </div>
       </section>
 
@@ -27,6 +25,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useOfflinePlayback } from '@/composables/useOfflinePlayback'
 import { useDialogBox } from '@/composables/useDialogBox'
 import { useMessageToaster } from '@/composables/useMessageToaster'
@@ -38,6 +37,7 @@ const { swReady, storageUsage, storageQuota, cachedSongCount, clearAllOfflineCac
 
 const { showConfirmDialog } = useDialogBox()
 const { toastSuccess } = useMessageToaster()
+const { t } = useI18n()
 
 const supported = computed(() => swReady.value)
 
@@ -51,10 +51,26 @@ const usageLabel = computed(() => {
   return `${formatBytes(storageUsage.value)} / ${formatBytes(storageQuota.value)}`
 })
 
+const availableOfflineLabel = computed(() => {
+  if (cachedSongCount.value === 1) {
+    const translated = t('offline.oneSongAvailableOffline')
+
+    return translated === 'offline.oneSongAvailableOffline'
+      ? `1 ${t('messages.songSingular').toLowerCase()} ${t('sidebar.availableOffline').toLowerCase()}`
+      : translated
+  }
+
+  const translated = t('offline.nSongsAvailableOffline', { n: cachedSongCount.value })
+
+  return translated === 'offline.nSongsAvailableOffline'
+    ? `${cachedSongCount.value} ${t('messages.songPlural').toLowerCase()} ${t('sidebar.availableOffline').toLowerCase()}`
+    : translated
+})
+
 const clearAll = async () => {
-  if (await showConfirmDialog('Remove all offline songs? This cannot be undone.')) {
+  if (await showConfirmDialog(t('offline.removeAllConfirm'))) {
     await clearAllOfflineCache()
-    toastSuccess('All offline songs have been removed.')
+    toastSuccess(t('offline.allRemoved'))
   }
 }
 </script>

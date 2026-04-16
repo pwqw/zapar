@@ -19,7 +19,14 @@
     "availableOffline": "Available Offline"
   },
   "ai": {
-    "close": "Close"
+    "close": "Close",
+    "copyMessageAria": "Copy message to clipboard",
+    "copyToClipboard": "Copy to clipboard",
+    "title": "AI Assistant",
+    "titleWithShortcut": "AI Assistant (/)",
+    "send": "Send",
+    "placeholderInitial": "Ask Koel to play songs, create playlists, add radio stations, and more.",
+    "placeholderChat": "Send a message…"
   },
   "auth": {
     "logIn": "Log In",
@@ -109,6 +116,8 @@
     "edit": "Edit Programmable Playlist",
     "details": "Details",
     "rules": "Rules",
+    "includeSongsAllCriteria": "Include songs that match {all} of these criteria",
+    "orAllCriteria": "or {all} of these criteria",
     "name": "Name *",
     "folder": "Folder",
     "description": "Description",
@@ -144,6 +153,7 @@
     "description": "Description",
     "descriptionPlaceholder": "A short description of the station",
     "pickLogo": "Pick a logo (optional)",
+    "pickOrPasteLogo": "Pick or paste a logo (optional)",
     "makePublic": "Make this station public",
     "save": "Save",
     "cancel": "Cancel",
@@ -281,6 +291,7 @@
     "name": "Name",
     "artistName": "Artist name",
     "pickImage": "Pick an image (optional)",
+    "pickOrPasteImage": "Pick or paste an image (optional)",
     "save": "Save",
     "cancel": "Cancel",
     "updated": "Artist updated.",
@@ -328,7 +339,8 @@
       "save": "Save",
       "preview": "Preview",
       "cancel": "Cancel",
-      "exitPreview": "Exit preview"
+      "exitPreview": "Exit preview",
+      "created": "Theme created."
     },
     "mediaType": {
       "playlist": "playlist",
@@ -527,7 +539,8 @@
     "acceptCollaborationInvite": "The collaboration invite has expired or is invalid.",
     "favorites": "Your Favorites",
     "favoritesEmptyHint": "Click the star icon to mark a song as favorite.",
-    "offline": "Offline"
+    "offline": "Offline",
+    "offlineSongsCacheHint": "Right-click a song and select \"Make Available Offline\" to cache it."
   },
   "dialogs": {
     "cancel": "Cancel",
@@ -741,7 +754,10 @@
       "edition": "Edition",
       "plusEdition": "Plus",
       "cachingOffline": "Caching for offline playback",
-      "viewBuyTickets": "View and buy tickets for this event"
+      "viewBuyTickets": "View and buy tickets for this event",
+      "youtubeVideosHere": "YouTube videos will be played here.",
+      "folderEmpty": "This folder is empty.",
+      "mediaBrowserTitle": "Media Browser"
     },
     "equalizer": {
       "preset": "Preset",
@@ -780,7 +796,7 @@
   },
   "menu": {
     "newPlaylist": "New Playlist…",
-    "newSmartPlaylist": "New Programmable Playlist…",
+    "newSmartPlaylist": "New Smart Playlist…",
     "newFolder": "New Folder…",
     "playable": {
       "goTo": "Go to",
@@ -794,7 +810,7 @@
       "queue": "Queue",
       "favorites": "Favorites",
       "newPlaylist": "New Playlist…",
-      "newSmartPlaylist": "New Programmable Playlist…",
+      "newSmartPlaylist": "New Smart Playlist…",
       "newFolder": "New Folder…",
       "open": "Open",
       "removeFromQueue": "Remove from Queue",
@@ -964,6 +980,7 @@
   },
   "misc": {
     "moreActions": "More Actions",
+    "new": "new",
     "episode": "Episode",
     "pleaseWait": "Just a little patience…",
     "songs": "Songs",
@@ -1026,6 +1043,8 @@
     "error": "Error"
   },
   "offline": {
-    "clearAll": "Clear all"
+    "clearAll": "Clear all",
+    "removeAllConfirm": "Remove all offline songs? This cannot be undone.",
+    "allRemoved": "All offline songs have been removed."
   }
 }

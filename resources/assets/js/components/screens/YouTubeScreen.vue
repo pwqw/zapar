@@ -8,7 +8,7 @@
       <template #icon>
         <Icon :icon="faYoutube" />
       </template>
-      YouTube videos will be played here.
+      {{ $t('ui.tooltips.youtubeVideosHere') }}
       <span class="secondary">{{ $t('emptyStates.youtubeEmpty') }}</span>
     </ScreenEmptyState>
 

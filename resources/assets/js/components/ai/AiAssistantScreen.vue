@@ -5,7 +5,7 @@
   >
     <button
       class="fixed top-4 right-4 z-20 text-k-fg-50 hover:text-k-fg transition-colors cursor-pointer"
-      title="Close"
+      :title="$t('ai.close')"
       type="button"
       @click="goBack"
     >
@@ -42,6 +42,7 @@
 <script lang="ts" setup>
 import { XIcon } from 'lucide-vue-next'
 import { nextTick, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { playback } from '@/services/playbackManager'
 import { queueStore } from '@/stores/queueStore'
 import { useAiChat } from '@/composables/useAiChat'
@@ -57,6 +58,7 @@ const { toastSuccess } = useMessageToaster()
 const { go, onScreenActivated, url } = useRouter()
 const { handleHttpError } = useErrorHandler()
 const { messages, loading, hasMessages, sendPrompt } = useAiChat()
+const { t } = useI18n()
 
 const promptBoxEl = ref<InstanceType<typeof AiPromptBox>>()
 
@@ -78,9 +80,9 @@ const handleSubmit = async (text: string) => {
     }
 
     if (result.action === 'create_smart_playlist') {
-      toastSuccess(`Playlist "${result.resource.name}" created.`)
+      toastSuccess(t('playlists.created', { name: result.resource.name }))
     } else if (result.action === 'add_radio_station') {
-      toastSuccess(`Station "${result.resource.name}" added.`)
+      toastSuccess(t('radio.added', { name: result.resource.name }))
     } else if (result.action === 'play_radio_station') {
       await playback('radio').play(result.resource)
     } else if (result.action === 'play_songs') {

@@ -6,10 +6,10 @@
       <Separator />
     </template>
     <MenuItem>
-      Add
+      {{ $t('ui.buttons.add') }}
       <template #subMenuItems>
-        <MenuItem @click="createPlaylist">New Playlist…</MenuItem>
-        <MenuItem @click="createSmartPlaylist">New Smart Playlist…</MenuItem>
+        <MenuItem @click="createPlaylist">{{ $t('menu.newPlaylist') }}</MenuItem>
+        <MenuItem @click="createSmartPlaylist">{{ $t('menu.newSmartPlaylist') }}</MenuItem>
       </template>
     </MenuItem>
     <Separator />
@@ -20,6 +20,7 @@
 
 <script lang="ts" setup>
 import { computed, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { defineAsyncComponent } from '@/utils/helpers'
 import { playlistStore } from '@/stores/playlistStore'
 import { useRouter } from '@/composables/useRouter'
@@ -45,6 +46,7 @@ const { openModal } = useModal()
 const { go, url } = useRouter()
 const { toastWarning, toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
+const { t } = useI18n()
 
 const playlistsInFolder = computed(() => (folder.value ? playlistStore.byFolder(folder.value) : []))
 const playable = computed(() => playlistsInFolder.value.length > 0)
@@ -57,7 +59,7 @@ const play = () =>
       playback().queueAndPlay(songs)
       go(url('queue'))
     } else {
-      toastWarning('No songs available.')
+      toastWarning(t('menu.playlistFolder.noSongsAvailable'))
     }
   })
 
@@ -69,7 +71,7 @@ const shuffle = () =>
       playback().queueAndPlay(songs, true)
       go(url('queue'))
     } else {
-      toastWarning('No songs available.')
+      toastWarning(t('menu.playlistFolder.noSongsAvailable'))
     }
   })
 
@@ -82,9 +84,9 @@ const rename = () =>
 
 const destroy = () =>
   trigger(async () => {
-    if (await showConfirmDialog(`Delete the playlist folder "${folder.value!.name}"?`)) {
+    if (await showConfirmDialog(t('playlists.folder.deleteConfirm', { name: folder.value!.name }))) {
       await playlistFolderStore.delete(folder.value!)
-      toastSuccess(`Playlist folder "${folder.value!.name}" deleted.`)
+      toastSuccess(t('playlists.folder.deleted', { name: folder.value!.name }))
     }
   })
 </script>

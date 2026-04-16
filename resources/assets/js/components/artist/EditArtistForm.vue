@@ -16,7 +16,7 @@
           :title="$t('artists.artistName')"
         />
       </FormRow>
-      <ArtworkField v-model="data.image">Pick or paste an image (optional)</ArtworkField>
+      <ArtworkField v-model="data.image">{{ $t('artists.pickOrPasteImage') }}</ArtworkField>
     </main>
 
     <footer>

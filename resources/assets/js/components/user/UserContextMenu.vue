@@ -1,7 +1,7 @@
 <template>
   <ul>
     <template v-if="allowEdit">
-      <MenuItem @click="edit">Edit…</MenuItem>
+      <MenuItem @click="edit">{{ $t('users.editAction') }}</MenuItem>
     </template>
     <template v-if="allowDelete">
       <MenuItem v-if="user.is_prospect" @click="revokeInvite">{{ $t('users.revokeInvitation') }}</MenuItem>

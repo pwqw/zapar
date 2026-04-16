@@ -7,11 +7,7 @@
         v-koel-focus
         :readonly="disabled"
         class="block w-full bg-k-bg-input text-k-fg-input border border-k-fg-10 resize-none focus:outline-none focus:border-k-highlight"
-        :placeholder="
-          mode === 'initial'
-            ? 'Ask Koel to play songs, create playlists, add radio stations, and more.'
-            : 'Send a message…'
-        "
+        :placeholder="mode === 'initial' ? $t('ai.placeholderInitial') : $t('ai.placeholderChat')"
         :rows="mode === 'chat' ? 1 : undefined"
         name="prompt"
         @keydown.enter.exact.prevent="submit"
@@ -21,7 +17,7 @@
         :disabled="!text.trim() || disabled"
         :style="mode === 'chat' ? { height: `${buttonSize}px`, width: `${buttonSize}px` } : undefined"
         class="absolute flex items-center justify-center rounded-full bg-k-highlight text-white disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed transition-opacity"
-        title="Send"
+        :title="$t('ai.send')"
         type="submit"
       >
         <ArrowUpIcon :class="mode === 'initial' ? 'w-5 h-5' : 'w-4 h-4'" />

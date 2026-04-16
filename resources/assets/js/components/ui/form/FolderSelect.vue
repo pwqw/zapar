@@ -34,8 +34,8 @@
     <SelectBox v-else v-model="selected" @update:model-value="onSelectChange">
       <option :value="null" />
       <option v-for="folder in folders" :key="folder.id" :value="folder.id">{{ folder.name }}</option>
-      <option v-if="folderName" :value="PENDING_FOLDER">{{ folderName }} (new)</option>
-      <option :value="NEW_FOLDER">+ New Folder</option>
+      <option v-if="folderName" :value="PENDING_FOLDER">{{ folderName }} ({{ $t('misc.new') }})</option>
+      <option :value="NEW_FOLDER">+ {{ $t('menu.newFolder') }}</option>
     </SelectBox>
   </div>
 </template>

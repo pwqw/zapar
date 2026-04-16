@@ -10,8 +10,7 @@
     <div v-if="useMusicBrainz">
       <p>
         {{ $t('integrations.musicbrainz.enabled') }}
-        {{ appName }} will attempt to retrieve album and artist information from MusicBrainz (and Wikipedia) when a song
-        is played, if needed.
+        {{ $t('integrations.musicbrainz.enabledDescription', { appName }) }}
       </p>
     </div>
     <div v-else>

@@ -1,10 +1,16 @@
 <template>
   <div class="relative p-4 rounded-md border border-white/15">
     <h4 class="mb-3">
-      <span>
-        <template v-if="isFirstGroup"> Include songs that match <strong>all</strong> of these criteria </template>
-        <template v-else> or <strong>all</strong> of these criteria </template>
-      </span>
+      <i18n-t v-if="isFirstGroup" keypath="smartPlaylists.includeSongsAllCriteria" tag="span">
+        <template #all>
+          <strong>all</strong>
+        </template>
+      </i18n-t>
+      <i18n-t v-else keypath="smartPlaylists.orAllCriteria" tag="span">
+        <template #all>
+          <strong>all</strong>
+        </template>
+      </i18n-t>
     </h4>
 
     <div class="space-y-2 mb-2">

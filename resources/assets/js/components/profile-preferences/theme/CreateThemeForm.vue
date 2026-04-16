@@ -44,7 +44,7 @@
               class="absolute inset-0 opacity-0 hover:opacity-100 bg-black/70 active:bg-black/85 active:text-[.9rem] transition-opacity"
               @click.prevent="data.bg_image = ''"
             >
-              Remove
+              {{ $t('preferences.theme.remove') }}
             </button>
           </span>
           <FileInput :aria-label="$t('preferences.theme.backgroundImage')" accept="image/*" @change="onBackgroundImageChange" />
@@ -76,7 +76,7 @@
     </footer>
 
     <Btn v-if="previewing" class="btn-exit-preview fixed right-4 top-3" @click.prevent="previewing = false">
-      Exit preview
+      {{ $t('preferences.theme.exitPreview') }}
     </Btn>
   </form>
 </template>
@@ -84,6 +84,7 @@
 <script setup lang="ts">
 import { faFillDrip, faFont, faHighlighter } from '@fortawesome/free-solid-svg-icons'
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { logger } from '@/utils/logger'
 import { useImageFileInput } from '@/composables/useImageFileInput'
 import { useForm } from '@/composables/useForm'
@@ -108,6 +109,7 @@ const close = () => emit('close')
 
 const { showConfirmDialog } = useDialogBox()
 const { toastSuccess } = useMessageToaster()
+const { t } = useI18n()
 
 const style = window.getComputedStyle(document.body)
 
@@ -123,7 +125,7 @@ const { data, isPristine, handleSubmit } = useForm<ThemeData>({
   },
   onSubmit: async data => await themeStore.store(data),
   onSuccess: (theme: Theme) => {
-    toastSuccess('Theme created.')
+    toastSuccess(t('preferences.theme.created'))
     themeStore.setTheme(theme)
     close()
   },
@@ -202,7 +204,7 @@ const { onImageInputChange: onBackgroundImageChange } = useImageFileInput({
 })
 
 const maybeClose = async () => {
-  if (isPristine() || (await showConfirmDialog('Discard all changes?'))) {
+  if (isPristine() || (await showConfirmDialog(t('playlists.discardChanges')))) {
     // restore the theme
     themeStore.setTheme()
     close()

@@ -44,8 +44,8 @@
 
       {{ $t('screens.noSongsQueued') }}
       <span v-if="libraryNotEmpty" class="block secondary">
-        How about
-        <a class="start" @click.prevent="shuffleSome">playing some random songs</a>?
+        {{ $t('screens.howAboutPlayingRandom') }}
+        <a class="start" @click.prevent="shuffleSome">{{ $t('screens.playingSomeRandomSongs') }}</a>?
       </span>
     </ScreenEmptyState>
   </ScreenBase>

@@ -66,7 +66,7 @@ describe('offlineStorage.vue', () => {
 
     h.render(Component)
 
-    await h.user.click(screen.getByText('Clear All'))
+    await h.user.click(screen.getByText('Clear all'))
 
     await waitFor(() => {
       expect(confirmMock).toHaveBeenCalled()
@@ -77,6 +77,6 @@ describe('offlineStorage.vue', () => {
   it('does not show cached songs section when empty', () => {
     h.render(Component)
     expect(screen.queryByText('Cached Songs')).toBeNull()
-    expect(screen.queryByText('Clear All')).toBeNull()
+    expect(screen.queryByText('Clear all')).toBeNull()
   })
 })

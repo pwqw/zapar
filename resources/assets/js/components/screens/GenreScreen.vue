@@ -3,7 +3,7 @@
     <template #header>
       <ScreenHeader v-if="genre" :layout="headerLayout">
         <template v-if="genre.name">
-          <span class="font-thin">Genre:</span>
+          <span class="font-thin">{{ $t('screens.genreLabel') }}</span>
           {{ genre.name }}
         </template>
         <span v-else class="font-thin italic">{{ $t('emptyStates.noGenre') }}</span>

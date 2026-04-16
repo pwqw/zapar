@@ -51,7 +51,9 @@
     "makeAvailableOffline": "Guardar para escuchar sin conexión",
     "oneSongAvailableOffline": "1 canción disponible sin conexión",
     "nSongsAvailableOffline": "{n} canciones disponibles sin conexión",
-    "clearAll": "Borrar todo"
+    "clearAll": "Borrar todo",
+    "removeAllConfirm": "¿Quitar todas las canciones sin conexión? Esto no se puede deshacer.",
+    "allRemoved": "Se quitaron todas las canciones sin conexión."
   },
   "googleDoc": {
     "loadingTitle": "Cargando…",
@@ -152,6 +154,8 @@
     "edit": "Editar lista inteligente",
     "details": "Detalles",
     "rules": "Reglas",
+    "includeSongsAllCriteria": "Incluir canciones que coincidan con {all} estos criterios",
+    "orAllCriteria": "o {all} estos criterios",
     "name": "Nombre *",
     "folder": "Carpeta",
     "description": "Descripción",
@@ -187,6 +191,7 @@
     "description": "Descripción",
     "descriptionPlaceholder": "Una breve descripción de la estación",
     "pickLogo": "Elegir logo (opcional)",
+    "pickOrPasteLogo": "Elegir o pegar un logo (opcional)",
     "makePublic": "Hacer esta estación pública",
     "save": "Guardar",
     "cancel": "Cancelar",
@@ -325,6 +330,7 @@
     "name": "Nombre",
     "artistName": "Nombre del artista",
     "pickImage": "Elegir imagen (opcional)",
+    "pickOrPasteImage": "Elegir o pegar una imagen (opcional)",
     "save": "Guardar",
     "cancel": "Cancelar",
     "updated": "Artista actualizado.",
@@ -1030,6 +1036,7 @@
   },
   "misc": {
     "moreActions": "Más Acciones",
+    "new": "nuevo",
     "episode": "Episodio",
     "pleaseWait": "en un toque...",
     "songs": "Canciones",
