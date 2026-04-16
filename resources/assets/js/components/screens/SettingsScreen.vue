@@ -49,7 +49,10 @@
         </TabPanel>
 
         <TabPanel v-if="currentTab === 'branding'" id="settingsPaneBranding" aria-labelledby="settingsPaneBranding">
-          <BrandingSettingGroup v-if="isPlus" :current-branding="currentBranding" />
+          <BrandingSettingGroup
+            v-if="currentUserCan.manageSettings()"
+            :current-branding="currentBranding"
+          />
         </TabPanel>
 
         <TabPanel v-if="currentTab === 'welcome'" id="settingsPaneWelcome" aria-labelledby="settingsPaneWelcome">
@@ -84,12 +87,12 @@ import Tabs from '@/components/ui/tabs/Tabs.vue'
 import MediaPathSettingGroup from '@/components/screens/settings/MediaPathSettingGroup.vue'
 import BrandingSettingGroup from '@/components/screens/settings/BrandingSettingGroup.vue'
 
-import { useKoelPlus } from '@/composables/useKoelPlus'
 import { useBranding } from '@/composables/useBranding'
+import { usePolicies } from '@/composables/usePolicies'
 
 const { t } = useI18n()
 const { currentBranding } = useBranding()
-const { isPlus } = useKoelPlus()
+const { currentUserCan } = usePolicies()
 
 const WelcomeMessageForm = defineAsyncComponent(() => import('@/components/screens/settings/WelcomeMessageForm.vue'))
 const GoogleDocPagesForm = defineAsyncComponent(() => import('@/components/screens/settings/GoogleDocPagesForm.vue'))

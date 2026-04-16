@@ -8,11 +8,13 @@ export const useBranding = () => {
     cover: window.BRANDING.cover || koelBirdCover,
   }
 
+  const defaultAppName = window.DEFAULT_BRANDING_NAME ?? 'Koel'
+
   const isKoelBirdLogo = (logo: string) => logo === koelBirdLogo
   const isKoelBirdCover = (cover: string) => cover === koelBirdCover
 
   const hasCustomBranding =
-    !isKoelBirdLogo(currentBranding.logo) || !isKoelBirdCover(currentBranding.cover) || currentBranding.name !== 'Koel'
+    !isKoelBirdLogo(currentBranding.logo) || !isKoelBirdCover(currentBranding.cover) || currentBranding.name !== defaultAppName
 
   return {
     currentBranding,

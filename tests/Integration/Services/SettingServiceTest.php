@@ -4,7 +4,6 @@ namespace Tests\Integration\Services;
 
 use App\Models\Setting;
 use App\Services\SettingService;
-use App\Values\Branding;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -22,19 +21,23 @@ class SettingServiceTest extends TestCase
     #[Test]
     public function getBrandingForCommunityEdition(): void
     {
-        $assert = function (): void {
-            $branding = $this->service->getBranding();
+        $branding = $this->service->getBranding();
 
-            self::assertSame('Koel', $branding->name);
-            self::assertNull($branding->logo);
-            self::assertNull($branding->cover);
-        };
+        self::assertSame(config('app.name'), $branding->name);
+        self::assertNull($branding->logo);
+        self::assertNull($branding->cover);
 
-        $assert();
+        Setting::set('branding', [
+            'name' => 'Test Branding',
+            'logo' => 'test-logo.png',
+            'cover' => 'test-cover.png',
+        ]);
 
-        Setting::set('branding', Branding::make(name: 'Test Branding', logo: 'test-logo.png', cover: 'test-cover.png'));
+        $stored = $this->service->getBranding();
 
-        $assert();
+        self::assertSame('Test Branding', $stored->name);
+        self::assertNotNull($stored->logo);
+        self::assertNotNull($stored->cover);
     }
 
     #[Test]

@@ -74,6 +74,7 @@ class TestHarness {
   }
 
   private setDefaultBranding() {
+    window.DEFAULT_BRANDING_NAME = 'Koel'
     window.BRANDING = {
       name: 'Koel',
       logo: '',

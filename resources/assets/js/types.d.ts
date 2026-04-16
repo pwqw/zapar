@@ -88,6 +88,8 @@ interface Window {
   RUNNING_UNIT_TESTS?: boolean
 
   BRANDING: Branding
+  /** Laravel `config('app.name')` for default site title (no custom branding row). */
+  DEFAULT_BRANDING_NAME?: string
   WELCOME_MESSAGE?: WelcomeMessageData | null
   CONSENT_LEGAL_URLS?: { terms_url: string | null; privacy_url: string | null } | null
 

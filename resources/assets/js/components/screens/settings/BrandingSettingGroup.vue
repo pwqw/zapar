@@ -70,11 +70,10 @@ const {
   koelBirdLogo,
   isKoelBirdCover,
   isKoelBirdLogo,
-  currentBranding,
 } = useBranding()
 
 const defaultFavicon = '/img/favicon.ico'
-const defaultImage = currentBranding.logo || ''
+const defaultImage = props.currentBranding.logo || ''
 
 const opengraph = settingStore.state.opengraph || {}
 const faviconValue = ref<string | undefined>((props.currentBranding as any).favicon || undefined)
@@ -120,7 +119,11 @@ const { data, loading, handleSubmit } = useForm({
   },
 })
 
-watch(faviconValue, newValue => {
-  (data as any).favicon = newValue || null
-})
+watch(
+  faviconValue,
+  newValue => {
+    (data as any).favicon = newValue || null
+  },
+  { immediate: true },
+)
 </script>

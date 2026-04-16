@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Facades\License;
 use App\Models\Setting;
 use App\Values\Branding;
 use Illuminate\Container\Attributes\Config;
@@ -18,9 +17,13 @@ class SettingService
 
     public function getBranding(): Branding
     {
-        return License::isPlus()
-            ? Branding::fromArray(Arr::wrap(Setting::get('branding')))
-            : Branding::make(name: config('app.name'));
+        $stored = Setting::get('branding');
+
+        if (is_array($stored) && $stored !== []) {
+            return Branding::fromArray($stored);
+        }
+
+        return Branding::make(name: config('app.name'));
     }
 
     public function updateMediaPath(string $path): string

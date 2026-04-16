@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Services\SettingService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -22,5 +23,10 @@ class BrandingSettingTest extends TestCase
             ],
             create_admin(),
         )->assertNoContent();
+
+        $branding = app(SettingService::class)->getBranding();
+        self::assertSame('Little Bird', $branding->name);
+        self::assertNotNull($branding->logo);
+        self::assertNotNull($branding->cover);
     }
 }
