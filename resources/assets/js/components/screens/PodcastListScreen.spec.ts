@@ -1,8 +1,18 @@
 import { screen, waitFor } from '@testing-library/vue'
-import { describe, expect, it } from 'vite-plus/test'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { createHarness } from '@/__tests__/TestHarness'
+import { assertOpenModal } from '@/__tests__/assertions'
 import { podcastStore } from '@/stores/podcastStore'
+import AddPodcastForm from '@/components/podcast/AddPodcastForm.vue'
 import Component from './PodcastListScreen.vue'
+
+const openModalMock = vi.fn()
+
+vi.mock('@/composables/useModal', () => ({
+  useModal: () => ({
+    openModal: openModalMock,
+  }),
+}))
 
 describe('podcastListScreen.vue', () => {
   const h = createHarness()
@@ -70,5 +80,14 @@ describe('podcastListScreen.vue', () => {
       const emptyState = screen.getByTestId('screen-empty-state')
       expect(emptyState.textContent).toContain('No favorite podcasts')
     })
+  })
+
+  it('opens the add podcast form', async () => {
+    h.mock(podcastStore, 'fetchAll')
+    await renderComponent()
+
+    await h.user.click(screen.getAllByRole('button').at(-1)!)
+
+    await assertOpenModal(openModalMock, AddPodcastForm)
   })
 })
