@@ -219,4 +219,11 @@ return [
         'demo' => env('KOEL_DEMO', false),
         'allow_anonymous' => env('KOEL_ALLOW_ANONYMOUS', false),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Force Plus for SSO/UI gates (does not replace a real license key)
+    |--------------------------------------------------------------------------
+    */
+    'force_plus_license' => env('FORCE_PLUS_LICENSE', false),
 ];

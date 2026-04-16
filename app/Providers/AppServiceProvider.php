@@ -15,6 +15,7 @@ use App\Services\Geolocation\Contracts\GeolocationService;
 use App\Services\Geolocation\IPinfoService;
 use App\Services\LastfmService;
 use App\Services\License\Contracts\LicenseServiceInterface;
+use App\Services\License\ForcedPlusLicenseService;
 use App\Services\LicenseService;
 use App\Services\MusicBrainzService;
 use App\Services\NullEncyclopedia;
@@ -71,7 +72,13 @@ class AppServiceProvider extends ServiceProvider
             return app(NullEncyclopedia::class);
         });
 
-        $this->app->bind(LicenseServiceInterface::class, LicenseService::class);
+        $this->app->bind(LicenseServiceInterface::class, static function ($app): LicenseServiceInterface {
+            if (config('koel.force_plus_license')) {
+                return new ForcedPlusLicenseService($app->make(LicenseService::class));
+            }
+
+            return $app->make(LicenseService::class);
+        });
 
         $this->app->bind(ScannerCacheStrategyContract::class, static function () {
             // Use a no-cache strategy for unit tests to ensure consistent results
