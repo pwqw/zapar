@@ -7,16 +7,16 @@
       <input
         ref="newFolderInput"
         v-model="inputName"
-        aria-label="New folder name"
+        :aria-label="$t('ui.tooltips.newFolderNameAria')"
         class="flex-1 min-w-0 text-base px-3.5 py-2 bg-transparent text-k-fg-input border-0 focus-visible:outline-none"
-        placeholder="Folder name"
+        :placeholder="$t('playlists.folder.name')"
         type="text"
         @keydown.enter.prevent="confirm"
         @keydown.esc.stop.prevent="cancel"
       />
       <button
         class="px-2.5 bg-k-fg-5 text-k-success hover:text-white border-l border-k-fg-10"
-        title="Create"
+        :title="$t('ui.tooltips.create')"
         type="button"
         @click="confirm"
       >
@@ -24,7 +24,7 @@
       </button>
       <button
         class="px-2.5 bg-k-fg-5 text-k-fg-60 hover:text-white border-l border-k-fg-10"
-        title="Cancel"
+        :title="$t('dialogs.cancel')"
         type="button"
         @click="cancel"
       >

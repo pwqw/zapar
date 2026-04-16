@@ -9,7 +9,7 @@
         <Icon :icon="faYoutube" />
       </template>
       YouTube videos will be played here.
-      <span class="secondary">Start a video playback from the right sidebar.</span>
+      <span class="secondary">{{ $t('emptyStates.youtubeEmpty') }}</span>
     </ScreenEmptyState>
 
     <div id="player" />

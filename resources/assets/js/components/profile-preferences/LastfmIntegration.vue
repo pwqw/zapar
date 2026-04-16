@@ -4,35 +4,35 @@
       <span class="mr-2 text-[var(--lastfm-color)]">
         <Icon :icon="faLastfm" />
       </span>
-      Last.fm Integration
+      {{ $t('integrations.lastfm.title') }}
     </h3>
 
     <div v-if="useLastfm" data-testid="lastfm-integrated">
       <p>
-        Last.fm integration is enabled.
+        {{ $t('integrations.lastfm.enabled') }}
         {{ appName }} will attempt to retrieve album and artist information from Last.fm.
       </p>
-      <p v-if="connected">It appears that you have connected your Last.fm account as well – Perfect!</p>
-      <p v-else>You can also connect your Last.fm account here.</p>
+      <p v-if="connected">{{ $t('integrations.lastfm.accountConnected') }}</p>
+      <p v-else>{{ $t('integrations.lastfm.canConnect') }}</p>
       <p>
         Connecting {{ appName }} and your Last.fm account enables such exciting features as
         <a href="https://www.last.fm/about/trackmymusic" rel="noopener" target="_blank">scrobbling</a>.
       </p>
       <div class="buttons mt-4 space-x-2">
         <Btn class="!bg-[var(--lastfm-color)]" @click.prevent="connect">{{ connected ? 'Reconnect' : 'Connect' }}</Btn>
-        <Btn v-if="connected" class="disconnect" gray @click.prevent="disconnect">Disconnect</Btn>
+        <Btn v-if="connected" class="disconnect" gray @click.prevent="disconnect">{{ $t('integrations.lastfm.disconnect') }}</Btn>
       </div>
     </div>
 
     <div v-else data-testid="lastfm-not-integrated">
       <p>
-        Last.fm integration is not enabled.
+        {{ $t('integrations.lastfm.notEnabled') }}
         <span v-if="currentUserCan.manageSettings()" data-testid="lastfm-admin-instruction">
-          Check
-          <a href="https://docs.koel.dev/service-integrations#last-fm" target="_blank">Documentation</a>
-          for integration instructions.
+          {{ $t('integrations.lastfm.checkDocumentation') }}
+          <a href="https://docs.koel.dev/service-integrations#last-fm" target="_blank">{{ $t('integrations.lastfm.documentation') }}</a>
+          {{ $t('integrations.lastfm.forInstructions') }}
         </span>
-        <span v-else data-testid="lastfm-user-instruction"> Try politely asking an administrator to enable it. </span>
+        <span v-else data-testid="lastfm-user-instruction"> {{ $t('integrations.lastfm.askAdministrator') }} </span>
       </p>
     </div>
   </section>

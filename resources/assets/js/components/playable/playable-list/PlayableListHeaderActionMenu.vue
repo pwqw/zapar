@@ -1,6 +1,6 @@
 <template>
   <article>
-    <button ref="button" class="w-full focus:text-k-highlight" title="Sort" @click.stop="trigger">
+    <button ref="button" class="w-full focus:text-k-highlight" :title="$t('songs.sort')" @click.stop="trigger">
       <Icon v-if="sortable" :icon="faSort" />
       <Icon v-else :icon="faEllipsis" />
     </button>

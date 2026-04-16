@@ -1,9 +1,9 @@
 <template>
   <span class="flex transition-opacity duration-200">
-    <button class="!rounded-l !border-r-0" title="Zoom out" type="button" @click.prevent="$emit('out')">
+    <button class="!rounded-l !border-r-0" :title="$t('ui.tooltips.zoomOut')" type="button" @click.prevent="$emit('out')">
       <Icon :icon="faSearchMinus" />
     </button>
-    <button class="!rounded-r" title="Zoom in" type="button" @click.prevent="$emit('in')">
+    <button class="!rounded-r" :title="$t('ui.tooltips.zoomIn')" type="button" @click.prevent="$emit('in')">
       <Icon :icon="faSearchPlus" />
     </button>
   </span>

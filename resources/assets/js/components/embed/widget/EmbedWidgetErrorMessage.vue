@@ -1,6 +1,6 @@
 <template>
   <section class="h-screen flex flex-col items-center justify-center text-xl uppercase tracking-widest opacity-70">
-    Content not available
+    {{ $t('embed.widgetContentUnavailable') }}
   </section>
 </template>
 

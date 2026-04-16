@@ -1,16 +1,16 @@
 <template>
   <HomeScreenBlock>
     <template #header>
-      Something Random
+      {{ $t('ui.tooltips.somethingRandom') }}
       <Btn v-if="playables.length" class="float-right" transparent rounded small @click.prevent="refresh">
         <Icon :icon="faRotateRight" />
-        <span class="sr-only">Refresh</span>
+        <span class="sr-only">{{ $t('ui.buttons.refresh') }}</span>
       </Btn>
     </template>
     <PlayableCardGridSkeleton v-if="loading" class="-mx-6" />
     <template v-else>
       <PlayableCardGrid v-if="playables.length" :aria-busy="refreshing" class="-mx-6" :playables />
-      <p v-else>No songs available.</p>
+      <p v-else>{{ $t('screens.noSongsAvailable') }}</p>
     </template>
   </HomeScreenBlock>
 </template>

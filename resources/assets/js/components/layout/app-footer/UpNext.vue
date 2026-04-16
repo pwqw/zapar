@@ -4,7 +4,7 @@
       <img :src alt="Cover image" class="w-[96px] aspect-square object-cover" loading="lazy" />
     </span>
     <main class="px-5 py-4 min-w-80 max-w-96 flex flex-col justify-between overflow-hidden">
-      <h4 class="uppercase">Up Next</h4>
+      <h4 class="uppercase">{{ $t('ui.tooltips.upNext') }}</h4>
       <p class="text-k-fg text-xl overflow-hidden whitespace-nowrap overflow-ellipsis">
         {{ playable.title }}
       </p>

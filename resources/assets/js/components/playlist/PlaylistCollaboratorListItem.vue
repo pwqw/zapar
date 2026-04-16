@@ -11,15 +11,15 @@
         v-if="collaborator.id === currentUser.id"
         :icon="faCircleCheck"
         class="text-k-highlight ml-1"
-        title="This is you!"
+        :title="$t('ui.tooltips.isYou')"
       />
     </span>
     <span class="role text-right flex-[0_0_104px] uppercase">
-      <span v-if="role === 'owner'" class="owner">Owner</span>
-      <span v-else class="contributor">Contributor</span>
+      <span v-if="role === 'owner'" class="owner">{{ $t('playlists.collaboratorOwner') }}</span>
+      <span v-else class="contributor">{{ $t('playlists.collaboratorContributor') }}</span>
     </span>
     <span v-if="manageable" class="actions flex-[0_0_72px] text-right">
-      <Btn v-if="removable" danger small @click.prevent="emit('remove')">Remove</Btn>
+      <Btn v-if="removable" danger small @click.prevent="emit('remove')">{{ $t('ui.buttons.remove') }}</Btn>
     </span>
   </li>
 </template>

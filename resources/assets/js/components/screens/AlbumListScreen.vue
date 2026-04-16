@@ -2,7 +2,7 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed" :disabled="loading">
-        Albums
+        {{ $t('screens.albums') }}
         <template #controls>
           <div class="flex gap-2">
             <Btn
@@ -34,7 +34,7 @@
       <template #icon>
         <Icon :icon="faCompactDisc" />
       </template>
-      No albums found.
+      {{ $t('emptyStates.albumsNotFound') }}
       <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
     </ScreenEmptyState>
 
@@ -42,7 +42,7 @@
       <template #icon>
         <Icon :icon="faCompactDisc" />
       </template>
-      No favorite albums.
+      {{ $t('screens.noAlbumsFound') }}
     </ScreenEmptyState>
 
     <template v-else>

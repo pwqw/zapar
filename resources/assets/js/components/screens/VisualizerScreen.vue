@@ -22,7 +22,7 @@
 
       <div class="absolute bottom-8 right-8 border border-white/30 rounded-md">
         <SelectBox v-model="selectedId" class="!bg-black/20 !text-white block">
-          <option disabled value="-1">Pick a visualizer</option>
+          <option disabled value="-1">{{ $t('ui.tooltips.pickVisualizer') }}</option>
           <option v-for="v in visualizers" :key="v.id" :value="v.id">{{ v.name }}</option>
         </SelectBox>
       </div>

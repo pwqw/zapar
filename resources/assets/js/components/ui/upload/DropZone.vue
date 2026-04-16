@@ -9,7 +9,7 @@
     >
       <div class="pointer-events-none flex flex-col items-center justify-center gap-4">
         <Icon :icon="faUpload" size="6x" />
-        <h3 class="text-3xl font-extralight">Drop to upload</h3>
+        <h3 class="text-3xl font-extralight">{{ $t('content.upload.dropToUpload') }}</h3>
       </div>
     </div>
   </OnClickOutside>

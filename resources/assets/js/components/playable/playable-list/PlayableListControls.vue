@@ -24,7 +24,7 @@
             @click.prevent="playSelected"
           >
             <Icon :icon="faPlay" fixed-width />
-            Selected
+            {{ $t('ui.buttons.selected') }}
           </Btn>
         </template>
 
@@ -52,7 +52,7 @@
             @click.prevent="shuffleSelected"
           >
             <Icon :icon="faRandom" fixed-width />
-            Selected
+            {{ $t('ui.buttons.selected') }}
           </Btn>
         </template>
 
@@ -60,11 +60,11 @@
           {{ showingAddToMenu ? 'Cancel' : 'Add To…' }}
         </Btn>
 
-        <Btn v-if="config.clearQueue" danger title="Clear current queue" @click.prevent="clearQueue">Clear</Btn>
+        <Btn v-if="config.clearQueue" danger title="Clear current queue" @click.prevent="clearQueue">{{ $t('ui.buttons.clear') }}</Btn>
       </BtnGroup>
 
       <BtnGroup v-if="config.refresh">
-        <Btn v-if="config.refresh" v-koel-tooltip success title="Refresh" @click.prevent="refresh">
+        <Btn v-if="config.refresh" v-koel-tooltip success :title="$t('ui.buttons.refresh')" @click.prevent="refresh">
           <Icon :icon="faRotateRight" fixed-width />
         </Btn>
       </BtnGroup>

@@ -6,7 +6,7 @@
           <span class="font-thin">Genre:</span>
           {{ genre.name }}
         </template>
-        <span v-else class="font-thin italic">No Genre</span>
+        <span v-else class="font-thin italic">{{ $t('emptyStates.noGenre') }}</span>
 
         <template #thumbnail>
           <ThumbnailStack :thumbnails />
@@ -21,7 +21,7 @@
           <SongListControls :config @play-all="playAll" @play-selected="playSelected">
             <Btn gray @click="requestContextMenu">
               <Icon :icon="faEllipsis" fixed-width />
-              <span class="sr-only">More Actions</span>
+              <span class="sr-only">{{ $t('misc.moreActions') }}</span>
             </Btn>
           </SongListControls>
         </template>
@@ -45,7 +45,7 @@
         <GuitarIcon :size="96" />
       </template>
 
-      No songs in this genre.
+      {{ $t('emptyStates.noSongsInGenre') }}
     </ScreenEmptyState>
   </ScreenBase>
 </template>

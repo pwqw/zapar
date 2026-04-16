@@ -1,7 +1,7 @@
 <template>
   <form class="md:w-[560px]" @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>Edit Smart Playlist</h1>
+      <h1>{{ $t('smartPlaylists.edit') }}</h1>
     </header>
 
     <main class="space-y-5">
@@ -13,7 +13,7 @@
             aria-controls="createSmartPlaylistDetails"
             @click="activateTab('details')"
           >
-            Details
+            {{ $t('smartPlaylists.details') }}
           </TabButton>
           <TabButton
             id="createSmartPlaylistTabRules"
@@ -21,7 +21,7 @@
             aria-controls="createSmartPlaylistRules"
             @click="activateTab('rules')"
           >
-            Rules
+            {{ $t('smartPlaylists.rules') }}
           </TabButton>
         </TabList>
 
@@ -34,18 +34,18 @@
           >
             <div class="grid grid-cols-2 gap-4">
               <FormRow>
-                <template #label>Name *</template>
-                <TextInput v-model="data.name" v-koel-focus name="name" placeholder="Playlist name" required />
+                <template #label>{{ $t('smartPlaylists.nameRequired') }}</template>
+                <TextInput v-model="data.name" v-koel-focus name="name" :placeholder="$t('playlists.playlistName')" required />
               </FormRow>
               <FormRow>
-                <template #label>Folder</template>
+                <template #label>{{ $t('smartPlaylists.folder') }}</template>
                 <FolderSelect v-model:folder-id="data.folder_id" v-model:folder-name="data.folder_name" />
               </FormRow>
               <FormRow class="col-span-2">
-                <template #label>Description</template>
+                <template #label>{{ $t('screens.description') }}</template>
                 <TextArea v-model="data.description" class="h-28" name="description" />
               </FormRow>
-              <ArtworkField v-model="data.cover">Pick or paste a cover (optional)</ArtworkField>
+              <ArtworkField v-model="data.cover">{{ $t('playlists.pickOrPasteCover') }}</ArtworkField>
             </div>
           </TabPanel>
 
@@ -63,9 +63,9 @@
                 :is-first-group="index === 0"
                 @input="onGroupChanged"
               />
-              <Btn class="btn-add-group" small success title="Add a new group" uppercase @click.prevent="addGroup">
+              <Btn class="btn-add-group" small success :title="$t('smartPlaylists.addNewGroup')" uppercase @click.prevent="addGroup">
                 <Icon :icon="faPlus" />
-                Group
+                {{ $t('smartPlaylists.group') }}
               </Btn>
             </div>
           </TabPanel>
@@ -74,8 +74,8 @@
     </main>
 
     <footer>
-      <Btn type="submit">Save</Btn>
-      <Btn class="btn-cancel" white @click.prevent="maybeClose">Cancel</Btn>
+      <Btn type="submit">{{ $t('ui.buttons.save') }}</Btn>
+      <Btn class="btn-cancel" white @click.prevent="maybeClose">{{ $t('dialogs.cancel') }}</Btn>
     </footer>
   </form>
 </template>

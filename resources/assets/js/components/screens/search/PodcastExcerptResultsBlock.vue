@@ -1,6 +1,6 @@
 <template>
   <ExcerptResultBlock>
-    <template #header>Podcasts</template>
+    <template #header>{{ $t('screens.podcasts') }}</template>
 
     <ul v-if="searching" class="results">
       <li v-for="i in 6" :key="i">

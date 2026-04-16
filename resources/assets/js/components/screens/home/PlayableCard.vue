@@ -18,14 +18,14 @@
           :icon="faSpinner"
           class="!opacity-50"
           spin
-          title="Caching for offline playback"
-          aria-label="Caching for offline playback"
+          :title="$t('ui.tooltips.cachingOffline')"
+          :aria-label="$t('ui.tooltips.cachingOffline')"
         />
         <Icon
           v-else-if="cachingFailed"
           :icon="faExclamationTriangle"
           class="text-k-danger !opacity-75"
-          :title="`Error: ${cachingErrorMessage}`"
+          :title="`${$t('misc.error')}: ${cachingErrorMessage}`"
         />
         <OfflineMark v-else-if="cachedOffline" />
         <span class="truncate">{{ playable.title }}</span>

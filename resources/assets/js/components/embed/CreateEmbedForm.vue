@@ -28,12 +28,12 @@
     </main>
     <footer class="flex items-center">
       <div class="flex-1">
-        <Btn primary type="submit" @click.prevent="copyCode">Copy Code</Btn>
-        <Btn white @click="emit('close')">Close</Btn>
+        <Btn primary type="submit" @click.prevent="copyCode">{{ $t('embeds.copyCode') }}</Btn>
+        <Btn white @click="emit('close')">{{ $t('dialogs.cancel') }}</Btn>
       </div>
       <label>
         <CheckBox v-model="showCode" />
-        Show code
+        {{ $t('embeds.showCode') }}
       </label>
     </footer>
   </article>

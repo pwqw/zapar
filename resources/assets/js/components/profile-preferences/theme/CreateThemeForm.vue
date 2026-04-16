@@ -7,32 +7,32 @@
     @keydown.esc="maybeClose"
   >
     <header>
-      <h1>New Theme</h1>
+      <h1>{{ $t('preferences.theme.create') }}</h1>
     </header>
 
     <main>
       <div class="grid grid-cols-[max-content_1fr] gap-x-5 gap-y-5">
         <label for="themeName">Name</label>
-        <TextInput id="themeName" v-model="data.name" v-koel-focus placeholder="My Fancy Theme" required title="Name" />
+        <TextInput id="themeName" v-model="data.name" v-koel-focus :placeholder="$t('preferences.theme.myTheme')" required title="Name" />
 
-        <label>Colors</label>
+        <label>{{ $t('preferences.theme.colors') }}</label>
         <div>
           <div class="inline-grid grid-cols-3 gap-4 items-center">
-            <ColorPicker v-model="data.fg_color" title="Foreground color">
+            <ColorPicker v-model="data.fg_color" :title="$t('preferences.theme.foregroundColor')">
               <Icon :icon="faFont" size="lg" />
             </ColorPicker>
 
-            <ColorPicker v-model="data.bg_color" title="Background color">
+            <ColorPicker v-model="data.bg_color" :title="$t('preferences.theme.backgroundColor')">
               <Icon :icon="faFillDrip" size="lg" />
             </ColorPicker>
 
-            <ColorPicker v-model="data.highlight_color" title="Highlight color">
+            <ColorPicker v-model="data.highlight_color" :title="$t('preferences.theme.highlightColor')">
               <Icon :icon="faHighlighter" size="lg" />
             </ColorPicker>
           </div>
         </div>
 
-        <label for="themeBgImage">Background image</label>
+        <label for="themeBgImage">{{ $t('preferences.theme.backgroundImage') }}</label>
         <div class="inline-flex flex-col gap-2">
           <span
             v-if="data.bg_image"
@@ -47,22 +47,22 @@
               Remove
             </button>
           </span>
-          <FileInput aria-label="Background image" accept="image/*" @change="onBackgroundImageChange" />
+          <FileInput :aria-label="$t('preferences.theme.backgroundImage')" accept="image/*" @change="onBackgroundImageChange" />
         </div>
 
-        <label>Font</label>
+        <label>{{ $t('preferences.theme.font') }}</label>
         <div class="flex gap-2">
-          <SelectBox v-model="data.font_family" aria-label="Font family" @click="onFontSelectBoxClick">
-            <option value="">Default</option>
+          <SelectBox v-model="data.font_family" :aria-label="$t('preferences.theme.fontFamily')" @click="onFontSelectBoxClick">
+            <option value="">{{ $t('preferences.theme.default') }}</option>
             <option v-for="name in availableFonts" :key="name" :value="name">{{ name }}</option>
           </SelectBox>
           <TextInput
             v-model="data.font_size"
-            aria-label="Font size"
+            :aria-label="$t('preferences.theme.fontSize')"
             class="!w-20"
             min="1"
             step="0.5"
-            title="Font size"
+            :title="$t('preferences.theme.fontSize')"
             type="number"
           />
         </div>
@@ -70,9 +70,9 @@
     </main>
 
     <footer>
-      <Btn type="submit">Save</Btn>
-      <Btn bordered transparent @click.prevent="previewing = true">Preview</Btn>
-      <Btn transparent @click.prevent="maybeClose">Cancel</Btn>
+      <Btn type="submit">{{ $t('ui.buttons.save') }}</Btn>
+      <Btn bordered transparent @click.prevent="previewing = true">{{ $t('embed.previewBadge') }}</Btn>
+      <Btn transparent @click.prevent="maybeClose">{{ $t('dialogs.cancel') }}</Btn>
     </footer>
 
     <Btn v-if="previewing" class="btn-exit-preview fixed right-4 top-3" @click.prevent="previewing = false">

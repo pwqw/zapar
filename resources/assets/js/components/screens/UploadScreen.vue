@@ -2,17 +2,16 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed">
-        Upload Media
-
+        {{ $t('screens.upload') }}
         <template #controls>
           <BtnGroup v-if="hasUploadFailures" uppercase>
             <Btn data-testid="upload-retry-all-btn" success @click="retryAll">
               <Icon :icon="faRotateRight" />
-              Retry All
+              {{ $t('screens.retryAll') }}
             </Btn>
             <Btn data-testid="upload-remove-all-btn" highlight @click="removeFailedEntries">
               <Icon :icon="faTrashCan" />
-              Remove Failed
+              {{ $t('screens.removeFailed') }}
             </Btn>
           </BtnGroup>
         </template>
@@ -61,7 +60,7 @@
       <template #icon>
         <Icon :icon="faWarning" />
       </template>
-      No media path set.
+      {{ $t('screens.noMediaPath') }}
     </ScreenEmptyState>
   </ScreenBase>
 </template>

@@ -52,7 +52,7 @@
         <template #icon>
           <Icon :icon="faCloudArrowDown" fixed-width />
         </template>
-        Available Offline
+        {{ $t('sidebar.availableOffline') }}
       </SidebarItem>
       <MediaBrowserMenuItem v-if="usesMediaBrowser" :active="isCurrentScreen('MediaBrowser')" />
     </ul>

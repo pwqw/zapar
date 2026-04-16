@@ -1,9 +1,6 @@
 <template>
   <div>
-    <h4
-      v-if="isSong(playable) && showDisc && playable.disc"
-      class="title text-k-fg !flex gap-2 p-2 uppercase pl-5"
-    >
+    <h4 v-if="isSong(playable) && showDisc && playable.disc" class="title text-k-fg !flex gap-2 p-2 uppercase pl-5">
       Disc {{ playable.disc }}
     </h4>
 
@@ -24,15 +21,15 @@
       <span class="thumbnail leading-none">
         <PlayableThumbnail :playable @clicked="play" />
       </span>
-      <span class="title-artist flex flex-col gap-2 overflow-hidden">
+      <span class="title-artist flex flex-col gap-1 overflow-hidden">
         <span class="title text-k-fg !flex gap-2 items-center">
           <Icon
             v-if="cachingOffline"
             :icon="faSpinner"
             class="!opacity-50"
             spin
-            title="Caching for offline playback"
-            aria-label="Caching for offline playback"
+            :title="$t('ui.tooltips.cachingOffline')"
+            :aria-label="$t('ui.tooltips.cachingOffline')"
           />
           <Icon
             v-else-if="cachingFailed"
@@ -45,7 +42,7 @@
           <PrivateBadge v-if="isSong(playable) && !playable.is_public" label="Privado" />
           <span class="flex-1">{{ playable.title }}</span>
         </span>
-        <span class="artist">{{ artist }}</span>
+        <span class="artist text-[0.9rem] text-k-fg-50">{{ artist }}</span>
       </span>
       <span v-if="shouldShowColumn('album')" class="album">{{ album }}</span>
       <template v-if="config.collaborative && isSong(playable) && playable.collaboration">
@@ -60,7 +57,9 @@
         <span v-if="shouldShowColumn('genre')" class="genre">{{ playable.genre || '—' }}</span>
         <span v-if="shouldShowColumn('year')" class="year">{{ playable.year || '—' }}</span>
       </template>
-      <span v-if="shouldShowColumn('duration')" class="time font-mono">{{ fmtLength }}</span>
+      <span v-if="shouldShowColumn('duration')" class="time text-[0.9rem] text-k-fg-50 tabular-nums">
+        {{ fmtLength }}
+      </span>
       <span class="extra">
         <FavoriteButton :favorite="playable.favorite" @toggle="toggleFavorite" />
       </span>

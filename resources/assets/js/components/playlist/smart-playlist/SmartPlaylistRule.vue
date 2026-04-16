@@ -28,7 +28,7 @@
         danger
         rounded
         small
-        title="Remove this rule"
+        :title="$t('ui.tooltips.removeRule')"
         @click.prevent="removeRule"
       >
         <Icon :icon="faMinus" />

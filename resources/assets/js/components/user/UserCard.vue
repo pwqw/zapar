@@ -33,7 +33,7 @@
           :src="googleLogo"
           alt="Google"
           height="14"
-          title="Google SSO"
+          :title="$t('ui.tooltips.googleSso')"
           width="14"
         />
       </h3>

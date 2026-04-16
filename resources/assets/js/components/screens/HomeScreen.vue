@@ -8,7 +8,7 @@
       <template #icon>
         <Icon :icon="faVolumeOff" />
       </template>
-      No songs found.
+      {{ $t('screens.home.noSongs') }}
       <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
     </ScreenEmptyState>
 

@@ -1,18 +1,18 @@
 <template>
   <form class="md:w-[420px] min-w-full" @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>New Playlist Folder</h1>
+      <h1>{{ $t('playlists.folder.new') }}</h1>
     </header>
 
     <main>
       <FormRow>
-        <TextInput v-model="data.name" v-koel-focus name="name" placeholder="Folder name" required />
+        <TextInput v-model="data.name" v-koel-focus name="name" :placeholder="$t('playlists.folder.name')" required />
       </FormRow>
     </main>
 
     <footer>
-      <Btn type="submit">Save</Btn>
-      <Btn white @click.prevent="maybeClose">Cancel</Btn>
+      <Btn type="submit">{{ $t('ui.buttons.save') }}</Btn>
+      <Btn white @click.prevent="maybeClose">{{ $t('dialogs.cancel') }}</Btn>
     </footer>
   </form>
 </template>

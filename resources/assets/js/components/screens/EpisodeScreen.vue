@@ -3,7 +3,7 @@
     <template #header>
       <ScreenHeaderSkeleton v-if="loading && !episode" />
       <ScreenHeader v-if="episode">
-        <p class="text-base font-normal">Episode</p>
+        <p class="text-base font-normal">{{ $t('screens.episode') }}</p>
         <h1 class="overflow-hidden" :title="episode.title">
           <MarqueeText hover-only :speed="70">{{ episode.title }}</MarqueeText>
         </h1>
@@ -48,7 +48,7 @@
 
             <Btn gray @click="requestContextMenu">
               <Icon :icon="faEllipsis" fixed-width />
-              <span class="sr-only">More Actions</span>
+              <span class="sr-only">{{ $t('misc.moreActions') }}</span>
             </Btn>
           </div>
         </template>
@@ -56,7 +56,7 @@
     </template>
 
     <div v-if="episode">
-      <h3 class="text-3xl font-semibold mb-4">Description</h3>
+      <h3 class="text-3xl font-semibold mb-4">{{ $t('screens.description') }}</h3>
       <div v-koel-new-tab class="description" v-html="formattedDescription" />
     </div>
   </ScreenBase>

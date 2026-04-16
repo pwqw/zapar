@@ -4,7 +4,7 @@
     @click.prevent="showPlusModal"
   >
     <Icon :icon="faPlus" fixed-width />
-    Upgrade to Plus
+    {{ $t('koelPlus.upgrade') }}
   </Btn>
 </template>
 

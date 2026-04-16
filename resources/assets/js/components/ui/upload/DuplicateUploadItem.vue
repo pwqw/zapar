@@ -8,8 +8,8 @@
         Uploaded {{ new Date(upload.created_at).toLocaleDateString() }}
       </span>
     </span>
-    <Btn small bordered highlight @click="confirmDiscard">Discard</Btn>
-    <Btn small bordered success @click="keep">Keep</Btn>
+    <Btn small bordered highlight @click="confirmDiscard">{{ $t('ui.buttons.delete') }}</Btn>
+    <Btn small bordered success @click="keep">{{ $t('ui.buttons.apply') }}</Btn>
   </div>
 </template>
 

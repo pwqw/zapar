@@ -4,7 +4,7 @@
     <header class="flex-shrink-0 h-k-header-height bg-k-bg-secondary border-b border-k-border flex items-center px-6 gap-4">
       <button
         v-if="!loading"
-        title="Back"
+        :title="$t('auth.back')"
         class="back-button flex items-center justify-center w-10 h-10 rounded-full hover:bg-k-bg-hover transition-colors"
         @click="goBack"
       >

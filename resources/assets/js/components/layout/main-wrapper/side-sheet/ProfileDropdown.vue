@@ -15,13 +15,13 @@
 
     <ul v-if="open" v-koel-focus class="context-menu" tabindex="0" @keydown.esc="open = false">
       <ContextMenuItem data-testid="profile-preferences-link" @click="goToProfile"
-        >Profile & Preferences</ContextMenuItem
+        >{{ $t('screens.profileAndPreferences') }}</ContextMenuItem
       >
       <li class="separator" />
-      <ContextMenuItem data-testid="logout-btn" @click="logout">Log Out</ContextMenuItem>
+      <ContextMenuItem data-testid="logout-btn" @click="logout">{{ $t('misc.logOut') }}</ContextMenuItem>
       <li class="separator" />
       <ContextMenuItem data-testid="about-btn" @click="openAbout">
-        {{ shouldNotifyNewVersion ? 'New version available!' : `About ${appName}` }}
+        {{ shouldNotifyNewVersion ? $t('meta.newVersionAvailable') : $t('meta.about', { app: appName }) }}
       </ContextMenuItem>
     </ul>
   </div>

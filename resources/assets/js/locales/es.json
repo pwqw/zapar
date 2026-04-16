@@ -144,7 +144,8 @@
       "deleteConfirm": "¿Eliminar la carpeta de lista de reproducción \"{name}\"?",
       "deleted": "Carpeta de lista de reproducción \"{name}\" eliminada.",
       "discardChanges": "¿Descartar todos los cambios?"
-    }
+    },
+    "pickOrPasteCover": "Elegir o pegar una portada (opcional)"
   },
   "smartPlaylists": {
     "new": "Nueva lista inteligente",
@@ -157,7 +158,8 @@
     "pickCover": "Elegir portada (opcional)",
     "playlistName": "Nombre de la lista de reproducción",
     "addNewGroup": "Agregar un nuevo grupo",
-    "group": "Grupo"
+    "group": "Grupo",
+    "nameRequired": "Nombre *"
   },
   "podcasts": {
     "new": "Nuevo Podcast",
@@ -343,6 +345,7 @@
     "passwordRequirements": "Mín. 10 caracteres. Debe ser una mezcla de letras, números y símbolos.",
     "demoNotice": "Los cambios no se guardarán en la versión de demostración.",
     "makeUploadedPublic": "Hacer que las canciones subidas sean públicas por defecto",
+    "detectDuplicates": "Detectar y marcar subidas de archivos duplicados",
     "showOthersPublicMedia": "Mostrar canciones, álbumes, artistas y estaciones de radio públicos de otros usuarios en tu biblioteca (requiere recarga)",
     "continuousPlayback": "Reproducción Continua",
     "continuousPlaybackDescription": "Reproducir una canción o episodio activa la reproducción continua de toda la {types}",
@@ -371,6 +374,14 @@
       "cancel": "Cancelar",
       "exitPreview": "Salir de vista previa",
       "created": "Tema creado."
+    },
+    "mediaType": {
+      "playlist": "lista",
+      "album": "album",
+      "artist": "artista",
+      "genre": "género",
+      "podcast": "podcast",
+      "folder": "carpeta"
     }
   },
   "settings": {
@@ -562,7 +573,8 @@
     "acceptCollaborationInvite": "La invitación de colaboración ha expirado o no es válida.",
     "invalidInvitation": "Invitación no válida o caducada.",
     "favorites": "Tus Favoritos",
-    "favoritesEmptyHint": "Haz clic en el icono de estrella para marcar una canción como favorita."
+    "favoritesEmptyHint": "Haz clic en el icono de estrella para marcar una canción como favorita.",
+    "offline": "Sin conexión"
   },
   "dialogs": {
     "cancel": "Cancelar",
@@ -654,7 +666,8 @@
       "viewAll": "Ver Todo",
       "downloadAll": "Descargar Todo",
       "addTo": "Añadir a…",
-      "readMore": "Leer más"
+      "readMore": "Leer más",
+      "add": "Agregar"
     },
     "sorting": {
       "sortBy": "Ordenar por {label}",
@@ -1074,6 +1087,8 @@
       "pauseResume": "Reproducir/Pausar",
       "pausePlay": "Pausar",
       "visitEpisodeWebpage": "Visitar página web del episodio"
-    }
+    },
+    "off": "Desactivado",
+    "error": "Error"
   }
 }

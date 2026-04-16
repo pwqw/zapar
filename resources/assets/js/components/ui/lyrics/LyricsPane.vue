@@ -14,8 +14,8 @@
   </div>
   <p v-else class="px-6 py-8">
     <template v-if="userCanUpdateLyrics">
-      No lyrics found.
-      <a role="button" @click.prevent="showEditSongForm">Click here</a>
+      {{ $t('misc.noLyricsFound') }}
+      <a role="button" @click.prevent="showEditSongForm">{{ $t('misc.clickHere') }}</a>
       to add lyrics.
     </template>
     <span v-else>No lyrics available. Are you listening to Bach?</span>

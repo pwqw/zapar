@@ -12,7 +12,7 @@
           <FileMusicIcon class="hidden sm:block" :size="16" />
 
           <!-- on a mobile device, show a Play button for a better UX -->
-          <button class="sm:hidden py-px" title="Play" @click.prevent.stop="emit('play-song')">
+          <button class="sm:hidden py-px" :title="$t('ui.buttons.play')" @click.prevent.stop="emit('play-song')">
             <PlayCircleIcon :size="16" />
           </button>
         </template>
@@ -20,14 +20,14 @@
       <Icon v-else :icon="faFolder" class="text-k-fg" fixed-width />
       <span class="flex-1 truncate user-select-none">{{ label }}</span>
 
-      <!-- on a mobile device, show an Open button for a beter UX -->
+      <!-- on a mobile device, show an {{ $t('ui.buttons.open') }} button for a beter UX -->
       <button
         v-if="item.type === 'folders'"
         class="sm:hidden border border-k-fg-10 rounded px-1.5 py-px"
-        title="Open"
+        :title="$t('ui.buttons.open')"
         @click.prevent.stop="emit('open-folder')"
       >
-        Open
+        {{ $t('ui.buttons.open') }}
       </button>
     </div>
   </article>

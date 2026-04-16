@@ -1,12 +1,12 @@
 <template>
   <form novalidate @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>Invite Users</h1>
+      <h1>{{ $t('users.invite') }}</h1>
     </header>
 
     <main class="space-y-5">
       <FormRow>
-        <template #label>Emails</template>
+        <template #label>{{ $t('users.emails') }}</template>
         <TextArea
           ref="emailsEl"
           v-model="data.raw_emails"
@@ -14,16 +14,16 @@
           class="!min-h-[8rem]"
           name="emails"
           required
-          title="Emails"
+          :title="$t('users.emails')"
         />
-        <template #help>To invite multiple users, input one email per line.</template>
+        <template #help>{{ $t('users.inviteInstruction') }}</template>
       </FormRow>
       <RolePicker v-model="data.role" />
     </main>
 
     <footer>
-      <Btn class="btn-add" type="submit">Invite</Btn>
-      <Btn class="btn-cancel" white @click.prevent="maybeClose">Cancel</Btn>
+      <Btn class="btn-add" type="submit">{{ $t('users.inviteButton') }}</Btn>
+      <Btn class="btn-cancel" white @click.prevent="maybeClose">{{ $t('dialogs.cancel') }}</Btn>
     </footer>
   </form>
 </template>

@@ -5,7 +5,7 @@
         <span v-if="q"
           >Searching for <span class="font-thin">{{ q }}</span></span
         >
-        <span v-else>Search</span>
+        <span v-else>{{ $t('content.screening.search') }}</span>
       </ScreenHeader>
     </template>
 

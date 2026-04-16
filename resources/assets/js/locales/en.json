@@ -14,7 +14,9 @@
     "mySongs": "My Songs",
     "settings": "Settings",
     "upload": "Upload",
-    "users": "Users"
+    "users": "Users",
+    "mediaBrowser": "Media Browser",
+    "availableOffline": "Available Offline"
   },
   "ai": {
     "close": "Close"
@@ -54,6 +56,7 @@
   },
   "playlists": {
     "newPlaylist": "New Playlist",
+    "editPlaylistHeading": "Edit Playlist",
     "fromItems": "from {count} {item}",
     "name": "Name *",
     "playlistName": "Playlist name",
@@ -98,7 +101,8 @@
       "deleteConfirm": "Delete the playlist folder \"{name}\"?",
       "deleted": "Playlist folder \"{name}\" deleted.",
       "discardChanges": "Discard all changes?"
-    }
+    },
+    "pickOrPasteCover": "Pick or paste a cover (optional)"
   },
   "smartPlaylists": {
     "new": "New Programmable Playlist",
@@ -111,7 +115,8 @@
     "pickCover": "Pick a cover (optional)",
     "playlistName": "Playlist name",
     "addNewGroup": "Add a new group",
-    "group": "Group"
+    "group": "Group",
+    "nameRequired": "Name *"
   },
   "podcasts": {
     "new": "New Podcast",
@@ -296,6 +301,7 @@
     "passwordRequirements": "Min. 10 characters. Should be a mix of characters, numbers, and symbols.",
     "demoNotice": "Changes will not be saved in the demo version.",
     "makeUploadedPublic": "Make uploaded songs public by default",
+    "detectDuplicates": "Detect and flag duplicate file uploads",
     "showOthersPublicMedia": "Show other users' public songs, albums, artists, and radio stations in your library (reload required)",
     "continuousPlayback": "Continuous Playback",
     "continuousPlaybackDescription": "Playing a song or episode triggers continuous playback of the entire {types}",
@@ -323,6 +329,14 @@
       "preview": "Preview",
       "cancel": "Cancel",
       "exitPreview": "Exit preview"
+    },
+    "mediaType": {
+      "playlist": "playlist",
+      "album": "album",
+      "artist": "artist",
+      "genre": "genre",
+      "podcast": "podcast",
+      "folder": "folder"
     }
   },
   "settings": {
@@ -512,7 +526,8 @@
     "noSongPlaying": "No song is playing.",
     "acceptCollaborationInvite": "The collaboration invite has expired or is invalid.",
     "favorites": "Your Favorites",
-    "favoritesEmptyHint": "Click the star icon to mark a song as favorite."
+    "favoritesEmptyHint": "Click the star icon to mark a song as favorite.",
+    "offline": "Offline"
   },
   "dialogs": {
     "cancel": "Cancel",
@@ -522,6 +537,10 @@
     "offline": "You're offline.",
     "clickToDismiss": "Click to dismiss",
     "unknownError": "An unknown error occurred."
+  },
+  "embed": {
+    "widgetContentUnavailable": "Content not available",
+    "previewBadge": "Preview"
   },
   "embeds": {
     "embed": "Embed {type}",
@@ -542,6 +561,7 @@
     }
   },
   "koelPlus": {
+    "upgrade": "Upgrade to Plus",
     "enterLicenseKey": "Enter your license key",
     "activate": "Activate",
     "activationMessage": "Thanks for purchasing Koel Plus! Koel will now refresh to activate the changes.",
@@ -621,7 +641,8 @@
       "viewAll": "View All",
       "downloadAll": "Download All",
       "addTo": "Add To…",
-      "readMore": "Read More"
+      "readMore": "Read More",
+      "add": "Add"
     },
     "sorting": {
       "sortBy": "Sort by {label}",
@@ -692,9 +713,35 @@
       "playPause": "Play/Pause",
       "addNewGroup": "Add a new group",
       "createNewPlaylistOrFolder": "Create a new playlist or folder",
+      "upNext": "Up Next",
+      "storageUsage": "Storage Usage",
+      "offlineNotSupportedBrowser": "Offline playback is not supported in this browser.",
+      "crossfadeSongs": "Crossfade songs",
+      "newFolderNameAria": "New folder name",
+      "create": "Create",
+      "googleSso": "Google SSO",
+      "hiddenGems": "Hidden Gems",
+      "latestAlbums": "Latest Albums",
+      "newArtists": "New Artists",
+      "noNewArtists": "No new artists.",
+      "noSongsOffline": "No songs available offline.",
+      "noSongsRediscover": "No songs to rediscover.",
+      "pickVisualizer": "Pick a visualizer",
+      "placeholderEmptyState": "Placeholder text goes here.",
+      "somethingRandom": "Something Random",
+      "tryAgain": "Try again",
+      "failedLoadVideos": "Failed to load videos.",
+      "uploadCanceled": "Canceled.",
+      "uploadQueued": "Queued.",
+      "uploading": "Uploading",
+      "uploaded": "Uploaded.",
+      "abort": "Abort",
+      "youMightAlsoLike": "You Might Also Like",
       "community": "Community",
       "edition": "Edition",
-      "plusEdition": "Plus"
+      "plusEdition": "Plus",
+      "cachingOffline": "Caching for offline playback",
+      "viewBuyTickets": "View and buy tickets for this event"
     },
     "equalizer": {
       "preset": "Preset",
@@ -974,6 +1021,11 @@
       "pauseResume": "Play/Pause",
       "pausePlay": "Pause",
       "visitEpisodeWebpage": "Visit episode webpage"
-    }
+    },
+    "off": "Off",
+    "error": "Error"
+  },
+  "offline": {
+    "clearAll": "Clear all"
   }
 }

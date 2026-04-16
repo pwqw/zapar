@@ -4,11 +4,11 @@
       <MenuItem @click="edit">Edit…</MenuItem>
     </template>
     <template v-if="allowDelete">
-      <MenuItem v-if="user.is_prospect" @click="revokeInvite">Revoke Invitation</MenuItem>
-      <MenuItem v-else @click="destroy">Delete</MenuItem>
+      <MenuItem v-if="user.is_prospect" @click="revokeInvite">{{ $t('users.revokeInvitation') }}</MenuItem>
+      <MenuItem v-else @click="destroy">{{ $t('ui.buttons.delete') }}</MenuItem>
     </template>
     <MenuItem v-if="allowEdit === false && allowDelete === false" class="italic pointer-events-none">
-      No available actions
+      {{ $t('users.noAvailableActions') }}
     </MenuItem>
   </ul>
 </template>

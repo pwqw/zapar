@@ -3,7 +3,7 @@
     :href="url"
     class="rounded px-2 py-0 h-6 flex items-center itunes-gradient focus:itunes-gradient"
     target="_blank"
-    title="Preview and buy this song on Apple Music"
+    :title="$t('ui.tooltips.previewAppleMusic')"
   >
     <svg
       class="fill-white"

@@ -52,7 +52,7 @@
 
             <Btn gray @click="requestContextMenu">
               <Icon :icon="faEllipsis" fixed-width />
-              <span class="sr-only">More Actions</span>
+              <span class="sr-only">{{ $t('misc.moreActions') }}</span>
             </Btn>
           </div>
         </template>

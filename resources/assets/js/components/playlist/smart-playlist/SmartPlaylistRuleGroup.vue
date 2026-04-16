@@ -23,7 +23,7 @@
         rounded
         small
         success
-        title="Remove this rule"
+        :title="$t('ui.tooltips.removeRule')"
         @click.prevent="addRule"
       >
         <Icon :icon="faPlus" />

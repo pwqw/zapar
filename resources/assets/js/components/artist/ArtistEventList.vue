@@ -8,7 +8,7 @@
       <ul v-if="events?.length" class="space-y-4">
         <ArtistEventItem v-for="event in events" :key="event.id" :event />
       </ul>
-      <p>No upcoming events.</p>
+      <p>{{ $t('emptyStates.noUpcomingEvents') }}</p>
     </template>
   </section>
 </template>

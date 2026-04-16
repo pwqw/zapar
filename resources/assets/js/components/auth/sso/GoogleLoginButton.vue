@@ -1,11 +1,11 @@
 <template>
   <button
     class="opacity-50 hover:opacity-100"
-    title="Log in with Google"
+    :title="$t('auth.loginWithGoogle')"
     type="button"
     @click.prevent="loginWithGoogle"
   >
-    <img :src="googleLogo" alt="Google Logo" height="32" width="32" />
+    <img :src="googleLogo" :alt="$t('ui.altText.googleLogo')" height="32" width="32" />
   </button>
 </template>
 

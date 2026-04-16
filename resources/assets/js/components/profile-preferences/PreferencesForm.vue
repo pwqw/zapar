@@ -2,21 +2,19 @@
   <div class="space-y-4">
     <FormRow v-if="isPlus">
       <label class="pref-row">
-        <span>Make uploaded songs public by default</span>
+        <span>{{ $t('preferences.makeUploadedPublic') }}</span>
         <CheckBox v-model="preferences.make_uploads_public" name="make_uploads_public" />
       </label>
     </FormRow>
     <FormRow v-if="canUpload">
       <label class="pref-row">
-        <span>Detect and flag duplicate file uploads</span>
+        <span>{{ $t('preferences.detectDuplicates') }}</span>
         <CheckBox v-model="preferences.detect_duplicate_uploads" name="detect_duplicate_uploads" />
       </label>
     </FormRow>
     <FormRow v-if="isPlus">
       <label class="pref-row">
-        <span
-          >Show other users' public songs, albums, artists, and radio stations in your library (reload required)</span
-        >
+        <span>{{ $t('preferences.showOthersPublicMedia') }}</span>
         <CheckBox v-model="preferences.include_public_media" name="include_public_media" />
       </label>
     </FormRow>
@@ -28,20 +26,20 @@
     </FormRow>
     <FormRow v-if="onMobile">
       <label class="pref-row">
-        <span>Show "Now Playing" notification</span>
+        <span>{{ $t('preferences.showNowPlayingNotification') }}</span>
         <CheckBox v-model="preferences.show_now_playing_notification" name="notify" />
       </label>
     </FormRow>
     <FormRow v-if="!onMobile">
       <label class="pref-row">
-        <span>Confirm before closing Koel</span>
+        <span>{{ $t('preferences.confirmClosing') }}</span>
         <CheckBox v-model="preferences.confirm_before_closing" name="confirm_closing" />
       </label>
     </FormRow>
     <FormRow v-if="showTranscodingOption">
       <div class="pref-row">
         <span>
-          Convert and play media at
+          {{ $t('preferences.convertPlayMedia') }}
           <select
             v-model="preferences.transcode_quality"
             :disabled="!preferences.transcode_on_mobile"
@@ -51,7 +49,7 @@
               {{ quality }}
             </option>
           </select>
-          kbps on mobile
+          {{ $t('preferences.kbpsOnMobile') }}
         </span>
         <CheckBox
           v-model="preferences.transcode_on_mobile"
@@ -62,7 +60,7 @@
     </FormRow>
     <FormRow>
       <label class="pref-row">
-        <span>Show a translucent, blurred overlay of the current album's art</span>
+        <span>{{ $t('preferences.showAlbumArtOverlay') }}</span>
         <CheckBox v-model="preferences.show_album_art_overlay" name="show_album_art_overlay" />
       </label>
     </FormRow>
@@ -70,7 +68,7 @@
       <div class="pref-row">
         <span class="flex-1">
           <span class="flex items-center gap-3">
-            <label id="crossfade-label" for="crossfade-slider" class="shrink-0">Crossfade songs</label>
+            <label id="crossfade-label" for="crossfade-slider" class="shrink-0">{{ $t('ui.tooltips.crossfadeSongs') }}</label>
             <input
               id="crossfade-slider"
               v-model.number="preferences.crossfade_duration"
@@ -82,7 +80,7 @@
               class="crossfade-slider flex-1 min-w-32 max-w-96"
             />
             <span class="text-k-fg-50 shrink-0">
-              {{ crossfadeEnabled ? `${preferences.crossfade_duration}s` : 'Off' }}
+              {{ crossfadeEnabled ? `${preferences.crossfade_duration}s` : $t('misc.off') }}
             </span>
           </span>
         </span>
@@ -100,6 +98,7 @@
 <script lang="ts" setup>
 import isMobile from 'ismobilejs'
 import { computed, toRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { commonStore } from '@/stores/commonStore'
 import { preferenceStore as preferences } from '@/stores/preferenceStore'
 import { useKoelPlus } from '@/composables/useKoelPlus'
@@ -112,6 +111,7 @@ const onMobile = isMobile.any
 const { isPlus } = useKoelPlus()
 const { currentUserCan } = usePolicies()
 const canUpload = currentUserCan.uploadSongs()
+const { t } = useI18n()
 
 const showTranscodingOption = toRef(commonStore.state, 'supports_transcoding')
 
@@ -122,15 +122,21 @@ const toggleCrossfade = (enabled: boolean) => {
 }
 
 const continuousPlaybackLabel = computed(() => {
-  const types = ['playlist', 'album', 'artist', 'genre', 'podcast']
+  const types = [
+    t('preferences.mediaType.playlist'),
+    t('preferences.mediaType.album'),
+    t('preferences.mediaType.artist'),
+    t('preferences.mediaType.genre'),
+    t('preferences.mediaType.podcast'),
+  ]
 
   if (commonStore.state.uses_media_browser) {
-    types.push('folder')
+    types.push(t('preferences.mediaType.folder'))
   }
 
-  types[types.length - 1] = `or ${types[types.length - 1]}`
+  types[types.length - 1] = `${t('preferences.or')} ${types[types.length - 1]}`
 
-  return `Playing a song or episode triggers continuous playback of the entire ${types.join(', ')}`
+  return t('preferences.continuousPlaybackDescription', { types: types.join(', ') })
 })
 </script>
 

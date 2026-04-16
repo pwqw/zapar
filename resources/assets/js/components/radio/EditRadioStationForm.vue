@@ -1,39 +1,39 @@
 <template>
   <form class="md:w-[420px] min-w-full" @submit.prevent="handleSubmit" @keydown.esc="maybeClose">
     <header>
-      <h1>Edit Radio Station</h1>
+      <h1>{{ $t('radio.edit') }}</h1>
     </header>
 
     <main class="space-y-5">
       <FormRow>
         <template #label>Name</template>
-        <TextInput v-model="data.name" v-koel-focus name="name" placeholder="My Favorite Radio Station" required />
+        <TextInput v-model="data.name" v-koel-focus name="name" :placeholder="$t('radio.namePlaceholder')" required />
       </FormRow>
       <FormRow>
         <template #label>URL</template>
         <TextInput v-model="data.url" type="url" name="url" placeholder="https://radio.example.com/stream" required />
       </FormRow>
       <FormRow>
-        <template #label>Description</template>
+        <template #label>{{ $t('screens.description') }}</template>
         <TextArea
           v-model="data.description"
           name="description"
           class="max-h-24"
-          placeholder="A short description of the station"
+          :placeholder="$t('radio.descriptionPlaceholder')"
         />
       </FormRow>
       <ArtworkField v-model="data.logo">Pick or paste a logo (optional)</ArtworkField>
       <FormRow>
         <label>
           <CheckBox v-model="data.is_public" name="is_public" />
-          <span class="ml-2">Make this station public</span>
+          <span class="ml-2">{{ $t('radio.makePublic') }}</span>
         </label>
       </FormRow>
     </main>
 
     <footer>
-      <Btn type="submit">Save</Btn>
-      <Btn white @click.prevent="maybeClose">Cancel</Btn>
+      <Btn type="submit">{{ $t('ui.buttons.save') }}</Btn>
+      <Btn white @click.prevent="maybeClose">{{ $t('dialogs.cancel') }}</Btn>
     </footer>
   </form>
 </template>

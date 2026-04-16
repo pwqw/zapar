@@ -2,15 +2,15 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed">
-        Users
+        {{ $t('screens.users') }}
 
         <template #controls>
           <BtnGroup uppercase>
             <Btn success @click="showAddUserForm">
               <Icon :icon="faPlus" />
-              Add
+              {{ $t('ui.buttons.add') }}
             </Btn>
-            <Btn v-if="canInvite" highlight @click="showInviteUserForm">Invite</Btn>
+            <Btn v-if="canInvite" highlight @click="showInviteUserForm">{{ $t('users.inviteButton') }}</Btn>
           </BtnGroup>
         </template>
       </ScreenHeader>
@@ -28,7 +28,7 @@
         data-testid="prospects-heading"
       >
         <i class="invited-heading-decoration" />
-        <span class="px-4 py-1 relative">Invited</span>
+        <span class="px-4 py-1 relative">{{ $t('misc.invited') }}</span>
         <i class="invited-heading-decoration" />
       </h2>
 

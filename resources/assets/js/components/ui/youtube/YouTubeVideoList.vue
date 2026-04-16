@@ -13,8 +13,8 @@
     <div v-if="hasMore && !loading" ref="sentinelRef" class="h-px" />
 
     <p v-if="somethingWrong">
-      Failed to load videos.
-      <a href="#" @click.prevent="loadMore">Try again</a>
+      {{ $t('ui.tooltips.failedLoadVideos') }}
+      <a href="#" @click.prevent="loadMore">{{ $t('ui.tooltips.tryAgain') }}</a>
     </p>
   </div>
 </template>

@@ -1,12 +1,12 @@
 <template>
   <section>
-    <h4 v-if="isPlus" class="text-xl mb-5 text-k-fg">Built-in Themes</h4>
+    <h4 v-if="isPlus" class="text-xl mb-5 text-k-fg">{{ $t('content.theme.builtIn') }}</h4>
     <ThemeList :themes="builtInThemes" data-testid="built-in-themes" />
 
     <template v-if="isPlus">
-      <h4 class="text-xl mt-8 mb-5 text-k-fg">Custom Themes</h4>
+      <h4 class="text-xl mt-8 mb-5 text-k-fg">{{ $t('content.theme.custom') }}</h4>
       <ThemeList v-if="customThemes.length" :themes="customThemes" class="mb-4" data-testid="custom-themes" />
-      <Btn transparent bordered @click="requestCreateThemeForm">New Theme</Btn>
+      <Btn transparent bordered @click="requestCreateThemeForm">{{ $t('preferences.theme.create') }}</Btn>
     </template>
   </section>
 </template>

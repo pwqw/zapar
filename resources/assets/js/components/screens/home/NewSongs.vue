@@ -1,10 +1,10 @@
 <template>
   <HomeScreenBlock>
-    <template #header>New Songs</template>
+    <template #header>{{ $t('screens.newSongs') }}</template>
     <PlayableCardGridSkeleton v-if="loading" class="-mx-6" />
     <template v-else>
       <PlayableCardGrid v-if="playables.length" class="-mx-6" :playables />
-      <p v-else>No songs available.</p>
+      <p v-else>{{ $t('screens.noSongsAvailable') }}</p>
     </template>
   </HomeScreenBlock>
 </template>

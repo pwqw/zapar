@@ -2,7 +2,7 @@
   <ScreenBase>
     <template #header>
       <ScreenHeader layout="collapsed" :disabled="loading">
-        Artists
+        {{ $t('screens.artists') }}
         <template #controls>
           <div class="flex gap-2">
             <Btn
@@ -34,7 +34,7 @@
       <template #icon>
         <Icon :icon="faMicrophoneSlash" />
       </template>
-      No artists found.
+      {{ $t('emptyStates.artistsNotFound') }}
       <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
     </ScreenEmptyState>
 
@@ -42,7 +42,7 @@
       <template #icon>
         <Icon :icon="faMicrophoneSlash" />
       </template>
-      No favorite artists.
+      {{ $t('screens.noArtistsFound') }}
     </ScreenEmptyState>
 
     <template v-else>

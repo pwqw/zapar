@@ -4,19 +4,19 @@
     data-testid="forgot-password-form"
     @submit.prevent="handleSubmit"
   >
-    <h1 class="text-2xl mb-4">Forgot Password</h1>
+    <h1 class="text-2xl mb-4">{{ $t('auth.forgotPassword') }}</h1>
 
     <FormRow>
       <div class="flex flex-col gap-3 sm:flex-row sm:gap-0 sm:content-stretch">
         <TextInput
           v-model="data.email"
           class="flex-1 sm:rounded-l sm:rounded-r-none"
-          placeholder="Your email address"
+          :placeholder="$t('auth.yourEmailAddress')"
           required
           type="email"
         />
-        <Btn :disabled="loading" class="sm:rounded-l-none sm:rounded-r" type="submit">Reset Password</Btn>
-        <Btn :disabled="loading" transparent @click="cancel">Cancel</Btn>
+        <Btn :disabled="loading" class="sm:rounded-l-none sm:rounded-r" type="submit">{{ $t('auth.resetPassword') }}</Btn>
+        <Btn :disabled="loading" transparent @click="cancel">{{ $t('dialogs.cancel') }}</Btn>
       </div>
     </FormRow>
   </form>

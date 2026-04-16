@@ -1,9 +1,9 @@
 <template>
   <form @submit.prevent="confirmThenSave">
     <SettingGroup>
-      <template #title>Media Path</template>
+      <template #title>{{ $t('settings.mediaPath') }}</template>
       <p v-if="storageDriver !== 'local'">
-        Since you’re not using the local storage, there’s no need to set a media path.
+        {{ $t('settings.noLocalStorage') }}
       </p>
       <FormRow v-else>
         <template #help>
@@ -19,12 +19,12 @@
           aria-describedby="mediaPathHelp"
           class="md:w-2/3"
           name="media_path"
-          placeholder="/path/to/your/music"
+          :placeholder="$t('settings.mediaPathPlaceholder')"
         />
       </FormRow>
 
       <template #footer>
-        <Btn data-testid="submit" type="submit">Save &amp; Scan</Btn>
+        <Btn data-testid="submit" type="submit">{{ $t('settings.saveAndScan') }}</Btn>
       </template>
     </SettingGroup>
   </form>
@@ -32,6 +32,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { commonStore } from '@/stores/commonStore'
 import { settingStore } from '@/stores/settingStore'
 import { useRouter } from '@/composables/useRouter'
@@ -49,6 +50,7 @@ const { toastSuccess } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
 const { go, url } = useRouter()
 const { showOverlay, hideOverlay } = useOverlay()
+const { t } = useI18n()
 
 const storageDriver = ref(commonStore.state.storage_driver)
 const mediaPath = ref(settingStore.state.media_path)
@@ -68,11 +70,11 @@ const shouldWarn = computed(() => {
 })
 
 const save = async () => {
-  showOverlay({ message: 'Scanning…' })
+  showOverlay({ message: t('settings.scanning') })
 
   try {
     await settingStore.updateMediaPath(mediaPath.value!)
-    toastSuccess('Settings saved.')
+    toastSuccess(t('settings.saved'))
     // Make sure we're back to home first.
     go(url('home'), true)
   } catch (error: unknown) {
@@ -85,9 +87,8 @@ const save = async () => {
 const confirmThenSave = async () => {
   if (shouldWarn.value) {
     ;(await showConfirmDialog(
-      'Changing the media path will essentially remove all existing local data – songs, artists, \
-      albums, favorites, etc. Sure you want to proceed?',
-      'Confirm',
+      t('settings.changedMediaPath'),
+      t('settings.confirm'),
     )) && (await save())
   } else {
     await save()

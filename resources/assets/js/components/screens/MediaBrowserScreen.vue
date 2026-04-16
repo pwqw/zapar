@@ -7,7 +7,7 @@
         <template #meta>
           <div class="flex items-center gap-2 mt-2">
             <Breadcrumbs :path class="flex-1" />
-            <Btn transparent small title="Reload" @click.prevent="refresh">
+            <Btn transparent small :title="$t('misc.reload')" @click.prevent="refresh">
               <Icon :icon="faRotateRight" />
             </Btn>
           </div>
@@ -16,7 +16,7 @@
     </template>
 
     <ScreenEmptyState v-if="libraryEmpty">
-      No files found.
+      {{ $t('screens.noFilesFound') }}
       <span v-if="currentUserCan.manageSettings()" class="secondary block"> Have you set up your library yet? </span>
     </ScreenEmptyState>
 

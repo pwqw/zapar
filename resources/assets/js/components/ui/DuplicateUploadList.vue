@@ -16,8 +16,8 @@
       <DuplicateUploadItem v-for="upload in songs" :key="upload.id" :upload />
 
       <footer class="flex justify-end gap-2 px-4 py-3 bg-k-fg-3">
-        <Btn small highlight @click="confirmDiscardAll">Discard All</Btn>
-        <Btn small success @click="keepAll">Keep All</Btn>
+        <Btn small highlight @click="confirmDiscardAll">{{ $t('ui.buttons.clear') }}</Btn>
+        <Btn small success @click="keepAll">{{ $t('ui.buttons.all') }}</Btn>
       </footer>
     </section>
   </details>

@@ -1,16 +1,13 @@
 <template>
-  <section
-    id="mainContent"
-    class="flex-1 relative overflow-hidden flex flex-col"
-  >
+  <section id="mainContent" class="flex-1 relative overflow-hidden flex flex-col">
     <AnonymousSessionBanner />
 
     <div class="flex-1 overflow-hidden">
       <!--
-      Most of the views are render-expensive and have their own UI states (viewport/scroll position), e.g. the playable
-      lists), so we use v-show.
-      For those that don't need to maintain their own UI state, we use v-if to avoid rendering them when not needed.
-    -->
+        Most of the views are render-expensive and have their own UI states (viewport/scroll position), e.g. the playable
+        lists), so we use v-show.
+        For those that don't need to maintain their own UI state, we use v-if to avoid rendering them when not needed.
+      -->
       <VisualizerScreen v-if="screen === 'Visualizer'" />
       <ArtOverlay v-if="showArtOverlay" :album="(currentPlayingItem as Song).album_id" />
 
@@ -83,7 +80,9 @@ const QueueScreen = defineAsyncComponent(() => import('@/components/screens/Queu
 const RadioStationListScreen = defineAsyncComponent(() => import('@/components/screens/RadioStationListScreen.vue'))
 const RecentlyPlayedScreen = defineAsyncComponent(() => import('@/components/screens/RecentlyPlayedScreen.vue'))
 const SearchExcerptsScreen = defineAsyncComponent(() => import('@/components/screens/search/SearchExcerptsScreen.vue'))
-const SearchSongResultsScreen = defineAsyncComponent(() => import('@/components/screens/search/SearchPlayableResultsScreen.vue'))
+const SearchSongResultsScreen = defineAsyncComponent(
+  () => import('@/components/screens/search/SearchPlayableResultsScreen.vue'),
+)
 const SettingsScreen = defineAsyncComponent(() => import('@/components/screens/SettingsScreen.vue'))
 const UploadScreen = defineAsyncComponent(() => import('@/components/screens/UploadScreen.vue'))
 const UserListScreen = defineAsyncComponent(() => import('@/components/screens/UserListScreen.vue'))

@@ -4,23 +4,23 @@
       <span class="mr-2 text-[#1db954]">
         <img :src="musicbrainzLogo" alt="MusicBrainz Logo" height="20" width="20" />
       </span>
-      MusicBrainz Integration
+      {{ $t('integrations.musicbrainz.title') }}
     </h3>
 
     <div v-if="useMusicBrainz">
       <p>
-        MusicBrainz integration is enabled.
+        {{ $t('integrations.musicbrainz.enabled') }}
         {{ appName }} will attempt to retrieve album and artist information from MusicBrainz (and Wikipedia) when a song
         is played, if needed.
       </p>
     </div>
     <div v-else>
       <p>
-        MusicBrainz integration is not enabled.
+        {{ $t('integrations.musicbrainz.notEnabled') }}
         <span v-if="currentUserCan.manageSettings()" data-testid="spotify-admin-instruction">
-          Check
-          <a href="https://docs.koel.dev/service-integrations#musicbrainz-wikipedia" target="_blank">Documentation</a>
-          for integration instructions.
+          {{ $t('integrations.lastfm.checkDocumentation') }}
+          <a href="https://docs.koel.dev/service-integrations#musicbrainz-wikipedia" target="_blank">{{ $t('integrations.lastfm.documentation') }}</a>
+          {{ $t('integrations.lastfm.forInstructions') }}
         </span>
       </p>
     </div>

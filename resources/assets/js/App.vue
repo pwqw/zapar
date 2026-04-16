@@ -35,11 +35,18 @@
 <script lang="ts" setup>
 import { defineAsyncComponent } from '@/utils/helpers'
 import { computed, onMounted, provide, ref, shallowRef, watch } from 'vue'
-import { useOnline } from '@vueuse/core'
+import { useNetworkStatus } from '@/composables/useNetworkStatus'
 import { queueStore } from '@/stores/queueStore'
 import { authService } from '@/services/authService'
 import { radioStationStore } from '@/stores/radioStationStore'
-import { ContextMenuKey, CurrentStreamableKey, DialogBoxKey, MessageToasterKey, OverlayKey } from '@/config/symbols'
+import {
+  ContextMenuKey,
+  CurrentStreamableKey,
+  DialogBoxKey,
+  MessageToasterKey,
+  ModalKey,
+  OverlayKey,
+} from '@/config/symbols'
 import { useRouter } from '@/composables/useRouter'
 import type { Route } from '@/router'
 
@@ -74,7 +81,7 @@ const currentStreamable = ref<Streamable>()
 const showDropZone = ref(false)
 
 const { isCurrentScreen, resolveRoute, triggerNotFound, onRouteChanged } = useRouter()
-const online = useOnline()
+const { online } = useNetworkStatus()
 
 const authenticated = ref(false)
 const initialized = ref(false)
@@ -126,9 +133,7 @@ onMounted(() => {
   }
 })
 
-onRouteChanged(route => {
-  currentRoute.value = route
-})
+onRouteChanged(route => (currentRoute.value = route))
 
 const onDragOver = (e: DragEvent) => {
   showDropZone.value = Boolean(e.dataTransfer?.types.includes('Files')) && !isCurrentScreen('Upload')
@@ -169,16 +174,23 @@ provide(DialogBoxKey, dialog)
 provide(MessageToasterKey, toaster)
 provide(CurrentStreamableKey, currentStreamable)
 
-provide(ContextMenuKey, shallowRef({
+provide(
+  ContextMenuKey,
+  shallowRef({
+    component: null,
+    position: { top: 0, left: 0 },
+  }),
+)
+
+provide(ModalKey, shallowRef({
   component: null,
-  position: { top: 0, left: 0 },
 }))
 </script>
 
 <style lang="postcss">
 #dragGhost {
-  @apply inline-block py-2 pl-8 pr-3 rounded-md text-base fixed top-0 left-0 z-[-1] bg-k-bg
-  text-k-fg no-hover:hidden;
+  @apply hidden py-2 pl-8 pr-3 rounded-md text-base fixed bg-k-bg border border-k-fg-10
+  text-k-fg pointer-events-none z-50 whitespace-nowrap;
 }
 
 #copyArea {
