@@ -12,14 +12,14 @@
       </button>
 
       <h1 class="text-xl md:text-2xl font-thin md:font-bold text-k-text-primary flex-1 overflow-hidden whitespace-nowrap text-ellipsis">
-        {{ page?.title || 'Loading…' }}
+        {{ page?.title || $t('googleDoc.loadingTitle') }}
       </h1>
     </header>
 
     <!-- Main content -->
     <main class="flex-1 overflow-hidden relative">
       <div v-if="loading" class="flex items-center justify-center h-full">
-        <p class="text-k-text-secondary">Loading document…</p>
+        <p class="text-k-text-secondary">{{ $t('googleDoc.loadingDocument') }}</p>
       </div>
 
       <div v-else-if="error" class="flex items-center justify-center h-full">
@@ -42,9 +42,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from '@/composables/useRouter'
 import { type GoogleDocPage, settingStore } from '@/stores/settingStore'
 
+const { t } = useI18n()
 const { getRouteParam, go } = useRouter()
 
 const page = ref<GoogleDocPage | null>(null)
@@ -56,7 +58,7 @@ const slug = computed(() => getRouteParam('slug'))
 
 const loadPage = async () => {
   if (!slug.value) {
-    error.value = 'Slug is required'
+    error.value = t('googleDoc.slugRequired')
     loading.value = false
     return
   }
@@ -71,13 +73,13 @@ const loadPage = async () => {
       // embed_url should already include embedded=true from the database
       iframeSrc.value = page.value.embed_url
     } else {
-      error.value = 'Embed URL is not available'
+      error.value = t('googleDoc.embedUrlUnavailable')
       console.error('No embed_url in page:', page.value)
     }
   } catch (e: any) {
     error.value = e.response?.status === 404
-      ? 'Page not found'
-      : 'Failed to load document'
+      ? t('googleDoc.pageNotFound')
+      : t('googleDoc.failedToLoadDocument')
   } finally {
     loading.value = false
   }

@@ -1043,6 +1043,8 @@
     "error": "Error"
   },
   "offline": {
+    "removeOfflineVersions": "Remove Offline Versions",
+    "makeAvailableOffline": "Make Available Offline",
     "clearAll": "Clear all",
     "removeAllConfirm": "Remove all offline songs? This cannot be undone.",
     "allRemoved": "All offline songs have been removed."

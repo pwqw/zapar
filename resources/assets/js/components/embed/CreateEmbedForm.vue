@@ -1,7 +1,7 @@
 <template>
   <article class="w-[650px]" :class="(loading || encryptingOptions) && 'pointer-events-none opacity-70'">
     <header>
-      <h1>Embed {{ typeLabel }}</h1>
+      <h1>{{ $t('embeds.embed', { type: typeLabel }) }}</h1>
     </header>
     <main>
       <EmbedOptionsPanel v-model="options" class="mb-5" />
@@ -41,6 +41,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { embedService } from '@/stores/embedService'
 import { themeStore } from '@/stores/themeStore'
 import { useKoelPlus } from '@/composables/useKoelPlus'
@@ -58,6 +59,7 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 
 const { embeddable } = props
 
+const { t } = useI18n()
 const { isPlus } = useKoelPlus()
 const { toastSuccess } = useMessageToaster()
 const { handleHttpError } = useErrorHandler()
@@ -67,6 +69,13 @@ const embed = ref<Embed>()
 const showCode = ref(false)
 const loading = ref(false)
 const encryptedOptions = ref('')
+const typeKeyByEmbeddableType: Record<Embeddable['type'], string> = {
+  albums: 'album',
+  artists: 'artist',
+  playlists: 'playlist',
+  songs: 'song',
+  episodes: 'podcastEpisode',
+}
 
 const {
   data: options,
@@ -117,19 +126,19 @@ let typeLabel = ''
 
 switch (embeddable.type) {
   case 'albums':
-    typeLabel = 'Album'
+    typeLabel = t(`embeds.types.${typeKeyByEmbeddableType.albums}`)
     break
   case 'artists':
-    typeLabel = 'Artist'
+    typeLabel = t(`embeds.types.${typeKeyByEmbeddableType.artists}`)
     break
   case 'playlists':
-    typeLabel = 'Playlist'
+    typeLabel = t(`embeds.types.${typeKeyByEmbeddableType.playlists}`)
     break
   case 'songs':
-    typeLabel = 'Song'
+    typeLabel = t(`embeds.types.${typeKeyByEmbeddableType.songs}`)
     break
   case 'episodes':
-    typeLabel = 'Podcast Episode'
+    typeLabel = t(`embeds.types.${typeKeyByEmbeddableType.episodes}`)
     break
   default:
     throw new Error('Unknown embeddable type')
@@ -137,7 +146,7 @@ switch (embeddable.type) {
 
 const copyCode = async () => {
   await copyText(code.value)
-  toastSuccess('Code copied to clipboard.')
+  toastSuccess(t('embeds.codeCopied'))
 }
 
 const resolveEmbed = async () => {

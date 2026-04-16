@@ -114,7 +114,7 @@
     <template v-if="canToggleOffline">
       <Separator />
       <MenuItem @click="toggleOffline">
-        {{ allSelectedSongsCached ? 'Remove Offline Versions' : 'Make Available Offline' }}
+        {{ allSelectedSongsCached ? $t('offline.removeOfflineVersions') : $t('offline.makeAvailableOffline') }}
       </MenuItem>
     </template>
 
