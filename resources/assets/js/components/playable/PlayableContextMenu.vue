@@ -159,18 +159,23 @@ import { usePlaylistContentManagement } from '@/composables/usePlaylistContentMa
 import { usePlayableMenuMethods } from '@/composables/usePlayableMenuMethods'
 import { usePolicies } from '@/composables/usePolicies'
 import { useContextMenu } from '@/composables/useContextMenu'
+import { useModal } from '@/composables/useModal'
 import { useKoelPlus } from '@/composables/useKoelPlus'
 import { useOfflinePlayback } from '@/composables/useOfflinePlayback'
 import { playback } from '@/services/playbackManager'
+import { defineAsyncComponent } from '@/utils/helpers'
 
 const props = defineProps<{ playables: Playable[] }>()
 const { playables } = toRefs(props)
+
+const EditSongForm = defineAsyncComponent(() => import('@/components/playable/EditSongForm.vue'))
 
 const { t } = useI18n()
 const { toastSuccess, toastError, toastWarning } = useMessageToaster()
 const { showConfirmDialog } = useDialogBox()
 const { go, getRouteParam, isCurrentScreen, url } = useRouter()
 const { MenuItem, Separator, closeContextMenu, trigger } = useContextMenu()
+const { openModal } = useModal()
 const { removeFromPlaylist } = usePlaylistContentManagement()
 const { isPlus } = useKoelPlus()
 const { currentUserCan, allowDownload } = usePolicies()
@@ -331,7 +336,7 @@ const doPlayback = () => trigger(async () => {
 const openEditForm = () => trigger(() =>
   playables.value.length
   && contentType.value === 'songs'
-  && eventBus.emit('MODAL_SHOW_EDIT_SONG_FORM', playables.value as Song[]),
+  && openModal<'EDIT_SONG_FORM'>(EditSongForm, { songs: playables.value as Song[], initialTab: 'details' }),
 )
 
 const viewAlbum = (song: Song) => trigger(() => go(url('albums.show', { id: song.album_id })))

@@ -14,6 +14,7 @@ import { playableStore } from '@/stores/playableStore'
 import { DialogBoxStub, MessageToasterStub } from '@/__tests__/stubs'
 import Router from '@/router'
 import CreatePlaylistForm from '@/components/playlist/CreatePlaylistForm.vue'
+import EditSongForm from '@/components/playable/EditSongForm.vue'
 
 const openModalMock = vi.fn()
 
@@ -309,12 +310,10 @@ describe('playableContextMenu.vue', () => {
   it('allows edit songs if current user is admin', async () => {
     h.actingAsAdmin()
     const { playables } = await renderComponent()
-    const emitSpy = vi.spyOn(eventBus, 'emit')
 
     await h.user.click(screen.getByText('Edit…'))
 
-    expect(emitSpy).toHaveBeenCalledWith('MODAL_SHOW_EDIT_SONG_FORM', playables as Song[])
-    emitSpy.mockRestore()
+    await assertOpenModal(openModalMock, EditSongForm, { songs: playables as Song[], initialTab: 'details' })
   })
 
   it('does not allow edit songs if current user is not admin', async () => {

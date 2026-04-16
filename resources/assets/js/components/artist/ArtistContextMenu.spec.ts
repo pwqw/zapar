@@ -8,6 +8,16 @@ import { commonStore } from '@/stores/commonStore'
 import { playableStore } from '@/stores/playableStore'
 import { acl } from '@/services/acl'
 import { eventBus } from '@/utils/eventBus'
+import { assertOpenModal } from '@/__tests__/assertions'
+import EditArtistForm from '@/components/artist/EditArtistForm.vue'
+
+const openModalMock = vi.fn()
+
+vi.mock('@/composables/useModal', () => ({
+  useModal: () => ({
+    openModal: openModalMock,
+  }),
+}))
 
 import Component from './ArtistContextMenu.vue'
 
@@ -29,6 +39,8 @@ describe('artistContextMenu.vue', () => {
         artist,
       },
     })
+
+    await h.tick()
 
     return {
       ...rendered,
@@ -93,6 +105,14 @@ describe('artistContextMenu.vue', () => {
   it('does not have an option to download Various Artist', async () => {
     await renderComponent(factory.states('various')('artist'))
     expect(screen.queryByText('Download')).toBeNull()
+  })
+
+  it('opens the artist edit form', async () => {
+    const { artist } = await renderComponent()
+
+    await h.user.click(screen.getByText('Edit…'))
+
+    await assertOpenModal(openModalMock, EditArtistForm, { artist })
   })
 
   it('requests the embed form', async () => {

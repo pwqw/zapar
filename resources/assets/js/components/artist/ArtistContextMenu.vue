@@ -20,16 +20,21 @@ import { artistStore } from '@/stores/artistStore'
 import { playableStore } from '@/stores/playableStore'
 import { downloadService } from '@/services/downloadService'
 import { useContextMenu } from '@/composables/useContextMenu'
+import { useModal } from '@/composables/useModal'
 import { useRouter } from '@/composables/useRouter'
 import { eventBus } from '@/utils/eventBus'
 import { playback } from '@/services/playbackManager'
 import { usePolicies } from '@/composables/usePolicies'
+import { defineAsyncComponent } from '@/utils/helpers'
 
 const props = defineProps<{ artist: Artist }>()
 const { artist } = toRefs(props)
 
+const EditArtistForm = defineAsyncComponent(() => import('@/components/artist/EditArtistForm.vue'))
+
 const { go, url } = useRouter()
 const { MenuItem, Separator, trigger } = useContextMenu()
+const { openModal } = useModal()
 const { currentUserCan, allowDownload } = usePolicies()
 
 const allowEdit = ref(false)
@@ -51,7 +56,7 @@ const shuffle = () => trigger(async () => {
 
 const download = () => trigger(() => downloadService.fromArtist(artist.value))
 const toggleFavorite = () => trigger(() => artistStore.toggleFavorite(artist.value))
-const requestEditForm = () => trigger(() => eventBus.emit('MODAL_SHOW_EDIT_ARTIST_FORM', artist.value))
+const requestEditForm = () => trigger(() => openModal<'EDIT_ARTIST_FORM'>(EditArtistForm, { artist: artist.value }))
 const showEmbedModal = () => trigger(() => eventBus.emit('MODAL_SHOW_CREATE_EMBED_FORM', artist.value))
 
 onMounted(async () => {
