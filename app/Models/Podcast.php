@@ -80,6 +80,11 @@ class Podcast extends Model implements Favoriteable
             ->withTimestamps();
     }
 
+    public static function getPermissionableIdentifier(): string
+    {
+        return 'id';
+    }
+
     /** @return array<mixed> */
     public function toSearchableArray(): array
     {
