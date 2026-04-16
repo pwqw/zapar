@@ -864,7 +864,9 @@
     },
     "theme": {
       "apply": "Apply Theme",
-      "delete": "Delete"
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this theme?",
+      "deleted": "Theme deleted."
     },
     "user": {
       "delete": "Delete"

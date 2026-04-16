@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
 import { toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { themeStore } from '@/stores/themeStore'
 import { useMessageToaster } from '@/composables/useMessageToaster'
 import { useErrorHandler } from '@/composables/useErrorHandler'
@@ -20,6 +21,7 @@ import { useContextMenu } from '@/composables/useContextMenu'
 const props = defineProps<{ theme: Theme }>()
 const { theme } = toRefs(props)
 
+const { t } = useI18n()
 const { toastSuccess } = useMessageToaster()
 const { handleHttpError } = useErrorHandler()
 const { showConfirmDialog } = useDialogBox()
@@ -29,13 +31,13 @@ const applyTheme = () => trigger(() => themeStore.setTheme(theme.value))
 
 const destroy = () =>
   trigger(async () => {
-    if (!(await showConfirmDialog('Are you sure you want to delete this theme?'))) {
+    if (!(await showConfirmDialog(t('menu.theme.deleteConfirm')))) {
       return
     }
 
     try {
       await themeStore.destroy(theme.value)
-      toastSuccess('Theme deleted.')
+      toastSuccess(t('menu.theme.deleted'))
     } catch (e: unknown) {
       handleHttpError(e)
     }

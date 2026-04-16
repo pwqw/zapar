@@ -919,7 +919,9 @@
     },
     "theme": {
       "apply": "Aplicar Tema",
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "deleteConfirm": "¿Seguro que quieres eliminar este tema?",
+      "deleted": "Tema eliminado."
     },
     "user": {
       "delete": "Eliminar"
