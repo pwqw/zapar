@@ -24,7 +24,7 @@
 
 <script lang="ts" setup>
 import { throttle } from 'lodash'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useFullscreen } from '@vueuse/core'
 import { eventBus } from '@/utils/eventBus'
 import { isEpisode, isRadioStation, isSong } from '@/utils/typeGuards'
@@ -105,8 +105,9 @@ const initPlaybackRelatedServices = async () => {
   const plyrWrapper = document.querySelector<HTMLElement>('.plyr')
 
   if (!plyrWrapper) {
-    await nextTick()
-    await initPlaybackRelatedServices()
+    // When nothing has been played yet, .plyr is not in the DOM.
+    // Do not poll recursively to avoid an unbounded nextTick loop.
+    return
   }
 
   // NOTE: We do NOT call playback() here anymore to avoid activating any service
