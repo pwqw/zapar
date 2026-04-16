@@ -6,6 +6,7 @@ use App\Enums\Acl\Role;
 use App\Models\Artist;
 use App\Models\Organization;
 use App\Models\RadioStation;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\PodcastService;
 use App\Services\UploadService;
@@ -60,6 +61,10 @@ class DevSampleDataSeeder extends Seeder
     public function run(): void
     {
         $this->command->info('Creating development data...');
+
+        // SettingTableSeeder leaves media_path empty; LocalStorage reads the DB, not .env.
+        // Docker dev sets MEDIA_PATH in .env — sync it so uploads work after migrate:fresh --seed.
+        $this->ensureMediaPathFromEnvironment();
 
         $organization = Organization::default();
 
@@ -144,6 +149,22 @@ class DevSampleDataSeeder extends Seeder
         $this->command->info('  - usuario@e.mail (Regular user)');
     }
 
+    private function ensureMediaPathFromEnvironment(): void
+    {
+        $path = config('koel.media_path');
+
+        if (!is_string($path) || $path === '') {
+            $this->command->warn('MEDIA_PATH is not set in .env; song seeding will fail until you set media path in Admin or .env.');
+
+            return;
+        }
+
+        File::ensureDirectoryExists($path);
+
+        Setting::set('media_path', $path);
+        $this->command->info("✓ media_path synced from .env: {$path}");
+    }
+
     private function createUser(string $name, string $email, Role $role, Organization $organization, bool $verified): User
     {
         /** @var User $user */
@@ -225,7 +246,12 @@ class DevSampleDataSeeder extends Seeder
 
                 $songsCreated++;
             } catch (\Throwable $e) {
-                $this->command->warn("  ⚠ Failed to create song from {$songFile}: {$e->getMessage()}");
+                $detail = $e->getMessage();
+                if ($detail === '' && $e->getPrevious()) {
+                    $prev = $e->getPrevious();
+                    $detail = $prev->getMessage() ?: get_class($prev);
+                }
+                $this->command->warn("  ⚠ Failed to create song from {$songFile}: {$detail}");
                 // Clean up temp file on failure
                 if (File::exists($tempPath)) {
                     File::delete($tempPath);
