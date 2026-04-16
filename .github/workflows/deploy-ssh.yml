@@ -84,12 +84,21 @@ jobs:
             awk 'done { print; next } /^#+$/ { skip = !skip; if (!skip) done=1; next } !skip'
           }
           ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no -o LogLevel=ERROR ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} /bin/bash --norc --noprofile -s << 'EOF' | filter_motd
-            set -e
+            set -euo pipefail
             cd ${{ secrets.REPO_PATH }}
-            /opt/alt/php84/usr/bin/composer install --no-dev --optimize-autoloader --no-interaction
-            /opt/alt/php84/usr/bin/php artisan migrate --force --no-interaction
-            /opt/alt/php84/usr/bin/php artisan config:cache
-            /opt/alt/php84/usr/bin/php artisan route:cache
-            /opt/alt/php84/usr/bin/php artisan view:cache
+            PHP_BIN="/opt/alt/php84/usr/bin/php"
+            COMPOSER_BIN="/opt/alt/php84/usr/bin/composer"
+
+            "$COMPOSER_BIN" install --no-dev --optimize-autoloader --no-interaction
+            "$PHP_BIN" artisan migrate --force --no-interaction
+
+            if "$PHP_BIN" artisan migrate:status --no-interaction | grep -q 'Pending'; then
+              echo "Error: quedan migraciones pendientes despues del deploy."
+              exit 1
+            fi
+
+            "$PHP_BIN" artisan config:cache
+            "$PHP_BIN" artisan route:cache
+            "$PHP_BIN" artisan view:cache
           EOF
           exit ${PIPESTATUS[0]}
