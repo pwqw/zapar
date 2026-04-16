@@ -36,9 +36,11 @@ import { faBolt, faCompress, faExpand } from '@fortawesome/free-solid-svg-icons'
 import { AudioLinesIcon } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { defineAsyncComponent } from '@/utils/helpers'
 import { eventBus } from '@/utils/eventBus'
 import { isFullscreenSupported, isAudioContextSupported as useEqualizer } from '@/utils/supports'
 import { useRouter } from '@/composables/useRouter'
+import { useModal } from '@/composables/useModal'
 import { requireInjection } from '@/utils/helpers'
 import { CurrentStreamableKey } from '@/config/symbols'
 import { isRadioStation } from '@/utils/typeGuards'
@@ -47,7 +49,9 @@ import VolumeSlider from '@/components/ui/VolumeSlider.vue'
 import FooterBtn from '@/components/layout/app-footer/FooterButton.vue'
 import FooterQueueIcon from '@/components/layout/app-footer/FooterQueueButton.vue'
 
+const Equalizer = defineAsyncComponent(() => import('@/components/ui/equalizer/Equalizer.vue'))
 const { t } = useI18n()
+const { openModal } = useModal()
 
 const streamable = requireInjection(CurrentStreamableKey, ref())
 const isRadio = computed(() => streamable.value && isRadioStation(streamable.value))
@@ -57,7 +61,7 @@ const fullscreenButtonTitle = computed(() => (isFullscreen.value ? t('ui.tooltip
 
 const { go, isCurrentScreen, url } = useRouter()
 
-const showEqualizer = () => eventBus.emit('MODAL_SHOW_EQUALIZER')
+const showEqualizer = () => openModal<'EQUALIZER'>(Equalizer)
 const toggleFullscreen = () => eventBus.emit('FULLSCREEN_TOGGLE')
 const toggleVisualizer = () => go(isCurrentScreen('Visualizer') ? -1 : url('visualizer'))
 
