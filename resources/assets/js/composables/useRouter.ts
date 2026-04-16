@@ -1,3 +1,4 @@
+import { getCurrentInstance, onUnmounted } from 'vue'
 import { RouterKey } from '@/config/symbols'
 import Router from '@/router'
 import { requireInjection } from '@/utils/helpers'
@@ -13,7 +14,11 @@ export const useRouter = () => {
 
   const onScreenActivated = (screen: ScreenName, cb: Closure) => {
     isCurrentScreen(screen) && cb()
-    router.onRouteChanged(route => route.screen === screen && cb())
+    const removeListener = router.onRouteChanged(route => route.screen === screen && cb())
+
+    if (getCurrentInstance()) {
+      onUnmounted(removeListener)
+    }
   }
 
   return {

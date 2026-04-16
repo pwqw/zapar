@@ -129,7 +129,13 @@ export default class Router {
   }
 
   public triggerNotFound = () => this.activateRoute(this.notFoundRoute)
-  public onRouteChanged = (handler: RouteChangedHandler) => this.routeChangedHandlers.push(handler)
+  public onRouteChanged = (handler: RouteChangedHandler) => {
+    this.routeChangedHandlers.push(handler)
+
+    return () => {
+      this.routeChangedHandlers = this.routeChangedHandlers.filter(routeHandler => routeHandler !== handler)
+    }
+  }
 
   public activateRoute(route: Route, params: RouteParams = {}) {
     this.$currentRoute.value = route

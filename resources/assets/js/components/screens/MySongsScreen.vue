@@ -49,7 +49,7 @@
 
 <script lang="ts" setup>
 import { faVolumeOff } from '@fortawesome/free-solid-svg-icons'
-import { computed, onMounted, ref, toRef } from 'vue'
+import { computed, ref, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { secondsToHumanReadable } from '@/utils/formatters'
 import { queueStore } from '@/stores/queueStore'
@@ -90,7 +90,7 @@ const songCountText = computed(() => {
 })
 
 const { PlayableListControls: SongListControls, config } = usePlayableListControls('Songs')
-const { go, url } = useRouter()
+const { go, url, onScreenActivated } = useRouter()
 
 const loading = ref(false)
 let sortField: MaybeArray<PlayableListSortField> = 'title'
@@ -141,10 +141,14 @@ const sort = async (field: MaybeArray<PlayableListSortField>, order: SortOrder) 
   await fetchSongs()
 }
 
-onMounted(async () => {
+const loadOwnedSongs = async () => {
   playableStore.state.playables = []
   page.value = 1
   await fetchSongs()
+}
+
+onScreenActivated('MySongs', () => {
+  void loadOwnedSongs()
 })
 </script>
 

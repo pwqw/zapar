@@ -85,7 +85,7 @@ const {
 } = usePlayableList(toRef(playableStore.state, 'playables'), { type: 'Songs' }, { filterable: false, sortable: true })
 
 const { PlayableListControls: SongListControls, config } = usePlayableListControls('Songs')
-const { go, url } = useRouter()
+const { go, url, onScreenActivated } = useRouter()
 const { get: lsGet, set: lsSet } = useLocalStorage()
 
 const loading = ref(false)
@@ -139,9 +139,23 @@ const sort = async (field: MaybeArray<PlayableListSortField>, order: SortOrder) 
   await fetchSongs()
 }
 
-onMounted(async () => {
+const loadAllSongs = async () => {
+  if (loading.value) {
+    return
+  }
+
   composableSort(sortField, sortOrder)
+  playableStore.state.playables = []
+  page.value = 1
   await fetchSongs()
+}
+
+onScreenActivated('Songs', () => {
+  void loadAllSongs()
+})
+
+onMounted(() => {
+  void loadAllSongs()
 })
 </script>
 
