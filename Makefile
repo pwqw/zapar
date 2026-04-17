@@ -55,14 +55,11 @@ test-backend: ## Solo backend PHP (php artisan test --compact)
 		-v $(PWD):/var/www/html \
 		$(IMAGE_NAME) -c 'set -e; cd /var/www/html && php artisan test --compact'
 
-test: ## Frontend + backend (pnpm run test && php artisan test --compact)
-	docker run --rm --name $(CONTAINER_NAME_TEST) --entrypoint sh \
-		-v $(PWD):/var/www/html \
-		-v $(VOL_NODE_MODULES):/var/www/html/node_modules \
-		-v $(VOL_PNPM_STORE):/var/www/html/.pnpm-store \
-		$(IMAGE_NAME) -c 'set -e; cd /var/www/html; pnpm run test && php artisan test --compact'
-
-test-all: test ## Alias de make test (compatibilidad)
+test: ## Frontend + backend (ejecuta test-front y test-backend)
+	@echo "==> Running frontend tests..."
+	@$(MAKE) --no-print-directory test-front
+	@echo "==> Running backend tests..."
+	@$(MAKE) --no-print-directory test-backend
 
 stop: ## Stop containers
 	@docker stop $(CONTAINER_NAME_DEV) $(CONTAINER_NAME_TEST) 2>/dev/null || true
