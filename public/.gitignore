@@ -20,4 +20,8 @@ hot
 mix-manifest.json
 .user.ini
 build
+
+# /.well-known/* — provision on the server only (ACME, app association, vendor checks)
+.well-known/
+
 .htaccess
