@@ -89,7 +89,7 @@ class SongResource extends JsonResource
             'artist_id' => $this->unless($embedding, $this->song->artist_id),
             'artist_name' => $this->song->artist?->name,
             'album_artist_id' => $this->unless($embedding, $this->song->album_artist?->id),
-            'album_artist_name' => $this->unless($embedding, $this->song->album_artist?->name),
+            'album_artist_name' => $this->unless($embedding, $this->song->album_artist?->name ?? $this->song->artist?->name ?? ''),
             'song_cover' => image_storage_url($this->song->cover),
             'album_cover' => image_storage_url($this->song->album?->cover),
             'length' => $this->song->length,
