@@ -79,6 +79,7 @@ migrate: ## Run migrations in dev container
 data: ## Borra y recrea la DB (migrate:fresh --seed + DevSampleDataSeeder) en el contenedor dev
 	docker exec $(CONTAINER_NAME_DEV) php artisan migrate:fresh --seed --force --no-interaction
 	docker exec $(CONTAINER_NAME_DEV) php artisan db:seed --class=DevSampleDataSeeder --no-interaction
+	docker exec $(CONTAINER_NAME_DEV) php artisan koel:search:import
 
 shell: ## Interactive shell in container
 	docker run -it --rm \
