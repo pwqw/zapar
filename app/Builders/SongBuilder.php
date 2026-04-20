@@ -62,6 +62,14 @@ class SongBuilder extends FavoriteableBuilder
     {
         throw_unless($this->user, new LogicException('User must be set to query accessible songs.'));
 
+        if ($this->user->isAdmin()) {
+            return $this;
+        }
+
+        if ($this->user->isModerator()) {
+            return $this->accessibleForModeratorInSameOrganization();
+        }
+
         // We want to alias both podcasts and podcast_user tables to avoid possible conflicts with other joins.
         $this
             ->leftJoin('podcasts as podcasts_a11y', 'songs.podcast_id', 'podcasts_a11y.id')
@@ -104,6 +112,48 @@ class SongBuilder extends FavoriteableBuilder
                             )->where('users.id', '<>', $this->user->id));
                         });
                     });
+                });
+        });
+    }
+
+    /**
+     * Moderators see all songs and episodes tied to their organization (owners / podcast curators in org).
+     */
+    private function accessibleForModeratorInSameOrganization(): self
+    {
+        $organizationId = $this->user->organization_id;
+
+        $this
+            ->leftJoin('podcasts as podcasts_a11y', 'songs.podcast_id', 'podcasts_a11y.id')
+            ->leftJoin('podcast_user as podcast_user_a11y', function (JoinClause $join): void {
+                $join->on('podcasts_a11y.id', 'podcast_user_a11y.podcast_id')->where(
+                    'podcast_user_a11y.user_id',
+                    $this->user->id,
+                );
+            });
+
+        return $this->where(function (self $query) use ($organizationId): void {
+            $query
+                ->where(function (self $q) use ($organizationId): void {
+                    $q->whereNull('songs.podcast_id')
+                        ->whereExists(static function ($sub) use ($organizationId): void {
+                            $sub->selectRaw('1')
+                                ->from('users')
+                                ->whereColumn('users.id', 'songs.owner_id')
+                                ->where('users.organization_id', $organizationId);
+                        });
+                })
+                ->orWhere(function (self $q) use ($organizationId): void {
+                    $q->whereNotNull('songs.podcast_id')
+                        ->where(function (self $q2) use ($organizationId): void {
+                            $q2->whereNotNull('podcast_user_a11y.podcast_id')
+                                ->orWhereExists(static function ($sub) use ($organizationId): void {
+                                    $sub->selectRaw('1')
+                                        ->from('users')
+                                        ->whereColumn('users.id', 'podcasts_a11y.added_by')
+                                        ->where('users.organization_id', $organizationId);
+                                });
+                        });
                 });
         });
     }

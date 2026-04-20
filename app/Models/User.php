@@ -175,6 +175,16 @@ class User extends Authenticatable implements AuditableContract, Permissionable
         return $this->role === RoleEnum::ADMIN || $this->role === RoleEnum::MODERATOR;
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role === RoleEnum::ADMIN;
+    }
+
+    public function isModerator(): bool
+    {
+        return $this->role === RoleEnum::MODERATOR;
+    }
+
     public static function getPermissionableIdentifier(): string
     {
         return 'public_id';

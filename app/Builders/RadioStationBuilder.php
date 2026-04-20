@@ -4,6 +4,7 @@ namespace App\Builders;
 
 use App\Builders\Concerns\CanScopeByUser;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use LogicException;
 
 class RadioStationBuilder extends FavoriteableBuilder
@@ -13,6 +14,19 @@ class RadioStationBuilder extends FavoriteableBuilder
     private function accessible(): self
     {
         throw_unless($this->user, new LogicException('User must be set to query accessible radio stations.'));
+
+        if ($this->user->isAdmin()) {
+            return $this;
+        }
+
+        if ($this->user->isModerator()) {
+            $organizationId = $this->user->organization_id;
+
+            return $this->whereHas('user', static fn (Builder $q) => $q->where(
+                'organization_id',
+                $organizationId,
+            ));
+        }
 
         if (!$this->user->preferences->includePublicMedia) {
             // If the user does not want to include public media, we only return stations created by them.

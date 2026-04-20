@@ -25,8 +25,19 @@ class PodcastBuilder extends FavoriteableBuilder
     {
         throw_if(!$this->user, new LogicException('User must be set to query accessible podcasts.'));
 
-        if ($this->user->hasAdminOrModeratorRole()) {
+        if ($this->user->isAdmin()) {
             return $this;
+        }
+
+        if ($this->user->isModerator()) {
+            $organizationId = $this->user->organization_id;
+
+            return $this->whereExists(static function ($subQuery) use ($organizationId): void {
+                $subQuery->selectRaw('1')
+                    ->from('users')
+                    ->whereColumn('users.id', 'podcasts.added_by')
+                    ->where('users.organization_id', $organizationId);
+            });
         }
 
         // Other users (manager, artist, user) see:
