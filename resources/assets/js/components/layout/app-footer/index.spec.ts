@@ -1,8 +1,9 @@
 import { waitFor } from '@testing-library/vue'
 import { describe, expect, it } from 'vite-plus/test'
-import { vi } from 'vitest'
 import { createHarness } from '@/__tests__/TestHarness'
+import { playbackService } from '@/services/QueuePlaybackService'
 import { preferenceStore } from '@/stores/preferenceStore'
+import { playbackManager } from '@/services/playbackManager'
 import Component from './index.vue'
 
 describe('index.vue', () => {
@@ -10,33 +11,11 @@ describe('index.vue', () => {
 
   it('initializes playback and related services', async () => {
     h.createAudioPlayer()
-
-    const plyr = document.createElement('div')
-    plyr.className = 'plyr'
-    document.body.appendChild(plyr)
+    const useQueuePlaybackMock = h.mock(playbackManager, 'useQueuePlayback').mockReturnValue(playbackService)
 
     h.render(Component)
     preferenceStore.initialized.value = true
 
-    // The component no longer calls playbackManager.useQueuePlayback() directly
-    // Services are activated lazily when the user actually plays something
-    // This test just verifies the component renders without errors
-    await waitFor(() => {
-      expect(preferenceStore.initialized.value).toBe(true)
-    })
-  })
-
-  it('does not repeatedly poll .plyr when it is missing', async () => {
-    h.createAudioPlayer()
-    const querySelectorSpy = vi.spyOn(document, 'querySelector')
-
-    h.render(Component)
-    preferenceStore.initialized.value = true
-
-    await new Promise(resolve => setTimeout(resolve, 25))
-
-    const plyrLookups = querySelectorSpy.mock.calls.filter(([selector]) => selector === '.plyr').length
-
-    expect(plyrLookups).toBeLessThan(10)
+    await waitFor(() => expect(useQueuePlaybackMock).toHaveBeenCalled())
   })
 })

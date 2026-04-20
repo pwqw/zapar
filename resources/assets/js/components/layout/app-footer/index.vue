@@ -24,14 +24,17 @@
 
 <script lang="ts" setup>
 import { throttle } from 'lodash'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useFullscreen } from '@vueuse/core'
 import { eventBus } from '@/utils/eventBus'
 import { isEpisode, isRadioStation, isSong } from '@/utils/typeGuards'
+import { isAudioContextSupported } from '@/utils/supports'
 import { defineAsyncComponent, requireInjection } from '@/utils/helpers'
 import { CurrentStreamableKey } from '@/config/symbols'
 import { artistStore } from '@/stores/artistStore'
 import { preferenceStore } from '@/stores/preferenceStore'
+import { audioService } from '@/services/audioService'
+import { playback } from '@/services/playbackManager'
 import { useContextMenu } from '@/composables/useContextMenu'
 
 import AudioPlayer from '@/components/layout/app-footer/AudioPlayer.vue'
@@ -102,12 +105,20 @@ const appBackgroundImage = computed(() => {
 })
 
 const initPlaybackRelatedServices = async () => {
-  const playerRoot = document.querySelector<HTMLElement>('.plyr')
+  const audioElement = document.querySelector<HTMLMediaElement>('#audio-player')
 
-  if (!playerRoot) {
-    // When nothing has been played yet, .plyr is not in the DOM.
-    // Keep playback/audio service initialization lazy to preserve fork behavior.
+  if (!audioElement) {
+    await nextTick()
+    await initPlaybackRelatedServices()
     return
+  }
+
+  // Defaults to the queue playback over radio playback.
+  const playbackService = playback()
+
+  // If audio context is supported, initialize the audio service which handles audio processing (equalizer, etc.)
+  if (isAudioContextSupported) {
+    audioService.init(playbackService.media)
   }
 }
 

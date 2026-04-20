@@ -52,6 +52,16 @@ describe('radioStationCard', () => {
     screen.getByText('Beethoven Goes Metal')
   })
 
+  it('shows private badge when station is not public', () => {
+    renderComponent(createRadioStation({ is_public: false }))
+    screen.getByText('Privado')
+  })
+
+  it('hides private badge when station is public', () => {
+    renderComponent(createRadioStation({ is_public: true }))
+    expect(screen.queryByText('Privado')).toBeNull()
+  })
+
   it('renders station description', () => {
     renderComponent()
     screen.getByText('Heavy af')
@@ -75,7 +85,7 @@ describe('radioStationCard', () => {
   it('requests context menu', async () => {
     const { openContextMenu } = useContextMenu()
     const { station } = renderComponent()
-    await h.trigger(screen.getByTestId('radio-station-card'), 'contextMenu')
+    await h.trigger(screen.getByTestId('artist-album-card'), 'contextMenu')
 
     await assertOpenContextMenu(openContextMenu as Mock, RadioStationContextMenu, { station })
   })
