@@ -375,90 +375,84 @@ describe('playableContextMenu.vue', () => {
     await assertOpenModal(openModalMock, CreatePlaylistForm, { folder: null, playables })
   })
 
-  it('does not have the options to mark song as private or public in Community edition', async () => {
+  it('does not show visibility options for songs the user does not own (Community edition)', async () => {
     await renderComponent(h.factory('song'))
     expect(screen.queryByText('Mark as Private')).toBeNull()
     expect(screen.queryByText('Unmark as Private')).toBeNull()
   })
 
-  it('makes songs private', async () =>
-    await h.withPlusEdition(async () => {
-      const user = h.factory.states('current')('user') as CurrentUser
-      const songs = h.factory('song', 5, {
-        is_public: true,
-        owner_id: user.id,
-      })
+  it('makes songs private', async () => {
+    const user = h.factory.states('current')('user') as CurrentUser
+    const songs = h.factory('song', 5, {
+      is_public: true,
+      owner_id: user.id,
+    })
 
-      h.actingAsUser(user)
+    h.actingAsUser(user)
 
-      await renderComponent(songs)
-      const privatizeMock = h.mock(playableStore, 'privatizeSongs').mockResolvedValue(songs.map(song => song.id))
+    await renderComponent(songs)
+    const privatizeMock = h.mock(playableStore, 'privatizeSongs').mockResolvedValue(songs.map(song => song.id))
 
-      await h.user.click(screen.getByText('Mark as Private'))
+    await h.user.click(screen.getByText('Mark as Private'))
 
-      expect(privatizeMock).toHaveBeenCalledWith(songs)
-    }))
+    expect(privatizeMock).toHaveBeenCalledWith(songs)
+  })
 
-  it('makes songs public', async () =>
-    await h.withPlusEdition(async () => {
-      const user = h.factory.states('current')('user') as CurrentUser
-      const songs = h.factory('song', 5, {
-        is_public: false,
-        owner_id: user.id,
-      })
+  it('makes songs public', async () => {
+    const user = h.factory.states('current')('user') as CurrentUser
+    const songs = h.factory('song', 5, {
+      is_public: false,
+      owner_id: user.id,
+    })
 
-      h.actingAsUser(user)
+    h.actingAsUser(user)
 
-      await renderComponent(songs)
-      const publicizeMock = h.mock(playableStore, 'publicizeSongs').mockResolvedValue(songs.map(song => song.id))
+    await renderComponent(songs)
+    const publicizeMock = h.mock(playableStore, 'publicizeSongs').mockResolvedValue(songs.map(song => song.id))
 
-      await h.user.click(screen.getByText('Unmark as Private'))
+    await h.user.click(screen.getByText('Unmark as Private'))
 
-      expect(publicizeMock).toHaveBeenCalledWith(songs)
-    }))
+    expect(publicizeMock).toHaveBeenCalledWith(songs)
+  })
 
   it('does not have an option to make songs public or private if current user is not owner', async () => {
-    await h.withPlusEdition(async () => {
-      const user = h.factory.states('current')('user') as CurrentUser
-      const owner = h.factory('user')
-      const songs = h.factory('song', 5, {
-        is_public: false,
-        owner_id: owner.id,
-      })
-
-      h.actingAsUser(user)
-
-      await renderComponent(songs)
-
-      expect(screen.queryByText('Unmark as Private')).toBeNull()
-      expect(screen.queryByText('Mark as Private')).toBeNull()
+    const user = h.factory.states('current')('user') as CurrentUser
+    const owner = h.factory('user')
+    const songs = h.factory('song', 5, {
+      is_public: false,
+      owner_id: owner.id,
     })
+
+    h.actingAsUser(user)
+
+    await renderComponent(songs)
+
+    expect(screen.queryByText('Unmark as Private')).toBeNull()
+    expect(screen.queryByText('Mark as Private')).toBeNull()
   })
 
   it('has both options to make public and private if songs have mixed visibilities', async () => {
-    await h.withPlusEdition(async () => {
-      const owner = h.factory.states('current')('user') as CurrentUser
-      const songs = h
-        .factory('song', 2, {
-          is_public: false,
+    const owner = h.factory.states('current')('user') as CurrentUser
+    const songs = h
+      .factory('song', 2, {
+        is_public: false,
+        owner_id: owner.id,
+      })
+      .concat(
+        ...h.factory('song', 3, {
+          is_public: true,
           owner_id: owner.id,
-        })
-        .concat(
-          ...h.factory('song', 3, {
-            is_public: true,
-            owner_id: owner.id,
-          }),
-        )
+        }),
+      )
 
-      h.actingAsUser(owner)
-      await renderComponent(songs)
+    h.actingAsUser(owner)
+    await renderComponent(songs)
 
-      screen.getByText('Unmark as Private')
-      screen.getByText('Mark as Private')
-    })
+    screen.getByText('Unmark as Private')
+    screen.getByText('Mark as Private')
   })
 
-  it('does not have an option to make songs public or private or Community edition', async () => {
+  it('shows visibility options for owned songs in Community edition', async () => {
     const owner = h.factory.states('current')('user') as CurrentUser
     const songs = h.factory('song', 5, {
       is_public: false,
@@ -468,8 +462,7 @@ describe('playableContextMenu.vue', () => {
     h.actingAsUser(owner)
     await renderComponent(songs)
 
-    expect(screen.queryByText('Unmark as Private')).toBeNull()
-    expect(screen.queryByText('Mark as Private')).toBeNull()
+    screen.getByText('Unmark as Private')
   })
 
   it('requests the embed form', async () => {

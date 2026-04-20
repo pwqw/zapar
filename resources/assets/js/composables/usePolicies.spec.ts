@@ -55,6 +55,29 @@ describe('usePolicies', () => {
     expect(currentUserCan.editSong(h.factory('song'))).toBe(false)
   })
 
+  it('allows visibility toggles for own songs without Plus (server enforces ACL)', () => {
+    const user = h.factory('user', { permissions: [] }) as CurrentUser
+    h.actingAsUser(user)
+    commonStore.state.koel_plus.active = false
+
+    const { currentUserCan } = usePolicies()
+    const ownSong = h.factory('song', { owner_id: user.id })
+
+    expect(currentUserCan.managePlayableVisibility(ownSong)).toBe(true)
+  })
+
+  it('denies visibility toggles for others songs without staff permissions', () => {
+    h.actingAsUser({
+      ...h.factory('user'),
+      permissions: [],
+    } as CurrentUser)
+
+    commonStore.state.koel_plus.active = false
+    const { currentUserCan } = usePolicies()
+
+    expect(currentUserCan.managePlayableVisibility(h.factory('song', { owner_id: 'other-user' }))).toBe(false)
+  })
+
   it('allows editing own playlist', () => {
     const user = h.factory('user') as CurrentUser
     h.actingAsUser(user)

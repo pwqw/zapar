@@ -260,22 +260,15 @@ const makePrivate = () => trigger(async () => {
 })
 
 const canEditVisibility = computed(() => {
-  if (contentType.value === 'songs') {
-    return allowEdit.value
+  if (contentType.value === 'songs' || contentType.value === 'episodes') {
+    return currentUserCan.managePlayableVisibility(playables.value as Song[])
   }
-  // For episodes, we check if the user can publish
-  if (contentType.value === 'episodes') {
-    return currentUserCan.canPublish()
-  }
+
   return false
 })
 
 const visibilityActions = computed(() => {
   if (!canEditVisibility.value) {
-    return []
-  }
-
-  if (!isPlus.value) {
     return []
   }
 

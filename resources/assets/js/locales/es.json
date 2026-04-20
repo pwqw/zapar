@@ -205,7 +205,8 @@
     "favorite": "Añadir a Favoritos",
     "deleteConfirm": "¿Eliminar la estación de radio? ¡Esta acción NO es reversible!",
     "deleted": "Estación de radio eliminada.",
-    "playPauseNamed": "Reproducir/pausar {name}"
+    "playPauseNamed": "Reproducir/pausar {name}",
+    "station": "emisora de radio"
   },
   "users": {
     "add": "Agregar Nuevo Usuario",

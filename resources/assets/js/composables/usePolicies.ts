@@ -29,6 +29,19 @@ export const usePolicies = () => {
       return arrayify(songs).every(song => song.owner_id === currentUser.value.id)
     },
 
+    /** Public/private toggles are enforced server-side; do not gate on Koel Plus (see ACL on API). */
+    managePlayableVisibility: (songs: MaybeArray<Song>) => {
+      if (currentUser.value.permissions.includes('upload content')) {
+        return true
+      }
+
+      if (currentUser.value.permissions.includes('manage songs')) {
+        return true
+      }
+
+      return arrayify(songs).every(song => song.owner_id === currentUser.value.id)
+    },
+
     editPlaylist: (playlist: Playlist) => playlist.owner_id === currentUser.value.id,
     editAlbum: async (album: Album) => await acl.checkResourcePermission('album', album.id, 'edit'),
     editArtist: async (artist: Artist) => await acl.checkResourcePermission('artist', artist.id, 'edit'),

@@ -22,8 +22,26 @@ describe('radioStationContextMenu.vue', () => {
     beforeEach: () => openModalMock.mockClear(),
   })
 
-  const renderComponent = async (station?: RadioStation, manageable = true) => {
-    h.mock(acl, 'checkResourcePermission').mockReturnValue(manageable)
+  const renderComponent = async (
+    station?: RadioStation,
+    manageable = true,
+    aclByAction?: Partial<Record<'edit' | 'delete' | 'publish', boolean>>,
+  ) => {
+    h.mock(acl, 'checkResourcePermission').mockImplementation(async (_type, _id, action) => {
+      if (action === 'edit' && aclByAction?.edit !== undefined) {
+        return aclByAction.edit
+      }
+
+      if (action === 'delete' && aclByAction?.delete !== undefined) {
+        return aclByAction.delete
+      }
+
+      if (action === 'publish' && aclByAction?.publish !== undefined) {
+        return aclByAction.publish
+      }
+
+      return manageable
+    })
 
     station =
       station ||
@@ -116,5 +134,41 @@ describe('radioStationContextMenu.vue', () => {
 
     await h.user.click(screen.getByText('Delete'))
     expect(deleteMock).toHaveBeenCalledWith(station)
+  })
+
+  it('offers to publicize a private station when ACL publish is allowed', async () => {
+    await renderComponent(h.factory('radio-station', { is_public: false, favorite: false }), true, {
+      publish: true,
+      edit: true,
+      delete: true,
+    })
+
+    screen.getByText('Unmark as Private')
+  })
+
+  it('offers to privatize a public station when ACL edit is allowed', async () => {
+    await renderComponent(h.factory('radio-station', { is_public: true, favorite: false }), true, {
+      publish: true,
+      edit: true,
+      delete: true,
+    })
+
+    screen.getByText('Mark as Private')
+  })
+
+  it('publicizes via API', async () => {
+    const updateMock = h.mock(radioStationStore, 'update').mockImplementation(async (s, data) => {
+      Object.assign(s, data)
+      return s
+    })
+
+    const st = h.factory('radio-station', { is_public: false, favorite: false })
+    await renderComponent(st, true, { publish: true, edit: true, delete: true })
+
+    await h.user.click(screen.getByText('Unmark as Private'))
+
+    expect(updateMock).toHaveBeenCalled()
+    const [, payload] = updateMock.mock.calls[0]!
+    expect(payload.is_public).toBe(true)
   })
 })

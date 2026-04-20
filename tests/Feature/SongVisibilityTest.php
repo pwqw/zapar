@@ -7,9 +7,22 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 use function Tests\create_admin;
+use function Tests\create_user;
 
 class SongVisibilityTest extends TestCase
 {
+    #[Test]
+    public function adminCanPrivatizeAnotherUsersSongs(): void
+    {
+        $admin = create_admin();
+        $owner = create_user();
+        $publicSongs = Song::factory(2)->for($owner, 'owner')->public()->create();
+
+        $this->putAs('api/songs/privatize', ['songs' => $publicSongs->modelKeys()], $admin)->assertSuccessful();
+
+        $publicSongs->each(static fn (Song $song) => self::assertFalse($song->refresh()->is_public));
+    }
+
     #[Test]
     public function adminCanChangeVisibilityOfOwnSongs(): void
     {

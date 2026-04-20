@@ -29,7 +29,7 @@ class ResourceVisibilityController extends Controller
     public function privatizeSongs(ChangeVisibilityRequest $request, SongService $songService): JsonResponse
     {
         $songs = Song::query()->findMany($request->songs ?? []);
-        $this->authorizeVisibilityChanges($songs, false, publishAbility: 'publish', privatizeAbility: 'edit');
+        $this->authorizeVisibilityChanges($songs, false, publishAbility: 'publish', privatizeAbility: 'privatize');
 
         return response()->json($songService->markSongsAsPrivate($songs));
     }

@@ -36,6 +36,19 @@ class SongPolicy
         return $user->isVerified() && $song->ownedBy($user);
     }
 
+    /**
+     * Making a song private (visibility). Admins/moderators may privatize any track, like {@see publish()}.
+     * Other users follow the same rules as metadata edits ({@see Song::editableBy()}).
+     */
+    public function privatize(User $user, Song $song): bool
+    {
+        if ($user->hasAdminOrModeratorRole()) {
+            return true;
+        }
+
+        return $song->editableBy($user);
+    }
+
     public function download(User $user, Song $song): bool
     {
         if (str_ends_with($user->email, '@' . User::ANONYMOUS_USER_DOMAIN)) {
