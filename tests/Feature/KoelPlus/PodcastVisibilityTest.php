@@ -68,7 +68,7 @@ class PodcastVisibilityTest extends PlusTestCase
         // Create a public podcast by another user
         $publicPodcast = Podcast::factory()->public()->create(['added_by' => $regularUser->id]);
 
-        // Admin should see all podcasts
+        // Admin: catálogo accesible (incl. privados de la org) sin exigir suscripción.
         $response = $this->getAs('api/podcasts?favorites_only=false', $admin)
             ->assertSuccessful();
 
@@ -110,6 +110,9 @@ class PodcastVisibilityTest extends PlusTestCase
 
         // Create user's own private podcast (user should see this)
         $ownPrivatePodcast = Podcast::factory()->private()->create(['added_by' => $user->id]);
+
+        // Index matches Koel: only subscribed rows; attach so the catalog entries appear.
+        $user->podcasts()->attach([$publicPodcast->id, $ownPrivatePodcast->id]);
 
         $response = $this->getAs('api/podcasts?favorites_only=false', $user)
             ->assertSuccessful();
@@ -162,5 +165,80 @@ class PodcastVisibilityTest extends PlusTestCase
         // User should NOT be able to see the episodes
         $this->getAs("api/podcasts/{$privatePodcast->id}/episodes", $user)
             ->assertForbidden();
+    }
+
+    #[Test]
+    public function podcastIndexEachRowIncludesSubscriptionFieldsForSubscribedUser(): void
+    {
+        $user = create_user();
+        $podcast = Podcast::factory()->public()->create(['added_by' => $user->id]);
+        $user->podcasts()->attach($podcast->id);
+
+        $rows = $this->getAs('api/podcasts?favorites_only=false', $user)->assertSuccessful()->json();
+        self::assertIsArray($rows);
+        $row = collect($rows)->firstWhere('id', $podcast->id);
+        self::assertNotNull($row);
+        $this->assertPodcastApiSubscriptionShape($row, expectPivot: true);
+    }
+
+    #[Test]
+    public function podcastIndexAdminCatalogIncludesPrivatePodcastsAndSubscriptionDefaultsWithoutPivot(): void
+    {
+        $admin = create_admin();
+        $owner = create_user();
+        $privatePodcast = Podcast::factory()->private()->create(['added_by' => $owner->id]);
+
+        self::assertFalse($admin->subscribedToPodcast($privatePodcast));
+
+        $rows = $this->getAs('api/podcasts?favorites_only=false', $admin)->assertSuccessful()->json();
+        $row = collect($rows)->firstWhere('id', $privatePodcast->id);
+        self::assertNotNull($row);
+        self::assertFalse($row['is_public']);
+        $this->assertPodcastApiSubscriptionShape($row, expectPivot: false);
+    }
+
+    #[Test]
+    public function podcastShowIncludesSubscriptionFields(): void
+    {
+        $user = create_user();
+        $podcast = Podcast::factory()->create(['added_by' => $user->id]);
+        $user->podcasts()->attach($podcast->id);
+
+        $row = $this->getAs("api/podcasts/{$podcast->id}", $user)->assertSuccessful()->json();
+        $this->assertPodcastApiSubscriptionShape($row, expectPivot: true);
+    }
+
+    #[Test]
+    public function podcastShowIncludesSubscriptionKeysWhenViewAllowedWithoutSubscription(): void
+    {
+        $user = create_user();
+        $anotherUser = create_user();
+        $podcast = Podcast::factory()->public()->create(['added_by' => $anotherUser->id]);
+
+        self::assertFalse($user->subscribedToPodcast($podcast));
+
+        $row = $this->getAs("api/podcasts/{$podcast->id}", $user)->assertSuccessful()->json();
+        $this->assertPodcastApiSubscriptionShape($row, expectPivot: false);
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    private function assertPodcastApiSubscriptionShape(array $row, bool $expectPivot): void
+    {
+        self::assertArrayHasKey('subscribed_at', $row);
+        self::assertArrayHasKey('last_played_at', $row);
+        self::assertArrayHasKey('state', $row);
+        self::assertIsArray($row['state']);
+        self::assertArrayHasKey('current_episode', $row['state']);
+        self::assertArrayHasKey('progresses', $row['state']);
+
+        if ($expectPivot) {
+            self::assertNotEmpty($row['subscribed_at']);
+            self::assertNotEmpty($row['last_played_at']);
+        } else {
+            self::assertSame('', $row['subscribed_at']);
+            self::assertSame('', $row['last_played_at']);
+        }
     }
 }

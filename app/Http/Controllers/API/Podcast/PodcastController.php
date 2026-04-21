@@ -21,18 +21,15 @@ class PodcastController extends Controller
     public function __construct(
         private readonly PodcastService $podcastService,
         private readonly PodcastRepository $podcastRepository,
-        private readonly Authenticatable $user
-    ) {
-    }
+        private readonly Authenticatable $user,
+    ) {}
 
     public function index(Request $request)
     {
-        $podcasts = $this->podcastRepository->getAllAccessibleByUser(
+        return PodcastResource::collection($this->podcastRepository->getAllSubscribedByUser(
             $request->boolean('favorites_only'),
-            $this->user
-        );
-
-        return new \App\Http\Resources\PodcastResourceCollection($podcasts, withSubscriptionData: false);
+            $this->user,
+        ));
     }
 
     #[DisabledInDemo]
@@ -48,8 +45,6 @@ class PodcastController extends Controller
     public function show(Podcast $podcast)
     {
         $this->authorize('view', $podcast);
-
-        $podcast->load('subscribers');
 
         return PodcastResource::make($podcast);
     }

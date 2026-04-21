@@ -18,19 +18,30 @@ class PodcastRepository extends Repository implements ScoutableRepository
     /** @return Collection<Podcast>|array<array-key, Podcast> */
     public function getAllSubscribedByUser(bool $favoritesOnly, ?User $user = null): Collection
     {
-        return Podcast::query()
-            ->with('subscribers')
-            ->setScopedUser($user ?? $this->auth->user())
+        $user ??= $this->auth->user();
+
+        $query = Podcast::query()
+            ->with(['subscribers' => static fn ($query) => $query->where('users.id', $user->id)])
+            ->setScopedUser($user)
             ->withFavoriteStatus(favoritesOnly: $favoritesOnly)
-            ->accessible()
-            ->get();
+            ->accessible();
+
+        // Upstream/release: solo suscritos. Fork Zapar: admin/moderator ven catálogo completo (público/privado por rol + org).
+        if (!$user->isAdmin() && !$user->isModerator()) {
+            $query->subscribed();
+        }
+
+        return $query->get();
     }
 
     /** @return Collection<Podcast>|array<array-key, Podcast> */
     public function getAllAccessibleByUser(bool $favoritesOnly, ?User $user = null): Collection
     {
+        $user ??= $this->auth->user();
+
         return Podcast::query()
-            ->setScopedUser($user ?? $this->auth->user())
+            ->with(['subscribers' => static fn ($query) => $query->where('users.id', $user->id)])
+            ->setScopedUser($user)
             ->withFavoriteStatus(favoritesOnly: $favoritesOnly)
             ->accessible()
             ->get();
@@ -39,13 +50,19 @@ class PodcastRepository extends Repository implements ScoutableRepository
     /** @return Collection<Podcast>|array<array-key, Podcast> */
     public function getMany(array $ids, bool $preserveOrder = false, ?User $user = null): Collection
     {
-        $podcasts = Podcast::query()
-            ->with('subscribers')
-            ->setScopedUser($user ?? $this->auth->user())
+        $user ??= $this->auth->user();
+
+        $query = Podcast::query()
+            ->with(['subscribers' => static fn ($query) => $query->where('users.id', $user->id)])
+            ->setScopedUser($user)
             ->accessible()
-            ->whereIn('podcasts.id', $ids)
-            ->distinct()
-            ->get();
+            ->whereIn('podcasts.id', $ids);
+
+        if (!$user->isAdmin() && !$user->isModerator()) {
+            $query->subscribed();
+        }
+
+        $podcasts = $query->distinct()->get();
 
         return $preserveOrder ? $podcasts->orderByArray($ids) : $podcasts;
     }
@@ -54,7 +71,10 @@ class PodcastRepository extends Repository implements ScoutableRepository
     public function search(string $keywords, int $limit, ?User $user = null): Collection
     {
         return $this->getMany(
-            ids: Podcast::search($keywords)->get()->take($limit)->modelKeys(),
+            ids: Podcast::search($keywords)
+                ->take($limit)
+                ->get()
+                ->modelKeys(),
             preserveOrder: true,
             user: $user,
         );

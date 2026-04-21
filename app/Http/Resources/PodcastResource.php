@@ -55,12 +55,21 @@ class PodcastResource extends JsonResource
 
             $subscriber = $this->podcast->subscribers->firstWhere('id', $user->id);
 
-            if ($subscriber) {
+            if ($subscriber !== null) {
                 /** @var PodcastUserPivot $pivot */
                 $pivot = $subscriber->pivot;
                 $data['subscribed_at'] = $pivot->created_at;
                 $data['last_played_at'] = $pivot->updated_at;
                 $data['state'] = $pivot->state->toArray();
+            } else {
+                // Upstream/release usa sole() porque view() exige suscripción. Zapar permite ver
+                // sin pivot (público/org); el cliente móvil sigue exigiendo las mismas claves.
+                $data['subscribed_at'] = '';
+                $data['last_played_at'] = '';
+                $data['state'] = [
+                    'current_episode' => null,
+                    'progresses' => [],
+                ];
             }
         }
 

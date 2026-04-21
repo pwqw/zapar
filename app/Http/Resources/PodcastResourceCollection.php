@@ -16,7 +16,7 @@ class PodcastResourceCollection extends ResourceCollection
         parent::__construct($this->podcasts);
     }
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function toArray(Request $request): array
     {
         return $this->podcasts->map(function (Podcast $podcast): PodcastResource {
