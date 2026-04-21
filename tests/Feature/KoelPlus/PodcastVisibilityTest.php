@@ -111,8 +111,9 @@ class PodcastVisibilityTest extends PlusTestCase
         // Create user's own private podcast (user should see this)
         $ownPrivatePodcast = Podcast::factory()->private()->create(['added_by' => $user->id]);
 
-        // Index matches Koel: only subscribed rows; attach so the catalog entries appear.
-        $user->podcasts()->attach([$publicPodcast->id, $ownPrivatePodcast->id]);
+        // Públicos de la org y propios: visibles sin suscripción (solo `accessible()`).
+        self::assertFalse($user->subscribedToPodcast($publicPodcast));
+        self::assertFalse($user->subscribedToPodcast($ownPrivatePodcast));
 
         $response = $this->getAs('api/podcasts?favorites_only=false', $user)
             ->assertSuccessful();
@@ -122,6 +123,14 @@ class PodcastVisibilityTest extends PlusTestCase
         self::assertNotContains($otherPrivatePodcast->id, $podcastIds);
         self::assertContains($publicPodcast->id, $podcastIds);
         self::assertContains($ownPrivatePodcast->id, $podcastIds);
+
+        $rows = $response->json();
+        $rowPublic = collect($rows)->firstWhere('id', $publicPodcast->id);
+        $rowOwn = collect($rows)->firstWhere('id', $ownPrivatePodcast->id);
+        self::assertNotNull($rowPublic);
+        self::assertNotNull($rowOwn);
+        $this->assertPodcastApiSubscriptionShape($rowPublic, expectPivot: false);
+        $this->assertPodcastApiSubscriptionShape($rowOwn, expectPivot: false);
     }
 
     #[Test]

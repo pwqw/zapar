@@ -15,23 +15,17 @@ class PodcastRepository extends Repository implements ScoutableRepository
         return $this->findOneBy(['url' => $url]);
     }
 
-    /** @return Collection<Podcast>|array<array-key, Podcast> */
+    /**
+     * Catálogo de podcasts para la app/web (índice).
+     * Fork Zapar: todo usuario ve podcasts **accesibles** (`accessible()`): públicos de la organización
+     * y los propios (público/privado), sin exigir fila en `podcast_user`. Los datos de suscripción
+     * en JSON siguen viniendo del pivot cuando existe.
+     *
+     * @return Collection<Podcast>|array<array-key, Podcast>
+     */
     public function getAllSubscribedByUser(bool $favoritesOnly, ?User $user = null): Collection
     {
-        $user ??= $this->auth->user();
-
-        $query = Podcast::query()
-            ->with(['subscribers' => static fn ($query) => $query->where('users.id', $user->id)])
-            ->setScopedUser($user)
-            ->withFavoriteStatus(favoritesOnly: $favoritesOnly)
-            ->accessible();
-
-        // Upstream/release: solo suscritos. Fork Zapar: admin/moderator ven catálogo completo (público/privado por rol + org).
-        if (!$user->isAdmin() && !$user->isModerator()) {
-            $query->subscribed();
-        }
-
-        return $query->get();
+        return $this->getAllAccessibleByUser($favoritesOnly, $user);
     }
 
     /** @return Collection<Podcast>|array<array-key, Podcast> */
@@ -52,17 +46,13 @@ class PodcastRepository extends Repository implements ScoutableRepository
     {
         $user ??= $this->auth->user();
 
-        $query = Podcast::query()
+        $podcasts = Podcast::query()
             ->with(['subscribers' => static fn ($query) => $query->where('users.id', $user->id)])
             ->setScopedUser($user)
             ->accessible()
-            ->whereIn('podcasts.id', $ids);
-
-        if (!$user->isAdmin() && !$user->isModerator()) {
-            $query->subscribed();
-        }
-
-        $podcasts = $query->distinct()->get();
+            ->whereIn('podcasts.id', $ids)
+            ->distinct()
+            ->get();
 
         return $preserveOrder ? $podcasts->orderByArray($ids) : $podcasts;
     }
