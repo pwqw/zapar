@@ -76,7 +76,7 @@ class UserService
             'name' => $dto->name,
             'email' => $dto->email,
             'password' => $dto->password ?: $user->password,
-            'avatar' => $dto->avatar ? $this->maybeStoreAvatar($dto->avatar) : null,
+            'avatar' => $dto->avatar ? $this->maybeStoreAvatar($dto->avatar) : $user->getRawOriginal('avatar'),
         ];
 
         if ($user->sso_provider) {
