@@ -95,6 +95,9 @@
   "scripts": {
     "check": "vp check resources/assets",
     "check:fix": "vp check --fix resources/assets",
+    "guard:routes-baseline": "node scripts/guards/routes-baseline-guard.mjs",
+    "guard:migrations": "node scripts/guards/migration-risk-guard.mjs",
+    "guard:all": "pnpm run guard:routes-baseline && pnpm run guard:migrations",
     "test": "vp test",
     "test:unit": "vp test",
     "build:sw": "vp build --config vite.config.sw.js",
