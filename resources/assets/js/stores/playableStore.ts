@@ -178,8 +178,9 @@ export const playableStore = {
   },
 
   getSourceUrl: (playable: Playable) => {
-    const transcode = isMobile.any && (isSong(playable) || preferenceStore.transcode_on_mobile)
-    return `${commonStore.state.cdn_url}play/${playable.id}${transcode ? '/1' : ''}?t=${authService.getAudioToken()}`
+    return isMobile.any && preferenceStore.transcode_on_mobile
+      ? `${commonStore.state.cdn_url}play/${playable.id}/1?t=${authService.getAudioToken()}`
+      : `${commonStore.state.cdn_url}play/${playable.id}?t=${authService.getAudioToken()}`
   },
 
   getShareableUrl: (playable: Playable) =>
