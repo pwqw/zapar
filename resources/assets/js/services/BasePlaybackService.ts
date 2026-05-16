@@ -1,7 +1,7 @@
 import isMobile from 'ismobilejs'
 import { throttle } from 'lodash'
 import { watch } from 'vue'
-import { volumeManager } from '@/services/volumeManager'
+import { normalizeVolume, volumeManager } from '@/services/volumeManager'
 
 function createPlyrLikePlayer (media: HTMLMediaElement): Plyr {
   return {
@@ -45,8 +45,7 @@ export abstract class BasePlaybackService {
   }
 
   public setVolume(volume: number) {
-    // volumeManager uses 0-10 scale, HTMLMediaElement uses 0-1
-    this.media.volume = Math.max(0, Math.min(1, volume / 10))
+    this.media.volume = normalizeVolume(volume)
   }
 
   protected setMediaSessionActionHandlers() {

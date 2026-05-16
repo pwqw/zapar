@@ -2,7 +2,7 @@ import { BasePlaybackService } from '@/services/BasePlaybackService'
 import { radioStationStore } from '@/stores/radioStationStore'
 import { use } from '@/utils/helpers'
 import { socketService } from '@/services/socketService'
-import { volumeManager } from '@/services/volumeManager'
+import { normalizeVolume, volumeManager } from '@/services/volumeManager'
 import { watch } from 'vue'
 
 /**
@@ -46,14 +46,10 @@ export class RadioPlaybackService extends BasePlaybackService {
       this.radioAudioElement = radioElement
 
       // Sync volume with volumeManager
-      // volumeManager uses 0-10 range, but HTMLAudioElement.volume requires 0-1 range
-      // Use nextTick to ensure volumeManager is initialized
       this.volumeWatcher = watch(volumeManager.volume, volume => {
         if (this.radioAudioElement) {
           try {
-            // Convert from 0-10 range to 0-1 range and clamp to valid range
-            const normalizedVolume = Math.max(0, Math.min(1, volume / 10))
-            this.radioAudioElement.volume = normalizedVolume
+            this.radioAudioElement.volume = normalizeVolume(volume)
           } catch (error) {
             // Ignore errors if element is not ready yet
             console.warn('Failed to set radio audio volume:', error)
@@ -114,25 +110,7 @@ export class RadioPlaybackService extends BasePlaybackService {
 
     // Wait for the stream to be ready before playing
     return new Promise<void>((resolve, reject) => {
-      const attemptPlay = async () => {
-        try {
-          // Ensure volume is not muted
-          if (this.radioAudioElement!.muted) {
-            this.radioAudioElement!.muted = false
-          }
-
-          await this.radioAudioElement!.play()
-          socketService.broadcast('SOCKET_STREAMABLE', station)
-          resolve()
-        } catch (error) {
-          // If play() fails, log the error but don't reject immediately
-          // Try again when canplay event fires
-          console.warn('Initial play() failed, waiting for canplay event', error)
-        }
-      }
-
-      // Try to play when stream is ready
-      const onCanPlay = async () => {
+      const tryPlay = async (shouldReject = false) => {
         try {
           if (this.radioAudioElement!.muted) {
             this.radioAudioElement!.muted = false
@@ -141,20 +119,24 @@ export class RadioPlaybackService extends BasePlaybackService {
           socketService.broadcast('SOCKET_STREAMABLE', station)
           resolve()
         } catch (error) {
-          reject(error)
+          if (shouldReject) {
+            reject(error)
+          } else {
+            console.warn('Play attempt failed, will retry on canplay', error)
+          }
         }
       }
 
       // If already ready, play immediately
       if (this.radioAudioElement!.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-        attemptPlay()
+        tryPlay()
       } else {
         // Wait for canplay event (stream is ready to play)
-        this.radioAudioElement!.addEventListener('canplay', onCanPlay, { once: true })
+        this.radioAudioElement!.addEventListener('canplay', () => tryPlay(true), { once: true })
 
         // Also try on loadstart as fallback
         this.radioAudioElement!.addEventListener('loadstart', () => {
-          setTimeout(attemptPlay, 200)
+          setTimeout(() => tryPlay(), 200)
         }, { once: true })
       }
     })

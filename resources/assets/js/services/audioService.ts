@@ -27,25 +27,10 @@ export const audioService = {
       return
     }
 
-    // Check if AudioContext state is suspended (requires user interaction)
-    // If suspended, we'll resume it when the user interacts
     this.initialized = true
     this.element = mediaElement
 
     this.context = new AudioContext()
-
-    // If AudioContext is suspended, resume it on user interaction
-    if (this.context.state === 'suspended') {
-      const resumeOnInteraction = () => {
-        this.context.resume().catch(() => {
-          // Ignore errors, will be handled by unlockAudioContext
-        })
-        document.removeEventListener('click', resumeOnInteraction)
-        document.removeEventListener('touchstart', resumeOnInteraction)
-      }
-      document.addEventListener('click', resumeOnInteraction, { once: true })
-      document.addEventListener('touchstart', resumeOnInteraction, { once: true })
-    }
     this.preampGainNode = this.context.createGain()
     this.source = this.context.createMediaElementSource(this.element)
     this.analyzer = this.context.createAnalyser()
@@ -101,15 +86,16 @@ export const audioService = {
   },
 
   /**
-   * Attempt to unlock the audio context on mobile devices by creating and playing a silent buffer upon the
-   * first user interaction.
+   * Unlock the audio context on mobile devices: resumes suspended context and plays silent buffer.
    */
   unlockAudioContext () {
     ['touchend', 'touchstart', 'click'].forEach(event => {
-      document.addEventListener(event, () => {
+      document.addEventListener(event, async () => {
         if (this.unlocked) {
           return
         }
+
+        await this.context.resume()
 
         const source = this.context.createBufferSource()
         source.buffer = this.context.createBuffer(1, 1, 22050)

@@ -46,4 +46,7 @@ export class VolumeManager {
   }
 }
 
+/** Converts 0-10 UI scale to 0-1 HTMLMediaElement scale, clamped. */
+export const normalizeVolume = (volume: number) => Math.max(0, Math.min(1, volume / 10))
+
 export const volumeManager = new VolumeManager()

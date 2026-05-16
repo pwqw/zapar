@@ -212,6 +212,9 @@ export class QueuePlaybackService extends BasePlaybackService {
     this.player.restart()
 
     try {
+      if (isAudioContextSupported) {
+        await audioService.context.resume()
+      }
       await this.player.media.play()
       navigator.mediaSession && (navigator.mediaSession.playbackState = 'playing')
       this.showNotification(playable)
